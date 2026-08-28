@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/png" href="./assets/images/dragon4_logo.png">
+  <link rel="stylesheet" type="text/css" href="./assets/css/shells-overlay.css">
+  <title>NeonFlare: Rise of GothamBlood</title>
+
+  <style>
+    :root {
+      --accent: #48dbfb;
+      --accent-glow: rgba(72,219,251,0.25);
+      --text-main: #f5f5f5;
+      --logo-size: 80px;
+      --logo-bg: rgba(255, 255, 255, 0.05);
+      --logo-border: #00eaff;
+      --logo-color: #00eaff;
+      --logo-glow: rgba(0, 234, 255, 0.4);
+    }
+
+    body.theme-standard {
+      --accent: #48dbfb; --accent-glow: rgba(72,219,251,0.25);
+      --logo-border: #48dbfb; --logo-color: #48dbfb; --logo-glow: rgba(72,219,251,0.4);
+    }
+    body.theme-terminal {
+      --accent: #2f9e44; --accent-glow: rgba(47,158,68,0.25);
+      --logo-border: #2f9e44; --logo-color: #2f9e44; --logo-glow: rgba(47,158,68,0.4);
+    }
+    body.theme-blade {
+      --accent: #ff6bcb; --accent-glow: rgba(255,107,203,0.25);
+      --logo-border: #ff6bcb; --logo-color: #ff6bcb; --logo-glow: rgba(255,107,203,0.4);
+    }
+    body.theme-tron {
+      --accent: #54a0ff; --accent-glow: rgba(84,160,255,0.25);
+      --logo-border: #54a0ff; --logo-color: #54a0ff; --logo-glow: rgba(84,160,255,0.4);
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, sans-serif;
+      background: #0a0a0f;
+      color: var(--text-main);
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .layout {
+      height: 100vh;
+      width: 100%;
+      position: relative;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 240px;
+      background: rgba(10, 10, 20, 0.55);
+      backdrop-filter: blur(12px);
+      border-right: 1px solid var(--accent);
+      padding: 1.5rem;
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      z-index: 20;
+
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: -240px; /* CLOSED BY DEFAULT */
+      transition: left 0.3s ease;
+    }
+
+    .sidebar.open {
+      left: 0;
+    }
+
+    .sidebar-edge {
+      position: absolute;
+      /* Centered on a fixed point (translate(-50%,-50%) centers the box
+         on `left`/`top` using its own width/height, same trick both
+         axes) so the tab stays anchored at the same spot and vertically
+         centered on the sidebar regardless of text length -- positioning
+         by right/width (as before) drifted off-screen for longer
+         translations. */
+      left: 260px;
+      top: 50%;
+      transform-origin: center;
+      transform: translate(-50%, -50%) rotate(270deg);
+      font-size: 1rem;
+      letter-spacing: 4px;
+      color: var(--accent);
+      opacity: 0.7;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    .menu {
+      width: 150px;
+    }
+
+    /* Toggle button */
+    .toggle-btn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      background: rgba(10, 10, 20, 0.7);
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      z-index: 30;
+      transition: background 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .toggle-btn:hover {
+      background: var(--accent-glow);
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+
+    .menu-item {
+      padding: 0.7rem 0;
+      cursor: pointer;
+      transition: color 0.2s ease;
+    }
+
+    .menu-item:hover {
+      color: var(--accent);
+    }
+
+    .has-submenu {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .submenu-arrow {
+      font-size: 0.75em;
+      transition: transform 0.2s ease;
+    }
+
+    .has-submenu.open .submenu-arrow {
+      transform: rotate(90deg);
+    }
+
+    .submenu {
+      list-style: none;
+      margin: 0;
+      padding-left: 1rem;
+      display: none;
+      border-left: 1px solid var(--accent);
+    }
+
+    .submenu.open {
+      display: block;
+    }
+
+    .submenu .menu-item {
+      font-size: 0.9em;
+      opacity: 0.85;
+      position: relative;
+      padding-left: 0.9rem;
+    }
+
+    .submenu .menu-item::before {
+      content: "•";
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+    }
+
+    .content {
+      height: 100%;
+      width: 100%;
+      margin-left: 0;
+      transition: margin-left 0.3s ease;
+      position: relative;
+      z-index: 10;
+    }
+
+    .content.shifted {
+      margin-left: 240px;
+    }
+
+    .page-frame {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: transparent;
+      position: relative;
+      left: 30px;
+    }
+
+    .signature-footer {
+      width: 15%;
+      padding: 20px 0;
+      text-align: center;
+      position: fixed;
+      bottom: 0;
+      right: -5px;
+      font-family: 'Poppins', sans-serif;
+      /* Only the visible icon/text/line should catch clicks -- the rest
+         of this box is transparent but was still intercepting clicks
+         meant for the iframe underneath it (eg. dashboard.html's panel
+         buttons, whenever they land in this bottom-right corner). */
+      pointer-events: none;
+    }
+
+    .signature-footer .sig-line,
+    .signature-footer .sig-content {
+      pointer-events: auto;
+    }
+
+    .sig-line {
+      width: 55%;
+      height: 2px;
+      margin: 0 auto 10px auto;
+      background: linear-gradient(90deg, #ff4df0, #6a5cff, #00eaff);
+      box-shadow: 0 0 10px #ff4df0, 0 0 20px #6a5cff;
+      border-radius: 50px;
+    }
+
+    .sig-content {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .sig-icon {
+      font-size: 18px;
+      color: #ff4df0;
+      text-shadow: 0 0 8px #ff4df0;
+    }
+
+    .sig-text {
+      font-size: 10px;
+      color: #ffffff;
+      letter-spacing: 2px;
+      text-shadow: 0 0 8px #6a5cff, 0 0 15px #00eaff;
+      transition: 0.3s ease;
+    }
+
+    .sig-text:hover {
+      text-shadow: 0 0 12px #ff4df0, 0 0 20px #6a5cff;
+      transform: scale(1.05);
+    }
+
+    .round-logo {
+      border-radius: 10px;
+      background: var(--logo-bg);
+      border: 1px solid var(--logo-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--logo-color);
+      box-shadow: 0 0 10px var(--logo-glow), inset 0 0 8px var(--logo-glow);
+      transition: 0.25s ease;
+      width: 175px;
+    }
+
+    .round-logo:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 18px var(--logo-glow), inset 0 0 12px var(--logo-glow);
+    }
+
+    .logo-icon {
+      font-size: calc(var(--logo-size) / 2.2);
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <!-- <div >☰ Menu</div> -->
+
+  <div class="layout"  id="toggleBtn">
+
+    <aside class="sidebar" id="sidebar">
+      <div class="round-logo">
+        <span class="logo-icon">🐲</span>
+      </div>
+      <div class="sidebar-edge" data-i18n="sidebar.tagline">The enemy's gate is down</div>
+
+      <nav class="menu">
+        <div id="dashboardNavItems"></div>
+        <hr/>
+        <div class="menu-item" data-nav="pentest" onclick="loadPage('pentest')">Findings</div>
+        <hr/>
+        <div data-nav="grc">
+          <div class="menu-item has-submenu" onclick="toggleSubmenu(event, 'grcMenu')">
+            <span data-i18n="nav.grc">GRC</span> <span class="submenu-arrow">▸</span>
+          </div>
+          <ul class="submenu" id="grcMenu">
+            <li class="menu-item" data-i18n="nav.grcFull" onclick="loadPage('grc')">Governance, Risk and Compliance</li>
+            <li class="menu-item" data-i18n="nav.networkSecurity" onclick="loadPage('securite-reseau')">Network Security</li>
+            <li class="menu-item" data-i18n="nav.apiSecurity" onclick="loadPage('securite-api')">API Security</li>
+            <li class="menu-item" data-i18n="nav.webappSecurity" onclick="loadPage('securite-webapp')">WebApp Security</li>
+            <li class="menu-item" data-i18n="nav.databaseSecurity" onclick="loadPage('securite-database')">Database Security</li>
+          </ul>
+        </div>
+        <hr/>
+        <div class="menu-item has-submenu" onclick="toggleSubmenu(event, 'moreMenu')">
+          <span data-i18n="nav.more">More</span> <span class="submenu-arrow">▸</span>
+        </div>
+        <ul class="submenu" id="moreMenu">
+          <li class="menu-item" data-nav="topology" data-i18n="nav.topology" onclick="loadPage('topology')">Topology</li>
+          <li class="menu-item" data-nav="neonflare-technology" onclick="loadPage('GothamBlood-tech')">GothamBlood Tech</li>
+          <li class="menu-item" data-i18n="nav.settings" onclick="loadPage('settings')">Settings</li>
+          <li class="menu-item" data-nav="about" data-i18n="nav.about" onclick="loadPage('about')">About</li>
+        </ul>
+
+      </nav>
+    </aside>
+
+    <main class="content" id="content">
+      <iframe id="frame" class="page-frame"></iframe>
+
+      <div class="signature-footer">
+        <div class="sig-line"></div>
+        <div class="sig-content">
+          <span class="sig-icon">🐉</span>
+          <span class="sig-text">GothamBlood</span>
+        </div>
+      </div>
+    </main>
+
+  </div>
+
+  <script src="./assets/script/i18n.js"></script>
+  <script src="./assets/script/theme-accent.js"></script>
+  <script src="./assets/script/dashboards.js"></script>
+  <script src="./assets/script/shells-host.js"></script>
+  <script src="./assets/script/tab-link.js"></script>
+  <script src="./assets/script/onboarding-wizard.js"></script>
+  <script>
+
+    const frame = document.getElementById("frame");
+    const sidebar = document.getElementById("sidebar");
+    const content = document.getElementById("content");
+    const toggleBtn = document.getElementById("toggleBtn");
+
+    /* Theme (kept in sync with the theme picked in settings.html).
+       Read directly from localStorage for the initial paint -- same as
+       applyI18n(getSavedLang()) below -- so the sidebar doesn't flash
+       back to the default theme on every refresh while waiting for the
+       loaded page to report it via postMessage (still needed for a live
+       update when the theme is changed without a reload). */
+    function applyTheme(theme) {
+      document.body.classList.remove("theme-standard", "theme-terminal", "theme-blade", "theme-tron", "theme-custom");
+      document.body.classList.add("theme-" + (theme || "standard"));
+      // "custom" carries no CSS rules of its own -- theme-accent.js
+      // paints --accent (and shades) inline on <body> from the colour
+      // saved in localStorage, and clears them for the other themes.
+      if (typeof window.applyCustomAccent === "function") window.applyCustomAccent();
+    }
+
+    applyTheme(localStorage.getItem("/settings.html"));
+    applyI18n(getSavedLang());
+
+    /* Sidebar link visibility, toggled per-page in settings.html.
+       Read directly from localStorage on load (same reasoning as the
+       theme above), then kept live via postMessage while Settings is
+       open. Hides the link only -- it doesn't block direct access to
+       the page itself. */
+    function getHiddenPages() {
+      try {
+        return JSON.parse(localStorage.getItem("/settings.html/hiddenPages") || "[]");
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function applyPageVisibility(hidden) {
+      document.querySelectorAll("[data-nav]").forEach((el) => {
+        el.style.display = hidden.includes(el.getAttribute("data-nav")) ? "none" : "";
+      });
+    }
+
+    applyPageVisibility(getHiddenPages());
+
+    /* One sidebar link per entry in the dashboard registry (see
+       assets/script/dashboards.js) -- all share data-nav="dashboard" so
+       the single "Dashboard" row in Settings > Pages visibles still
+       controls them as a group. Re-run whenever dashboard.html's own
+       switcher or settings.html's cards add/remove a dashboard, since
+       this only reads the registry once up front otherwise. */
+    function renderDashboardNavItems() {
+      const container = document.getElementById("dashboardNavItems");
+      container.innerHTML = "";
+      getDashboards().forEach((d) => {
+        const item = document.createElement("div");
+        item.className = "menu-item";
+        item.setAttribute("data-nav", "dashboard");
+        // Only translate the default dashboard's label while it's still
+        // its built-in name -- applyI18n() below would otherwise clobber
+        // a custom rename right back to "Dashboard"/"Tableau de bord".
+        if (d.id === "default" && d.name === DEFAULT_DASHBOARD.name) {
+          item.setAttribute("data-i18n", "nav.dashboard");
+        }
+        item.textContent = d.name;
+        item.onclick = () => loadPage("dashboard", d.id);
+        container.appendChild(item);
+      });
+      applyI18n(getSavedLang());
+      applyPageVisibility(getHiddenPages());
+    }
+
+    renderDashboardNavItems();
+
+    window.addEventListener("message", (e) => {
+      if (e.data && e.data.type === "theme-change") {
+        applyTheme(e.data.theme);
+      }
+      if (e.data && e.data.type === "lang-change") {
+        applyI18n(e.data.lang);
+        onbApplyLang();
+      }
+      if (e.data && e.data.type === "visibility-change") {
+        applyPageVisibility(e.data.hidden);
+      }
+      if (e.data && e.data.type === "dashboards-change") {
+        renderDashboardNavItems();
+      }
+      if (e.data && e.data.type === "dash-drag-active") {
+        dashDragActive = e.data.active;
+      }
+      if (e.data && e.data.type === "open-onboarding-wizard") {
+        onbStart();
+      }
+    });
+
+    /* Onboarding tour (assets/script/onboarding-wizard.js): auto-starts
+       once, on the very first load (no flag in localStorage yet).
+       Re-launchable anytime after that from Settings, which posts
+       "open-onboarding-wizard" up to this window since the tour is
+       drawn here, not inside #frame. */
+    onbMaybeAutoStart();
+
+    // Dragging/resizing a dashboard panel (assets/script/dashboard-
+    // layout.js) tracks the mouse via its OWN window's mousemove/mouseup
+    // -- but the real shell terminals are drawn by shells-host.js as an
+    // overlay in THIS document, sitting visually on top of the iframe
+    // (see its own comments on always rendering above #frame). Releasing
+    // the mouse over a terminal fires mouseup here, not in the iframe,
+    // so dashboard-layout.js never saw it and the drag got stuck
+    // following the mouse forever. Relay both events down (in the
+    // iframe's own coordinate space) only while a drag is actually
+    // active, so dashboard-layout.js's own listeners can end it exactly
+    // like a same-document mouseup would have.
+    let dashDragActive = false;
+    function relayToDashboardFrame(type, e) {
+      if (!dashDragActive) return;
+      const rect = frame.getBoundingClientRect();
+      frame.contentWindow.postMessage({
+        type,
+        clientX: e.clientX - rect.left,
+        clientY: e.clientY - rect.top,
+      }, "*");
+    }
+    window.addEventListener("mousemove", (e) => relayToDashboardFrame("top-mousemove", e));
+    window.addEventListener("mouseup", (e) => relayToDashboardFrame("top-mouseup", e));
+
+    // Fallback for the message above: on some browsers a same-origin
+    // file:// iframe's postMessage to window.top doesn't reliably reach
+    // this listener. Poll the raw registry instead -- cheap (one string
+    // compare a second) and catches every add/rename/remove regardless
+    // of whether the message got through.
+    let lastDashboardsSnapshot = localStorage.getItem(DASHBOARDS_KEY);
+    setInterval(() => {
+      const current = localStorage.getItem(DASHBOARDS_KEY);
+      if (current !== lastDashboardsSnapshot) {
+        lastDashboardsSnapshot = current;
+        renderDashboardNavItems();
+      }
+    }, 1000);
+
+    /* Sidebar toggle */
+    toggleBtn.addEventListener("click", () => {
+      sidebar.classList.toggle("open");
+      content.classList.toggle("shifted");
+    });
+
+    // #content's margin-left transition (0.3s, see .content.shifted)
+    // moves #frame -- and with it, whatever dashboard panel the guided
+    // tour (assets/script/onboarding-wizard.js) is currently pointing
+    // at. Re-request that panel's rect once the transition settles.
+    content.addEventListener("transitionend", (e) => {
+      if (e.propertyName !== "margin-left" || !onbActive) return;
+      const step = ONBOARDING_STEPS[onbStepIndex];
+      if (step && step.target) onbRequestPanelRect(step.target, step.page, step.scrollAlign);
+    });
+
+    /* Router */
+    // Pages that live in their own folder (with their own index.html hub)
+    // get an alias so ?page=grc / loadPage('grc') still resolve correctly.
+    const PAGE_ALIASES = {
+      dashboard: "project/dashboard",
+      topology: "project/topology",
+      pentest: "project/pentest",
+      "GothamBlood-tech": "project/neonflare-technology",
+      settings: "project/settings",
+      about: "project/about",
+      grc: "grc/index",
+      "securite-reseau": "grc/securite/reseau/index",
+      "securite-api": "grc/securite/api/index",
+      "securite-webapp": "grc/securite/webapp/index",
+      "securite-database": "grc/securite/database/index",
+    };
+
+    function resolvePage(page) {
+      return PAGE_ALIASES[page] || page;
+    }
+
+    function toggleSubmenu(e, id) {
+      e.stopPropagation();
+      document.getElementById(id).classList.toggle("open");
+      e.currentTarget.classList.toggle("open");
+    }
+
+    function loadPage(page, dashboardId) {
+      // Hide the shells overlay right away instead of waiting on the
+      // stale-rect fallback in shells-host.js (up to ~750ms) -- the
+      // outgoing page stops reporting its rect the instant it's
+      // navigated away from, but that safety net is only meant to
+      // catch a crashed/frozen page, not routine navigation.
+      hideOverlay();
+      const isNonDefaultDashboard = page === "dashboard" && dashboardId && dashboardId !== "default";
+      const idSuffix = isNonDefaultDashboard ? "&id=" + encodeURIComponent(dashboardId) : "";
+      frame.src = resolvePage(page) + ".html" + (isNonDefaultDashboard ? "?id=" + encodeURIComponent(dashboardId) : "");
+      history.pushState(null, "", "?page=" + page + idSuffix);
+    }
+
+    function initPage() {
+      const params = new URLSearchParams(window.location.search);
+      const page = params.get("page");
+      const dashboardId = params.get("id");
+
+      if (!page) {
+        frame.src = "project/dashboard.html";
+      } else if (page === "dashboard" && dashboardId && dashboardId !== "default") {
+        frame.src = resolvePage(page) + ".html?id=" + encodeURIComponent(dashboardId);
+      } else {
+        frame.src = resolvePage(page) + ".html";
+      }
+    }
+
+    window.onpopstate = initPage;
+
+    initPage();
+
+  </script>
+
+
+</body>
+</html>

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="icon" type="image/svg+xml" href="../assets/images/dragon-logo.svg">
+<link rel="icon" type="image/png" href="../assets/images/dragon-favicon.png">
+<title>AWS CLI – DevSecOps Tools</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/style.css">
+
+</head>
+
+<body class="theme-standard" data-page-key="devsecops-aws">
+<div class="wallpaper"></div>
+
+<div class="tool-section-nav"><a href="../index.html?page=dashboard" target="_top">&larr; Back to Dashboard</a></div>
+
+<h1 class="category-title">AWS CLI</h1>
+
+<div class="grid">
+  <div class="modal" style="margin: 0 auto 3rem; max-width: 1000px; cursor: default;">
+    <table>
+      <tr><th>Tool</th><th>Description</th></tr>
+
+    <!-- IDENTITY & IAM -->
+    <tr class="tool-row" onclick="toggleCmd('cmd-iam')">
+      <td style="color:red">Identity & IAM</td>
+      <td>Who am I, users, policies, keys</td>
+    </tr>
+    <tr id="cmd-iam" class="command-row">
+      <td colspan="2" class="command-cell">
+        <div class="comment-line">---- Common -----</div>
+        <div>[Who am I] — aws sts get-caller-identity</div>
+        <div>[List users] — aws iam list-users</div>
+        <div>[List roles] — aws iam list-roles</div>
+        <div>[User's policies] — aws iam list-attached-user-policies --user-name &lt;user&gt;</div>
+        <div>[Policy document] — aws iam get-policy-version --policy-arn &lt;arn&gt; --version-id v1</div>
+
+        <div class="comment-line">---- Audit -----</div>
+        <div>[Users with console access, no MFA] — aws iam generate-credential-report &amp;&amp; aws iam get-credential-report</div>
+        <div>[Access keys age] — aws iam list-access-keys --user-name &lt;user&gt;</div>
+        <div>[Simulate permission] — aws iam simulate-principal-policy --policy-source-arn &lt;arn&gt; --action-names &lt;action&gt;</div>
+        <div>[Unused roles (IAM Access Analyzer)] — aws accessanalyzer list-findings --analyzer-arn &lt;arn&gt;</div>
+      </td>
+    </tr>
+
+    <!-- S3 -->
+    <tr class="tool-row" onclick="toggleCmd('cmd-s3')">
+      <td>S3</td>
+      <td>Buckets, objects, public access</td>
+    </tr>
+    <tr id="cmd-s3" class="command-row">
+      <td colspan="2" class="command-cell">
+        <div class="comment-line">---- Common -----</div>
+        <div>[List buckets] — aws s3 ls</div>
+        <div>[List objects] — aws s3 ls s3://&lt;bucket&gt;/</div>
+        <div>[Sync] — aws s3 sync . s3://&lt;bucket&gt;/</div>
+        <div>[Copy] — aws s3 cp &lt;file&gt; s3://&lt;bucket&gt;/</div>
+
+        <div class="comment-line">---- Audit -----</div>
+        <div>[Public access block] — aws s3api get-public-access-block --bucket &lt;bucket&gt;</div>
+        <div>[Bucket policy] — aws s3api get-bucket-policy --bucket &lt;bucket&gt;</div>
+        <div>[Bucket ACL] — aws s3api get-bucket-acl --bucket &lt;bucket&gt;</div>
+        <div>[Encryption config] — aws s3api get-bucket-encryption --bucket &lt;bucket&gt;</div>
+        <div>[Versioning status] — aws s3api get-bucket-versioning --bucket &lt;bucket&gt;</div>
+      </td>
+    </tr>
+
+    <!-- EC2 & NETWORK -->
+    <tr class="tool-row" onclick="toggleCmd('cmd-ec2')">
+      <td>EC2 & network</td>
+      <td>Instances, security groups</td>
+    </tr>
+    <tr id="cmd-ec2" class="command-row">
+      <td colspan="2" class="command-cell">
+        <div class="comment-line">---- Common -----</div>
+        <div>[List instances] — aws ec2 describe-instances</div>
+        <div>[Running instances only] — aws ec2 describe-instances --filters "Name=instance-state-name,Values=running"</div>
+        <div>[Start instance] — aws ec2 start-instances --instance-ids &lt;id&gt;</div>
+        <div>[Stop instance] — aws ec2 stop-instances --instance-ids &lt;id&gt;</div>
+
+        <div class="comment-line">---- Security groups -----</div>
+        <div>[List security groups] — aws ec2 describe-security-groups</div>
+        <div>[SGs open to 0.0.0.0/0] — aws ec2 describe-security-groups --filters Name=ip-permission.cidr,Values='0.0.0.0/0'</div>
+        <div>[Revoke ingress rule] — aws ec2 revoke-security-group-ingress --group-id &lt;sg&gt; --protocol tcp --port &lt;port&gt; --cidr 0.0.0.0/0</div>
+      </td>
+    </tr>
+
+    <!-- LOGGING & AUDIT -->
+    <tr class="tool-row" onclick="toggleCmd('cmd-logging')">
+      <td style="color:red">Logging & audit</td>
+      <td>CloudTrail, GuardDuty, Config</td>
+    </tr>
+    <tr id="cmd-logging" class="command-row">
+      <td colspan="2" class="command-cell">
+        <div class="comment-line">---- CloudTrail -----</div>
+        <div>[List trails] — aws cloudtrail describe-trails</div>
+        <div>[Trail status] — aws cloudtrail get-trail-status --name &lt;trail&gt;</div>
+        <div>[Lookup events] — aws cloudtrail lookup-events --max-results 20</div>
+
+        <div class="comment-line">---- GuardDuty -----</div>
+        <div>[List detectors] — aws guardduty list-detectors</div>
+        <div>[List findings] — aws guardduty list-findings --detector-id &lt;id&gt;</div>
+
+        <div class="comment-line">---- Config -----</div>
+        <div>[Compliance by rule] — aws configservice describe-compliance-by-config-rule</div>
+      </td>
+    </tr>
+
+    <!-- ENGAGEMENT SETUP -->
+    <tr class="tool-row" onclick="toggleCmd('cmd-setup')">
+      <td>Engagement setup</td>
+      <td>Profiles, MFA session</td>
+    </tr>
+    <tr id="cmd-setup" class="command-row">
+      <td colspan="2" class="command-cell">
+        <div class="comment-line">---- Common -----</div>
+        <div>[Configure profile] — aws configure --profile &lt;name&gt;</div>
+        <div>[Use a profile] — aws s3 ls --profile &lt;name&gt;</div>
+        <div>[Assume role] — aws sts assume-role --role-arn &lt;arn&gt; --role-session-name &lt;name&gt;</div>
+        <div>[MFA session token] — aws sts get-session-token --serial-number &lt;mfa-arn&gt; --token-code &lt;code&gt;</div>
+      </td>
+    </tr>
+
+    </table>
+  </div>
+</div>
+
+<script>
+  const embedded = window.self !== window.top;
+
+  function reportHeight() {
+    if (embedded) {
+      window.parent.postMessage({ type: "tool-frame-height", height: document.body.scrollHeight }, "*");
+    }
+  }
+
+  function toggleCmd(id) {
+    const row = document.getElementById(id);
+    row.style.display = (row.style.display === "table-row") ? "none" : "table-row";
+    reportHeight();
+  }
+
+  (function() {
+    const savedTheme = localStorage.getItem("/settings.html") || "standard";
+    document.body.classList.add("theme-" + savedTheme);
+    if (embedded) document.body.classList.add("embedded");
+  })();
+
+  if (embedded) {
+    new ResizeObserver(reportHeight).observe(document.body);
+    window.addEventListener("load", reportHeight);
+  }
+</script>
+
+<script src="../config/tools/aws.js"></script>
+<script src="../assets/script/wallpaper-loader.js"></script>
+<script src="../assets/script/theme-accent.js"></script>
+<script src="../assets/script/copy-commands.js"></script>
+<script src="../assets/script/page-effects.js"></script>
+<script src="../assets/script/page-effects-loader.js"></script>
+<script>
+  applyWallpaper(toolsAwsConfig.background, "devsecops-aws");
+</script>
+
+</body>
+</html>

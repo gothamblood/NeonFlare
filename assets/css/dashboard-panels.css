@@ -1,0 +1,628 @@
+/* ============================================================
+   DASHBOARD PANELS (dashboard.html) — shell windows + collapsible
+   Network / Tools / System log panels around them.
+   ============================================================ */
+
+.dash-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dash-btn {
+  font-family: inherit;
+  font-size: 0.75rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: rgba(8, 10, 16, 0.65);
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  padding: 0.5rem 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dash-btn:hover:not(:disabled) {
+  background: var(--accent-glow);
+  box-shadow: 0 0 12px var(--accent-glow);
+}
+
+.dash-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* "🔗 Link" button while this tab's Shell commands are being routed to
+   another tab (assets/script/tab-link.js). Filled instead of outlined
+   so "on" reads at a glance; .tl-pulse is a brief flash each time a
+   command actually crosses over. */
+.dash-btn.tl-on {
+  background: var(--accent);
+  color: rgba(8, 10, 16, 0.95);
+  font-weight: 700;
+}
+
+.dash-btn.tl-on:hover:not(:disabled) {
+  background: var(--accent);
+  box-shadow: 0 0 12px var(--accent-glow);
+}
+
+.dash-btn.tl-pulse {
+  box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+/* "+ Shell" / "Dashboards" dropdowns: pick a shell type or switch
+   dashboard. z-index alone on .dash-shell-menu isn't enough -- siblings
+   in .network-header like .grc-header-status (.hud-status, z-index: 1)
+   establish their own stacking context, which then paints as one atomic
+   layer above anything in a z-index:auto ancestor regardless of DOM
+   order. Giving the picker itself a (higher) z-index makes it establish
+   that same kind of context, so its open menu is compared against
+   siblings instead of losing to them before z-index:5 even applies. */
+.dash-shell-picker {
+  position: relative;
+  z-index: 50;
+}
+
+.dash-shell-menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 0.35rem);
+  left: 50%;
+  transform: translateX(-50%);
+  flex-direction: column;
+  min-width: 140px;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  background: rgba(8, 10, 16, 0.95);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 0 16px var(--accent-glow);
+  overflow: hidden;
+  z-index: 5;
+}
+
+.dash-shell-menu.open {
+  display: flex;
+}
+
+.dash-shell-menu-item {
+  font-family: inherit;
+  font-size: 0.75rem;
+  letter-spacing: 0.5px;
+  text-align: left;
+  color: #f5f5f5;
+  background: transparent;
+  border: none;
+  padding: 0.5rem 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.dash-shell-menu-item:hover {
+  background: var(--accent-glow);
+  color: var(--accent);
+}
+
+/* "☰ Panneaux" picker (dashboard.html) -- same dropdown chrome as
+   .dash-shell-menu/-item above, but each row is a label+checkbox
+   (which panels/widgets show) instead of an action button. Wider than
+   the default 140px min-width since some labels ("Couverture GRC
+   (panneau)") are longer than a dashboard/shell name ever is. */
+.dash-panels-menu {
+  min-width: 240px;
+}
+
+.dash-panels-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.5px;
+  color: #f5f5f5;
+  padding: 0.5rem 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.dash-panels-menu-item:hover {
+  background: var(--accent-glow);
+  color: var(--accent);
+}
+
+.dash-panels-menu-item input[type="checkbox"] {
+  accent-color: var(--accent);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* Generic collapsible panel chrome, shared by the network / tools /
+   log panels. Collapsing only hides .dash-panel-body -- the flex
+   layout around it (row for shells+network, column for the shell)
+   automatically reclaims the freed space, no manual resize math. */
+.dash-panel {
+  position: relative;
+  z-index: 1;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 12px;
+  background: rgba(8, 10, 16, 0.55);
+  backdrop-filter: blur(8px);
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.dash-panel-header {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.25rem 0.8rem;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.dash-panel.collapsed .dash-panel-header {
+  border-bottom: none;
+}
+
+.dash-panel-title {
+  font-size: 0.65rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-family: monospace;
+}
+
+.dash-collapse-btn {
+  width: 20px;
+  height: 20px;
+  line-height: 18px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--accent);
+  background: transparent;
+  color: var(--accent);
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.dash-collapse-btn:hover {
+  background: var(--accent-glow);
+}
+
+.dash-panel-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+}
+
+.dash-panel.collapsed .dash-panel-body {
+  display: none;
+}
+
+/* Row holding the shells (grows) next to the Network panel (fixed,
+   content-sized -- same width as the old standalone #reseau-grid).
+   flex-wrap so a narrow window drops Network to its own line below
+   Shells instead of the two fighting over width neither can shrink
+   into -- without this, Network's fixed width never yields and
+   .dash-panel-shells (min-width: 0) gets crushed to ~0px and pushed
+   off-screen by justify-content: flex-end once the row can't fit both. */
+.dash-row-top {
+  flex: 1 1 auto;
+  /* Without a floor, a short window crushes this to a literal 0px --
+     it's the only panel here with flex-shrink room (Tools/Log are
+     flex: 0 0 auto), so it absorbs the entire deficit. Tools/Log/GRC
+     below already fall back to their own internal scroll (generic
+     .dash-panel-body { overflow: auto }) when they lose that fight
+     instead, which degrades far better than a shell terminal
+     shrinking to an unusable sliver. */
+  min-height: 220px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.dash-panel-shells {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* No shells open: the panel doesn't exist at all (not even as a
+   minimized bar) -- Network just sits alone, pinned to the right via
+   .dash-row-top's justify-content. Appears the moment "+ Shell" opens
+   the first one, and disappears again once the last one is closed. */
+.dash-panel-shells.hidden {
+  display: none;
+}
+
+/* Settings > Sections du Dashboard: a persistent user preference, distinct
+   from .hidden (shells-host.js, driven by whether any shell is open) and
+   .collapsed (the panel's own –/+ button) -- neither of those ever touch
+   this class, so it stays in effect regardless of what else happens to
+   the panel. Not scoped to .dash-panel -- also applied to the header's
+   #grcHeaderStatus widget, which isn't one. */
+.dash-section-off {
+  display: none !important;
+}
+
+.dash-panel-network {
+  /* flex-shrink: 1 (not 0) -- lets #reseau-grid's own max-width: 100%
+     actually take effect when the row is too narrow for its natural
+     ~964px width, instead of the panel refusing to shrink and forcing
+     that width past the row's edge (and, via flex-wrap, off past the
+     viewport's edge too -- see .dash-row-top above). */
+  flex: 0 1 auto;
+  /* align-items: stretch (.dash-row-top's default) only sizes this to
+     the row's height as a *minimum* -- since this panel is itself a
+     flex column whose content (#reseau-grid, many nodes) wants more
+     room, it grows past the row's box instead of clipping to it,
+     which silences .dash-panel-body's own overflow-y: auto below (it
+     never gets a height smaller than its content in the first place).
+     An explicit height locks it to the row's actual size so the body
+     scrolls instead of the whole panel overflowing past its siblings. */
+  height: 100%;
+}
+
+/* No shells open, or shells minimized to their narrow column: either
+   way there's no wide sibling competing for the row's width, so let
+   Network spread out to fill whatever's left instead of staying
+   pinned to its narrow fixed-column width -- pushing the (narrow or
+   absent) Shells panel to the far left and Network as wide as
+   possible. Each category only ever has a handful of cards, so
+   widening the grid itself would just stretch tracks into empty gaps
+   (auto-fit reserves columns it has no items left to fill) --
+   centering the grid's natural width in the wider panel reads better
+   than that. */
+.dash-row-top:has(.dash-panel-shells.hidden, .dash-panel-shells.collapsed, .dash-panel-shells.dash-section-off) .dash-panel-network:not(.collapsed) {
+  flex: 1 1 auto;
+  max-width: 100%;
+}
+
+.dash-row-top:has(.dash-panel-shells.hidden, .dash-panel-shells.collapsed, .dash-panel-shells.dash-section-off) .dash-panel-network #reseau-grid {
+  margin: 0 auto;
+}
+
+/* En ligne / Injoignable / Vérification legend, in the topbar rather
+   than inside the Network panel itself -- so it doesn't automatically
+   disappear along with that panel like everything else does. Watches
+   #panelNetwork's own .dash-section-off directly, same as the two
+   :has() rules above, instead of needing its own Settings toggle or any
+   JS wiring: whatever hides/shows Network (☰ Panneaux, Settings, a
+   different dashboard's saved layout) hides/shows this the same way,
+   automatically. */
+body:has(#panelNetwork.dash-section-off) #hudLegend {
+  display: none;
+}
+
+/* Collapsed Shells: narrows down to one column of shell windows
+   (stacked, scrollable) instead of spanning the row's full width --
+   same treatment as collapsed Network, for the same reason (stay
+   pinned to a fixed narrow width, default row cross-axis stretch
+   keeps it full height). */
+.dash-row-top > .dash-panel-shells.collapsed {
+  flex: 0 0 auto;
+  width: 320px;
+  /* Without this, the panel shrinks to just its header (its body's
+     min-height: 0 lets it collapse to 0) instead of stretching to the
+     row's height like it does uncollapsed -- and a 0-height body means
+     the shell-window inside computes to a literal 0x0 box regardless
+     of its own min-width/min-height. */
+  min-height: 220px;
+}
+
+.dash-panel-shells.collapsed .dash-panel-body {
+  display: flex;
+}
+
+.dash-panel-shells.collapsed .dash-panel-header {
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.dash-panel-network .dash-panel-body {
+  padding: 0;
+}
+
+.dash-panel-network #reseau-grid {
+  /* was a standalone HUD panel (border/blur/padding) -- now nested
+     inside .dash-panel, which already provides that chrome */
+  border: none;
+  border-radius: 0;
+  background: none;
+  backdrop-filter: none;
+  padding: 0.5rem 0.7rem;
+  /* Same fixed width as the original standalone HUD -- fits the
+     widest category row (5 cards) so it doesn't collapse down to a
+     single narrow column. */
+  width: calc(5 * 180px + 4 * 0.35rem + 2 * 0.7rem + 16px + 2px);
+}
+
+/* Network "collapsed" isn't a full hide like the other panels -- the
+   card list stays visible, just narrowed down to a single scrollable
+   column, so there's always at least one column of items on screen.
+   Applies whether or not shells are open (the :not(.collapsed) above
+   is what keeps the ~90%-wide treatment from also applying here).
+
+   No explicit height cap -- .dash-panel-body already grows (flex: 1 1
+   auto) to fill however tall the panel gets stretched to match its
+   row (eg. an open Shells sibling), with overflow-y: auto as the
+   fallback once even that isn't enough room to show every node. */
+.dash-panel-network.collapsed .dash-panel-body {
+  display: block;
+}
+
+.dash-panel-network.collapsed .dash-panel-header {
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.dash-panel-network.collapsed #reseau-grid {
+  width: calc(1 * 180px + 2 * 0.7rem + 16px + 2px);
+}
+
+/* Shells area is just a sizing placeholder here -- the real shell
+   windows are rendered by index.html (assets/script/shells-host.js)
+   as an overlay tracking this element's rect, so they survive
+   navigating away from this page. See assets/script/dashboard-shells.js. */
+.dash-shells-body {
+  height: 100%;
+  padding: 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* Tools, Website, System log and GRC coverage never get squeezed by the
+   shells/network row above them -- they keep their natural content
+   height (all tiles, several log lines, the coverage bars) and the row
+   shrinks/scrolls instead. GRC was missing from this list -- on a
+   fresh localStorage (no saved layout height yet), that let it
+   collapse to a couple of px instead of showing its content. */
+.dash-panel-tools,
+.dash-panel-devsecops,
+.dash-panel-website,
+.dash-panel-log,
+.dash-panel-grc,
+.dash-panel-reviews {
+  flex: 0 0 auto;
+}
+
+/* Upcoming reviews panel (TodoGRC.txt #6) */
+.upcoming-review-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.6rem;
+  font-size: 0.82rem;
+  padding: 0.35rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.upcoming-review-row.overdue .upcoming-review-date {
+  color: var(--danger, #ff4b6a);
+  font-weight: 600;
+}
+
+/* Tools panel: compact category tiles, reusing tools.html's modal
+   system but sized to sit inside a dashboard panel instead of a
+   full standalone page. minmax(max(160px, 19%), 1fr) caps this at the
+   same 5 columns as before at a normal/wide panel size (5 × 20% = 100%,
+   so a 6th 20%-wide track never fits) while still reflowing down to
+   fewer, wider tiles once the panel is narrowed (manual resize, see
+   dashboard-layout.js, or just a smaller window) past the point where
+   20% would drop under the 160px legible-tile floor. */
+.tools-panel-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(max(160px, 19%), 1fr));
+  gap: 0.5rem;
+  padding: 0.6rem;
+}
+
+.tool-tile {
+  background: rgba(30, 30, 30, 0.75);
+  border: 1px solid #444;
+  border-radius: 10px;
+  padding: 0.7rem 0.9rem;
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.tool-tile:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+  background: #181818;
+}
+
+.tool-tile-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 0.15rem;
+}
+
+.tool-tile-sub {
+  font-size: 0.68rem;
+  color: #bbb;
+}
+
+/* Website panel: same compact tile grid/visuals as Tools (.tool-tile),
+   reused as-is since the two panels need identical "click a category to
+   open a links modal" behavior -- just a different tile count (14 vs 10).
+   Same capped-at-5-columns responsive grid as .tools-panel-grid, for the
+   same reason. */
+.website-panel-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(max(160px, 19%), 1fr));
+  gap: 0.5rem;
+  padding: 0.6rem;
+}
+
+/* Website modal's link list (openWebsiteModal(), dashboard.html) -- name
+   plus the actual URL on its own line, so you can see where a link
+   goes without hovering or clicking it first. */
+.website-link-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.website-link-row a {
+  display: block;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid #333;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.website-link-row a:hover {
+  border-color: var(--accent, #48dbfb);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.website-link-name {
+  display: block;
+  color: var(--accent, #48dbfb);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.website-link-url {
+  display: block;
+  color: #8892a8;
+  font-size: 0.72rem;
+  margin-top: 0.15rem;
+  word-break: break-all;
+}
+
+/* System log panel: no longer pinned via margin-auto (it's the last
+   flex child of the column now, so it just settles at the bottom).
+   height: 100% (not a fixed max-height) so the scrollable area actually
+   grows/shrinks with the panel when its resize handle is dragged --
+   .dash-panel-body (its parent) is flex: 1 1 auto; overflow: auto, so
+   this fills whatever height that ends up being instead of staying
+   capped at a hardcoded value regardless of the panel's real size. */
+.dash-panel-log .hud-log-body {
+  height: 100%;
+  padding: 0.3rem 0.8rem;
+}
+
+/* GRC coverage panel (renderGrcDashboardCoverage() in grc-checklist.js).
+   .grc-progress-track/-fill/-label are a duplicate of the same classes in
+   grc.css, kept small and separate rather than loading all of grc.css
+   here -- its .card/.grid-3 rules would collide with the ones already
+   used by the Network panel above. */
+.dash-panel-grc .dash-panel-body {
+  padding: 0.6rem 0.9rem;
+}
+
+.grc-dash-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.4rem 0;
+}
+
+.grc-dash-row-label {
+  flex: 0 0 140px;
+  font-size: 0.82rem;
+  color: #ccc;
+}
+
+.grc-progress-track {
+  flex: 1 1 auto;
+  height: 7px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.grc-progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--accent), #2ecc71);
+  transition: width 0.25s ease;
+}
+
+.grc-progress-label {
+  font-size: 0.75rem;
+  color: #999;
+  white-space: nowrap;
+  flex: 0 0 auto;
+}
+
+/* ============================================================
+   FREEFORM PANEL LAYOUT (assets/script/dashboard-layout.js) --
+   a panel stays completely inside the row/column flex layout above,
+   with every dynamic behavior that comes with it (Shells/Network
+   sizing each other, Log/GRC's own natural/shrink sizing, the
+   responsive :has() rules above), until the moment the user actually
+   drags its header or its resize grip. Only THEN does dashboard-
+   layout.js add .dash-positioned (from a rect it captured from the
+   panel's own current, already-correct on-screen box, not a
+   precomputed one) and it detaches to a freely placed/sized panel --
+   .network-shell (position:relative in network-dashboard.css) is its
+   positioning root. A panel nobody has ever touched never gets this
+   class and is entirely unaffected by anything below.
+   ============================================================ */
+.dash-panel.dash-positioned {
+  position: absolute;
+}
+
+/* Collapsing (the header's –/+ button) hides the body but a *detached*
+   panel has an inline height from its last drag/resize -- without this
+   it'd leave that much dead space below the header instead of shrinking
+   to just it, since there's no content height left for it to collapse
+   to the way the still-in-flow panels do automatically. */
+.dash-positioned.collapsed {
+  height: auto !important;
+}
+
+.dash-panel-header {
+  cursor: move;
+  user-select: none;
+}
+
+.dash-panel-header .dash-collapse-btn {
+  cursor: pointer;
+}
+
+.dash-resize-handle {
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  width: 14px;
+  height: 14px;
+  /* Without this, panel content with its own stacking context (eg. a
+     card in #reseau-grid mid hover-transition, or anything else that
+     ends up creating one near the bottom-right corner) can paint above
+     this handle despite being earlier in the DOM -- z-index: auto only
+     wins on DOM order *within* a shared stacking context, not against
+     one a descendant establishes on its own. Confirmed via DevTools on
+     a real Network panel: the handle rendered correctly (visible
+     gradient) but never received hover/click at all until this was
+     added. */
+  z-index: 5;
+  cursor: nwse-resize;
+  background: linear-gradient(
+    135deg,
+    transparent 0 45%,
+    var(--accent) 45% 55%,
+    transparent 55% 70%,
+    var(--accent) 70% 80%,
+    transparent 80% 100%
+  );
+  opacity: 0.55;
+}
+
+.dash-resize-handle:hover {
+  opacity: 1;
+}
+
+/* No content height to resize toward while collapsed -- same reasoning
+   as .dash-canvas .dash-panel.collapsed above. */
+.dash-panel.collapsed .dash-resize-handle {
+  display: none;
+}

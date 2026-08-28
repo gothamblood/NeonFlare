@@ -1,0 +1,15 @@
+Looking back at all four servers, the same categories of misconfiguration appear repeatedly:
+
+Misconfiguration                     Apache            Python HTTP        Node.js                         Nginx
+
+Version disclosure in headers        Yes               Yes                Partial                         Yes
+Directory listing                    /files/           Root path          N/A                             /files/
+Exposed status or debug endpoint     /server-status    N/A                /api/debug/env, /api/routes     /nginx_status
+Sensitive files accessible           backup.bak,       .env, notes.txt,   config.js                       server-config.txt,
+internal-notes.txt backup.zip                                        deploy-notes.txt
+Missing security headers             All               All                All                             All
+
+
+
+More info
+https://tryhackme.com/room/webserverattacks

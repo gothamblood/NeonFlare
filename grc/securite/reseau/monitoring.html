@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="../../../assets/images/dragon-logo.svg">
+    <link rel="icon" type="image/png" href="../../../assets/images/dragon-favicon.png">
+    <title>Monitoring et journalisation réseau – Sécurité Réseau</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" type="text/css" href="../../../assets/css/grc.css">
+</head>
+<body>
+<header>
+    <nav class="nav">
+        <div class="logo">
+            <div class="logo-mark">R</div>
+            <div>Sécurité Réseau</div>
+        </div>
+        <div class="nav-links">
+            <a href="./index.html">&larr; Retour à Sécurité Réseau</a>
+        </div>
+    </nav>
+</header>
+
+<main>
+    <h1 class="page-title">Monitoring et journalisation réseau</h1>
+    <p class="page-subtitle">
+        Décrire les outils et processus de surveillance du réseau.
+    </p>
+
+    <section class="content-block">
+        <h2>Éléments à inclure</h2>
+        <ul>
+            <li>SIEM</li>
+            <li>Logs pare-feu <span class="grc-control-tags">ISO A.8.15 · NIST PR.PS · CIS 8</span></li>
+            <li>Logs VPN <span class="grc-control-tags">ISO A.8.15 · NIST PR.PS · CIS 8</span></li>
+            <li>Logs IDS/IPS <span class="grc-control-tags">ISO A.8.15 · NIST PR.PS · CIS 8</span></li>
+            <li>Détection d’anomalies <span class="grc-control-tags">ISO A.8.16 · NIST DE.AE · CIS 13</span></li>
+            <li>Alertes en temps réel <span class="grc-control-tags">ISO A.8.16 · NIST DE.AE · CIS 13</span></li>
+        </ul>
+
+        <p class="highlight"><strong>Objectif :</strong> Détecter rapidement les comportements suspects.</p>
+
+    </section>
+</main>
+
+
+<script>
+  const savedTheme = localStorage.getItem("/settings.html") || "standard";
+  document.body.classList.add("theme-" + savedTheme);
+
+  const embedded = window.self !== window.top;
+
+  function reportHeight() {
+    if (embedded) {
+      window.parent.postMessage({ type: "hub-frame-height", height: document.documentElement.scrollHeight }, "*");
+    }
+  }
+
+  if (embedded) {
+    document.body.classList.add("embedded");
+    new ResizeObserver(reportHeight).observe(document.body);
+    window.addEventListener("load", reportHeight);
+  }
+</script>
+
+<script src="../../../config/grc-author.js"></script>
+
+<script src="../../../config/encryption.js"></script>
+
+<script src="../../../assets/script/vault-crypto.js"></script>
+<script src="../../../assets/script/theme-accent.js"></script>
+
+<script src="../../../assets/script/vault.js"></script>
+<script src="../../../assets/script/vault-ui.js"></script>
+
+<script src="../../../assets/script/grc-checklist.js"></script>
+<script>initGrcChecklist();</script>
+
+</body>
+</html>

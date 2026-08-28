@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="../../../assets/images/dragon-logo.svg">
+    <link rel="icon" type="image/png" href="../../../assets/images/dragon-favicon.png">
+    <title>Contrôles de sécurité WebApp – Sécurité WebApp</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" type="text/css" href="../../../assets/css/grc.css">
+</head>
+<body>
+<header>
+    <nav class="nav">
+        <div class="logo">
+            <div class="logo-mark">W</div>
+            <div>Sécurité WebApp</div>
+        </div>
+        <div class="nav-links">
+            <a href="./index.html">&larr; Retour à Sécurité WebApp</a>
+        </div>
+    </nav>
+</header>
+
+<main>
+    <h1 class="page-title">Contrôles de sécurité WebApp</h1>
+    <p class="page-subtitle">
+        Inclure les contrôles techniques obligatoires pour sécuriser l’application web.
+    </p>
+
+    <section class="content-block">
+        <h2>Éléments à inclure</h2>
+        <ul>
+            <li>HTTPS obligatoire <span class="grc-control-tags">ISO A.8.24 · NIST PR.DS · CIS 3</span></li>
+            <li>CSP (Content Security Policy) <span class="grc-control-tags">ISO A.8.26 · NIST PR.PS · CIS 16</span></li>
+            <li>HSTS <span class="grc-control-tags">ISO A.8.26 · NIST PR.PS · CIS 16</span></li>
+            <li>X-Frame-Options <span class="grc-control-tags">ISO A.8.26 · NIST PR.PS · CIS 16</span></li>
+            <li>X-XSS-Protection <span class="grc-control-tags">ISO A.8.26 · NIST PR.PS · CIS 16</span></li>
+            <li>SameSite cookies <span class="grc-control-tags">ISO A.8.26 · NIST PR.PS · CIS 16</span></li>
+            <li>Secure cookies <span class="grc-control-tags">ISO A.8.26 · NIST PR.PS · CIS 16</span></li>
+            <li>HttpOnly cookies <span class="grc-control-tags">ISO A.8.26 · NIST PR.PS · CIS 16</span></li>
+        </ul>
+
+    </section>
+</main>
+
+
+<script>
+  const savedTheme = localStorage.getItem("/settings.html") || "standard";
+  document.body.classList.add("theme-" + savedTheme);
+
+  const embedded = window.self !== window.top;
+
+  function reportHeight() {
+    if (embedded) {
+      window.parent.postMessage({ type: "hub-frame-height", height: document.documentElement.scrollHeight }, "*");
+    }
+  }
+
+  if (embedded) {
+    document.body.classList.add("embedded");
+    new ResizeObserver(reportHeight).observe(document.body);
+    window.addEventListener("load", reportHeight);
+  }
+</script>
+
+<script src="../../../config/grc-author.js"></script>
+
+<script src="../../../config/encryption.js"></script>
+
+<script src="../../../assets/script/vault-crypto.js"></script>
+<script src="../../../assets/script/theme-accent.js"></script>
+
+<script src="../../../assets/script/vault.js"></script>
+<script src="../../../assets/script/vault-ui.js"></script>
+
+<script src="../../../assets/script/grc-checklist.js"></script>
+<script>initGrcChecklist();</script>
+
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="../../../assets/images/dragon-logo.svg">
+    <link rel="icon" type="image/png" href="../../../assets/images/dragon-favicon.png">
+    <title>Tests et audits réseau – Sécurité Réseau</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" type="text/css" href="../../../assets/css/grc.css">
+</head>
+<body>
+<header>
+    <nav class="nav">
+        <div class="logo">
+            <div class="logo-mark">R</div>
+            <div>Sécurité Réseau</div>
+        </div>
+        <div class="nav-links">
+            <a href="./index.html">&larr; Retour à Sécurité Réseau</a>
+        </div>
+    </nav>
+</header>
+
+<main>
+    <h1 class="page-title">Tests et audits réseau</h1>
+    <p class="page-subtitle">
+        Décrire les tests et audits réalisés pour valider la sécurité réseau.
+    </p>
+
+    <section class="content-block">
+        <h2>Éléments à inclure</h2>
+        <ul>
+            <li>Tests de pénétration réseau <span class="grc-control-tags">ISO A.8.29 · NIST ID.RA · CIS 18</span></li>
+            <li>Scans de vulnérabilités <span class="grc-control-tags">ISO A.8.8 · NIST ID.RA · CIS 7</span></li>
+            <li>Audits de configuration <span class="grc-control-tags">ISO A.8.9 · NIST ID.RA · CIS 4</span></li>
+            <li>Vérification des règles de pare-feu <span class="grc-control-tags">ISO A.8.20 · NIST ID.RA · CIS 13</span></li>
+            <li>Tests de segmentation <span class="grc-control-tags">ISO A.8.22 · NIST ID.RA · CIS 18</span></li>
+        </ul>
+
+
+    </section>
+</main>
+
+
+<script>
+  const savedTheme = localStorage.getItem("/settings.html") || "standard";
+  document.body.classList.add("theme-" + savedTheme);
+
+  const embedded = window.self !== window.top;
+
+  function reportHeight() {
+    if (embedded) {
+      window.parent.postMessage({ type: "hub-frame-height", height: document.documentElement.scrollHeight }, "*");
+    }
+  }
+
+  if (embedded) {
+    document.body.classList.add("embedded");
+    new ResizeObserver(reportHeight).observe(document.body);
+    window.addEventListener("load", reportHeight);
+  }
+</script>
+
+<script src="../../../config/grc-author.js"></script>
+
+<script src="../../../config/encryption.js"></script>
+
+<script src="../../../assets/script/vault-crypto.js"></script>
+<script src="../../../assets/script/theme-accent.js"></script>
+
+<script src="../../../assets/script/vault.js"></script>
+<script src="../../../assets/script/vault-ui.js"></script>
+
+<script src="../../../assets/script/grc-checklist.js"></script>
+<script>initGrcChecklist();</script>
+
+</body>
+</html>

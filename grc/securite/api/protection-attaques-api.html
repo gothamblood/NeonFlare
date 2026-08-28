@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="../../../assets/images/dragon-logo.svg">
+    <link rel="icon" type="image/png" href="../../../assets/images/dragon-favicon.png">
+    <title>Protection contre les attaques API – Sécurité API</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" type="text/css" href="../../../assets/css/grc.css">
+</head>
+<body>
+<header>
+    <nav class="nav">
+        <div class="logo">
+            <div class="logo-mark">A</div>
+            <div>Sécurité API</div>
+        </div>
+        <div class="nav-links">
+            <a href="./index.html">&larr; Retour à Sécurité API</a>
+        </div>
+    </nav>
+</header>
+
+<main>
+    <h1 class="page-title">Protection contre les attaques API</h1>
+    <p class="page-subtitle">
+        Décrire les protections mises en place contre les attaques ciblant les API (OWASP API Security Top 10).
+    </p>
+
+    <section class="content-block">
+        <h2>Menaces couvertes</h2>
+        <ul>
+            <li>Injection (SQL, NoSQL, LDAP, OS)</li>
+            <li>Broken Authentication</li>
+            <li>Broken Object Level Authorization (BOLA)</li>
+            <li>Broken Function Level Authorization (BFLA)</li>
+            <li>Mass Assignment</li>
+            <li>Excessive Data Exposure</li>
+            <li>SSRF</li>
+        </ul>
+
+    </section>
+</main>
+
+
+<script>
+  const savedTheme = localStorage.getItem("/settings.html") || "standard";
+  document.body.classList.add("theme-" + savedTheme);
+
+  const embedded = window.self !== window.top;
+
+  function reportHeight() {
+    if (embedded) {
+      window.parent.postMessage({ type: "hub-frame-height", height: document.documentElement.scrollHeight }, "*");
+    }
+  }
+
+  if (embedded) {
+    document.body.classList.add("embedded");
+    new ResizeObserver(reportHeight).observe(document.body);
+    window.addEventListener("load", reportHeight);
+  }
+</script>
+
+<script src="../../../config/grc-author.js"></script>
+
+<script src="../../../config/encryption.js"></script>
+
+<script src="../../../assets/script/vault-crypto.js"></script>
+<script src="../../../assets/script/theme-accent.js"></script>
+
+<script src="../../../assets/script/vault.js"></script>
+<script src="../../../assets/script/vault-ui.js"></script>
+
+<script src="../../../assets/script/grc-checklist.js"></script>
+<script>initGrcChecklist();</script>
+
+</body>
+</html>

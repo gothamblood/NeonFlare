@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="icon" type="image/svg+xml" href="../assets/images/dragon-logo.svg">
+<link rel="icon" type="image/png" href="../assets/images/dragon-favicon.png">
+<title>Web Exploitation – Hacking Tools</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/style.css">
+
+</head>
+
+<body class="theme-standard" data-page-key="tools-web">
+<div class="wallpaper"></div>
+
+<div class="tool-section-nav"><a href="../index.html?page=dashboard" target="_top">&larr; Back to Dashboard</a></div>
+
+<h1 class="category-title">Web Exploitation</h1>
+
+<div class="grid">
+  <div class="modal" style="margin: 0 auto 3rem; max-width: 1000px; cursor: default;">
+    <table>
+      <tr><th>Tool</th><th>Description</th></tr>
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-burp')">
+        <td>Burp Suite</td><td>Intercept, modify, and fuzz HTTP traffic</td>
+      </tr>
+      <tr id="cmd-burp" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div>
+    <div>[Lancer] — burpsuite</div>
+    <div>[Proxy navigateur] — Set browser proxy to 127.0.0.1:8080</div>
+
+    <div class="comment-line">---- Options utiles -----</div>
+    <div>[Intercept ON/OFF] — Proxy tab &gt; Intercept is on/off</div>
+    <div>[Repeater] — Send request to Repeater (Ctrl+R)</div>
+    <div>[Intruder (fuzzing)] — Send request to Intruder (Ctrl+I), set payload positions</div>
+    <div>[Importer le certificat] — Browse to http://burp, download CA certificate</div>
+
+    <div class="comment-line">---- Automatisation -----</div>
+    <div>[Scan actif] — Target &gt; right-click host &gt; Scan</div>
+    <div>[Headless (CLI)] — burpsuite --project-file=proj.burp --config-file=config.json</div>
+
+  </td>
+</tr>
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-sqlmap')">
+        <td>sqlmap</td><td>Automated SQL injection exploitation</td>
+      </tr>
+      <tr id="cmd-sqlmap" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div>
+    <div>[Scan simple] — sqlmap -u "http://&lt;IP&gt;/item?id=1"</div>
+    <div>[Dump base] — sqlmap -u "http://&lt;IP&gt;/item?id=1" --dump</div>
+
+    <div class="comment-line">---- Enumeration -----</div>
+    <div>[Lister les DB] — sqlmap -u "http://&lt;IP&gt;/item?id=1" --dbs</div>
+    <div>[Lister les tables] — sqlmap -u "http://&lt;IP&gt;/item?id=1" -D dbname --tables</div>
+    <div>[Lister les colonnes] — sqlmap -u "http://&lt;IP&gt;/item?id=1" -D dbname -T users --columns</div>
+
+    <div class="comment-line">---- Options utiles -----</div>
+    <div>[Avec cookie/session] — sqlmap -u "http://&lt;IP&gt;/item?id=1" --cookie="PHPSESSID=abc"</div>
+    <div>[POST data] — sqlmap -u "http://&lt;IP&gt;/login" --data="user=a&amp;pass=b"</div>
+    <div>[OS shell] — sqlmap -u "http://&lt;IP&gt;/item?id=1" --os-shell</div>
+    <div>[Niveau/risque max] — sqlmap -u "http://&lt;IP&gt;/item?id=1" --level=5 --risk=3</div>
+
+  </td>
+</tr>
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-wpscan')">
+        <td>WPScan</td><td>Scan WordPress for vulns and weak creds</td>
+      </tr>
+      <tr id="cmd-wpscan" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div>
+    <div>[Enumérer les users] — wpscan --url http://&lt;IP&gt; --enumerate u</div>
+    <div>[Scan complet] — wpscan --url http://&lt;IP&gt; --enumerate vp,vt,u</div>
+
+    <div class="comment-line">---- Options -----</div>
+    <div>[API token (vuln DB)] — wpscan --url http://&lt;IP&gt; --api-token &lt;API_KEY&gt;</div>
+    <div>[Brute force] — wpscan --url http://&lt;IP&gt; -U admin -P &lt;wordlist&gt;</div>
+    <div>[Plugins vulnérables] — wpscan --url http://&lt;IP&gt; --enumerate vp</div>
+    <div>[Thèmes vulnérables] — wpscan --url http://&lt;IP&gt; --enumerate vt</div>
+
+  </td>
+</tr>
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-hydra')">
+        <td>Hydra</td><td>Brute-force logins over many protocols</td>
+      </tr>
+<tr id="cmd-hydra" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div>
+    <div>[SSH bruteforce] — hydra -l user -P /path/pass.txt ssh://&lt;IP&gt;</div>
+    <div>[SSH userlist] — hydra -L users.txt -P pass.txt ssh://&lt;IP&gt;</div>
+    <div>[FTP bruteforce] — hydra -l user -P pass.txt ftp://&lt;IP&gt;</div>
+    <div>[HTTP Basic Auth] — hydra -l admin -P pass.txt &lt;IP&gt; http-get /admin</div>
+
+    <div class="comment-line">---- Web Forms -----</div>
+    <div>[HTTP POST form] — hydra &lt;IP&gt; http-post-form "/login:username=^USER^&password=^PASS^:F=incorrect" -L users.txt -P pass.txt</div>
+    <div>[HTTP GET form] — hydra &lt;IP&gt; http-get-form "/login?u=^USER^&p=^PASS^:S=Welcome" -L users.txt -P pass.txt</div>
+    <div>[CSRF token ignore] — hydra &lt;IP&gt; http-post-form "/login:usr=^USER^&pwd=^PASS^:H=Cookie: session=1" -L users.txt -P pass.txt</div>
+
+    <div class="comment-line">---- SMB / RDP -----</div>
+    <div>[SMB bruteforce] — hydra -L users.txt -P pass.txt smb://&lt;IP&gt;</div>
+    <div>[RDP bruteforce] — hydra -L users.txt -P pass.txt rdp://&lt;IP&gt;</div>
+
+    <div class="comment-line">---- MySQL / PostgreSQL -----</div>
+    <div>[MySQL] — hydra -l root -P pass.txt mysql://&lt;IP&gt;</div>
+    <div>[PostgreSQL] — hydra -l postgres -P pass.txt postgres://&lt;IP&gt;</div>
+
+    <div class="comment-line">---- Telnet / VNC -----</div>
+    <div>[Telnet] — hydra -l admin -P pass.txt telnet://&lt;IP&gt;</div>
+    <div>[VNC] — hydra -P pass.txt vnc://&lt;IP&gt;</div>
+
+    <div class="comment-line">---- Options utiles -----</div>
+    <div>[Threads] — hydra -t 32 -l user -P pass.txt ssh://&lt;IP&gt;</div>
+    <div>[Timeout] — hydra -l user -P pass.txt -W 3 ssh://&lt;IP&gt;</div>
+    <div>[Proxy] — hydra -l user -P pass.txt -e ns -p 8080 http-get://&lt;IP&gt;</div>
+    <div>[SSL] — hydra -l user -P pass.txt -S https-get://&lt;IP&gt;</div>
+
+    <div class="comment-line">---- Modes -----</div>
+    <div>[Try empty password] — hydra -l user -P pass.txt -e n ssh://&lt;IP&gt;</div>
+    <div>[Try username as password] — hydra -l user -P pass.txt -e s ssh://&lt;IP&gt;</div>
+    <div>[Try both] — hydra -l user -P pass.txt -e ns ssh://&lt;IP&gt;</div>
+
+    <div class="comment-line">---- Output -----</div>
+    <div>[Output file] — hydra -l user -P pass.txt ssh://&lt;IP&gt; -o result.txt</div>
+    <div>[Verbose] — hydra -v -l user -P pass.txt ssh://&lt;IP&gt;</div>
+    <div>[Debug] — hydra -d -l user -P pass.txt ssh://&lt;IP&gt;</div>
+
+  </td>
+</tr>
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-ffuf')">
+        <td>ffuf</td><td>Fast fuzzing of directories and parameters</td>
+      </tr>
+      <tr id="cmd-ffuf" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div>
+    <div>[Fuzz dossiers] — ffuf -u http://&lt;IP&gt;/FUZZ -w &lt;wordlist&gt;</div>
+    <div>[Fuzz avec extensions] — ffuf -u http://&lt;IP&gt;/FUZZ -w &lt;wordlist&gt; -e .php,.html,.txt</div>
+
+    <div class="comment-line">---- Filtres -----</div>
+    <div>[Filtrer par code] — ffuf -u http://&lt;IP&gt;/FUZZ -w &lt;wordlist&gt; -mc 200,301,302</div>
+    <div>[Exclure taille] — ffuf -u http://&lt;IP&gt;/FUZZ -w &lt;wordlist&gt; -fs 0</div>
+    <div>[Exclure mots] — ffuf -u http://&lt;IP&gt;/FUZZ -w &lt;wordlist&gt; -fw 1</div>
+
+    <div class="comment-line">---- Modes -----</div>
+    <div>[Fuzz un paramètre GET] — ffuf -u "http://&lt;IP&gt;/search?q=FUZZ" -w &lt;wordlist&gt;</div>
+    <div>[Fuzz un header] — ffuf -u http://&lt;IP&gt; -H "X-Forwarded-For: FUZZ" -w &lt;wordlist&gt;</div>
+    <div>[Fuzz vhost] — ffuf -u http://&lt;IP&gt; -H "Host: FUZZ.&lt;domain&gt;" -w &lt;wordlist&gt;</div>
+
+    <div class="comment-line">---- Options -----</div>
+    <div>[Threads] — ffuf -u http://&lt;IP&gt;/FUZZ -w &lt;wordlist&gt; -t 50</div>
+    <div>[Récursif] — ffuf -u http://&lt;IP&gt;/FUZZ -w &lt;wordlist&gt; -recursion</div>
+
+  </td>
+</tr>
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-curl')">
+        <td>curl</td><td>Manual HTTP requests and response inspection</td>
+      </tr>
+<tr id="cmd-curl" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div>
+    <div>[GET simple] — curl &lt;URL&gt;</div>
+    <div>[HEAD request] — curl -I &lt;URL&gt;</div>
+    <div>[Verbose] — curl -v &lt;URL&gt;</div>
+    <div>[Silent] — curl -s &lt;URL&gt;</div>
+
+    <div class="comment-line">---- POST -----</div>
+    <div>[POST form] — curl -X POST -d "user=admin&pass=test" &lt;URL&gt;</div>
+    <div>[POST JSON] — curl -X POST -H "Content-Type: application/json" -d '{"id":1}' &lt;URL&gt;</div>
+    <div>[POST file upload] — curl -X POST -F "file=@image.png" &lt;URL&gt;/upload</div>
+
+    <div class="comment-line">---- Headers -----</div>
+    <div>[User-Agent custom] — curl -A "Mozilla/5.0" &lt;URL&gt;</div>
+    <div>[Add header] — curl -H "Host: admin.local" &lt;URL&gt;</div>
+    <div>[Cookie injection] — curl -H "Cookie: session=abc123" &lt;URL&gt;</div>
+    <div>[Auth Basic] — curl -u user:pass &lt;URL&gt;</div>
+
+    <div class="comment-line">---- SSL -----</div>
+    <div>[Ignore SSL errors] — curl -k https://&lt;URL&gt;</div>
+    <div>[Force TLS version] — curl --tls-max 1.2 https://&lt;URL&gt;</div>
+
+    <div class="comment-line">---- Output -----</div>
+    <div>[Save output] — curl &lt;URL&gt; -o file.txt</div>
+    <div>[Append output] — curl &lt;URL&gt; >> file.txt</div>
+    <div>[Show headers + body] — curl -i &lt;URL&gt;</div>
+
+    <div class="comment-line">---- Proxy -----</div>
+    <div>[HTTP proxy] — curl -x http://127.0.0.1:8080 &lt;URL&gt;</div>
+    <div>[SOCKS5 proxy] — curl --socks5 127.0.0.1:9050 &lt;URL&gt;</div>
+
+    <div class="comment-line">---- Methods -----</div>
+    <div>[PUT] — curl -X PUT -d "data=test" &lt;URL&gt;</div>
+    <div>[DELETE] — curl -X DELETE &lt;URL&gt;</div>
+    <div>[OPTIONS] — curl -X OPTIONS &lt;URL&gt;</div>
+
+    <div class="comment-line">---- Speed / Rate -----</div>
+    <div>[Limit speed] — curl --limit-rate 200k &lt;URL&gt;</div>
+    <div>[Timeout] — curl --max-time 10 &lt;URL&gt;</div>
+
+    <div class="comment-line">---- Debug -----</div>
+    <div>[Trace] — curl --trace trace.txt &lt;URL&gt;</div>
+    <div>[Trace ASCII] — curl --trace-ascii debug.txt &lt;URL&gt;</div>
+
+    <div class="comment-line">---- Useful -----</div>
+    <div>[Follow redirects] — curl -L &lt;URL&gt;</div>
+    <div>[IPv4 only] — curl -4 &lt;URL&gt;</div>
+    <div>[IPv6 only] — curl -6 &lt;URL&gt;</div>
+    <div>[Download multiple URLs] — curl -O &lt;URL1&gt; -O &lt;URL2&gt;</div>
+
+  </td>
+</tr>
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-wget')">
+        <td>wget</td><td>Download files and mirror sites</td>
+      </tr>
+<tr id="cmd-wget" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div>
+    <div>[Télécharger simple] — wget &lt;URL&gt;</div>
+    <div>[Télécharger dans un fichier spécifique] — wget -O file.txt &lt;URL&gt;</div>
+    <div>[Télécharger en mode verbose] — wget -v &lt;URL&gt;</div>
+    <div>[Télécharger silencieux] — wget -q &lt;URL&gt;</div>
+
+    <div class="comment-line">---- Headers / User-Agent -----</div>
+    <div>[User-Agent custom] — wget --user-agent="Mozilla/5.0" &lt;URL&gt;</div>
+    <div>[Ajouter header] — wget --header="Host: admin.local" &lt;URL&gt;</div>
+    <div>[Ignorer certificat SSL] — wget --no-check-certificate https://&lt;URL&gt;</div>
+
+    <div class="comment-line">---- Auth -----</div>
+    <div>[Basic Auth] — wget --user=user --password=pass &lt;URL&gt;</div>
+    <div>[Cookie injection] — wget --header="Cookie: session=abc123" &lt;URL&gt;</div>
+
+     <div class="comment-line">---- Proxy -----</div>
+    <div>[HTTP proxy] — wget -e use_proxy=yes -e http_proxy=http://127.0.0.1:8080 &lt;URL&gt;</div>
+    <div>[Désactiver proxy] — wget -e use_proxy=no &lt;URL&gt;</div>
+
+    <div class="comment-line">---- Recursive -----</div>
+    <div>[Téléchargement récursif] — wget -r &lt;URL&gt;</div>
+    <div>[Récursif + pas de parent] — wget -r --no-parent &lt;URL&gt;</div>
+    <div>[Récursif + niveau] — wget -r -l 2 &lt;URL&gt;</div>
+    <div>[Mirror complet] — wget -m &lt;URL&gt;</div>
+
+    <div class="comment-line">---- Speed / Rate -----</div>
+    <div>[Limiter vitesse] — wget --limit-rate=200k &lt;URL&gt;</div>
+    <div>[Timeout] — wget --timeout=10 &lt;URL&gt;</div>
+
+    <div class="comment-line">---- Output -----</div>
+    <div>[Log dans fichier] — wget -o log.txt &lt;URL&gt;</div>
+    <div>[Append log] — wget -a log.txt &lt;URL&gt;</div>
+
+    <div class="comment-line">---- FTP -----</div>
+    <div>[FTP simple] — wget ftp://&lt;IP&gt;/file.txt</div>
+    <div>[FTP avec user/pass] — wget ftp://user:pass@&lt;IP&gt;/file.txt</div>
+
+    <div class="comment-line">---- Useful -----</div>
+    <div>[Télécharger liste d’URL] — wget -i urls.txt</div>
+    <div>[Forcer IPv4] — wget -4 &lt;URL&gt;</div>
+    <div>[Forcer IPv6] — wget -6 &lt;URL&gt;</div>
+
+  </td>
+</tr>
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-postman')">
+        <td>Postman</td><td>Test and debug APIs with custom requests</td>
+      </tr>
+      <tr id="cmd-postman" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div>
+    <div>[Nouvelle requête] — Create a new POST request to http://&lt;IP&gt;/api/login</div>
+    <div>[Body JSON] — Body &gt; raw &gt; JSON: {"user":"admin","pass":"password"}</div>
+
+    <div class="comment-line">---- Options utiles -----</div>
+    <div>[Variable d'environnement] — Set {{base_url}} = http://&lt;IP&gt;</div>
+    <div>[Auth Bearer token] — Authorization tab &gt; Bearer Token</div>
+    <div>[Collection Runner] — Run entire collection with Collection Runner</div>
+    <div>[Générer du code] — Code icon &gt; choisir langage (curl, python, etc.)</div>
+
+  </td>
+</tr>
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-jwt')">
+        <td>jwt_tool</td><td>Inspect and tamper with JWT tokens</td>
+      </tr>
+      <tr id="cmd-jwt" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div>
+    <div>[Analyser un token] — python jwt_tool.py &lt;JWT_TOKEN&gt;</div>
+    <div>[Mode playbook (tous tests)] — python jwt_tool.py &lt;JWT_TOKEN&gt; -M pb</div>
+
+    <div class="comment-line">---- Attaques -----</div>
+    <div>[Alg none] — python jwt_tool.py &lt;JWT_TOKEN&gt; -X a</div>
+    <div>[Confusion RS/HS256] — python jwt_tool.py &lt;JWT_TOKEN&gt; -X k -pk public.pem</div>
+    <div>[Cracker le secret] — python jwt_tool.py &lt;JWT_TOKEN&gt; -C -d &lt;wordlist&gt;</div>
+
+    <div class="comment-line">---- Forge -----</div>
+    <div>[Modifier un claim] — python jwt_tool.py &lt;JWT_TOKEN&gt; -T</div>
+    <div>[Signer avec secret connu] — python jwt_tool.py &lt;JWT_TOKEN&gt; -S hs256 -k secret</div>
+
+  </td>
+</tr>
+    </table>
+  </div>
+</div>
+
+<script>
+  const embedded = window.self !== window.top;
+
+  // Tell the hub's modal our real content height. Called synchronously on
+  // the one interaction that changes it (toggling a command row) so there's
+  // no dependency on observer/timer scheduling; ResizeObserver below is
+  // just a fallback for anything else (initial layout, font swaps, etc).
+  function reportHeight() {
+    if (embedded) {
+      window.parent.postMessage({ type: "tool-frame-height", height: document.body.scrollHeight }, "*");
+    }
+  }
+
+  function toggleCmd(id) {
+    const row = document.getElementById(id);
+    row.style.display = (row.style.display === "table-row") ? "none" : "table-row";
+    reportHeight();
+  }
+
+  (function() {
+    const savedTheme = localStorage.getItem("/settings.html") || "standard";
+    document.body.classList.add("theme-" + savedTheme);
+    if (embedded) document.body.classList.add("embedded");
+  })();
+
+  if (embedded) {
+    new ResizeObserver(reportHeight).observe(document.body);
+    window.addEventListener("load", reportHeight);
+  }
+</script>
+
+<script src="../config/tools/web.js"></script>
+<script src="../assets/script/wallpaper-loader.js"></script>
+<script src="../assets/script/theme-accent.js"></script>
+<script src="../assets/script/copy-commands.js"></script>
+<script src="../assets/script/page-effects.js"></script>
+<script src="../assets/script/page-effects-loader.js"></script>
+<script>
+  applyWallpaper(toolsWebConfig.background, "tools-web");
+</script>
+
+</body>
+</html>

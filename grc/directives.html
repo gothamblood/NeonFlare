@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="../assets/images/dragon-logo.svg">
+    <link rel="icon" type="image/png" href="../assets/images/dragon-favicon.png">
+    <title>Directives de sécurité – GRC Cybersecurity</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" type="text/css" href="../assets/css/grc.css">
+</head>
+<body>
+<header>
+    <nav class="nav">
+        <div class="logo">
+            <div class="logo-mark">G</div>
+            <div>GRC Cybersecurity</div>
+        </div>
+        <div class="nav-links">
+            <a href="./index.html">&larr; Retour au GRC</a>
+        </div>
+    </nav>
+</header>
+
+<main>
+    <h1 class="page-title">Directives de sécurité</h1>
+    <p class="page-subtitle">
+        Les directives sont les règles que les employés doivent suivre.
+    </p>
+
+    <section class="content-block">
+        <h2>Contenu à inclure</h2>
+        <ul>
+            <li><strong>Contrôle d’accès</strong> : moindre privilège, MFA. <span class="grc-control-tags">ISO A.5.15 · NIST PR.AA · CIS 6</span></li>
+            <li><strong>Authentification</strong> : gestion des identifiants. <span class="grc-control-tags">ISO A.5.17 · NIST PR.AA · CIS 5</span></li>
+            <li><strong>Sécurité des postes</strong> : antivirus, mises à jour, verrouillage. <span class="grc-control-tags">ISO A.8.7 · NIST PR.PS · CIS 10</span></li>
+            <li><strong>Sécurité réseau</strong> : segmentation, filtrage, chiffrement. <span class="grc-control-tags">ISO A.8.22 · NIST PR.IR · CIS 12</span></li>
+            <li><strong>Classification des données</strong> : niveaux de sensibilité. <span class="grc-control-tags">ISO A.5.12 · NIST PR.DS · CIS 3</span></li>
+            <li><strong>Sauvegarde</strong> : fréquence, stockage, restauration. <span class="grc-control-tags">ISO A.8.13 · NIST PR.DS · CIS 11</span></li>
+            <li><strong>DevSecOps</strong> : sécurité intégrée au développement. <span class="grc-control-tags">ISO A.8.25 · NIST PR.PS · CIS 16</span></li>
+            <li><strong>Sensibilisation</strong> : formation continue. <span class="grc-control-tags">ISO A.6.3 · NIST PR.AT · CIS 14</span></li>
+            <li><strong>Supervision</strong> : audits, conformité. <span class="grc-control-tags">ISO A.5.35 · NIST GV.OV</span></li>
+        </ul>
+
+        <h2>Rôle en GRC</h2>
+        <p>Les directives assurent que les employés adoptent des comportements sécuritaires.</p>
+    </section>
+</main>
+
+
+<script>
+  const savedTheme = localStorage.getItem("/settings.html") || "standard";
+  document.body.classList.add("theme-" + savedTheme);
+
+  const embedded = window.self !== window.top;
+
+  function reportHeight() {
+    if (embedded) {
+      window.parent.postMessage({ type: "hub-frame-height", height: document.documentElement.scrollHeight }, "*");
+    }
+  }
+
+  if (embedded) {
+    document.body.classList.add("embedded");
+    new ResizeObserver(reportHeight).observe(document.body);
+    window.addEventListener("load", reportHeight);
+  }
+</script>
+
+<script src="../config/grc-author.js"></script>
+
+<script src="../config/encryption.js"></script>
+
+<script src="../assets/script/vault-crypto.js"></script>
+<script src="../assets/script/theme-accent.js"></script>
+
+<script src="../assets/script/vault.js"></script>
+<script src="../assets/script/vault-ui.js"></script>
+
+<script src="../assets/script/grc-checklist.js"></script>
+<script>initGrcChecklist();</script>
+
+</body>
+</html>

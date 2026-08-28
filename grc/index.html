@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="../assets/images/dragon-logo.svg">
+    <link rel="icon" type="image/png" href="../assets/images/dragon-favicon.png">
+    <title>GRC Cybersecurity – Gouvernance, Risques et Conformité</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Système de management de la sécurité de l'information : gouvernance, risques et conformité." />
+    <link rel="stylesheet" type="text/css" href="../assets/css/grc.css">
+</head>
+<body class="hub-page" data-page-key="grc-hub">
+<header>
+    <nav class="nav">
+        <div class="logo">
+            <div class="logo-mark">G</div>
+            <div>GRC Cybersecurity</div>
+        </div>
+    </nav>
+</header>
+
+<main>
+    <h1 class="page-title">Gouvernance, Risques &amp; Conformité</h1>
+    <p class="page-subtitle">
+        Le système de management de la sécurité de l'information, organisé en 20 domaines : de la gouvernance et
+        l'analyse des risques jusqu'à l'IAM, le cloud et le DevSecOps.
+    </p>
+
+    <div class="grc-progress" id="grc-coverage-summary"></div>
+
+    <div class="grc-toolbar">
+      <button type="button" class="grc-toolbar-btn" onclick="exportGrcAsJson(grcAllSections)">Exporter JSON</button>
+      <button type="button" class="grc-toolbar-btn" onclick="saveGrcAsJson(grcAllSections)">Enregistrer sous…</button>
+      <button type="button" class="grc-toolbar-btn" onclick="exportGrcAsWord(grcAllSections)">Exporter Word</button>
+      <button type="button" class="grc-toolbar-btn" onclick="exportGrcAsPdf(grcAllSections)">Exporter PDF</button>
+      <button type="button" class="grc-toolbar-btn" onclick="document.getElementById('grcImportInput').click()">Importer JSON</button>
+      <input type="file" id="grcImportInput" accept=".json,application/json" style="display:none" onchange="handleGrcImport(this.files[0])">
+      <button type="button" class="grc-toolbar-btn grc-toolbar-btn-danger" onclick="confirmResetGrc()">Réinitialiser</button>
+    </div>
+
+    <div class="grid-3" id="grc-grid"></div>
+</main>
+
+
+<div id="overlay" onclick="closeModal()"></div>
+
+<!-- Shared modal: loads the picked domain's standalone page in an iframe -->
+<div id="modal-grc" class="modal-overlay" onclick="closeModal()">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-box-title" id="modal-grc-title"></div>
+    <iframe id="modal-grc-frame" src="about:blank" title="Domaine GRC"></iframe>
+  </div>
+</div>
+
+<script src="index.js"></script>
+<script src="securite/api/index.js"></script>
+<script src="securite/database/index.js"></script>
+<script src="securite/reseau/index.js"></script>
+<script src="securite/webapp/index.js"></script>
+<script src="../assets/script/grc-loader.js"></script>
+<script src="../assets/script/theme-accent.js"></script>
+<script src="../assets/script/page-effects.js"></script>
+<script src="../assets/script/page-effects-loader.js"></script>
+<script src="../config/encryption.js"></script>
+<script src="../assets/script/vault-crypto.js"></script>
+<script src="../assets/script/vault.js"></script>
+<script src="../assets/script/vault-ui.js"></script>
+<script src="../assets/script/grc-checklist.js"></script>
+<script src="../assets/script/hub-modal.js"></script>
+<script src="../assets/script/onboarding-target.js"></script>
+<script>
+  const savedTheme = localStorage.getItem("/settings.html") || "standard";
+  document.body.classList.add("theme-" + savedTheme);
+
+  // Let the parent shell (encapsulation.html) sync its sidebar theme --
+  // the parent doesn't read storage directly, see settings.html.
+  if (window.self !== window.top) {
+    window.top.postMessage({ type: "theme-change", theme: savedTheme }, "*");
+  }
+
+  renderGrcDomains(grcIndexConfig.domains, "#grc-grid");
+  renderGrcCoverage(grcIndexConfig.domains, "#grc-grid", "#grc-coverage-summary");
+
+  // Export/Reset act on every section at once (this hub + the 4 security
+  // sub-hubs), not just the 20 domains shown on this page -- same scope
+  // as the dashboard's "Couverture GRC" panel.
+  const grcAllSections = [
+    { title: "GRC", domains: grcIndexConfig.domains, basePath: "./" },
+    { title: "Sécurité réseau", domains: securiteReseauIndexConfig.domains, basePath: "securite/reseau/" },
+    { title: "Sécurité API", domains: securiteApiIndexConfig.domains, basePath: "securite/api/" },
+    { title: "Sécurité WebApp", domains: securiteWebappIndexConfig.domains, basePath: "securite/webapp/" },
+    { title: "Sécurité base de données", domains: securiteDatabaseIndexConfig.domains, basePath: "securite/database/" },
+  ];
+
+  function confirmResetGrc() {
+    if (!confirm("Effacer toutes les cases cochées et toutes les notes, sur les 5 sections GRC ? Cette action est irréversible.")) return;
+    resetGrcData(grcAllSections, () => location.reload());
+  }
+
+  function handleGrcImport(file) {
+    if (!file) return;
+    if (!confirm("Importer ce fichier remplacera toutes les cases cochées et notes actuelles sur les 5 sections GRC. Continuer ?")) {
+      document.getElementById("grcImportInput").value = "";
+      return;
+    }
+    importGrcData(
+      file,
+      (count) => {
+        alert(count + " domaine(s) restauré(s) depuis le fichier.");
+        location.reload();
+      },
+      (message) => {
+        alert("Import impossible : " + message);
+        document.getElementById("grcImportInput").value = "";
+      }
+    );
+  }
+</script>
+
+</body>
+</html>

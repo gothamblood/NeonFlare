@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="icon" type="image/svg+xml" href="../assets/images/dragon-logo.svg">
+<link rel="icon" type="image/png" href="../assets/images/dragon-favicon.png">
+<title>OSINT – Hacking Tools</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/style.css">
+
+</head>
+
+<body class="theme-standard" data-page-key="tools-osint">
+<div class="wallpaper"></div>
+
+<div class="tool-section-nav"><a href="../index.html?page=dashboard" target="_top">&larr; Back to Dashboard</a></div>
+
+<h1 class="category-title">OSINT</h1>
+
+<div class="grid">
+  <div class="modal" style="margin: 0 auto 3rem; max-width: 1000px; cursor: default;">
+    <table>
+      <tr><th>Tool</th><th>Description</th></tr>
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-exiftool')">
+        <td>Exiftool</td><td>Extract metadata from files and images</td>
+      </tr>
+<tr id="cmd-exiftool" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div>
+    <div>[Afficher toutes les métadonnées] — exiftool image.jpg</div>
+    <div>[Afficher un tag spécifique] — exiftool -FileName image.jpg</div>
+    <div>[Afficher plusieurs tags] — exiftool -FileName -DateTimeOriginal image.jpg</div>
+    <div>[Voir les types de tags] — exiftool -list</div>
+
+    <div class="comment-line">---- Extraction -----</div>
+    <div>[Extraire GPS] — exiftool -gps* image.jpg</div>
+    <div>[Extraire EXIF] — exiftool -exif:all image.jpg</div>
+    <div>[Extraire IPTC] — exiftool -iptc:all image.jpg</div>
+    <div>[Extraire XMP] — exiftool -xmp:all image.jpg</div>
+
+    <div class="comment-line">---- Modification -----</div>
+    <div>[Changer nom du fichier] — exiftool -FileName=new.jpg image.jpg</div>
+    <div>[Changer date] — exiftool -DateTimeOriginal="2020:01:01 12:00:00" image.jpg</div>
+    <div>[Ajouter un tag] — exiftool -Comment="Test" image.jpg</div>
+    <div>[Supprimer un tag] — exiftool -Comment= image.jpg</div>
+
+    <div class="comment-line">---- Suppression métadonnées -----</div>
+    <div>[Supprimer toutes les métadonnées] — exiftool -all= image.jpg</div>
+    <div>[Supprimer EXIF seulement] — exiftool -exif= image.jpg</div>
+    <div>[Supprimer GPS] — exiftool -gps:all= image.jpg</div>
+
+    <div class="comment-line">---- Export / Output -----</div>
+    <div>[Exporter JSON] — exiftool -json image.jpg</div>
+    <div>[Exporter XML] — exiftool -X image.jpg</div>
+    <div>[Exporter dans fichier] — exiftool image.jpg > meta.txt</div>
+
+    <div class="comment-line">---- Batch / Dossiers -----</div>
+    <div>[Scan dossier] — exiftool /path/dir</div>
+    <div>[Modifier tous les fichiers] — exiftool -Comment="Test" *.jpg</div>
+    <div>[Renommer selon date] — exiftool '-FileName[DateTimeOriginal]' *.jpg</div>
+
+    <div class="comment-line">---- Useful -----</div>
+    <div>[Voir structure EXIF] — exiftool -s -G image.jpg</div>
+    <div>[Voir tags inconnus] — exiftool -u image.jpg</div>
+    <div>[Voir tags système] — exiftool -ee image.jpg</div>
+
+  </td>
+</tr>
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-theharvester')">
+        <td>theHarvester</td><td>Gather emails, hosts, and names from OSINT</td>
+      </tr>
+<tr id="cmd-theharvester" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div>
+    <div>[Scan simple] — theHarvester -d &lt;domain&gt; -b google</div>
+    <div>[Scan multi-sources] — theHarvester -d &lt;domain&gt; -b google,bing,duckduckgo</div>
+    <div>[Scan complet] — theHarvester -d &lt;domain&gt; -b all</div>
+
+    <div class="comment-line">---- Sources -----</div>
+    <div>[Google] — theHarvester -d &lt;domain&gt; -b google</div>
+    <div>[Bing] — theHarvester -d &lt;domain&gt; -b bing</div>
+    <div>[DuckDuckGo] — theHarvester -d &lt;domain&gt; -b duckduckgo</div>
+    <div>[Yahoo] — theHarvester -d &lt;domain&gt; -b yahoo</div>
+    <div>[LinkedIn] — theHarvester -d &lt;domain&gt; -b linkedin</div>
+    <div>[Twitter] — theHarvester -d &lt;domain&gt; -b twitter</div>
+    <div>[Shodan] — theHarvester -d &lt;domain&gt; -b shodan</div>
+    <div>[Certificats SSL] — theHarvester -d &lt;domain&gt; -b crtsh</div>
+
+    <div class="comment-line">---- Options utiles -----</div>
+    <div>[Limiter résultats] — theHarvester -d &lt;domain&gt; -b google -l 200</div>
+    <div>[Timeout] — theHarvester -d &lt;domain&gt; -b google -t 10</div>
+    <div>[DNS brute force] — theHarvester -d &lt;domain&gt; -b dnsbrute</div>
+    <div>[DNS reverse] — theHarvester -d &lt;domain&gt; -b dnsreverse</div>
+
+    <div class="comment-line">---- Output -----</div>
+    <div>[Output HTML] — theHarvester -d &lt;domain&gt; -b all -f report.html</div>
+    <div>[Output JSON] — theHarvester -d &lt;domain&gt; -b all -f report.json</div>
+    <div>[Output XML] — theHarvester -d &lt;domain&gt; -b all -f report.xml</div>
+
+    <div class="comment-line">---- API Keys -----</div>
+    <div>[Utiliser Shodan API] — theHarvester -d &lt;domain&gt; -b shodan -k &lt;API_KEY&gt;</div>
+    <div>[Utiliser Hunter.io] — theHarvester -d &lt;domain&gt; -b hunter -k &lt;API_KEY&gt;</div>
+
+    <div class="comment-line">---- Useful -----</div>
+    <div>[Voir les sources disponibles] — theHarvester -h</div>
+    <div>[Scan emails uniquement] — theHarvester -d &lt;domain&gt; -b all -e</div>
+    <div>[Scan hosts uniquement] — theHarvester -d &lt;domain&gt; -b all -h</div>
+
+  </td>
+</tr>
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-maltego')">
+        <td>Maltego</td><td>Graph-based OSINT visualization</td>
+      </tr>
+      <tr id="cmd-maltego" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div>
+    <div>[Lancer Maltego] — maltego</div>
+    <div>[Transform sur un domaine] — Start Maltego and run transforms on &lt;domain&gt;</div>
+
+    <div class="comment-line">---- Transforms utiles -----</div>
+    <div>[Domain to DNS] — Transform: "To DNS Name - NS/MX/etc"</div>
+    <div>[Domain to Email addresses] — Transform: "To Email addresses"</div>
+    <div>[Person to Social Media] — Transform: "To Social Media Affiliations"</div>
+
+    <div class="comment-line">---- Export -----</div>
+    <div>[Exporter le graph] — File &gt; Export &gt; Export Graph to Image</div>
+
+  </td>
+</tr>
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-sherlock')">
+        <td>Sherlock</td><td>Find usernames across social platforms</td>
+      </tr>
+      <tr id="cmd-sherlock" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div>
+    <div>[Recherche simple] — python sherlock.py username</div>
+    <div>[Plusieurs usernames] — python sherlock.py user1 user2 user3</div>
+
+    <div class="comment-line">---- Options -----</div>
+    <div>[Timeout] — python sherlock.py username --timeout 10</div>
+    <div>[Export CSV] — python sherlock.py username --csv</div>
+    <div>[Print found only] — python sherlock.py username --print-found</div>
+    <div>[Proxy] — python sherlock.py username --proxy http://127.0.0.1:8080</div>
+
+  </td>
+</tr>
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-dorking')">
+        <td>Google Dorking</td><td>Use advanced search operators for OSINT</td>
+      </tr>
+      <tr id="cmd-dorking" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div>
+    <div>[Site scope] — site:&lt;domain&gt;</div>
+    <div>[Admin panels] — site:&lt;domain&gt; inurl:admin</div>
+    <div>[Login pages] — site:&lt;domain&gt; inurl:login</div>
+
+    <div class="comment-line">---- Fichiers exposés -----</div>
+    <div>[PDF] — site:&lt;domain&gt; filetype:pdf</div>
+    <div>[SQL dumps] — site:&lt;domain&gt; filetype:sql</div>
+    <div>[Fichiers de config] — site:&lt;domain&gt; ext:env OR ext:conf</div>
+
+    <div class="comment-line">---- Autres -----</div>
+    <div>[Listing de dossier] — site:&lt;domain&gt; intitle:"index of"</div>
+    <div>[Sous-domaines] — site:*.&lt;domain&gt;</div>
+    <div>[Erreurs / stack traces] — site:&lt;domain&gt; "SQL syntax" OR "stack trace"</div>
+
+  </td>
+</tr>
+    </table>
+  </div>
+</div>
+
+<script>
+  const embedded = window.self !== window.top;
+
+  // Tell the hub's modal our real content height. Called synchronously on
+  // the one interaction that changes it (toggling a command row) so there's
+  // no dependency on observer/timer scheduling; ResizeObserver below is
+  // just a fallback for anything else (initial layout, font swaps, etc).
+  function reportHeight() {
+    if (embedded) {
+      window.parent.postMessage({ type: "tool-frame-height", height: document.body.scrollHeight }, "*");
+    }
+  }
+
+  function toggleCmd(id) {
+    const row = document.getElementById(id);
+    row.style.display = (row.style.display === "table-row") ? "none" : "table-row";
+    reportHeight();
+  }
+
+  (function() {
+    const savedTheme = localStorage.getItem("/settings.html") || "standard";
+    document.body.classList.add("theme-" + savedTheme);
+    if (embedded) document.body.classList.add("embedded");
+  })();
+
+  if (embedded) {
+    new ResizeObserver(reportHeight).observe(document.body);
+    window.addEventListener("load", reportHeight);
+  }
+</script>
+
+<script src="../config/tools/osint.js"></script>
+<script src="../assets/script/wallpaper-loader.js"></script>
+<script src="../assets/script/theme-accent.js"></script>
+<script src="../assets/script/copy-commands.js"></script>
+<script src="../assets/script/page-effects.js"></script>
+<script src="../assets/script/page-effects-loader.js"></script>
+<script>
+  applyWallpaper(toolsOsintConfig.background, "tools-osint");
+</script>
+
+</body>
+</html>

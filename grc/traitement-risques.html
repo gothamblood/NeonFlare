@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="../assets/images/dragon-logo.svg">
+    <link rel="icon" type="image/png" href="../assets/images/dragon-favicon.png">
+    <title>Traitement des risques – GRC Cybersecurity</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" type="text/css" href="../assets/css/grc.css">
+</head>
+<body>
+<header>
+    <nav class="nav">
+        <div class="logo">
+            <div class="logo-mark">G</div>
+            <div>GRC Cybersecurity</div>
+        </div>
+        <div class="nav-links">
+            <a href="./index.html">&larr; Retour au GRC</a>
+        </div>
+    </nav>
+</header>
+
+<main>
+    <h1 class="page-title">Traitement des risques</h1>
+    <p class="page-subtitle">
+        Cette section explique comment l’organisation gère chaque risque.
+    </p>
+
+    <section class="content-block">
+        <h2>Contenu à inclure</h2>
+        <ul>
+            <li><strong>Évitement</strong> : supprimer l’activité à risque. <span class="grc-control-tags">NIST GV.RM</span></li>
+            <li><strong>Mitigation</strong> : réduire la probabilité ou l’impact. <span class="grc-control-tags">NIST GV.RM</span></li>
+            <li><strong>Transfert</strong> : assurance, sous-traitance. <span class="grc-control-tags">NIST GV.RM</span></li>
+            <li><strong>Acceptation</strong> : risque toléré. <span class="grc-control-tags">NIST GV.RM</span></li>
+            <li><strong>Risques résiduels</strong> : ce qui reste après traitement. <span class="grc-control-tags">NIST ID.RA</span></li>
+        </ul>
+
+        <h2>Rôle en GRC</h2>
+        <p>Le traitement des risques permet de prendre des décisions éclairées et alignées avec la tolérance au risque de l’organisation.</p>
+    </section>
+</main>
+
+
+<script>
+  const savedTheme = localStorage.getItem("/settings.html") || "standard";
+  document.body.classList.add("theme-" + savedTheme);
+
+  const embedded = window.self !== window.top;
+
+  function reportHeight() {
+    if (embedded) {
+      window.parent.postMessage({ type: "hub-frame-height", height: document.documentElement.scrollHeight }, "*");
+    }
+  }
+
+  if (embedded) {
+    document.body.classList.add("embedded");
+    new ResizeObserver(reportHeight).observe(document.body);
+    window.addEventListener("load", reportHeight);
+  }
+</script>
+
+<script src="../config/grc-author.js"></script>
+
+<script src="../config/encryption.js"></script>
+
+<script src="../assets/script/vault-crypto.js"></script>
+<script src="../assets/script/theme-accent.js"></script>
+
+<script src="../assets/script/vault.js"></script>
+<script src="../assets/script/vault-ui.js"></script>
+
+<script src="../assets/script/grc-checklist.js"></script>
+<script>initGrcChecklist();</script>
+
+</body>
+</html>

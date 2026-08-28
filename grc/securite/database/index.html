@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="../../../assets/images/dragon-logo.svg">
+    <link rel="icon" type="image/png" href="../../../assets/images/dragon-favicon.png">
+    <title>Sécurité Base de données</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Protéger les données stockées, les accès, les requêtes et l’intégrité des bases de données, en 8 domaines." />
+    <link rel="stylesheet" type="text/css" href="../../../assets/css/grc.css">
+</head>
+<body class="hub-page" data-page-key="grc-database">
+<header>
+    <nav class="nav">
+        <div class="logo">
+            <div class="logo-mark">D</div>
+            <div>Sécurité Base de données</div>
+        </div>
+    </nav>
+</header>
+
+<main>
+    <h1 class="page-title">Sécurité Base de données</h1>
+    <p class="page-subtitle">
+        Protéger les données stockées, les accès, les requêtes et l’intégrité des bases de données, en 8 domaines.
+    </p>
+
+    <div class="grc-progress" id="grc-coverage-summary"></div>
+
+    <div class="grid-3" id="securite-database-grid"></div>
+</main>
+
+
+<div id="overlay" onclick="closeModal()"></div>
+
+<!-- Shared modal: loads the picked domain's standalone page in an iframe -->
+<div id="modal-grc" class="modal-overlay" onclick="closeModal()">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-box-title" id="modal-grc-title"></div>
+    <iframe id="modal-grc-frame" src="about:blank" title="Domaine Sécurité Base de données"></iframe>
+  </div>
+</div>
+
+<script src="index.js"></script>
+<script src="../../../assets/script/grc-loader.js"></script>
+<script src="../../../assets/script/theme-accent.js"></script>
+<script src="../../../assets/script/page-effects.js"></script>
+<script src="../../../assets/script/page-effects-loader.js"></script>
+<script src="../../../config/encryption.js"></script>
+<script src="../../../assets/script/vault-crypto.js"></script>
+<script src="../../../assets/script/vault.js"></script>
+<script src="../../../assets/script/vault-ui.js"></script>
+<script src="../../../assets/script/grc-checklist.js"></script>
+<script src="../../../assets/script/hub-modal.js"></script>
+<script>
+  const savedTheme = localStorage.getItem("/settings.html") || "standard";
+  document.body.classList.add("theme-" + savedTheme);
+
+  // Let the parent shell (encapsulation.html) sync its sidebar theme --
+  // the parent doesn't read storage directly, see settings.html.
+  if (window.self !== window.top) {
+    window.top.postMessage({ type: "theme-change", theme: savedTheme }, "*");
+  }
+
+  renderGrcDomains(securiteDatabaseIndexConfig.domains, "#securite-database-grid");
+  renderGrcCoverage(securiteDatabaseIndexConfig.domains, "#securite-database-grid", "#grc-coverage-summary");
+</script>
+
+</body>
+</html>

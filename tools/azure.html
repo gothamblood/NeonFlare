@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="icon" type="image/svg+xml" href="../assets/images/dragon-logo.svg">
+<link rel="icon" type="image/png" href="../assets/images/dragon-favicon.png">
+<title>Azure CLI – DevSecOps Tools</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/style.css">
+
+</head>
+
+<body class="theme-standard" data-page-key="devsecops-azure">
+<div class="wallpaper"></div>
+
+<div class="tool-section-nav"><a href="../index.html?page=dashboard" target="_top">&larr; Back to Dashboard</a></div>
+
+<h1 class="category-title">Azure CLI</h1>
+
+<div class="grid">
+  <div class="modal" style="margin: 0 auto 3rem; max-width: 1000px; cursor: default;">
+    <table>
+      <tr><th>Tool</th><th>Description</th></tr>
+
+    <!-- ACCOUNT & RBAC -->
+    <tr class="tool-row" onclick="toggleCmd('cmd-account')">
+      <td style="color:red">Account & RBAC</td>
+      <td>Login, subscriptions, role assignments</td>
+    </tr>
+    <tr id="cmd-account" class="command-row">
+      <td colspan="2" class="command-cell">
+        <div class="comment-line">---- Common -----</div>
+        <div>[Login] — az login</div>
+        <div>[Current account] — az account show</div>
+        <div>[List subscriptions] — az account list -o table</div>
+        <div>[Set subscription] — az account set --subscription &lt;id&gt;</div>
+
+        <div class="comment-line">---- RBAC audit -----</div>
+        <div>[List role assignments] — az role assignment list --all -o table</div>
+        <div>[Assignments for a user] — az role assignment list --assignee &lt;user&gt;</div>
+        <div>[Owners at subscription scope] — az role assignment list --role Owner --scope /subscriptions/&lt;id&gt;</div>
+        <div>[Custom role definitions] — az role definition list --custom-role-only true</div>
+      </td>
+    </tr>
+
+    <!-- RESOURCES -->
+    <tr class="tool-row" onclick="toggleCmd('cmd-resources')">
+      <td>Resources</td>
+      <td>Groups, VMs, list/inspect</td>
+    </tr>
+    <tr id="cmd-resources" class="command-row">
+      <td colspan="2" class="command-cell">
+        <div class="comment-line">---- Common -----</div>
+        <div>[List resource groups] — az group list -o table</div>
+        <div>[List all resources] — az resource list -o table</div>
+        <div>[List VMs] — az vm list -o table</div>
+        <div>[VM status] — az vm get-instance-view --name &lt;vm&gt; --resource-group &lt;rg&gt;</div>
+        <div>[Start VM] — az vm start --name &lt;vm&gt; --resource-group &lt;rg&gt;</div>
+        <div>[Stop/deallocate VM] — az vm deallocate --name &lt;vm&gt; --resource-group &lt;rg&gt;</div>
+      </td>
+    </tr>
+
+    <!-- STORAGE -->
+    <tr class="tool-row" onclick="toggleCmd('cmd-storage')">
+      <td>Storage</td>
+      <td>Accounts, containers, public access</td>
+    </tr>
+    <tr id="cmd-storage" class="command-row">
+      <td colspan="2" class="command-cell">
+        <div class="comment-line">---- Common -----</div>
+        <div>[List storage accounts] — az storage account list -o table</div>
+        <div>[List containers] — az storage container list --account-name &lt;account&gt;</div>
+        <div>[List blobs] — az storage blob list --account-name &lt;account&gt; --container-name &lt;container&gt;</div>
+
+        <div class="comment-line">---- Audit -----</div>
+        <div>[Public access level] — az storage account show --name &lt;account&gt; --query allowBlobPublicAccess</div>
+        <div>[Container public access] — az storage container show --name &lt;container&gt; --account-name &lt;account&gt; --query properties.publicAccess</div>
+        <div>[Firewall/network rules] — az storage account network-rule list --account-name &lt;account&gt;</div>
+        <div>[Encryption status] — az storage account show --name &lt;account&gt; --query encryption</div>
+      </td>
+    </tr>
+
+    <!-- KEY VAULT & SECRETS -->
+    <tr class="tool-row" onclick="toggleCmd('cmd-keyvault')">
+      <td style="color:red">Key Vault & secrets</td>
+      <td>Secrets, keys, access policies</td>
+    </tr>
+    <tr id="cmd-keyvault" class="command-row">
+      <td colspan="2" class="command-cell">
+        <div class="comment-line">---- Common -----</div>
+        <div>[List vaults] — az keyvault list -o table</div>
+        <div>[List secrets] — az keyvault secret list --vault-name &lt;vault&gt;</div>
+        <div>[Show secret value] — az keyvault secret show --vault-name &lt;vault&gt; --name &lt;secret&gt; --query value</div>
+        <div>[Access policies] — az keyvault show --name &lt;vault&gt; --query properties.accessPolicies</div>
+        <div>[Firewall rules] — az keyvault network-rule list --name &lt;vault&gt;</div>
+      </td>
+    </tr>
+
+    <!-- LOGGING & AUDIT -->
+    <tr class="tool-row" onclick="toggleCmd('cmd-logging')">
+      <td>Logging & audit</td>
+      <td>Activity log, Defender for Cloud</td>
+    </tr>
+    <tr id="cmd-logging" class="command-row">
+      <td colspan="2" class="command-cell">
+        <div class="comment-line">---- Activity log -----</div>
+        <div>[Recent activity] — az monitor activity-log list --max-events 20</div>
+        <div>[Filter by resource group] — az monitor activity-log list --resource-group &lt;rg&gt; --max-events 20</div>
+
+        <div class="comment-line">---- Defender for Cloud -----</div>
+        <div>[Security assessments] — az security assessment list</div>
+        <div>[Secure score] — az security secure-scores list</div>
+      </td>
+    </tr>
+
+    </table>
+  </div>
+</div>
+
+<script>
+  const embedded = window.self !== window.top;
+
+  function reportHeight() {
+    if (embedded) {
+      window.parent.postMessage({ type: "tool-frame-height", height: document.body.scrollHeight }, "*");
+    }
+  }
+
+  function toggleCmd(id) {
+    const row = document.getElementById(id);
+    row.style.display = (row.style.display === "table-row") ? "none" : "table-row";
+    reportHeight();
+  }
+
+  (function() {
+    const savedTheme = localStorage.getItem("/settings.html") || "standard";
+    document.body.classList.add("theme-" + savedTheme);
+    if (embedded) document.body.classList.add("embedded");
+  })();
+
+  if (embedded) {
+    new ResizeObserver(reportHeight).observe(document.body);
+    window.addEventListener("load", reportHeight);
+  }
+</script>
+
+<script src="../config/tools/azure.js"></script>
+<script src="../assets/script/wallpaper-loader.js"></script>
+<script src="../assets/script/theme-accent.js"></script>
+<script src="../assets/script/copy-commands.js"></script>
+<script src="../assets/script/page-effects.js"></script>
+<script src="../assets/script/page-effects-loader.js"></script>
+<script>
+  applyWallpaper(toolsAzureConfig.background, "devsecops-azure");
+</script>
+
+</body>
+</html>

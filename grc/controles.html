@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="../assets/images/dragon-logo.svg">
+    <link rel="icon" type="image/png" href="../assets/images/dragon-favicon.png">
+    <title>Sélection des contrôles – GRC Cybersecurity</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" type="text/css" href="../assets/css/grc.css">
+</head>
+<body>
+<header>
+    <nav class="nav">
+        <div class="logo">
+            <div class="logo-mark">G</div>
+            <div>GRC Cybersecurity</div>
+        </div>
+        <div class="nav-links">
+            <a href="./index.html">&larr; Retour au GRC</a>
+        </div>
+    </nav>
+</header>
+
+<main>
+    <h1 class="page-title">Sélection des contrôles</h1>
+    <p class="page-subtitle">
+        Cette section décrit les mesures de sécurité choisies pour réduire les risques.
+    </p>
+
+    <section class="content-block">
+        <h2>Contenu à inclure</h2>
+        <ul>
+            <li><strong>Contrôles ISO 27001 Annexe A</strong></li>
+            <li><strong>Mapping</strong> : ISO / NIST / CIS.</li>
+            <li><strong>Déclaration d’Applicabilité (DDA)</strong> : contrôles retenus ou non retenus.</li>
+            <li><strong>Contrôles organisationnels</strong> : politiques, gouvernance, sensibilisation.</li>
+            <li><strong>Contrôles techniques</strong> : MFA, pare-feu, segmentation, chiffrement.</li>
+            <li><strong>Contrôles humains</strong> : formation, responsabilités. <span class="grc-control-tags">ISO A.6.3 · NIST PR.AT · CIS 14</span></li>
+        </ul>
+
+        <h2>Rôle en GRC</h2>
+        <p>Les contrôles sont les outils concrets qui protègent les actifs et réduisent les risques.</p>
+    </section>
+</main>
+
+
+<script>
+  const savedTheme = localStorage.getItem("/settings.html") || "standard";
+  document.body.classList.add("theme-" + savedTheme);
+
+  const embedded = window.self !== window.top;
+
+  function reportHeight() {
+    if (embedded) {
+      window.parent.postMessage({ type: "hub-frame-height", height: document.documentElement.scrollHeight }, "*");
+    }
+  }
+
+  if (embedded) {
+    document.body.classList.add("embedded");
+    new ResizeObserver(reportHeight).observe(document.body);
+    window.addEventListener("load", reportHeight);
+  }
+</script>
+
+<script src="../config/grc-author.js"></script>
+
+<script src="../config/encryption.js"></script>
+
+<script src="../assets/script/vault-crypto.js"></script>
+<script src="../assets/script/theme-accent.js"></script>
+
+<script src="../assets/script/vault.js"></script>
+<script src="../assets/script/vault-ui.js"></script>
+
+<script src="../assets/script/grc-checklist.js"></script>
+<script>initGrcChecklist();</script>
+
+</body>
+</html>

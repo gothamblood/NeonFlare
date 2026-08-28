@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="scale" x1="10%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#7b2ff7"/>
+      <stop offset="45%" stop-color="#e340d9"/>
+      <stop offset="100%" stop-color="#5ad4ff"/>
+    </linearGradient>
+    <filter id="glow" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur stdDeviation="10" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <path fill="url(#scale)" stroke="none" d="
+    M 480,270
+    C 465,240 445,215 420,198
+    C 405,178 395,160 390,145
+    L 368,155
+    L 345,100
+    L 312,42
+    L 330,78
+    L 350,135
+    L 300,150
+    L 275,120
+    L 268,158
+    L 245,132
+    L 240,168
+    L 218,145
+    L 213,180
+    L 192,160
+    L 188,195
+    C 165,220 145,250 132,300
+    C 124,335 122,360 124,385
+    C 130,405 142,418 155,422
+    C 180,432 210,435 235,430
+    C 260,424 280,415 298,405
+    C 320,392 340,378 358,362
+    C 380,342 400,325 415,315
+    C 435,302 458,288 480,270
+    Z"/>
+
+  <!-- glow halo behind eye -->
+  <circle cx="345" cy="205" r="16" fill="#ff2fd4" filter="url(#glow)" opacity="0.85"/>
+  <!-- eye -->
+  <circle cx="345" cy="205" r="15" fill="#3a0a2e"/>
+  <circle cx="345" cy="205" r="9" fill="#ff2fd4"/>
+  <circle cx="348" cy="201" r="3.5" fill="#ffe3fb"/>
+</svg>

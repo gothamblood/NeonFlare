@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="icon" type="image/svg+xml" href="../assets/images/dragon-logo.svg">
+<link rel="icon" type="image/png" href="../assets/images/dragon-favicon.png">
+<title>Terraform – DevSecOps Tools</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/style.css">
+
+</head>
+
+<body class="theme-standard" data-page-key="devsecops-terraform">
+<div class="wallpaper"></div>
+
+<div class="tool-section-nav"><a href="../index.html?page=dashboard" target="_top">&larr; Back to Dashboard</a></div>
+
+<h1 class="category-title">Terraform</h1>
+
+<div class="grid">
+  <div class="modal" style="margin: 0 auto 3rem; max-width: 1000px; cursor: default;">
+    <table>
+      <tr><th>Tool</th><th>Description</th></tr>
+
+    <!-- CORE WORKFLOW -->
+    <tr class="tool-row" onclick="toggleCmd('cmd-core')">
+      <td>Core workflow</td>
+      <td>init, plan, apply, destroy</td>
+    </tr>
+    <tr id="cmd-core" class="command-row">
+      <td colspan="2" class="command-cell">
+        <div class="comment-line">---- Common -----</div>
+        <div>[Init] — terraform init</div>
+        <div>[Format] — terraform fmt -recursive</div>
+        <div>[Validate] — terraform validate</div>
+        <div>[Plan] — terraform plan -out=tfplan</div>
+        <div>[Apply plan] — terraform apply tfplan</div>
+        <div>[Apply directly] — terraform apply</div>
+        <div>[Destroy] — terraform destroy</div>
+        <div>[Target a resource] — terraform plan -target=&lt;resource.address&gt;</div>
+      </td>
+    </tr>
+
+    <!-- STATE -->
+    <tr class="tool-row" onclick="toggleCmd('cmd-state')">
+      <td>State</td>
+      <td>Inspect, move, import, unlock</td>
+    </tr>
+    <tr id="cmd-state" class="command-row">
+      <td colspan="2" class="command-cell">
+        <div class="comment-line">---- Common -----</div>
+        <div>[List resources] — terraform state list</div>
+        <div>[Show resource] — terraform state show &lt;resource.address&gt;</div>
+        <div>[Move (rename)] — terraform state mv &lt;old.address&gt; &lt;new.address&gt;</div>
+        <div>[Remove from state] — terraform state rm &lt;resource.address&gt;</div>
+        <div>[Import existing] — terraform import &lt;resource.address&gt; &lt;id&gt;</div>
+        <div>[Force-unlock] — terraform force-unlock &lt;lock-id&gt;</div>
+        <div>[Refresh] — terraform apply -refresh-only</div>
+
+        <div class="comment-line">---- Secrets in state -----</div>
+        <div>[Grep state for secrets] — terraform show -json | jq '..|.values?.password? // empty'</div>
+      </td>
+    </tr>
+
+    <!-- SECURITY SCANNING -->
+    <tr class="tool-row" onclick="toggleCmd('cmd-security')">
+      <td style="color:red">Security scanning</td>
+      <td>Misconfig, policy, drift</td>
+    </tr>
+    <tr id="cmd-security" class="command-row">
+      <td colspan="2" class="command-cell">
+        <div class="comment-line">---- tfsec / Trivy -----</div>
+        <div>[Scan directory] — tfsec .</div>
+        <div>[Scan (Trivy alias)] — trivy config .</div>
+        <div>[Fail CI on high] — tfsec . --minimum-severity HIGH</div>
+
+        <div class="comment-line">---- Checkov -----</div>
+        <div>[Scan directory] — checkov -d .</div>
+        <div>[Specific framework] — checkov -d . --framework terraform</div>
+        <div>[Skip a check] — checkov -d . --skip-check &lt;CKV_ID&gt;</div>
+
+        <div class="comment-line">---- Drift detection -----</div>
+        <div>[Plan (detects drift)] — terraform plan -detailed-exitcode</div>
+        <div>[driftctl] — driftctl scan</div>
+      </td>
+    </tr>
+
+    <!-- WORKSPACES & MODULES -->
+    <tr class="tool-row" onclick="toggleCmd('cmd-workspaces')">
+      <td>Workspaces & modules</td>
+      <td>Environments, remote modules</td>
+    </tr>
+    <tr id="cmd-workspaces" class="command-row">
+      <td colspan="2" class="command-cell">
+        <div class="comment-line">---- Common -----</div>
+        <div>[List workspaces] — terraform workspace list</div>
+        <div>[New workspace] — terraform workspace new &lt;env&gt;</div>
+        <div>[Switch workspace] — terraform workspace select &lt;env&gt;</div>
+        <div>[Show outputs] — terraform output</div>
+        <div>[Show output (raw)] — terraform output -raw &lt;name&gt;</div>
+        <div>[Get modules] — terraform get -update</div>
+        <div>[Graph dependencies] — terraform graph | dot -Tpng &gt; graph.png</div>
+      </td>
+    </tr>
+
+    </table>
+  </div>
+</div>
+
+<script>
+  const embedded = window.self !== window.top;
+
+  function reportHeight() {
+    if (embedded) {
+      window.parent.postMessage({ type: "tool-frame-height", height: document.body.scrollHeight }, "*");
+    }
+  }
+
+  function toggleCmd(id) {
+    const row = document.getElementById(id);
+    row.style.display = (row.style.display === "table-row") ? "none" : "table-row";
+    reportHeight();
+  }
+
+  (function() {
+    const savedTheme = localStorage.getItem("/settings.html") || "standard";
+    document.body.classList.add("theme-" + savedTheme);
+    if (embedded) document.body.classList.add("embedded");
+  })();
+
+  if (embedded) {
+    new ResizeObserver(reportHeight).observe(document.body);
+    window.addEventListener("load", reportHeight);
+  }
+</script>
+
+<script src="../config/tools/terraform.js"></script>
+<script src="../assets/script/wallpaper-loader.js"></script>
+<script src="../assets/script/theme-accent.js"></script>
+<script src="../assets/script/copy-commands.js"></script>
+<script src="../assets/script/page-effects.js"></script>
+<script src="../assets/script/page-effects-loader.js"></script>
+<script>
+  applyWallpaper(toolsTerraformConfig.background, "devsecops-terraform");
+</script>
+
+</body>
+</html>

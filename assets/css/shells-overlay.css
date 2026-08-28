@@ -1,0 +1,104 @@
+/* Persistent shell terminals overlay for index.html -- the parent
+   frame never reloads, so the actual ttyd iframes live here instead
+   of inside dashboard.html, and survive navigating the sidebar.
+   Positioned via inline left/top/width/height mirrored from
+   dashboard.html's #shellArea placeholder over postMessage.
+   See assets/script/shells-host.js and assets/script/dashboard-shells.js. */
+.shells-overlay-host {
+  position: fixed;
+  box-sizing: border-box;
+  padding: 0.5rem;
+  display: none;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  z-index: 25;
+  pointer-events: none;
+  /* No CSS transition here on purpose: position/size are kept exactly
+     in sync with #frame's live rect (see the transitionrun/transitionend
+     tracking loop in shells-host.js), so an eased transition on top of
+     that would just make the overlay lag behind and keep drifting after
+     the real movement has already stopped. */
+}
+
+.shells-overlay-host.visible {
+  display: flex;
+}
+
+/* While dashboard.html/tools.html's own tool-list modal is open (see
+   the "tool-modal-state" handler in shells-host.js), drop below
+   #frame entirely instead of floating over the modal -- the modal
+   covers the same screen area and is meant to have full attention. */
+.shells-overlay-host.behind {
+  z-index: -1;
+}
+
+.shell-window {
+  pointer-events: auto;
+  flex: 1 1 320px;
+  min-width: 260px;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 10px;
+  overflow: hidden;
+  background: #0b0d12;
+}
+
+.shell-window-header {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.3rem 0.6rem;
+  background: rgba(255,255,255,0.05);
+  border-bottom: 1px solid rgba(255,255,255,0.15);
+  font-family: monospace;
+  font-size: 0.7rem;
+  color: #bbb;
+}
+
+.shell-window-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: text;
+}
+
+.shell-window-title-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin-right: 0.5rem;
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 4px;
+  padding: 0.1rem 0.3rem;
+}
+
+.shell-close-btn {
+  width: 18px;
+  height: 18px;
+  line-height: 16px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid #ff4757;
+  background: transparent;
+  color: #ff4757;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.shell-close-btn:hover {
+  background: rgba(255,71,87,0.25);
+}
+
+.shell-iframe {
+  flex: 1 1 auto;
+  width: 100%;
+  border: none;
+  background: #0b0d12;
+}

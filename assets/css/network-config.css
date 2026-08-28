@@ -1,0 +1,213 @@
+/* ============================================================
+   CONFIG NETWORK / TOOLS / WEBSITE (Settings > Config Network / Config
+   Tools / Config Website cards, see project/settings.html) -- shared
+   form/list styling for the three registries backing the Dashboard's
+   Réseau/Outils/Website panels (assets/script/network-config.js,
+   tools-config.js, website-config.js).
+   ============================================================ */
+
+.netcfg-desc {
+  font-size: 0.8rem;
+  color: #a7b0c7;
+  line-height: 1.5;
+  margin-bottom: 1rem;
+}
+
+/* .dash-btn (dashboard-panels.css) themed pill button, but block-level
+   and full-width -- for action buttons that read as a stacked list
+   item (Renommer, Supprimer, + Ajouter...) rather than an inline
+   toolbar button like the dashboard topbar's own "+ Shell" etc. */
+.dash-btn-block {
+  display: block;
+  width: 100%;
+  margin: 0.6rem 0;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.netcfg-form-card h1 {
+  margin-bottom: 0.6rem;
+}
+
+.netcfg-form-card h2 {
+  font-size: 1rem;
+  margin: 1rem 0 0.8rem;
+}
+
+.netcfg-form-card form label {
+  display: block;
+  font-size: 0.78rem;
+  color: #a7b0c7;
+  margin-bottom: 0.9rem;
+}
+
+.netcfg-form-card form input[type="text"],
+.netcfg-form-card form input[type="url"],
+.netcfg-form-card form input[type="date"],
+.netcfg-form-card form input[type="datetime-local"],
+.netcfg-form-card form input[type="number"],
+.netcfg-form-card form select,
+.netcfg-form-card form textarea {
+  display: block;
+  width: 100%;
+  margin-top: 0.35rem;
+  padding: 0.6rem 0.7rem;
+  background: #1e1e1e;
+  border: 1px solid #444;
+  border-radius: 8px;
+  color: #f5f5f5;
+  font-family: inherit;
+  font-size: 0.85rem;
+  box-sizing: border-box;
+}
+
+.netcfg-form-card form textarea {
+  resize: vertical;
+  min-height: 4.5rem;
+}
+
+/* Date/datetime inputs render their calendar-picker glyph in near-black
+   by default (Chromium) -- invisible against this dark theme without
+   inverting it. */
+.netcfg-form-card form input[type="date"]::-webkit-calendar-picker-indicator,
+.netcfg-form-card form input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}
+
+.netcfg-form-card form input[type="text"]:focus,
+.netcfg-form-card form input[type="url"]:focus,
+.netcfg-form-card form input[type="date"]:focus,
+.netcfg-form-card form input[type="datetime-local"]:focus,
+.netcfg-form-card form input[type="number"]:focus,
+.netcfg-form-card form select:focus,
+.netcfg-form-card form textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.netcfg-form-card form input[type="file"] {
+  display: block;
+  width: 100%;
+  margin-top: 0.35rem;
+  font-size: 0.78rem;
+  color: #a7b0c7;
+}
+
+.netcfg-enabled-row {
+  display: flex !important;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Plain inline checkbox + text (eg. Config Topology's "cette nœud est
+   une boîte") -- unlike .netcfg-enabled-row's toggle-switch pattern,
+   just a native checkbox next to its own label text. */
+.netcfg-checkbox-row {
+  display: flex !important;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.netcfg-checkbox-row input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  accent-color: var(--accent);
+}
+
+#netcfgIconPreviewWrap {
+  margin: 0.4rem 0 0.9rem;
+}
+
+#netcfgIconPreview {
+  width: 48px;
+  height: 48px;
+  border-radius: 6px;
+  object-fit: contain;
+  background: #1e1e1e;
+  border: 1px solid #444;
+  padding: 4px;
+}
+
+.netcfg-form-actions {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 0.4rem;
+}
+
+.netcfg-form-actions .dash-btn {
+  flex: 1 1 auto;
+}
+
+.netcfg-node-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid #333;
+}
+
+.netcfg-node-row:last-of-type {
+  border-bottom: none;
+}
+
+.netcfg-node-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  object-fit: contain;
+  flex-shrink: 0;
+  background: #1e1e1e;
+}
+
+.netcfg-node-info {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.netcfg-node-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.netcfg-node-sub {
+  font-size: 0.7rem;
+  color: #999;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.netcfg-node-disabled .netcfg-node-title,
+.netcfg-node-disabled .netcfg-node-sub {
+  opacity: 0.45;
+}
+
+/* Column, not row -- a 5-column settings card is too narrow to
+   reliably fit Modifier/Supprimer side by side at .dash-btn's uppercase
+   letter-spacing without clipping, so they stack full-width instead
+   (same .dash-btn-block used everywhere else in these cards). */
+.netcfg-node-actions {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 100%;
+}
+
+.netcfg-node-actions .dash-btn-block {
+  margin: 0.3rem 0 0;
+  padding: 0.4rem 0.7rem;
+  font-size: 0.72rem;
+}
+
+/* Exporter/Importer/Rétablir row (assets/script/config-io.js) -- a
+   visual break from the add/edit form above it, same stacked
+   .dash-btn-block look as everywhere else in these cards. */
+.netcfg-io-row {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #333;
+}

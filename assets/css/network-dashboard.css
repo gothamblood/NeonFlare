@@ -1,0 +1,411 @@
+/* ============================================================
+   NETWORK DASHBOARD (Jarvis-style HUD) — dashboard.html only
+   ============================================================ */
+
+body.theme-standard { --accent-glow: rgba(72,219,251,0.35); }
+body.theme-terminal { --accent-glow: rgba(47,158,68,0.35); }
+body.theme-blade    { --accent-glow: rgba(255,107,203,0.35); }
+body.theme-tron     { --accent-glow: rgba(84,160,255,0.35); }
+
+/* Dragon wallpaper: stays put (no drift/pan), just an occasional
+   brightness/saturation flicker so its eyes and scales seem to
+   light up for a moment, like a hologram flickering to life. */
+.wallpaper-glow {
+  animation: wallpaper-flicker 9s linear infinite;
+}
+
+@keyframes wallpaper-flicker {
+  0%, 48%, 52%, 76%, 78%, 100% { opacity: 1; filter: brightness(1) saturate(1); }
+  50% { opacity: 0.85; filter: brightness(1.3) saturate(1.4); }
+  77% { opacity: 0.92; filter: brightness(1.15) saturate(1.2); }
+}
+
+.status-group {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  /* Stays pinned to the header's right edge whether or not the GRC
+     header widget between it and +Shell is present (Settings > Sections
+     du Dashboard can turn it off) -- .grc-header-status's own flex: 1
+     handles the common case, this is the fallback once that's gone. */
+  margin-left: auto;
+}
+
+/* Dragon hologram mascot: parked next to the status panel instead of
+   flying across the screen. Recolored toward the accent hue and given
+   a glow so it reads as a projection rather than a plain emoji, with a
+   small idle bob + occasional flicker so it still feels "alive". */
+.dragon-hologram {
+  font-size: 2.4rem;
+  line-height: 1;
+  flex-shrink: 0;
+  pointer-events: none;
+  filter: drop-shadow(0 0 8px var(--accent)) drop-shadow(0 0 16px var(--accent-glow))
+          sepia(1) hue-rotate(150deg) saturate(4.5) brightness(1.15);
+  opacity: 0.85;
+  animation: dragon-idle-bob 4s ease-in-out infinite,
+             dragon-hologram-flicker 6s linear infinite;
+}
+
+@keyframes dragon-idle-bob {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50%      { transform: translateY(-6px) rotate(2deg); }
+}
+
+@keyframes dragon-hologram-flicker {
+  0%, 88%, 100% { opacity: 0.85; }
+  90% { opacity: 0.4; }
+  92% { opacity: 0.85; }
+  94% { opacity: 0.5; }
+  96% { opacity: 0.85; }
+}
+
+/* Ouroboros dragon: hand-drawn SVG ring (assets/images/dragon-ouroboros.svg)
+   where the jaw actually meets the tail. The "8" itself stays put --
+   the looping motion is the energy pulse animated inside the SVG
+   (see its own <style>), not a rotation of the whole icon. */
+.dragon-ouroboros {
+  width: 52px;
+  height: 57px;
+  object-fit: contain;
+  flex-shrink: 0;
+  pointer-events: none;
+  filter: drop-shadow(0 0 10px var(--accent-glow));
+}
+
+/* Full-screen shell: header + Network + Tools + Log fit in one viewport
+   when there aren't too many panels. Once the total stack (panels can be
+   added/resized freely, see dashboard-layout.js) grows taller than the
+   viewport, the page itself scrolls instead of clipping panels below the
+   fold -- min-height (not a fixed height) on .network-shell lets it grow
+   past 100vh, and body allows vertical overflow instead of hiding it.
+   Individual panels still get their own internal scroll first (generic
+   .dash-panel-body { overflow: auto }) since that degrades better when
+   only one panel is too tall.
+
+   2026-08-26: first attempt at this broke manual resize (Network's
+   handle became unreachable, Shells "ate" the space instead of staying
+   put) and was reverted, blaming the scroll itself. Root cause turned
+   out to be unrelated: detaching a panel to position: absolute (see
+   dashboard-layout.js) pulls it out of .dash-row-top's flex layout, and
+   its still-in-flow sibling reflows into the gap regardless of whether
+   the PAGE scrolls -- that's now fixed at the source (detachSiblings()
+   in dashboard-layout.js detaches the sibling too, at its own current
+   rect, the instant either one leaves the row). Scrolling was never the
+   actual problem, so it's back. */
+body {
+  min-height: 100vh;
+  overflow-y: auto;
+}
+
+.network-shell {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 0.6rem 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.network-header {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+/* Sits between the (now left-hugging) +Shell button and the Nodes
+   status box -- flex: 1 (inherited from .hud-status) lets it stretch to
+   fill whatever room is left between them instead of being squeezed to
+   its content width like the other header items. */
+.grc-header-status {
+  min-width: 220px;
+}
+
+.grc-header-status .grc-progress-track {
+  margin: 0.25rem 0;
+}
+
+.network-header .category-title {
+  margin: 0;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.network-header-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.hud-legend {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.hud-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.68rem;
+  letter-spacing: 0.5px;
+  color: #bbb;
+}
+
+.hud-legend-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.hud-legend-dot.online { background: #2ecc71; box-shadow: 0 0 6px #2ecc71; }
+.hud-legend-dot.offline { background: #ff4757; box-shadow: 0 0 6px #ff4757; }
+.hud-legend-dot.checking { background: #f1c40f; box-shadow: 0 0 6px #f1c40f; }
+
+/* HUD background: grid */
+.hud-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.hud-grid {
+  position: absolute;
+  inset: -2px;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+  background-size: 42px 42px;
+  -webkit-mask-image: radial-gradient(circle at 50% 35%, black 0%, transparent 75%);
+  mask-image: radial-gradient(circle at 50% 35%, black 0%, transparent 75%);
+}
+
+/* Central system-status panel */
+.hud-status {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  max-width: 480px;
+  margin: 0;
+  padding: 0.3rem 1.2rem;
+  border: 1px solid var(--accent);
+  border-radius: 12px;
+  background: rgba(8, 10, 16, 0.65);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 0 24px var(--accent-glow);
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+}
+
+.hud-gauge {
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
+}
+
+.hud-gauge circle {
+  fill: none;
+  stroke-width: 6;
+}
+
+.hud-gauge .track {
+  stroke: rgba(255,255,255,0.1);
+}
+
+.hud-gauge .value {
+  stroke: var(--accent);
+  stroke-linecap: round;
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+  transition: stroke-dashoffset 0.8s ease;
+  filter: drop-shadow(0 0 6px var(--accent));
+}
+
+.hud-gauge-label {
+  fill: #f5f5f5;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+
+.hud-status-text {
+  flex: 1;
+}
+
+.hud-status-title {
+  font-size: 0.68rem;
+  letter-spacing: 2px;
+  color: var(--accent);
+  text-transform: uppercase;
+  margin-bottom: 0.15rem;
+}
+
+.hud-status-count {
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.hud-clock {
+  font-size: 0.75rem;
+  color: #aaa;
+  margin-top: 0.15rem;
+  font-family: monospace;
+}
+
+/* Card grid: fills the remaining vertical space between the header and
+   the log panel, grouped into one section per category. Wrapped as its
+   own HUD panel (border/blur, like .hud-status and .hud-log) so the
+   section titles read as part of the same container as the cards
+   instead of floating loose over the wallpaper. overflow-y is a
+   fallback for viewports too short to fit every row. */
+#reseau-grid {
+  display: flex;
+  flex-direction: column;
+  flex: 0 1 auto;
+  min-height: 0;
+  box-sizing: border-box;
+  align-self: flex-end;
+  /* Fixed to fit the largest category row (5 cards): width:fit-content
+     doesn't work here, the nested auto-fit grid resolves its own
+     intrinsic width to a single column and collapses the whole panel
+     with it. scrollbar-gutter is reserved (and padded for below) so
+     the fallback scrollbar never eats into that fixed width and wraps
+     a card to the next row. */
+  width: calc(5 * 180px + 4 * 0.35rem + 2 * 1rem + 16px + 2px);
+  max-width: 100%;
+  scrollbar-gutter: stable;
+  padding: 0.6rem 1rem;
+  gap: 0.25rem;
+  overflow-y: auto;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 12px;
+  background: rgba(8, 10, 16, 0.55);
+  backdrop-filter: blur(8px);
+}
+
+.node-category {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.node-category-title {
+  font-size: 0.6rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--accent);
+  opacity: 0.85;
+}
+
+.node-category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 180px));
+  justify-content: end;
+  gap: 0.35rem;
+}
+
+/* Node cards (extend the shared .card look with a status ring) */
+.card.node-card {
+  position: relative;
+  padding: 0.4rem 0.55rem;
+}
+
+.node-card .card-img {
+  width: 20px;
+  height: 20px;
+  margin-bottom: 0.2rem;
+}
+
+.node-card .card-title {
+  font-size: 0.8rem;
+  margin-bottom: 0.05rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-right: 1.2rem;
+}
+
+.node-card .card-sub {
+  font-size: 0.66rem;
+}
+
+.node-status {
+  position: absolute;
+  top: 0.9rem;
+  right: 0.9rem;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #7f8c8d;
+  box-shadow: 0 0 6px #7f8c8d;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.node-status.online {
+  background: #2ecc71;
+  animation: node-pulse 2s ease-in-out infinite;
+}
+
+.node-status.offline {
+  background: #ff4757;
+  box-shadow: 0 0 8px #ff4757;
+}
+
+.node-status.checking {
+  background: #f1c40f;
+  box-shadow: 0 0 8px #f1c40f;
+  animation: node-blink 1s ease-in-out infinite;
+}
+
+@keyframes node-pulse {
+  0%, 100% { box-shadow: 0 0 8px #2ecc71, 0 0 16px #2ecc71; }
+  50% { box-shadow: 0 0 4px #2ecc71, 0 0 8px #2ecc71; }
+}
+
+@keyframes node-blink {
+  50% { opacity: 0.3; }
+}
+
+.node-latency {
+  font-size: 0.6rem;
+  color: #888;
+  margin-top: 0.05rem;
+  font-family: monospace;
+}
+
+/* System log panel body: chrome (border/title) now comes from the
+   shared .dash-panel/.dash-panel-header in dashboard-panels.css. Sizing
+   (height: 100%, not a fixed max-height) lives there too, next to the
+   parent .dash-panel-body it needs to fill -- kept out of this rule so
+   there's only one place controlling it. */
+.hud-log-body {
+  font-family: monospace;
+  font-size: 0.7rem;
+  overflow-y: auto;
+  color: #9adfff;
+}
+
+.hud-log-line {
+  white-space: pre-wrap;
+  line-height: 1.5;
+  animation: log-in 0.3s ease;
+}
+
+@keyframes log-in {
+  from { opacity: 0; transform: translateY(-2px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.hud-log-line.ok { color: #6ee7a8; }
+.hud-log-line.fail { color: #ff8b93; }
+.hud-log-line.pending { color: #f7dd72; }

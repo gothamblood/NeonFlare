@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="../../../assets/images/dragon-logo.svg">
+    <link rel="icon" type="image/png" href="../../../assets/images/dragon-favicon.png">
+    <title>Sécurité des requêtes – Sécurité Base de données</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" type="text/css" href="../../../assets/css/grc.css">
+</head>
+<body>
+<header>
+    <nav class="nav">
+        <div class="logo">
+            <div class="logo-mark">D</div>
+            <div>Sécurité Base de données</div>
+        </div>
+        <div class="nav-links">
+            <a href="./index.html">&larr; Retour à Sécurité Base de données</a>
+        </div>
+    </nav>
+</header>
+
+<main>
+    <h1 class="page-title">Sécurité des requêtes</h1>
+    <p class="page-subtitle">
+        Décrire les mesures de sécurité appliquées aux requêtes.
+    </p>
+
+    <section class="content-block">
+        <h2>Éléments à inclure</h2>
+        <ul>
+            <li>Requêtes préparées <span class="grc-control-tags">ISO A.8.28 · NIST PR.PS · CIS 16</span></li>
+            <li>ORM sécurisé <span class="grc-control-tags">ISO A.8.28 · NIST PR.PS · CIS 16</span></li>
+            <li>Interdiction de concaténation SQL <span class="grc-control-tags">ISO A.8.28 · NIST PR.PS · CIS 16</span></li>
+            <li>Validation des paramètres <span class="grc-control-tags">ISO A.8.28 · NIST PR.PS · CIS 16</span></li>
+        </ul>
+
+    </section>
+</main>
+
+
+<script>
+  const savedTheme = localStorage.getItem("/settings.html") || "standard";
+  document.body.classList.add("theme-" + savedTheme);
+
+  const embedded = window.self !== window.top;
+
+  function reportHeight() {
+    if (embedded) {
+      window.parent.postMessage({ type: "hub-frame-height", height: document.documentElement.scrollHeight }, "*");
+    }
+  }
+
+  if (embedded) {
+    document.body.classList.add("embedded");
+    new ResizeObserver(reportHeight).observe(document.body);
+    window.addEventListener("load", reportHeight);
+  }
+</script>
+
+<script src="../../../config/grc-author.js"></script>
+
+<script src="../../../config/encryption.js"></script>
+
+<script src="../../../assets/script/vault-crypto.js"></script>
+<script src="../../../assets/script/theme-accent.js"></script>
+
+<script src="../../../assets/script/vault.js"></script>
+<script src="../../../assets/script/vault-ui.js"></script>
+
+<script src="../../../assets/script/grc-checklist.js"></script>
+<script>initGrcChecklist();</script>
+
+</body>
+</html>

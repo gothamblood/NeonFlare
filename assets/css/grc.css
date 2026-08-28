@@ -1,0 +1,887 @@
+:root {
+    --bg: #0b1020;
+    --bg-alt: #11182a;
+    --accent: #48dbfb;
+    --accent-08: rgba(72, 219, 251, 0.08);
+    --accent-12: rgba(72, 219, 251, 0.12);
+    --accent-soft: rgba(72, 219, 251, 0.15);
+    --accent-25: rgba(72, 219, 251, 0.25);
+    --accent-40: rgba(72, 219, 251, 0.4);
+    --accent-50: rgba(72, 219, 251, 0.5);
+    --accent-70: rgba(72, 219, 251, 0.7);
+    --text: #f5f7ff;
+    --muted: #a7b0c7;
+    --danger: #ff4b6a;
+}
+
+body.theme-standard {
+    --accent: #48dbfb;
+    --accent-08: rgba(72, 219, 251, 0.08);
+    --accent-12: rgba(72, 219, 251, 0.12);
+    --accent-soft: rgba(72, 219, 251, 0.15);
+    --accent-25: rgba(72, 219, 251, 0.25);
+    --accent-40: rgba(72, 219, 251, 0.4);
+    --accent-50: rgba(72, 219, 251, 0.5);
+    --accent-70: rgba(72, 219, 251, 0.7);
+}
+
+body.theme-terminal {
+    --accent: #2f9e44;
+    --accent-08: rgba(47, 158, 68, 0.08);
+    --accent-12: rgba(47, 158, 68, 0.12);
+    --accent-soft: rgba(47, 158, 68, 0.15);
+    --accent-25: rgba(47, 158, 68, 0.25);
+    --accent-40: rgba(47, 158, 68, 0.4);
+    --accent-50: rgba(47, 158, 68, 0.5);
+    --accent-70: rgba(47, 158, 68, 0.7);
+}
+
+body.theme-blade {
+    --accent: #ff6bcb;
+    --accent-08: rgba(255, 107, 203, 0.08);
+    --accent-12: rgba(255, 107, 203, 0.12);
+    --accent-soft: rgba(255, 107, 203, 0.15);
+    --accent-25: rgba(255, 107, 203, 0.25);
+    --accent-40: rgba(255, 107, 203, 0.4);
+    --accent-50: rgba(255, 107, 203, 0.5);
+    --accent-70: rgba(255, 107, 203, 0.7);
+}
+
+body.theme-tron {
+    --accent: #54a0ff;
+    --accent-08: rgba(84, 160, 255, 0.08);
+    --accent-12: rgba(84, 160, 255, 0.12);
+    --accent-soft: rgba(84, 160, 255, 0.15);
+    --accent-25: rgba(84, 160, 255, 0.25);
+    --accent-40: rgba(84, 160, 255, 0.4);
+    --accent-50: rgba(84, 160, 255, 0.5);
+    --accent-70: rgba(84, 160, 255, 0.7);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: radial-gradient(circle at top, #182544 0, #050814 55%, #02030a 100%);
+    color: var(--text);
+    line-height: 1.6;
+}
+
+/* Drifting node network (assets/script/network-background.js) -- negative
+   z-index puts it below every normal in-flow element (header/main/footer
+   below all stay non-positioned, so they paint above it regardless of
+   DOM order) without needing to touch their own stacking. */
+.grc-network-canvas {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    pointer-events: none;
+}
+
+/* Embedded case (see body.embedded above): same reasoning as its own
+   background going transparent -- this would otherwise keep animating
+   behind a modal that has nothing of its own to show it against. */
+body.embedded .grc-network-canvas {
+    display: none;
+}
+
+a {
+    color: var(--accent);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Embedded in the index.html modal: the sub-page's own chrome would
+   duplicate the modal's title bar and close-by-clicking-outside affordance */
+body.embedded {
+    background: transparent;
+}
+
+body.embedded header,
+body.embedded footer {
+    display: none;
+}
+
+body.embedded main {
+    max-width: none;
+    padding: 0;
+}
+
+header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    background: linear-gradient(90deg, var(--accent-08), transparent);
+    backdrop-filter: blur(12px);
+    position: sticky;
+    top: 0;
+    z-index: 20;
+}
+
+.nav {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+}
+
+.logo-mark {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    box-shadow: 0 0 12px var(--accent-70);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+}
+
+.nav-links {
+    display: flex;
+    gap: 1.5rem;
+    font-size: 0.9rem;
+}
+
+.nav-links a {
+    position: relative;
+    padding-bottom: 0.2rem;
+}
+
+.nav-links a::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--danger));
+    transition: width 0.2s ease-out;
+}
+
+.nav-links a:hover::after {
+    width: 100%;
+}
+
+main {
+    max-width: min(1800px, 85vw);
+    margin: 0 auto;
+    padding: 1rem 1.5rem 1rem;
+}
+
+/* Hub page (grc/index.html): fills the viewport when the card grid fits,
+   but scrolls as a normal page rather than clipping inside main once it
+   doesn't (20 domain cards no longer fit 100vh below ~1580px wide). */
+body.hub-page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+body.hub-page header,
+body.hub-page footer {
+    flex-shrink: 0;
+}
+
+body.hub-page main {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+body.hub-page .grid-3 {
+    flex: 1;
+    align-content: start;
+    gap: 0.7rem;
+}
+
+body.hub-page main {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+}
+
+body.hub-page .page-title {
+    margin-bottom: 0.35rem;
+}
+
+body.hub-page .page-subtitle {
+    max-width: none;
+    margin-bottom: 0.75rem;
+}
+
+.page-title {
+    font-size: 2rem;
+    font-weight: 650;
+    letter-spacing: 0.03em;
+    margin-bottom: 0.6rem;
+}
+
+.page-subtitle {
+    color: var(--muted);
+    font-size: 0.98rem;
+    max-width: 640px;
+    margin-bottom: 1.25rem;
+}
+
+section {
+    margin-bottom: 3rem;
+}
+
+.grid-3 {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.85rem;
+}
+
+.card {
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: var(--bg-alt);
+    padding: 0.65rem;
+}
+
+.card-link {
+    display: block;
+    color: inherit;
+    cursor: pointer;
+}
+
+.card-link:hover {
+    text-decoration: none;
+    border-color: var(--accent-50);
+    box-shadow: 0 0 18px var(--accent-25);
+}
+
+.card-link {
+    position: relative;
+}
+
+/* Per-domain coverage badge (top-right corner of the hub card, clear of
+   the icon/title which sit top-left), set by renderGrcCoverage() in
+   grc-checklist.js */
+.grc-coverage-badge {
+    position: absolute;
+    top: 0.55rem;
+    right: 0.55rem;
+    font-size: 0.68rem;
+    font-weight: 700;
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    line-height: 1.3;
+}
+
+.grc-coverage-badge.empty {
+    color: var(--muted);
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.grc-coverage-badge.partial {
+    color: #ffb020;
+    background: rgba(255, 176, 32, 0.14);
+}
+
+.grc-coverage-badge.complete {
+    color: #2ecc71;
+    background: rgba(46, 204, 113, 0.14);
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 0.6rem;
+}
+
+.card-icon {
+    width: 26px;
+    height: 26px;
+    border-radius: 8px;
+    background: var(--accent-12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+
+.card-title {
+    font-size: 0.92rem;
+    font-weight: 600;
+}
+
+.card-body {
+    font-size: 0.82rem;
+    line-height: 1.4;
+    color: var(--muted);
+}
+
+.highlight {
+    border-radius: 14px;
+    border: 1px solid var(--accent-40);
+    background: var(--accent-08);
+    padding: 1rem;
+    font-size: 0.9rem;
+}
+
+.highlight strong {
+    color: var(--accent);
+}
+
+/* Modal (used by index.html to open a domain page without leaving the hub) */
+#overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    display: none;
+    backdrop-filter: blur(4px);
+    z-index: 998;
+}
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    top: 10px;
+    display: none;
+    justify-content: center;
+    align-items: flex-start;
+    z-index: 999;
+    overflow: auto;
+    overscroll-behavior: contain;
+}
+
+.modal-box {
+    background: var(--bg-alt);
+    border-radius: 12px;
+    width: 94%;
+    max-width: 1300px;
+    height: 96vh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 1.5rem;
+    margin-bottom: 20px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.7);
+    border-top: 4px solid var(--accent);
+}
+
+.modal-box-title {
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.modal-box iframe {
+    display: block;
+    width: 100%;
+    border: none;
+    background: transparent;
+    min-height: 100px;
+}
+
+/* Generic prose content for domain pages */
+.content-block h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 1.6rem 0 0.6rem;
+}
+
+.content-block h2:first-child {
+    margin-top: 0;
+}
+
+.content-block p {
+    font-size: 0.95rem;
+    color: var(--muted);
+    margin-bottom: 0.8rem;
+    max-width: 760px;
+}
+
+.content-block ul {
+    margin: 0 0 0.8rem 1.2rem;
+    font-size: 0.95rem;
+    color: var(--muted);
+}
+
+.content-block li {
+    margin-bottom: 0.3rem;
+}
+
+/* Personal tracking checklist (grc-checklist.js) */
+.grc-progress {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.4rem;
+}
+
+/* Export/Reset toolbar (grc/index.html only) */
+.grc-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-bottom: 1rem;
+}
+
+.grc-toolbar-btn {
+    font: inherit;
+    font-size: 0.82rem;
+    color: var(--text);
+    background: var(--accent-08);
+    border: 1px solid var(--accent-40);
+    border-radius: 8px;
+    padding: 0.45rem 0.9rem;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.grc-toolbar-btn:hover {
+    background: var(--accent-12);
+    border-color: var(--accent-70);
+}
+
+.grc-toolbar-btn-danger {
+    margin-left: auto;
+    border-color: rgba(255, 75, 106, 0.4);
+    color: var(--danger);
+}
+
+.grc-toolbar-btn-danger:hover {
+    background: rgba(255, 75, 106, 0.12);
+    border-color: var(--danger);
+}
+
+.grc-progress-track {
+    flex: 1 1 auto;
+    height: 8px;
+    max-width: 360px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    overflow: hidden;
+}
+
+.grc-progress-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--accent), #2ecc71);
+    transition: width 0.25s ease;
+}
+
+.grc-progress.complete .grc-progress-fill {
+    background: #2ecc71;
+}
+
+.grc-progress-label {
+    font-size: 0.82rem;
+    color: var(--muted);
+    white-space: nowrap;
+}
+
+/* Change-log summary line under the progress bar (grc-checklist.js,
+   grcLastModifiedInfo()) -- hidden until at least one item/comment has
+   ever been touched. */
+.grc-last-modified {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-top: -0.8rem;
+    margin-bottom: 1.4rem;
+}
+
+/* Settings > Checklist GRC > "Afficher les pourcentages" (off). The
+   checkboxes themselves stay -- this only hides the numeric readouts,
+   see applyGrcPercentageSetting() in grc-checklist.js. */
+body.grc-hide-percentage .grc-progress,
+body.grc-hide-percentage .grc-coverage-badge {
+    display: none;
+}
+
+.content-block li.grc-checklist-item {
+    list-style: none;
+    margin-left: -1.2rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+}
+
+.grc-item-checkbox {
+    margin-top: 0.2rem;
+    accent-color: var(--accent);
+    flex-shrink: 0;
+    cursor: pointer;
+}
+
+.content-block li.grc-checklist-item.checked {
+    color: rgba(167, 176, 199, 0.55);
+    text-decoration: line-through;
+}
+
+/* Free-text notes (grc-checklist.js, initGrcChecklist()) */
+.grc-comment {
+    margin-top: 1.6rem;
+}
+
+.grc-comment-box {
+    width: 100%;
+    max-width: 760px;
+    resize: vertical;
+    font-family: inherit;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: var(--text);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    padding: 0.7rem 0.9rem;
+}
+
+.grc-comment-box:focus {
+    outline: none;
+    border-color: var(--accent-50);
+    box-shadow: 0 0 0 3px var(--accent-08);
+}
+
+/* "Has notes" mark on hub cards, next to the coverage badge */
+.grc-note-mark {
+    position: absolute;
+    top: 0.55rem;
+    right: 3.6rem;
+    font-size: 0.85rem;
+    color: var(--accent);
+    opacity: 0.85;
+}
+
+footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 1rem 1.5rem;
+    font-size: 0.8rem;
+    color: var(--muted);
+    text-align: center;
+}
+
+@media (max-width: 900px) {
+    .grid-3 {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .nav {
+        flex-direction: column;
+        gap: 0.8rem;
+    }
+}
+/* ============================================================
+   VAULT / GENERIC INLINE NOTES (assets/script/vault-ui.js,
+   grc-checklist.js's lock banner) -- small self-contained banner used
+   wherever a page needs to say "here's something to know" without a
+   full modal. .nf-note-warn is the only variant used so far (locked
+   vault, encrypted content), kept generic in case a future non-warning
+   note reuses .nf-note alone.
+   ============================================================ */
+.nf-note {
+  border-radius: 10px;
+  padding: 0.9rem 1rem;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  margin: 0.8rem 0;
+}
+
+.nf-note-warn {
+  background: rgba(255, 193, 7, 0.08);
+  border: 1px solid rgba(255, 193, 7, 0.4);
+  color: #ffd76a;
+}
+
+.vault-unlock-gate .vault-unlock-msg {
+  margin: 0 0 0.7rem;
+}
+
+.vault-unlock-form {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.vault-unlock-form .vault-unlock-pass {
+  flex: 1 1 200px;
+  background: #1e1e1e;
+  border: 1px solid #444;
+  border-radius: 8px;
+  color: #f5f5f5;
+  font-family: inherit;
+  font-size: 0.85rem;
+  padding: 0.5rem 0.7rem;
+  box-sizing: border-box;
+}
+
+.vault-unlock-error {
+  color: var(--danger, #ff4b6a);
+  font-size: 0.8rem;
+  margin: 0.6rem 0 0;
+}
+
+/* Mapping des contrôles ISO/NIST/CIS par item de checklist
+   (TodoGRC.txt #4) -- pur ajout de contenu, li.textContent (ce que
+   grc-checklist.js sauvegarde) inclut donc ce texte, aucun changement de
+   logique. */
+.grc-control-tags {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.72rem;
+  font-family: monospace;
+  color: var(--accent);
+  opacity: 0.8;
+}
+
+/* Registres opérationnels (actifs / risques) -- assets/script/
+   grc-assets.js et assets/script/grc-risks.js. Styles autonomes (pas de
+   dépendance sur style.css/network-config.css) pour que les pages
+   grc/*.html restent indépendantes des feuilles de style dashboard.
+
+   .grc-registry-block (pas .content-block) enveloppe volontairement ces
+   sections : initGrcChecklist() (grc-checklist.js) sélectionne TOUS les
+   ".content-block ul li" de la page sans se limiter au premier bloc --
+   si ce registre utilisait la classe .content-block, ses propres <li>
+   (une fois des actifs/risques ajoutés) seraient transformés en items de
+   checklist par erreur, et le gate coffre-fort / la barre de progression
+   s'inséreraient devant ce bloc au lieu du vrai bloc checklist plus bas
+   (document.querySelector(".content-block") prend le premier trouvé). */
+.grc-registry-block h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 1.6rem 0 0.6rem;
+}
+
+.grc-registry-block h2:first-child {
+  margin-top: 0;
+}
+
+.grc-registry-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 0.8rem 0;
+}
+
+.grc-registry-add-btn,
+.grc-registry-io-btn {
+  border: 1px solid var(--accent-40);
+  background: var(--accent-08);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.45rem 1rem;
+  font-size: 0.82rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.grc-registry-add-btn:hover,
+.grc-registry-io-btn:hover {
+  background: var(--accent-12);
+  border-color: var(--accent-70);
+}
+
+.grc-registry-form {
+  background: var(--bg-alt);
+  border: 1px solid var(--accent-25);
+  border-radius: 12px;
+  padding: 1rem 1.1rem;
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.grc-registry-form h3 {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--accent);
+}
+
+.grc-registry-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.grc-registry-form-row {
+  display: flex;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+.grc-registry-form-row label {
+  flex: 1 1 140px;
+}
+
+.grc-registry-form input,
+.grc-registry-form select,
+.grc-registry-form textarea {
+  background: #1e1e1e;
+  border: 1px solid #444;
+  border-radius: 8px;
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.85rem;
+  padding: 0.5rem 0.7rem;
+  box-sizing: border-box;
+}
+
+.grc-registry-form textarea {
+  resize: vertical;
+}
+
+.grc-registry-form-actions {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.grc-registry-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.grc-registry-item {
+  border: 1px solid var(--accent-25);
+  border-radius: 10px;
+  background: var(--accent-08);
+  overflow: hidden;
+}
+
+.grc-registry-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.7rem 0.9rem;
+  cursor: pointer;
+  font-size: 0.88rem;
+}
+
+.grc-registry-header span:first-child {
+  flex: 1;
+}
+
+.grc-registry-header .chevron {
+  color: var(--muted);
+  transition: transform 0.15s ease;
+}
+
+.grc-registry-item.open .grc-registry-header .chevron {
+  transform: rotate(90deg);
+}
+
+.grc-registry-body {
+  padding: 0 0.9rem 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.grc-registry-body p {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.grc-registry-body .grc-registry-add-btn,
+.grc-registry-body .grc-registry-io-btn {
+  align-self: flex-start;
+  margin-top: 0.3rem;
+}
+
+.grc-crit-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.grc-crit-badge.low {
+  color: #2ecc71;
+  background: rgba(46, 204, 113, 0.14);
+}
+
+.grc-crit-badge.medium {
+  color: #ffb020;
+  background: rgba(255, 176, 32, 0.14);
+}
+
+.grc-crit-badge.high {
+  color: var(--danger);
+  background: rgba(255, 75, 106, 0.14);
+}
+
+.grc-risk-matrix {
+  margin-bottom: 1rem;
+}
+
+.grc-risk-matrix-grid {
+  display: grid;
+  grid-template-columns: auto repeat(3, 1fr);
+  gap: 0.35rem;
+  max-width: 420px;
+}
+
+.grc-risk-matrix-corner {
+  background: transparent;
+}
+
+.grc-risk-matrix-axis {
+  font-size: 0.72rem;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.4rem;
+  text-align: center;
+}
+
+.grc-risk-matrix-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  min-height: 44px;
+}
+
+.grc-risk-matrix-cell.low {
+  color: #2ecc71;
+  background: rgba(46, 204, 113, 0.14);
+}
+
+.grc-risk-matrix-cell.medium {
+  color: #ffb020;
+  background: rgba(255, 176, 32, 0.14);
+}
+
+.grc-risk-matrix-cell.high {
+  color: var(--danger);
+  background: rgba(255, 75, 106, 0.14);
+}

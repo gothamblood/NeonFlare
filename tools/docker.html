@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="icon" type="image/svg+xml" href="../assets/images/dragon-logo.svg">
+<link rel="icon" type="image/png" href="../assets/images/dragon-favicon.png">
+<title>Docker – DevSecOps Tools</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/style.css">
+
+</head>
+
+<body class="theme-standard" data-page-key="devsecops-docker">
+<div class="wallpaper"></div>
+
+<div class="tool-section-nav"><a href="../index.html?page=dashboard" target="_top">&larr; Back to Dashboard</a></div>
+
+<h1 class="category-title">Docker</h1>
+
+<div class="grid">
+  <div class="modal" style="margin: 0 auto 3rem; max-width: 1000px; cursor: default;">
+    <table>
+      <tr><th>Tool</th><th>Description</th></tr>
+
+    <!-- IMAGES & BUILD -->
+    <tr class="tool-row" onclick="toggleCmd('cmd-images')">
+      <td>Images & build</td>
+      <td>Build, list, inspect images</td>
+    </tr>
+    <tr id="cmd-images" class="command-row">
+      <td colspan="2" class="command-cell">
+        <div class="comment-line">---- Common -----</div>
+        <div>[Build] — docker build -t &lt;image&gt;:&lt;tag&gt; .</div>
+        <div>[Build no cache] — docker build --no-cache -t &lt;image&gt;:&lt;tag&gt; .</div>
+        <div>[List images] — docker images</div>
+        <div>[Pull] — docker pull &lt;image&gt;:&lt;tag&gt;</div>
+        <div>[Remove image] — docker rmi &lt;image&gt;</div>
+        <div>[Prune dangling] — docker image prune -f</div>
+
+        <div class="comment-line">---- Inspect / audit -----</div>
+        <div>[Layers/history] — docker history &lt;image&gt;</div>
+        <div>[Full metadata] — docker inspect &lt;image&gt;</div>
+        <div>[Config only (jq)] — docker inspect &lt;image&gt; --format '{{json .Config}}'</div>
+      </td>
+    </tr>
+
+    <!-- CONTAINERS -->
+    <tr class="tool-row" onclick="toggleCmd('cmd-containers')">
+      <td>Containers</td>
+      <td>Run, exec, logs, lifecycle</td>
+    </tr>
+    <tr id="cmd-containers" class="command-row">
+      <td colspan="2" class="command-cell">
+        <div class="comment-line">---- Common -----</div>
+        <div>[Run detached] — docker run -d --name &lt;name&gt; &lt;image&gt;</div>
+        <div>[Run interactive] — docker run -it --rm &lt;image&gt; sh</div>
+        <div>[List running] — docker ps</div>
+        <div>[List all] — docker ps -a</div>
+        <div>[Logs] — docker logs -f &lt;container&gt;</div>
+        <div>[Exec shell] — docker exec -it &lt;container&gt; sh</div>
+        <div>[Stop] — docker stop &lt;container&gt;</div>
+        <div>[Remove] — docker rm -f &lt;container&gt;</div>
+
+        <div class="comment-line">---- Runtime inspection -----</div>
+        <div>[Resource usage] — docker stats --no-stream</div>
+        <div>[Filesystem diff] — docker diff &lt;container&gt;</div>
+        <div>[Processes] — docker top &lt;container&gt;</div>
+        <div>[Copy out] — docker cp &lt;container&gt;:/path ./local-path</div>
+      </td>
+    </tr>
+
+    <!-- SECURITY SCANNING -->
+    <tr class="tool-row" onclick="toggleCmd('cmd-security')">
+      <td style="color:red">Security scanning</td>
+      <td>CVEs, secrets, misconfig in images</td>
+    </tr>
+    <tr id="cmd-security" class="command-row">
+      <td colspan="2" class="command-cell">
+        <div class="comment-line">---- Trivy (image/filesystem scanning) -----</div>
+        <div>[Scan image] — trivy image &lt;image&gt;:&lt;tag&gt;</div>
+        <div>[High/critical only] — trivy image --severity HIGH,CRITICAL &lt;image&gt;</div>
+        <div>[Fail CI on findings] — trivy image --exit-code 1 --severity CRITICAL &lt;image&gt;</div>
+        <div>[Scan Dockerfile] — trivy config .</div>
+        <div>[Secrets scan] — trivy fs --scanners secret .</div>
+
+        <div class="comment-line">---- Docker Scout -----</div>
+        <div>[CVEs] — docker scout cves &lt;image&gt;</div>
+        <div>[Recommendations] — docker scout recommendations &lt;image&gt;</div>
+        <div>[Compare base image] — docker scout compare --to &lt;other-image&gt; &lt;image&gt;</div>
+
+        <div class="comment-line">---- Host hardening -----</div>
+        <div>[CIS benchmark] — docker run --rm -v /var/run/docker.sock:/var/run/docker.sock docker/docker-bench-security</div>
+        <div>[Find privileged containers] — docker ps -q | xargs docker inspect --format '{{.Name}} {{.HostConfig.Privileged}}'</div>
+        <div>[Find containers running as root] — docker ps -q | xargs docker inspect --format '{{.Name}} {{.Config.User}}'</div>
+      </td>
+    </tr>
+
+    <!-- REGISTRY -->
+    <tr class="tool-row" onclick="toggleCmd('cmd-registry')">
+      <td>Registry</td>
+      <td>Login, tag, push</td>
+    </tr>
+    <tr id="cmd-registry" class="command-row">
+      <td colspan="2" class="command-cell">
+        <div class="comment-line">---- Common -----</div>
+        <div>[Login] — docker login &lt;registry&gt;</div>
+        <div>[Tag for registry] — docker tag &lt;image&gt; &lt;registry&gt;/&lt;image&gt;:&lt;tag&gt;</div>
+        <div>[Push] — docker push &lt;registry&gt;/&lt;image&gt;:&lt;tag&gt;</div>
+
+        <div class="comment-line">---- Signing / provenance -----</div>
+        <div>[Enable content trust] — export DOCKER_CONTENT_TRUST=1</div>
+        <div>[Sign & push] — docker trust sign &lt;registry&gt;/&lt;image&gt;:&lt;tag&gt;</div>
+      </td>
+    </tr>
+
+    <!-- COMPOSE -->
+    <tr class="tool-row" onclick="toggleCmd('cmd-compose')">
+      <td>Docker Compose</td>
+      <td>Multi-container stacks</td>
+    </tr>
+    <tr id="cmd-compose" class="command-row">
+      <td colspan="2" class="command-cell">
+        <div class="comment-line">---- Common -----</div>
+        <div>[Up detached] — docker compose up -d</div>
+        <div>[Down] — docker compose down</div>
+        <div>[Rebuild] — docker compose up -d --build</div>
+        <div>[Logs] — docker compose logs -f</div>
+        <div>[List services] — docker compose ps</div>
+        <div>[Validate file] — docker compose config</div>
+      </td>
+    </tr>
+
+    </table>
+  </div>
+</div>
+
+<script>
+  const embedded = window.self !== window.top;
+
+  function reportHeight() {
+    if (embedded) {
+      window.parent.postMessage({ type: "tool-frame-height", height: document.body.scrollHeight }, "*");
+    }
+  }
+
+  function toggleCmd(id) {
+    const row = document.getElementById(id);
+    row.style.display = (row.style.display === "table-row") ? "none" : "table-row";
+    reportHeight();
+  }
+
+  (function() {
+    const savedTheme = localStorage.getItem("/settings.html") || "standard";
+    document.body.classList.add("theme-" + savedTheme);
+    if (embedded) document.body.classList.add("embedded");
+  })();
+
+  if (embedded) {
+    new ResizeObserver(reportHeight).observe(document.body);
+    window.addEventListener("load", reportHeight);
+  }
+</script>
+
+<script src="../config/tools/docker.js"></script>
+<script src="../assets/script/wallpaper-loader.js"></script>
+<script src="../assets/script/theme-accent.js"></script>
+<script src="../assets/script/copy-commands.js"></script>
+<script src="../assets/script/page-effects.js"></script>
+<script src="../assets/script/page-effects-loader.js"></script>
+<script>
+  applyWallpaper(toolsDockerConfig.background, "devsecops-docker");
+</script>
+
+</body>
+</html>

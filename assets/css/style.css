@@ -1,0 +1,1684 @@
+/* ============================================================
+   GLOBAL
+   ============================================================ */
+body {
+  font-family: system-ui, sans-serif;
+  margin: 0;
+  padding: 0;
+  color: #f5f5f5;
+  background: #121212;
+  overflow-x: hidden;
+}
+
+/* ============================================================
+   WALLPAPER CYBERPUNK
+   ============================================================ */
+.wallpaper {
+  position: fixed;
+  inset: 0;
+  background-image: url("../images/kali_xl.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  z-index: -1;
+}
+
+/* ============================================================
+   GLOW OVERLAY
+   ============================================================ */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at 50% 20%, rgba(72,219,251,0.15), transparent 60%),
+              radial-gradient(circle at 10% 80%, rgba(255,107,203,0.15), transparent 55%);
+  mix-blend-mode: screen;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ============================================================
+   TITRES
+   ============================================================ */
+h1 {
+  text-align: center;
+  margin: 2rem 0;
+}
+
+/* ============================================================
+   GRID LAYOUT
+   ============================================================ */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+  padding: 15rem;
+  position: relative;
+  z-index: 1;
+  grid-auto-rows: 1fr;
+}
+
+/* ============================================================
+   CARDS (TOOLS)
+   ============================================================ */
+.card {
+  background: rgba(30, 30, 30, 0.75);
+  border-radius: 10px;
+  padding: 1.2rem;
+  border: 1px solid #444;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  box-sizing: border-box;
+  will-change: transform;
+  transform-origin: center;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.6);
+  border-color: var(--accent);
+  background: #181818;
+}
+
+.card-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+}
+
+.card-sub {
+  font-size: 0.85rem;
+  color: #bbbbbb;
+}
+
+.card-img {
+  width: 48px;
+  height: 48px;
+  border-radius: 6px;
+  margin-bottom: 0.8rem;
+  filter: drop-shadow(0 0 6px rgba(72,219,251,0.4));
+  transition: transform 0.25s ease;
+}
+
+.card:hover .card-img {
+  transform: scale(1.15);
+}
+
+a.card {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* ============================================================
+   TOOL SECTION PAGES (split-out tools/*.html)
+   ============================================================ */
+.tool-section-nav {
+  position: relative;
+  z-index: 1;
+  padding: 1.2rem 1.5rem 0;
+}
+
+.tool-section-nav a {
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 0.95rem;
+}
+
+.tool-section-nav a:hover {
+  color: #00eaff;
+  text-shadow: 0 0 8px #00eaff;
+}
+
+/* When a tools/*.html page is loaded inside the hub's modal iframe,
+   drop its own chrome entirely so only the shared modal frame shows
+   -- no nested box, no wasted padding, content hugs the iframe edge */
+body.embedded {
+  background: transparent;
+}
+
+body.embedded .wallpaper,
+body.embedded .tool-section-nav,
+body.embedded h1.category-title {
+  display: none;
+}
+
+/* body::before (GLOW OVERLAY, above) is fixed/full-viewport and not
+   covered by the .wallpaper hide above -- left alone, it still paints
+   its own ambient glow behind this page's now-transparent .modal
+   (below), which bleeds straight through into the dashboard's outer
+   modal it's embedded in. */
+body.embedded::before {
+  display: none;
+}
+
+body.embedded .grid {
+  padding: 0;
+  /* Only one child (.modal) is ever present here -- plain block avoids a
+     CSS Grid auto-fit track-sizing quirk that left the single item's
+     track narrower than the container, showing as a gap on the right. */
+  display: block;
+}
+
+body.embedded .modal {
+  width: 100% !important;
+  margin: 0 !important;
+  max-width: 100% !important;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+  border-top: none;
+  border-radius: 0;
+}
+
+/* Hub modal's iframe: no visible frame of its own, height is set by JS
+   from the embedded page's postMessage so there's no dead space */
+#modal-tool .modal iframe {
+  display: block;
+  width: 100%;
+  border: none;
+  background: transparent;
+  min-height: 100px;
+}
+
+/* ============================================================
+   MAT-CARD (RESOURCES)
+   ============================================================ */
+.mat-card {
+  background: rgba(20, 20, 30, 0.85);
+  border-radius: 14px;
+  padding: 1.5rem;
+  border: 1px solid #333;
+  box-shadow: 0 0 12px rgba(0,0,0,0.6), 0 0 18px rgba(0,0,0,0.4);
+  backdrop-filter: blur(6px);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  box-sizing: border-box;
+  will-change: transform;
+  transform-origin: center;
+}
+
+.mat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 0 18px rgba(0,0,0,0.7), 0 0 25px rgba(0,0,0,0.5);
+}
+
+.category-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--accent);
+  text-align: center;
+}
+
+/* ============================================================
+   HOST / WORDLIST FIELDS: fill every "<IP>" / "<wordlist>" placeholder
+   in this section's commands from one field instead of by hand each
+   time. Injected by assets/script/copy-commands.js right after
+   .category-title, on every tools/*.html page -- shown in both
+   standalone and embedded (modal) layouts, unlike .category-title
+   itself (see body.embedded h1.category-title above), since it's
+   needed either way.
+   ============================================================ */
+.host-ip-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem 1.2rem;
+  margin: 0 auto 1.2rem;
+  max-width: 1000px;
+}
+
+.host-ip-label {
+  font-size: 0.85rem;
+  color: #cfcfcf;
+  white-space: nowrap;
+}
+
+.host-ip-input {
+  font-family: monospace;
+  font-size: 0.9rem;
+  color: var(--text-main, #f5f5f5);
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  padding: 0.3rem 0.6rem;
+  width: 12rem;
+  max-width: 60vw;
+}
+
+.host-ip-input:focus {
+  outline: none;
+  box-shadow: 0 0 6px var(--accent);
+}
+
+.wordlist-select {
+  width: auto;
+  max-width: 70vw;
+  cursor: pointer;
+}
+
+.wordlist-custom-input {
+  width: 18rem;
+}
+
+.mat-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.mat-card li {
+  margin: 0.4rem 0;
+}
+
+.mat-card a {
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 0.95rem;
+}
+
+.mat-card a:hover {
+  color: #00eaff;
+  text-shadow: 0 0 8px #00eaff;
+}
+
+/* ============================================================
+   PARTICLES
+   ============================================================ */
+.particle {
+  position: fixed;
+  background: rgba(77,166,255,0.6);
+  border-radius: 50%;
+  animation: floatUp linear infinite;
+  filter: blur(1px);
+  z-index: 2;
+  display: inline-block;
+}
+
+@keyframes floatUp {
+  0% { transform: translateY(0vh) scale(0.4); opacity: 0.2; }
+  50% { opacity: 0.7; }
+  100% { transform: translateY(-110vh) scale(1); opacity: 0; }
+}
+
+/* ============================================================
+   MODAL SYSTEM
+   ============================================================ */
+#overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  display: none;
+  backdrop-filter: blur(4px);
+  z-index: 998;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  top: 20px;
+  display: none;
+  justify-content: center;
+  align-items: flex-start;
+  z-index: 999;
+  overflow: auto;
+}
+
+.modal {
+  background: #1e1e1e;
+  border-radius: 12px;
+  width: 85%;
+  max-width: 1000px;
+  padding: 1.5rem;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.7);
+  animation: pop 0.25s ease;
+  border-top: 6px solid var(--accent);
+  position: relative;
+  overflow: hidden;
+}
+
+@keyframes pop {
+  from { transform: scale(0.85); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+.modal-title {
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  background: #2a2a2a;
+  color: #fff;
+}
+
+/* ============================================================
+   TABLES
+   ============================================================ */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+}
+
+th, td {
+  padding: 0.4rem 0.3rem;
+  border-bottom: 1px solid #333;
+}
+
+tr.tool-row {
+  cursor: pointer;
+}
+
+tr.tool-row:hover {
+  background: rgba(255,255,255,0.08);
+}
+
+.command-row {
+  display: none;
+  background: #181818;
+}
+
+.command-cell {
+  padding: 10px 15px;
+  background: #0d0d0d;
+  border-left: 3px solid var(--accent);
+  font-family: monospace;
+  font-size: 14px;
+  color: #cfcfcf;
+}
+
+/* Comment lines inside command-cell */
+.command-cell div.comment-line {
+  color: var(--accent);
+  font-weight: 600;
+  margin: 6px 0;
+  letter-spacing: 1px;
+}
+
+/* ============================================================
+   COPY-TO-CLIPBOARD COMMAND LINES
+   ============================================================ */
+.command-cell .copyable {
+  position: relative;
+  cursor: pointer;
+  padding-right: 8.6rem;
+  border-radius: 4px;
+  transition: background 0.15s ease;
+}
+
+.command-cell .copyable:hover {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+/* Every command line in a section shares one <td> as plain sibling
+   <div>s with no z-index of their own, so they paint in DOM order --
+   the copy-to-shell-menu's z-index:5 (below) only wins inside its own
+   line's stacking, not against a *later* line, which is a separate
+   sibling that still paints on top of it and physically covers the
+   open dropdown. Bumping the active line's own z-index pulls its
+   whole subtree (dropdown included) above every sibling line instead. */
+.command-cell .copyable:hover,
+.command-cell .copyable:has(.copy-to-shell.open) {
+  z-index: 2;
+}
+
+.command-cell .copyable .copy-icon {
+  position: absolute;
+  right: 0.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0;
+  font-family: system-ui, sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  padding: 1px 6px;
+  background: rgba(0, 0, 0, 0.6);
+  transition: opacity 0.15s ease;
+  pointer-events: none;
+}
+
+.command-cell .copyable:hover .copy-icon {
+  opacity: 1;
+}
+
+.command-cell .copyable.copied {
+  background: rgba(72, 219, 251, 0.15);
+}
+
+.command-cell .copyable.copied .copy-icon {
+  opacity: 1;
+  color: #00eaff;
+  border-color: #00eaff;
+}
+
+/* ============================================================
+   COPY-TO-SHELL: paste a command onto a running shell's input line
+   (not run it -- see assets/script/shells-host.js). Click "Shell" =
+   first open shell (or bash, opened fresh, if none are open). Click
+   the ▾ caret to open a dropdown listing actual open shells by name
+   and pick one instead -- click-toggled (.open), not hover-driven:
+   see assets/script/copy-commands.js for why a hover-only dropdown
+   here is a trap (one lost pixel of :hover and it's unrecoverable).
+   ============================================================ */
+.command-cell .copyable .copy-to-shell {
+  position: absolute;
+  right: 4.4rem;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  gap: 2px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+}
+
+.command-cell .copyable:hover .copy-to-shell,
+.command-cell .copyable .copy-to-shell.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.command-cell .copyable .copy-to-shell-btn,
+.command-cell .copyable .copy-to-shell-caret {
+  font-family: system-ui, sans-serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  padding: 1px 6px;
+  background: rgba(0, 0, 0, 0.6);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.command-cell .copyable .copy-to-shell-btn:hover,
+.command-cell .copyable .copy-to-shell-caret:hover {
+  background: rgba(0, 234, 255, 0.15);
+}
+
+.command-cell .copyable .copy-to-shell-btn.sent {
+  opacity: 1;
+  color: #00eaff;
+  border-color: #00eaff;
+}
+
+.command-cell .copyable .copy-to-shell-caret {
+  padding: 1px 4px;
+  font-size: 0.6rem;
+}
+
+.command-cell .copyable .copy-to-shell-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  list-style: none;
+  margin: 0;
+  padding: 0.25rem 0;
+  min-width: 7rem;
+  background: #0d0d0d;
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-4px);
+  transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+  z-index: 5;
+}
+
+.command-cell .copyable .copy-to-shell.open .copy-to-shell-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.command-cell .copyable .copy-to-shell-menu li {
+  padding: 0.35rem 0.75rem;
+  font-family: system-ui, sans-serif;
+  font-size: 0.75rem;
+  color: #cfcfcf;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.command-cell .copyable .copy-to-shell-menu li:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--accent);
+}
+
+/* Separates existing (named) shells from the "New <type>" entries
+   below them, only present when there's at least one of the former. */
+.command-cell .copyable .copy-to-shell-menu-sep {
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  margin: 0.25rem 0;
+}
+
+/* ============================================================
+   THEMES (ACCENT + BORDERS + TABLE COLORS)
+   ============================================================ */
+body.theme-standard { --accent: #48dbfb; }
+body.theme-terminal { --accent: #2f9e44; }
+body.theme-blade    { --accent: #ff6bcb; }
+body.theme-tron     { --accent: #54a0ff; }
+
+/* Borders */
+body.theme-terminal .mat-card,
+body.theme-terminal .card { border-color: #2f9e44; }
+
+body.theme-blade .mat-card,
+body.theme-blade .card { border-color: #ff6bcb; }
+
+body.theme-tron .mat-card,
+body.theme-tron .card { border-color: #54a0ff; }
+
+/* TABLE COLORS */
+body.theme-standard table { color: #eaeaea; }
+body.theme-standard th { color: #ffffff; }
+body.theme-standard td { color: #d0d0d0; }
+
+body.theme-terminal table { color: #b6ffb6; }
+body.theme-terminal th { color: #9cff9c; }
+body.theme-terminal td { color: #b6ffb6; }
+
+body.theme-blade table { color: #ffe9ff; }
+body.theme-blade th { color: #ffb3f5; }
+body.theme-blade td { color: #ffd6ff; }
+
+body.theme-tron table { color: #e6f3ff; }
+body.theme-tron th { color: #b8e2ff; }
+body.theme-tron td { color: #d0e8ff; }
+
+/* ============================================================
+   PERMIT CARD (ID CARD)
+   ============================================================ */
+.permit-card {
+  width: 580px;
+  height: 300px;
+  display: flex;
+  border-radius: 14px;
+  overflow: hidden;
+  background: radial-gradient(circle at top, #141428, #050510);
+  border: 1px solid rgba(0, 234, 255, 0.4);
+  box-shadow: 0 0 25px rgba(0, 234, 255, 0.3);
+  position: relative;
+}
+
+.permit-photo {
+  width: 40%;
+  background: url('../images/LogoNeon.png') center/cover no-repeat;
+  border-right: 1px solid rgba(0, 234, 255, 0.3);
+}
+
+.permit-info {
+  width: 60%;
+  padding: 18px 22px;
+  color: #eaeaea;
+  position: relative;
+}
+
+.permit-header {
+  font-size: 0.85rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #00eaff;
+  margin-bottom: 8px;
+}
+
+.permit-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #ff4df0;
+  margin-bottom: 12px;
+}
+
+.permit-text {
+  font-size: 0.95rem;
+  line-height: 1.5rem;
+  color: #dcdcdc;
+}
+
+.permit-id {
+  margin-top: 10px;
+  font-size: 0.85rem;
+  letter-spacing: 2px;
+  color: #6a5cff;
+}
+
+.barcode {
+  margin-top: 12px;
+  height: 40px;
+  background: repeating-linear-gradient(90deg, #ff4df0 0px, #28242421 3px, transparent 3px, transparent 6px);
+  width: 180px;
+  cursor: pointer;
+}
+
+.qr {
+  position: absolute;
+  bottom: 18px;
+  right: 18px;
+  width: 70px;
+  height: 70px;
+  background: url('../images/qr.png') center/cover no-repeat;
+  border: 1px solid rgba(0, 234, 255, 0.4);
+  box-shadow: 0 0 10px rgba(0, 234, 255, 0.3);
+  cursor: pointer;
+}
+
+.signature {
+  margin-top: 14px;
+  font-size: 0.8rem;
+  color: #eaeaea;
+}
+
+.signature-line {
+  width: 160px;
+  height: 1px;
+  background: #eaeaea;
+  margin-top: 4px;
+}
+
+.holo-seal {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,234,255,0.4), rgba(255,77,240,0.3));
+  box-shadow: 0 0 20px rgba(0,234,255,0.4);
+  backdrop-filter: blur(4px);
+  transition: 0.3s ease;
+}
+
+.holo-seal:hover {
+  opacity: 0;
+}
+
+.qr:hover,
+.barcode:hover {
+  transform: scale(1.10);
+  box-shadow: 0 0 10px #00eaff, 0 0 35px #6a5cff;
+  transition: 0.25s ease;
+}
+
+
+/* ============================
+   PAGE SETTINGS / ABOUT
+   ============================ */
+
+/* Fond spécial pour la page Settings/About (si tu l’utilises sur settings.html) */
+body.settings-page,
+body.about-page {
+  font-family: Poppins, sans-serif;
+  padding: 15rem;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* Bloc qui affiche le thème courant */
+.current-theme {
+  margin-bottom: 2rem;
+  padding: 1rem;
+  background: #1e1e1e;
+  border: 1px solid #48dbfb;
+  border-radius: 8px;
+  transition: 0.3s ease;
+}
+
+/* Boutons de choix de thème */
+.theme-option {
+  padding: 1rem;
+  margin: 1rem 0;
+  background: #1e1e1e;
+  border: 1px solid #444;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+/* Hover preview par thème */
+.theme-option[data-theme="standard"]:hover {
+  border-color: #48dbfb;
+  background: rgba(72,219,251,0.15);
+}
+
+.theme-option[data-theme="terminal"]:hover {
+  border-color: #2f9e44;
+  background: rgba(47,158,68,0.25);
+  color: #b6ffb6;
+}
+
+.theme-option[data-theme="blade"]:hover {
+  border-color: #ff6bcb;
+  background: rgba(255,107,203,0.25);
+  color: #ffe9ff;
+}
+
+.theme-option[data-theme="tron"]:hover {
+  border-color: #54a0ff;
+  background: rgba(84,160,255,0.25);
+  color: #e6f3ff;
+}
+
+.theme-option[data-theme="custom"]:hover {
+  border-color: var(--accent, #48dbfb);
+  background: rgba(255,255,255,0.06);
+}
+
+.theme-option-custom-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.theme-option-custom-row input[type="color"] {
+  width: 44px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid #444;
+  border-radius: 6px;
+  background: #1e1e1e;
+  cursor: pointer;
+  flex: none;
+}
+
+.theme-option-custom-hint {
+  margin: 0.6rem 0 0;
+  font-size: 0.75rem;
+  color: #a7b0c7;
+  line-height: 1.5;
+}
+
+body.theme-custom .current-theme {
+  border-color: var(--accent, #48dbfb);
+  background: #1e1e1e;
+}
+
+/* Adaptation de current-theme selon le thème actif */
+body.theme-standard .current-theme {
+  border-color: #48dbfb;
+  background: #1e1e1e;
+}
+
+body.theme-terminal .current-theme {
+  border-color: #2f9e44;
+  background: rgba(0,40,0,0.4);
+  color: #b6ffb6;
+}
+
+body.theme-blade .current-theme {
+  border-color: #ff6bcb;
+  background: rgba(40,0,50,0.4);
+  color: #ffe9ff;
+}
+
+body.theme-tron .current-theme {
+  border-color: #54a0ff;
+  background: rgba(0,20,40,0.4);
+  color: #e6f3ff;
+}
+
+
+
+/* ============================================================
+   ABOUT PAGE FIX — RESTORE ALL ABOUT-SPECIFIC STYLES
+   ============================================================ */
+
+/* Background for About page */
+body.about-page {
+  font-family: Poppins, sans-serif;
+  padding: 4rem 0;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Permit Card Container */
+.permit-card {
+  width: 580px;
+  height: 300px;
+  display: flex;
+  border-radius: 14px;
+  overflow: hidden;
+  background: radial-gradient(circle at top, #141428, #050510);
+  border: 1px solid rgba(0, 234, 255, 0.4);
+  box-shadow: 0 0 25px rgba(0, 234, 255, 0.3);
+  margin: 0 auto;
+  position: relative;
+}
+
+/* Left Image */
+.permit-photo {
+  width: 40%;
+  background: url('../images/LogoNeon.png') center/cover no-repeat;
+  border-right: 1px solid rgba(0, 234, 255, 0.3);
+}
+
+/* Right Info */
+.permit-info {
+  width: 60%;
+  padding: 18px 22px;
+  color: #eaeaea;
+  position: relative;
+}
+
+.permit-header {
+  font-size: 0.85rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #00eaff;
+  margin-bottom: 8px;
+}
+
+.permit-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #ff4df0;
+  margin-bottom: 12px;
+}
+
+.permit-text {
+  font-size: 0.95rem;
+  line-height: 1.5rem;
+  color: #dcdcdc;
+}
+
+.permit-id {
+  margin-top: 10px;
+  font-size: 0.85rem;
+  letter-spacing: 2px;
+  color: #6a5cff;
+}
+
+/* Barcode */
+.barcode {
+  margin-top: 12px;
+  height: 40px;
+  background: repeating-linear-gradient(
+    90deg,
+    #ff4df0 0px,
+    #28242421 3px,
+    transparent 3px,
+    transparent 6px
+  );
+  width: 180px;
+  cursor: pointer;
+}
+
+/* QR Code */
+.qr {
+  position: absolute;
+  bottom: 18px;
+  right: 18px;
+  width: 70px;
+  height: 70px;
+  background: url('../images/qr.png') center/cover no-repeat;
+  border: 1px solid rgba(0, 234, 255, 0.4);
+  box-shadow: 0 0 10px rgba(0, 234, 255, 0.3);
+  cursor: pointer;
+}
+
+/* Signature */
+.signature {
+  margin-top: 14px;
+  font-size: 0.8rem;
+  color: #eaeaea;
+}
+
+.signature-line {
+  width: 160px;
+  height: 1px;
+  background: #eaeaea;
+  margin-top: 4px;
+}
+
+/* Hologram Seal */
+.holo-seal {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,234,255,0.4), rgba(255,77,240,0.3));
+  box-shadow: 0 0 20px rgba(0,234,255,0.4);
+  backdrop-filter: blur(4px);
+  transition: 0.3s ease;
+}
+
+.holo-seal:hover {
+  opacity: 0;
+}
+
+/* Hover glow for QR + Barcode */
+.qr:hover,
+.barcode:hover {
+  transform: scale(1.10);
+  box-shadow: 0 0 10px #00eaff, 0 0 35px #6a5cff;
+  transition: 0.25s ease;
+}
+
+/* Modal Background */
+.modal-bg {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(6px);
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+/* Modal Box */
+.modal-box {
+  width: 380px;
+  background: #0a0a14;
+  border: 1px solid rgba(0, 234, 255, 0.4);
+  box-shadow: 0 0 25px rgba(0, 234, 255, 0.3);
+  border-radius: 12px;
+  padding: 20px;
+  color: #eaeaea;
+  text-align: left;
+}
+
+.modal-title {
+  font-size: 1.2rem;
+  color: #00eaff;
+  margin-bottom: 12px;
+  text-shadow: 0 0 10px #00eaff;
+}
+
+.modal-links a {
+  display: block;
+  margin: 8px 0;
+  color: #ff4df0;
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: 0.2s;
+}
+
+.modal-links a:hover {
+  color: #00eaff;
+  text-shadow: 0 0 10px #00eaff;
+}
+
+.close-btn {
+  margin-top: 18px;
+  padding: 8px 14px;
+  background: #6a5cff;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.close-btn:hover {
+  background: #ff4df0;
+}
+
+
+
+
+/* ============================================================
+   SETTINGS PAGE FIX — RESTORE ALL SETTINGS-SPECIFIC STYLES
+   ============================================================ */
+
+/* Background for Settings page */
+body.settings-page {
+  font-family: Poppins, sans-serif;
+  padding: 4rem 0;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Container for theme cards -- one row of 5 columns (there are 5 cards:
+   Theme, Pages visibles, Checklist GRC + Shells, Langue, Sections du
+   Dashboard) down to fewer columns as the viewport narrows. */
+.mat-card-container {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 1.35rem;
+  width: 100%;
+  padding: 1.8rem;
+}
+
+/* Settings > Registres group title (Générique / Autres) -- splits the
+   6 registry cards into two rows instead of one undifferentiated grid,
+   spanning every column regardless of how many the responsive rule
+   below currently gives this container. */
+.netcfg-registry-group-title {
+  grid-column: 1 / -1;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--accent, #48dbfb);
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #333;
+}
+
+.netcfg-registry-group-title:not(:first-child) {
+  margin-top: 0.6rem;
+}
+
+/* Settings > Apparence > Effets par page -- same collapsible-group
+   header as .netcfg-category-divider (chevron, cursor, count), just its
+   own spacing since this card's rows are already collapsed individually
+   too (buildRow() in the inline script), unlike Config Network's flat
+   category groups. */
+.page-effects-group-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 1.1rem;
+  cursor: pointer;
+}
+
+.page-effects-group-title:first-child {
+  margin-top: 0.8rem;
+}
+
+.page-effects-group-title .chevron {
+  color: #a7b0c7;
+  transition: transform 0.2s ease;
+  text-transform: none;
+}
+
+.page-effects-group-title.open .chevron {
+  transform: rotate(90deg);
+}
+
+.page-effects-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 0.82rem;
+}
+
+.page-effects-row-label {
+  color: #d6dbe8;
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+.page-effects-row-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+}
+
+.page-effects-control {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.72rem;
+  color: #8892a8;
+  white-space: nowrap;
+}
+
+.page-effects-select {
+  background: #1e1e1e;
+  border: 1px solid #444;
+  border-radius: 6px;
+  color: #f5f5f5;
+  font-family: inherit;
+  font-size: 0.75rem;
+  padding: 0.3rem 0.4rem;
+}
+
+@media (max-width: 1500px) {
+  .mat-card-container {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Settings two-pane shell (project/settings.html) -- a left nav of
+   sections + the selected section's cards on the right, instead of one
+   long flat grid of every card at once. Scoped to #settingsCardsContainer
+   (not the shared .mat-card-container rule above, still used as-is by
+   about.html/neonflare-technology.html's own single-grid card layout). */
+.settings-shell {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+  padding: 1.8rem;
+}
+
+.settings-nav {
+  flex: 0 0 210px;
+  position: sticky;
+  top: 1.8rem;
+  /* Its own card, same look as .mat-card, so it reads as a distinct
+     panel rather than a loose list of text floating on the wallpaper. */
+  background: rgba(20, 20, 30, 0.85);
+  border: 1px solid #333;
+  border-radius: 14px;
+  padding: 1rem;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.6), 0 0 18px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(6px);
+}
+
+.settings-nav-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+/* "Générique" / "Autres" jump-to-group sub-items, nested under
+   Registres -- smaller and indented so they read as belonging to it
+   rather than as co-equal top-level sections. */
+.settings-nav-subitem {
+  margin-left: 1.1rem;
+  padding-top: 0.4rem;
+  padding-bottom: 0.4rem;
+  font-size: 0.76rem;
+  opacity: 0.8;
+}
+
+.settings-nav-item {
+  padding: 0.65rem 0.9rem;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  font-size: 0.85rem;
+  color: #a7b0c7;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.settings-nav-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--accent);
+}
+
+.settings-nav-item.active {
+  background: var(--accent-12, rgba(72, 219, 251, 0.12));
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.settings-content {
+  flex: 1 1 auto;
+  min-width: 0;
+  /* Visible separation from the nav card beyond just the flex gap --
+     its own left edge, so the two zones read as clearly distinct areas
+     rather than one continuous surface. */
+  border-left: 1px solid rgba(255, 255, 255, 0.1);
+  padding-left: 1.5rem;
+}
+
+/* Each section's cards are only one of 1-4 at a time now, not ~10 spread
+   across the whole page -- the shared 5-column .mat-card-container rule
+   would leave this cramped/awkward, so this ID-scoped override takes
+   over instead (padding: 0 since .settings-shell/.settings-content now
+   own the page padding the shared rule otherwise provides). */
+#settingsCardsContainer {
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  padding: 0;
+}
+
+@media (max-width: 760px) {
+  .settings-shell {
+    flex-direction: column;
+    padding: 1.2rem;
+  }
+
+  .settings-nav {
+    position: static;
+    flex: none;
+    width: 100%;
+  }
+
+  .settings-nav-list {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  /* Nav sits ABOVE content when stacked, not beside it -- a left border
+     reads as a stray vertical line here instead of a divider. A top
+     border (the nav card's own bottom edge already separates it) is
+     enough once they're stacked. */
+  .settings-content {
+    border-left: none;
+    padding-left: 0;
+    margin-top: 1.5rem;
+  }
+}
+
+/* Divider between the two sections stacked inside the Checklist GRC +
+   Shells card. */
+.mat-card hr {
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  margin: 1.2rem 0;
+}
+
+@media (max-width: 760px) {
+  .mat-card-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Settings mat-card */
+.mat-card.settings-card,
+.mat-card-container .mat-card {
+  background: rgba(20,20,30,0.85);
+  border-radius: 14px;
+  padding: 1.35rem;
+  border: 1px solid #333;
+  box-shadow: 0 0 12px rgba(0,0,0,0.6), 0 0 18px rgba(0,0,0,0.4);
+  backdrop-filter: blur(6px);
+  transition: 0.25s ease;
+  color: white;
+}
+
+/* Title inside settings card */
+.mat-card-container .mat-card h1 {
+  margin-top: 0;
+  margin-bottom: 0.9rem;
+  text-align: center;
+}
+
+/* Current theme display */
+.current-theme {
+  margin-bottom: 1.8rem;
+  padding: 0.9rem;
+  background: #1e1e1e;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  transition: 0.3s ease;
+}
+
+/* Theme option buttons */
+.theme-option {
+  padding: 0.9rem;
+  margin: 0.9rem 0;
+  background: #1e1e1e;
+  border: 1px solid #444;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.25s ease;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+/* Page-visibility toggle rows (Settings > Pages visibles) */
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.9rem;
+  padding: 0.63rem 0;
+  border-bottom: 1px solid #333;
+}
+
+.toggle-row:last-of-type {
+  border-bottom: none;
+}
+
+.toggle-row-label {
+  font-size: 0.86rem;
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 38px;
+  height: 22px;
+  flex-shrink: 0;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-switch .slider {
+  position: absolute;
+  inset: 0;
+  cursor: pointer;
+  background-color: #444;
+  border: 1px solid #555;
+  border-radius: 24px;
+  transition: 0.25s ease;
+}
+
+.toggle-switch .slider::before {
+  content: "";
+  position: absolute;
+  height: 14px;
+  width: 14px;
+  left: 2px;
+  bottom: 2px;
+  background-color: #ccc;
+  border-radius: 50%;
+  transition: 0.25s ease;
+}
+
+.toggle-switch input:checked + .slider {
+  background-color: var(--accent);
+  border-color: var(--accent);
+}
+
+.toggle-switch input:checked + .slider::before {
+  transform: translateX(16px);
+  background-color: #0a0a14;
+}
+
+/* Dashboard accordion (Settings > Dashboards) -- one <li> per dashboard,
+   click to expand its rename/delete/section-toggle options instead of
+   giving every dashboard its own full-height card. */
+.mat-card ul.dash-accordion-list {
+  margin-top: 1rem;
+}
+
+.mat-card li.dash-accordion-item {
+  border: 1px solid #444;
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 0.6rem 0;
+}
+
+/* Category divider (Settings > Registres > Config Network) -- breaks up
+   a long flat node list into its Réseau/Serveurs/Kubernetes/etc. groups,
+   each collapsed to just this header (with a node count) until clicked,
+   same reasoning as Effets par page's own accordion. */
+.netcfg-category-divider {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 1.1rem 0 0.4rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid #333;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--accent, #48dbfb);
+  cursor: pointer;
+}
+
+.netcfg-category-divider:first-child {
+  margin-top: 0;
+}
+
+.netcfg-category-divider .chevron {
+  color: #a7b0c7;
+  transition: transform 0.2s ease;
+  text-transform: none;
+}
+
+.netcfg-category-divider.open .chevron {
+  transform: rotate(90deg);
+}
+
+.dash-accordion-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: 0.25s ease;
+}
+
+.dash-accordion-header:hover {
+  background: rgba(255,255,255,0.05);
+}
+
+.dash-accordion-header .chevron {
+  color: #a7b0c7;
+  transition: transform 0.2s ease;
+}
+
+.dash-accordion-item.open .dash-accordion-header .chevron {
+  transform: rotate(90deg);
+}
+
+.dash-accordion-body {
+  padding: 0 0.9rem 0.9rem;
+  border-top: 1px solid #333;
+}
+
+/* ============================================================
+   THEMING FOR PERMIT PAGE
+   ============================================================ */
+
+/* ------------------------------
+   STANDARD THEME (cyan)
+   ------------------------------ */
+body.theme-standard .permit-card {
+  border-color: #48dbfb;
+  box-shadow: 0 0 25px rgba(72,219,251,0.3);
+}
+
+body.theme-standard .permit-header {
+  color: #48dbfb;
+}
+
+body.theme-standard .permit-title {
+  color: #48dbfb;
+}
+
+body.theme-standard .permit-id {
+  color: #48dbfb;
+}
+
+body.theme-standard .signature-line {
+  background: #48dbfb;
+}
+
+body.theme-standard .barcode {
+  background: repeating-linear-gradient(
+    90deg,
+    #48dbfb 0px,
+    #28242421 3px,
+    transparent 3px,
+    transparent 6px
+  ) !important;
+}
+
+body.theme-standard .qr {
+  border-color: #48dbfb;
+  box-shadow: 0 0 10px rgba(72,219,251,0.3);
+}
+
+
+/* ------------------------------
+   TERMINAL THEME (vert hacker)
+   ------------------------------ */
+body.theme-terminal .permit-card {
+  border-color: #2f9e44;
+  box-shadow: 0 0 25px rgba(47,158,68,0.3);
+}
+
+body.theme-terminal .permit-header {
+  color: #2f9e44;
+}
+
+body.theme-terminal .permit-title {
+  color: #2f9e44;
+}
+
+body.theme-terminal .permit-id {
+  color: #2f9e44;
+}
+
+body.theme-terminal .signature-line {
+  background: #2f9e44;
+}
+
+body.theme-terminal .barcode {
+  background: repeating-linear-gradient(
+    90deg,
+    #2f9e44 0px,
+    #0a0a0a 3px,
+    transparent 3px,
+    transparent 6px
+  ) !important;
+}
+
+body.theme-terminal .qr {
+  border-color: #2f9e44;
+  box-shadow: 0 0 10px rgba(47,158,68,0.3);
+}
+
+
+/* ------------------------------
+   BLADE THEME (rose néon)
+   ------------------------------ */
+body.theme-blade .permit-card {
+  border-color: #ff6bcb;
+  box-shadow: 0 0 25px rgba(255,107,203,0.3);
+}
+
+body.theme-blade .permit-header {
+  color: #ff6bcb;
+}
+
+body.theme-blade .permit-title {
+  color: #ff6bcb;
+}
+
+body.theme-blade .permit-id {
+  color: #ff6bcb;
+}
+
+body.theme-blade .signature-line {
+  background: #ff6bcb;
+}
+
+body.theme-blade .barcode {
+  background: repeating-linear-gradient(
+    90deg,
+    #ff6bcb 0px,
+    #1b0326 3px,
+    transparent 3px,
+    transparent 6px
+  ) !important;
+}
+
+body.theme-blade .qr {
+  border-color: #ff6bcb;
+  box-shadow: 0 0 10px rgba(255,107,203,0.3);
+}
+
+
+/* ------------------------------
+   TRON THEME (bleu électrique)
+   ------------------------------ */
+body.theme-tron .permit-card {
+  border-color: #54a0ff;
+  box-shadow: 0 0 25px rgba(84,160,255,0.3);
+}
+
+body.theme-tron .permit-header {
+  color: #54a0ff;
+}
+
+body.theme-tron .permit-title {
+  color: #54a0ff;
+}
+
+body.theme-tron .permit-id {
+  color: #54a0ff;
+}
+
+body.theme-tron .signature-line {
+  background: #54a0ff;
+}
+
+body.theme-tron .barcode {
+  background: repeating-linear-gradient(
+    90deg,
+    #54a0ff 0px,
+    #00111f 3px,
+    transparent 3px,
+    transparent 6px
+  ) !important;
+}
+
+body.theme-tron .qr {
+  border-color: #54a0ff;
+  box-shadow: 0 0 10px rgba(84,160,255,0.3);
+}
+
+
+
+
+/* ============================================================
+   VAULT / GENERIC INLINE NOTES (assets/script/vault-ui.js,
+   grc-checklist.js's lock banner) -- small self-contained banner used
+   wherever a page needs to say "here's something to know" without a
+   full modal. .nf-note-warn is the only variant used so far (locked
+   vault, encrypted content), kept generic in case a future non-warning
+   note reuses .nf-note alone.
+   ============================================================ */
+.nf-note {
+  border-radius: 10px;
+  padding: 0.9rem 1rem;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  margin: 0.8rem 0;
+}
+
+.nf-note-warn {
+  background: rgba(255, 193, 7, 0.08);
+  border: 1px solid rgba(255, 193, 7, 0.4);
+  color: #ffd76a;
+}
+
+.vault-unlock-gate .vault-unlock-msg {
+  margin: 0 0 0.7rem;
+}
+
+.vault-unlock-form {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.vault-unlock-form .vault-unlock-pass {
+  flex: 1 1 200px;
+  background: #1e1e1e;
+  border: 1px solid #444;
+  border-radius: 8px;
+  color: #f5f5f5;
+  font-family: inherit;
+  font-size: 0.85rem;
+  padding: 0.5rem 0.7rem;
+  box-sizing: border-box;
+}
+
+.vault-unlock-error {
+  color: var(--danger, #ff4b6a);
+  font-size: 0.8rem;
+  margin: 0.6rem 0 0;
+}

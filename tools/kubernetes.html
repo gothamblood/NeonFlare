@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="icon" type="image/svg+xml" href="../assets/images/dragon-logo.svg">
+<link rel="icon" type="image/png" href="../assets/images/dragon-favicon.png">
+<title>Kubernetes – DevSecOps Tools</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/style.css">
+
+</head>
+
+<body class="theme-standard" data-page-key="devsecops-kubernetes">
+<div class="wallpaper"></div>
+
+<div class="tool-section-nav"><a href="../index.html?page=dashboard" target="_top">&larr; Back to Dashboard</a></div>
+
+<h1 class="category-title">Kubernetes</h1>
+
+<div class="grid">
+  <div class="modal" style="margin: 0 auto 3rem; max-width: 1000px; cursor: default;">
+    <table>
+      <tr><th>Tool</th><th>Description</th></tr>
+
+    <!-- CLUSTER & CONTEXT -->
+    <tr class="tool-row" onclick="toggleCmd('cmd-context')">
+      <td>Cluster & context</td>
+      <td>kubeconfig, nodes, namespaces</td>
+    </tr>
+    <tr id="cmd-context" class="command-row">
+      <td colspan="2" class="command-cell">
+        <div class="comment-line">---- Common -----</div>
+        <div>[Current context] — kubectl config current-context</div>
+        <div>[List contexts] — kubectl config get-contexts</div>
+        <div>[Switch context] — kubectl config use-context &lt;context&gt;</div>
+        <div>[Cluster info] — kubectl cluster-info</div>
+        <div>[List nodes] — kubectl get nodes -o wide</div>
+        <div>[List namespaces] — kubectl get ns</div>
+        <div>[Set default namespace] — kubectl config set-context --current --namespace=&lt;namespace&gt;</div>
+      </td>
+    </tr>
+
+    <!-- WORKLOADS -->
+    <tr class="tool-row" onclick="toggleCmd('cmd-workloads')">
+      <td>Workloads</td>
+      <td>Pods, deployments, logs, exec</td>
+    </tr>
+    <tr id="cmd-workloads" class="command-row">
+      <td colspan="2" class="command-cell">
+        <div class="comment-line">---- Common -----</div>
+        <div>[List pods] — kubectl get pods -n &lt;namespace&gt;</div>
+        <div>[Pod details] — kubectl describe pod &lt;pod&gt; -n &lt;namespace&gt;</div>
+        <div>[Logs] — kubectl logs -f &lt;pod&gt; -n &lt;namespace&gt;</div>
+        <div>[Previous container logs] — kubectl logs --previous &lt;pod&gt; -n &lt;namespace&gt;</div>
+        <div>[Exec shell] — kubectl exec -it &lt;pod&gt; -n &lt;namespace&gt; -- sh</div>
+        <div>[Delete pod] — kubectl delete pod &lt;pod&gt; -n &lt;namespace&gt;</div>
+        <div>[Rollout status] — kubectl rollout status deployment/&lt;name&gt; -n &lt;namespace&gt;</div>
+        <div>[Rollback] — kubectl rollout undo deployment/&lt;name&gt; -n &lt;namespace&gt;</div>
+        <div>[Scale] — kubectl scale deployment/&lt;name&gt; --replicas=&lt;n&gt; -n &lt;namespace&gt;</div>
+      </td>
+    </tr>
+
+    <!-- RBAC & SECRETS -->
+    <tr class="tool-row" onclick="toggleCmd('cmd-rbac')">
+      <td style="color:red">RBAC & secrets</td>
+      <td>Permissions, service accounts, secrets</td>
+    </tr>
+    <tr id="cmd-rbac" class="command-row">
+      <td colspan="2" class="command-cell">
+        <div class="comment-line">---- Audit -----</div>
+        <div>[Can I do X?] — kubectl auth can-i &lt;verb&gt; &lt;resource&gt; -n &lt;namespace&gt;</div>
+        <div>[As another user] — kubectl auth can-i &lt;verb&gt; &lt;resource&gt; --as=&lt;user&gt;</div>
+        <div>[List roles] — kubectl get roles,clusterroles</div>
+        <div>[Role details] — kubectl describe clusterrole &lt;role&gt;</div>
+        <div>[List rolebindings] — kubectl get rolebindings,clusterrolebindings -A</div>
+        <div>[Service accounts] — kubectl get sa -n &lt;namespace&gt;</div>
+
+        <div class="comment-line">---- Secrets -----</div>
+        <div>[List secrets] — kubectl get secrets -n &lt;namespace&gt;</div>
+        <div>[Decode secret] — kubectl get secret &lt;secret&gt; -n &lt;namespace&gt; -o jsonpath='{.data}' | base64 -d</div>
+        <div>[Create from literal] — kubectl create secret generic &lt;name&gt; --from-literal=key=value</div>
+      </td>
+    </tr>
+
+    <!-- SECURITY SCANNING -->
+    <tr class="tool-row" onclick="toggleCmd('cmd-security')">
+      <td style="color:red">Security scanning</td>
+      <td>Misconfig, CVEs, cluster hardening</td>
+    </tr>
+    <tr id="cmd-security" class="command-row">
+      <td colspan="2" class="command-cell">
+        <div class="comment-line">---- kube-bench (CIS benchmark) -----</div>
+        <div>[Run benchmark] — kube-bench run --targets node,policies</div>
+
+        <div class="comment-line">---- Trivy (K8s + image scanning) -----</div>
+        <div>[Scan cluster] — trivy k8s cluster --report summary</div>
+        <div>[Scan namespace] — trivy k8s namespace &lt;namespace&gt;</div>
+
+        <div class="comment-line">---- Manual checks -----</div>
+        <div>[Privileged pods] — kubectl get pods -A -o jsonpath='{range .items[?(@.spec.containers[*].securityContext.privileged==true)]}{.metadata.namespace}{"/"}{.metadata.name}{"\n"}{end}'</div>
+        <div>[Pods running as root] — kubectl get pods -A -o jsonpath='{range .items[*]}{.metadata.name}{" "}{.spec.securityContext.runAsUser}{"\n"}{end}'</div>
+        <div>[Hostnetwork pods] — kubectl get pods -A -o jsonpath='{range .items[?(@.spec.hostNetwork==true)]}{.metadata.namespace}{"/"}{.metadata.name}{"\n"}{end}'</div>
+        <div>[Network policies] — kubectl get networkpolicies -A</div>
+      </td>
+    </tr>
+
+    <!-- HELM -->
+    <tr class="tool-row" onclick="toggleCmd('cmd-helm')">
+      <td>Helm</td>
+      <td>Package manager for Kubernetes</td>
+    </tr>
+    <tr id="cmd-helm" class="command-row">
+      <td colspan="2" class="command-cell">
+        <div class="comment-line">---- Common -----</div>
+        <div>[List releases] — helm list -A</div>
+        <div>[Install] — helm install &lt;release&gt; &lt;chart&gt; -n &lt;namespace&gt;</div>
+        <div>[Upgrade] — helm upgrade &lt;release&gt; &lt;chart&gt; -n &lt;namespace&gt;</div>
+        <div>[Rollback] — helm rollback &lt;release&gt; &lt;revision&gt;</div>
+        <div>[Dry run/diff] — helm upgrade --install --dry-run &lt;release&gt; &lt;chart&gt;</div>
+        <div>[Uninstall] — helm uninstall &lt;release&gt; -n &lt;namespace&gt;</div>
+      </td>
+    </tr>
+
+    </table>
+  </div>
+</div>
+
+<script>
+  const embedded = window.self !== window.top;
+
+  function reportHeight() {
+    if (embedded) {
+      window.parent.postMessage({ type: "tool-frame-height", height: document.body.scrollHeight }, "*");
+    }
+  }
+
+  function toggleCmd(id) {
+    const row = document.getElementById(id);
+    row.style.display = (row.style.display === "table-row") ? "none" : "table-row";
+    reportHeight();
+  }
+
+  (function() {
+    const savedTheme = localStorage.getItem("/settings.html") || "standard";
+    document.body.classList.add("theme-" + savedTheme);
+    if (embedded) document.body.classList.add("embedded");
+  })();
+
+  if (embedded) {
+    new ResizeObserver(reportHeight).observe(document.body);
+    window.addEventListener("load", reportHeight);
+  }
+</script>
+
+<script src="../config/tools/kubernetes.js"></script>
+<script src="../assets/script/wallpaper-loader.js"></script>
+<script src="../assets/script/theme-accent.js"></script>
+<script src="../assets/script/copy-commands.js"></script>
+<script src="../assets/script/page-effects.js"></script>
+<script src="../assets/script/page-effects-loader.js"></script>
+<script>
+  applyWallpaper(toolsKubernetesConfig.background, "devsecops-kubernetes");
+</script>
+
+</body>
+</html>

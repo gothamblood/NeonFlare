@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="../assets/images/dragon-logo.svg">
+    <link rel="icon" type="image/png" href="../assets/images/dragon-favicon.png">
+    <title>Identity & Access Management – GRC Cybersecurity</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" type="text/css" href="../assets/css/grc.css">
+</head>
+<body>
+<header>
+    <nav class="nav">
+        <div class="logo">
+            <div class="logo-mark">G</div>
+            <div>GRC Cybersecurity</div>
+        </div>
+        <div class="nav-links">
+            <a href="./index.html">&larr; Retour au GRC</a>
+        </div>
+    </nav>
+</header>
+
+<main>
+    <h1 class="page-title">Identity & Access Management</h1>
+    <p class="page-subtitle">
+        L’IAM encadre la gestion des identités, l’authentification et les droits d’accès à travers l’organisation.
+    </p>
+
+    <section class="content-block">
+        <h2>Pourquoi c’est important</h2>
+        <ul>
+            <li>Pilier central du Zero Trust : ne jamais faire confiance par défaut, vérifier chaque accès.</li>
+            <li>Réduit la surface d’attaque liée aux identités compromises.</li>
+            <li>Base technique de la gouvernance des accès définie ailleurs dans le programme GRC.</li>
+        </ul>
+
+        <h2>Ce que cette section doit contenir</h2>
+        <ul>
+            <li>Zero Trust Network Architecture <span class="grc-control-tags">ISO A.8.27 · NIST PR.AA</span></li>
+            <li>MFA (authentification multifacteur) obligatoire <span class="grc-control-tags">ISO A.8.5 · NIST PR.AA · CIS 6</span></li>
+            <li>RBAC : attribution des droits basée sur le rôle <span class="grc-control-tags">ISO A.5.15 · NIST PR.AA · CIS 6</span></li>
+            <li>Cycle de vie des identités (provisioning, déprovisioning) <span class="grc-control-tags">ISO A.5.16 · NIST PR.AA · CIS 5</span></li>
+            <li>Fédération d’identités (SSO, OIDC/SAML) <span class="grc-control-tags">ISO A.8.5 · NIST PR.AA</span></li>
+            <li>Revue périodique des accès <span class="grc-control-tags">ISO A.5.18 · NIST PR.AA · CIS 6</span></li>
+        </ul>
+    </section>
+</main>
+
+
+<script>
+  const savedTheme = localStorage.getItem("/settings.html") || "standard";
+  document.body.classList.add("theme-" + savedTheme);
+
+  const embedded = window.self !== window.top;
+
+  function reportHeight() {
+    if (embedded) {
+      window.parent.postMessage({ type: "hub-frame-height", height: document.documentElement.scrollHeight }, "*");
+    }
+  }
+
+  if (embedded) {
+    document.body.classList.add("embedded");
+    new ResizeObserver(reportHeight).observe(document.body);
+    window.addEventListener("load", reportHeight);
+  }
+</script>
+
+<script src="../config/grc-author.js"></script>
+
+<script src="../config/encryption.js"></script>
+
+<script src="../assets/script/vault-crypto.js"></script>
+<script src="../assets/script/theme-accent.js"></script>
+
+<script src="../assets/script/vault.js"></script>
+<script src="../assets/script/vault-ui.js"></script>
+
+<script src="../assets/script/grc-checklist.js"></script>
+<script>initGrcChecklist();</script>
+
+</body>
+</html>

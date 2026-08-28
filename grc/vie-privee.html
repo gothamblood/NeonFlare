@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="../assets/images/dragon-logo.svg">
+    <link rel="icon" type="image/png" href="../assets/images/dragon-favicon.png">
+    <title>Gestion de la vie privée – GRC Cybersecurity</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" type="text/css" href="../assets/css/grc.css">
+</head>
+<body>
+<header>
+    <nav class="nav">
+        <div class="logo">
+            <div class="logo-mark">G</div>
+            <div>GRC Cybersecurity</div>
+        </div>
+        <div class="nav-links">
+            <a href="./index.html">&larr; Retour au GRC</a>
+        </div>
+    </nav>
+</header>
+
+<main>
+    <h1 class="page-title">Gestion de la vie privée</h1>
+    <p class="page-subtitle">
+        La protection des renseignements personnels est un complément essentiel à la sécurité de l’information, encadré au Québec par la Loi 25.
+    </p>
+
+    <section class="content-block">
+        <h2>Pourquoi c’est important</h2>
+        <ul>
+            <li>Obligatoire avec la Loi 25 au Québec.</li>
+            <li>Complément essentiel à la sécurité de l’information.</li>
+            <li>Nécessite des processus spécifiques.</li>
+        </ul>
+
+        <h2>Ce que cette section doit contenir</h2>
+        <ul>
+            <li>Politique de vie privée <span class="grc-control-tags">ISO A.5.34 · NIST GV.PO</span></li>
+            <li>Registre des renseignements personnels <span class="grc-control-tags">ISO A.5.34</span></li>
+            <li>Consentement <span class="grc-control-tags">ISO A.5.34</span></li>
+            <li>Minimisation des données <span class="grc-control-tags">ISO A.5.34 · NIST PR.DS</span></li>
+            <li>DPIA (Privacy Impact Assessment) <span class="grc-control-tags">ISO A.5.34 · NIST ID.RA</span></li>
+            <li>Droits des personnes (accès, rectification, suppression) <span class="grc-control-tags">ISO A.5.34</span></li>
+        </ul>
+    </section>
+</main>
+
+
+<script>
+  const savedTheme = localStorage.getItem("/settings.html") || "standard";
+  document.body.classList.add("theme-" + savedTheme);
+
+  const embedded = window.self !== window.top;
+
+  function reportHeight() {
+    if (embedded) {
+      window.parent.postMessage({ type: "hub-frame-height", height: document.documentElement.scrollHeight }, "*");
+    }
+  }
+
+  if (embedded) {
+    document.body.classList.add("embedded");
+    new ResizeObserver(reportHeight).observe(document.body);
+    window.addEventListener("load", reportHeight);
+  }
+</script>
+
+<script src="../config/grc-author.js"></script>
+
+<script src="../config/encryption.js"></script>
+
+<script src="../assets/script/vault-crypto.js"></script>
+<script src="../assets/script/theme-accent.js"></script>
+
+<script src="../assets/script/vault.js"></script>
+<script src="../assets/script/vault-ui.js"></script>
+
+<script src="../assets/script/grc-checklist.js"></script>
+<script>initGrcChecklist();</script>
+
+</body>
+</html>

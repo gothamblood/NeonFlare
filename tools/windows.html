@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="icon" type="image/svg+xml" href="../assets/images/dragon-logo.svg">
+<link rel="icon" type="image/png" href="../assets/images/dragon-favicon.png">
+<title>Windows Privilege Escalation – Hacking Tools</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/style.css">
+
+</head>
+
+<body class="theme-standard" data-page-key="tools-windows">
+<div class="wallpaper"></div>
+
+<div class="tool-section-nav"><a href="../index.html?page=dashboard" target="_top">&larr; Back to Dashboard</a></div>
+
+<h1 class="category-title">Windows Privilege Escalation</h1>
+
+<div class="grid">
+  <div class="modal" style="margin: 0 auto 3rem; max-width: 1000px; cursor: default;">
+    <table>
+      <tr><th>Tool</th><th>Description</th></tr>
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-winpeas')">
+        <td>winPEAS</td><td>Automated Windows privesc checks</td>
+      </tr>
+      <tr id="cmd-winpeas" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div>
+    <div>[Fast scan] — winPEAS.exe cmd fast</div>
+    <div>[Full scan] — winPEAS.exe</div>
+
+    <div class="comment-line">---- Output -----</div>
+    <div>[Log to file] — winPEAS.exe cmd log:log.txt</div>
+    <div>[No colors (parsing)] — winPEAS.exe cmd notcolor</div>
+
+  </td>
+</tr>
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-seatbelt')">
+        <td>Seatbelt</td><td>Windows security and config enumeration</td>
+      </tr>
+      <tr id="cmd-seatbelt" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div>
+    <div>[System checks] — Seatbelt.exe -group=system</div>
+    <div>[User checks] — Seatbelt.exe -group=user</div>
+    <div>[All checks] — Seatbelt.exe -group=all</div>
+
+    <div class="comment-line">---- Output -----</div>
+    <div>[Output to file] — Seatbelt.exe -group=all --outputfile=C:\temp\out.txt</div>
+
+  </td>
+</tr>
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-sharpup')">
+        <td>SharpUp</td><td>Check for privesc opportunities</td>
+      </tr>
+      <tr id="cmd-sharpup" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div>
+    <div>[Run all checks] — SharpUp.exe</div>
+    <div>[Specific check] — SharpUp.exe audit ModifiableServiceBinaries</div>
+
+  </td>
+</tr>
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-powerup')">
+        <td>PowerUp</td><td>PowerShell privesc checks and exploitation</td>
+      </tr>
+      <tr id="cmd-powerup" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div>
+    <div>[Load & run all checks] — powershell -ep bypass -c "Import-Module .\PowerUp.ps1; Invoke-AllChecks"</div>
+
+    <div class="comment-line">---- Exploitation -----</div>
+    <div>[Abuse modifiable service] — Invoke-ServiceAbuse -Name '&lt;SERVICE&gt;' -UserName 'user'</div>
+    <div>[Unquoted service path] — Write-ServiceBinary -Name '&lt;SERVICE&gt;' -Path 'C:\path\payload.exe'</div>
+
+  </td>
+</tr>
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-bloodhound')">
+        <td>BloodHound</td><td>Visualize AD attack paths</td>
+      </tr>
+      <tr id="cmd-bloodhound" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div>
+    <div>[Collect data] — SharpHound.exe -c All</div>
+    <div>[Import into BloodHound] — Launch BloodHound GUI, drag-and-drop the zip</div>
+
+    <div class="comment-line">---- Queries -----</div>
+    <div>[Shortest path to DA] — Analysis &gt; Shortest Paths to Domain Admins</div>
+    <div>[Kerberoastable accounts] — Analysis &gt; List all Kerberoastable Accounts</div>
+
+  </td>
+</tr>
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-evilwinrm')">
+        <td>Evil-WinRM</td><td>Interactive WinRM shell for Windows</td>
+      </tr>
+      <tr id="cmd-evilwinrm" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div>
+    <div>[Connect] — evil-winrm -i &lt;IP&gt; -u user -p password</div>
+    <div>[Pass the hash] — evil-winrm -i &lt;IP&gt; -u user -H &lt;HASH&gt;</div>
+
+    <div class="comment-line">---- Options -----</div>
+    <div>[Load PowerShell scripts] — evil-winrm -i &lt;IP&gt; -u user -p password -s /path/scripts/</div>
+    <div>[Load executables] — evil-winrm -i &lt;IP&gt; -u user -p password -e /path/exes/</div>
+
+  </td>
+</tr>
+    </table>
+  </div>
+</div>
+
+<script>
+  const embedded = window.self !== window.top;
+
+  // Tell the hub's modal our real content height. Called synchronously on
+  // the one interaction that changes it (toggling a command row) so there's
+  // no dependency on observer/timer scheduling; ResizeObserver below is
+  // just a fallback for anything else (initial layout, font swaps, etc).
+  function reportHeight() {
+    if (embedded) {
+      window.parent.postMessage({ type: "tool-frame-height", height: document.body.scrollHeight }, "*");
+    }
+  }
+
+  function toggleCmd(id) {
+    const row = document.getElementById(id);
+    row.style.display = (row.style.display === "table-row") ? "none" : "table-row";
+    reportHeight();
+  }
+
+  (function() {
+    const savedTheme = localStorage.getItem("/settings.html") || "standard";
+    document.body.classList.add("theme-" + savedTheme);
+    if (embedded) document.body.classList.add("embedded");
+  })();
+
+  if (embedded) {
+    new ResizeObserver(reportHeight).observe(document.body);
+    window.addEventListener("load", reportHeight);
+  }
+</script>
+
+<script src="../config/tools/windows.js"></script>
+<script src="../assets/script/wallpaper-loader.js"></script>
+<script src="../assets/script/theme-accent.js"></script>
+<script src="../assets/script/copy-commands.js"></script>
+<script src="../assets/script/page-effects.js"></script>
+<script src="../assets/script/page-effects-loader.js"></script>
+<script>
+  applyWallpaper(toolsWindowsConfig.background, "tools-windows");
+</script>
+
+</body>
+</html>

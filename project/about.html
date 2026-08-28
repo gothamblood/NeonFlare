@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="../assets/images/dragon-logo.svg">
+<link rel="icon" type="image/png" href="../assets/images/dragon-favicon.png">
+<title>Cyberpunk Permit</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/style.css">
+
+<style>
+.grid {
+  padding: 17rem;
+}
+</style>
+
+
+</head>
+
+<body class="theme-standard settings-page" data-page-key="about">
+<div class="wallpaper"></div>
+<div class="grid">
+<div class="permit-card">
+  <div class="permit-photo"></div>
+
+  <div class="permit-info">
+    <div class="permit-header"></div>
+    <div class="permit-title"></div>
+
+    <div class="permit-text"></div>
+
+    <div class="permit-id"></div>
+
+    <div class="barcode" onclick="openModal()"></div>
+
+    <div class="signature">
+      Licensed Operator
+      <div class="signature-line"></div>
+    </div>
+
+    <div class="qr" onclick="openModal()"></div>
+    <!-- <div class="holo-seal"></div> -->
+  </div>
+</div>
+</div>
+
+<!-- Modal -->
+<div class="modal-bg" id="modal">
+  <div class="modal-box">
+    <div class="modal-title">Professional Links - GothamBlood </div>
+
+    <div class="modal-links"></div>
+
+    <button class="close-btn" onclick="closeModal()">Close</button>
+  </div>
+</div>
+
+<script src="../config/about.js"></script>
+<script src="../assets/script/about-config.js"></script>
+<script src="../assets/script/theme-accent.js"></script>
+<script src="../assets/script/wallpaper-loader.js"></script>
+<script src="../assets/script/about-loader.js"></script>
+<script src="../assets/script/page-effects.js"></script>
+<script src="../assets/script/page-effects-loader.js"></script>
+<script>
+
+  const theme = localStorage.getItem("/settings.html") || "standard";
+  document.body.classList.add("theme-" + theme);
+
+  // Let the parent shell (encapsulation.html) sync its sidebar theme --
+  // the parent doesn't read storage directly, see settings.html.
+  if (window.self !== window.top) {
+    window.top.postMessage({ type: "theme-change", theme: theme }, "*");
+  }
+
+  // getAboutConfig() falls back to the static aboutConfig (config/about.js)
+  // until a Settings > Config About edit creates a localStorage override
+  // -- see assets/script/about-config.js.
+  const activeAboutConfig = getAboutConfig();
+  applyWallpaper(activeAboutConfig.background, "about");
+  renderAbout(activeAboutConfig);
+
+  function openModal() {
+    document.getElementById("modal").style.display = "flex";
+  }
+
+  function closeModal() {
+    document.getElementById("modal").style.display = "none";
+  }
+
+</script>
+
+</body>
+</html>

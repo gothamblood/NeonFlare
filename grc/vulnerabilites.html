@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="../assets/images/dragon-logo.svg">
+    <link rel="icon" type="image/png" href="../assets/images/dragon-favicon.png">
+    <title>Gestion des vulnérabilités – GRC Cybersecurity</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" type="text/css" href="../assets/css/grc.css">
+</head>
+<body>
+<header>
+    <nav class="nav">
+        <div class="logo">
+            <div class="logo-mark">G</div>
+            <div>GRC Cybersecurity</div>
+        </div>
+        <div class="nav-links">
+            <a href="./index.html">&larr; Retour au GRC</a>
+        </div>
+    </nav>
+</header>
+
+<main>
+    <h1 class="page-title">Gestion des vulnérabilités</h1>
+    <p class="page-subtitle">
+        La gestion des vulnérabilités est un processus opérationnel encadré par ISO 27001 (A.12.6), distinct de l’analyse des risques.
+    </p>
+
+    <section class="content-block">
+        <h2>Pourquoi c’est important</h2>
+        <ul>
+            <li>Obligatoire dans ISO 27001 (A.12.6).</li>
+            <li>Essentiel pour démontrer la maturité opérationnelle du programme de sécurité.</li>
+        </ul>
+
+        <h2>Ce que cette section doit contenir</h2>
+        <ul>
+            <li>Processus de scan <span class="grc-control-tags">ISO A.8.8 · NIST ID.RA · CIS 7</span></li>
+            <li>Gestion des correctifs (patch management) <span class="grc-control-tags">ISO A.8.8 · NIST PR.PS · CIS 7</span></li>
+            <li>Priorisation (CVSS) <span class="grc-control-tags">ISO A.8.8 · NIST ID.RA · CIS 7</span></li>
+            <li>Rapports de vulnérabilités <span class="grc-control-tags">ISO A.8.8 · NIST ID.RA</span></li>
+            <li>Suivi des remédiations <span class="grc-control-tags">ISO A.8.8 · NIST PR.PS · CIS 7</span></li>
+        </ul>
+    </section>
+</main>
+
+
+<script>
+  const savedTheme = localStorage.getItem("/settings.html") || "standard";
+  document.body.classList.add("theme-" + savedTheme);
+
+  const embedded = window.self !== window.top;
+
+  function reportHeight() {
+    if (embedded) {
+      window.parent.postMessage({ type: "hub-frame-height", height: document.documentElement.scrollHeight }, "*");
+    }
+  }
+
+  if (embedded) {
+    document.body.classList.add("embedded");
+    new ResizeObserver(reportHeight).observe(document.body);
+    window.addEventListener("load", reportHeight);
+  }
+</script>
+
+<script src="../config/grc-author.js"></script>
+
+<script src="../config/encryption.js"></script>
+
+<script src="../assets/script/vault-crypto.js"></script>
+<script src="../assets/script/theme-accent.js"></script>
+
+<script src="../assets/script/vault.js"></script>
+<script src="../assets/script/vault-ui.js"></script>
+
+<script src="../assets/script/grc-checklist.js"></script>
+<script>initGrcChecklist();</script>
+
+</body>
+</html>

