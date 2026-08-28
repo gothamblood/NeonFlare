@@ -1,0 +1,16 @@
+# Keep internal / non-webroot files out of the image. nginx.conf also
+# denies these at request time for deployments that copy the folder
+# straight to a webroot without going through this build.
+#
+# nginx.conf itself is deliberately NOT listed: .dockerignore drops a
+# file from the whole build context, which would also break the earlier
+# `COPY nginx.conf ...` in the Dockerfile. Its webroot exposure is
+# already handled by nginx.conf's own deny rule.
+.git
+.gitignore
+.dockerignore
+Dockerfile
+Jenkinsfile
+web.config
+README.md
+scripts

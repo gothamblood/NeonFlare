@@ -11,6 +11,7 @@ sent anywhere. Drop it on any web server — or open it straight from disk.
 > Full title: *NeonFlare: Rise of GothamBlood*. MIT-licensed.
 
 Official website: [neonflare.ca](https://neonflare.ca)
+Source code: [github.com/gothamblood/NeonFlare](https://github.com/gothamblood/NeonFlare)
 
 ---
 

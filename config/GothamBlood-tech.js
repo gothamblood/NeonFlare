@@ -8,10 +8,10 @@ const neonflareTechnologyConfig = {
       "sub": "Guides et références"
     },
     {
-      "url": "#",
+      "url": "https://github.com/gothamblood/NeonFlare",
       "img": "../assets/images/icon-github.svg",
       "title": "GitHub",
-      "sub": "Dépôts de code (à venir)"
+      "sub": "Dépôts de code"
     },
     {
       "url": "#",
