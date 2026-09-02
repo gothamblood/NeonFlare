@@ -45,5 +45,13 @@
     if (getPageEffect(pageKey, "stars")) {
       loadScriptOnce(base + "assets/script/particles.js", () => spawnParticles(40));
     }
+
+    // Glow: no script to load, just the pre-existing CSS animation
+    // (see .wallpaper-glow in assets/css/network-dashboard.css) --
+    // toggle it on the page's own .wallpaper div.
+    if (getPageEffect(pageKey, "glow")) {
+      const wallpaperEl = document.querySelector(".wallpaper");
+      if (wallpaperEl) wallpaperEl.classList.add("wallpaper-glow");
+    }
   });
 })();

@@ -19,6 +19,14 @@ function applyShellsState(active) {
     panel.classList.remove("collapsed");
     const btn = panel.querySelector(".dash-collapse-btn");
     if (btn) btn.textContent = "–";
+    // Network may have been manually resized while this panel was
+    // hidden (0x0, so dashboard-layout.js's own detach-group logic
+    // never froze this one alongside it) -- give it a rect that
+    // doesn't overlap Network's now-unrelated frozen box instead of
+    // falling back to flexbox's "only child in the row" full width.
+    // No-op whenever Network was never touched -- see the function's
+    // own comment in dashboard-layout.js.
+    if (window.dashLayoutReconcileWithDetachedSibling) window.dashLayoutReconcileWithDetachedSibling(panel);
   }
   reportRect();
 }

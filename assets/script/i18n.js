@@ -17,6 +17,11 @@ const I18N_DICT = {
   "nav.settings": { fr: "Paramètres", en: "Settings" },
   "nav.about": { fr: "À propos", en: "About" },
   "sidebar.tagline": { fr: "La porte de l'ennemi est en bas", en: "The enemy's gate is down" },
+  "settings.sidebarTaglineLabel": { fr: "Texte du bandeau latéral", en: "Sidebar tagline" },
+  "settings.sidebarTaglineDesc": {
+    fr: "Phrase affichée verticalement sur le bord de la barre latérale, une par langue. Laisse un champ vide pour garder le texte d'origine dans cette langue -- le bandeau bascule automatiquement vers celle actuellement sélectionnée ci-dessus.",
+    en: "Phrase shown vertically along the sidebar's edge, one per language. Leave a field empty to keep the original text in that language -- the banner automatically follows whichever language is currently selected above."
+  },
 
   "settings.themeTitle": { fr: "Thème", en: "Theme Settings" },
   "settings.currentTheme": { fr: "Thème actuel :", en: "Current Theme:" },

@@ -358,6 +358,42 @@
     applyTheme(localStorage.getItem("/settings.html"));
     applyI18n(getSavedLang());
 
+    /* Sidebar tagline (Settings > Apparence > Background): free text
+       overriding .sidebar-edge's default data-i18n phrase, one override
+       per language -- {fr: "...", en: "..."}, either key optional.
+       A language with no override leaves data-i18n in place so
+       applyI18n() above (and on every future lang-change) keeps
+       painting that language's built-in phrase -- same "leave the
+       attribute off once customized" trick renderDashboardNavItems()
+       below already uses for a renamed dashboard, so a custom tagline
+       can't get clobbered back by a later applyI18n() call. Read
+       directly from localStorage for the initial paint (same reasoning
+       as theme/lang above); kept live via postMessage while Settings is
+       open. */
+    const SIDEBAR_TAGLINE_KEY = "/settings.html/sidebarTagline";
+    function getSidebarTaglineOverrides() {
+      try {
+        const parsed = JSON.parse(localStorage.getItem(SIDEBAR_TAGLINE_KEY) || "{}");
+        return (parsed && typeof parsed === "object") ? parsed : {};
+      } catch (e) {
+        return {};
+      }
+    }
+    function applySidebarTagline(lang, overrides) {
+      const el = document.querySelector(".sidebar-edge");
+      if (!el) return;
+      const lg = lang || getSavedLang();
+      const custom = (overrides || getSidebarTaglineOverrides())[lg];
+      if (custom) {
+        el.removeAttribute("data-i18n");
+        el.textContent = custom;
+      } else {
+        el.setAttribute("data-i18n", "sidebar.tagline");
+        applyI18n(lg);
+      }
+    }
+    applySidebarTagline();
+
     /* Sidebar link visibility, toggled per-page in settings.html.
        Read directly from localStorage on load (same reasoning as the
        theme above), then kept live via postMessage while Settings is
@@ -415,6 +451,10 @@
       if (e.data && e.data.type === "lang-change") {
         applyI18n(e.data.lang);
         onbApplyLang();
+        applySidebarTagline(e.data.lang);
+      }
+      if (e.data && e.data.type === "sidebar-tagline-change") {
+        applySidebarTagline(getSavedLang(), e.data.overrides);
       }
       if (e.data && e.data.type === "visibility-change") {
         applyPageVisibility(e.data.hidden);

@@ -1,14 +1,19 @@
-/* Central registry for the two ambient visual effects that used to be
+/* Central registry for the ambient visual effects that used to be
    hardcoded per page -- the GRC hub's "vectors" (drifting connected-dot
-   canvas, assets/script/network-background.js) and the tools/dashboard
-   pages' "stars" (floating embers, assets/script/particles.js) -- plus
-   the background-image override this already shared a Settings tab
-   with (see wallpaper-loader.js). Same lazy-migration shape as every
-   other *-config.js here: nothing written to localStorage until the
-   user actually flips a toggle, so a fresh install shows exactly
-   whatever each page always showed (DEFAULT_VECTOR_PAGES / DEFAULT_
-   STAR_PAGES below, one Set entry per page that already had it before
-   this settings existed).
+   canvas, assets/script/network-background.js), the tools/dashboard
+   pages' "stars" (floating embers, assets/script/particles.js), and the
+   Dashboard's "glow" (the wallpaper's brightness/saturation flicker,
+   see .wallpaper-glow / @keyframes wallpaper-flicker in
+   assets/css/network-dashboard.css) -- plus the background-image
+   override this already shared a Settings tab with (see
+   wallpaper-loader.js). Same lazy-migration shape as every other
+   *-config.js here: nothing written to localStorage until the user
+   actually flips a toggle, so a fresh install shows exactly whatever
+   each page always showed (DEFAULT_VECTOR_PAGES / DEFAULT_STAR_PAGES
+   below, one Set entry per page that already had it before this
+   settings existed) -- except glow, which is new and defaults to off
+   everywhere (DEFAULT_GLOW_PAGES is intentionally empty) rather than
+   preserving its old always-on behavior on the Dashboard.
 
    Every page below reports its own identity via <body data-page-key="...">
    -- assets/script/page-effects-loader.js reads that once, applies
@@ -28,7 +33,7 @@ const PAGE_EFFECTS_REGISTRY = [
   { group: "Pages principales", key: "settings", label: "Settings", bg: true },
   { group: "Pages principales", key: "pentest", label: "Findings", bg: true },
   { group: "Pages principales", key: "neonflare-technology", label: "NeonFlare Technology", bg: true },
-  { group: "Pages principales", key: "dashboard", label: "Dashboard (vecteurs/étoiles -- fond par dashboard, voir Interface)", bg: false },
+  { group: "Pages principales", key: "dashboard", label: "Dashboard (vecteurs/étoiles -- fond par dashboard, voir Interface)", bg: false, glow: true },
 
   { group: "GRC", key: "grc-hub", label: "GRC -- Hub", bg: false },
   { group: "GRC", key: "grc-api", label: "GRC -- Sécurité API", bg: false },
@@ -65,6 +70,17 @@ const DEFAULT_STAR_PAGES = new Set([
   "devsecops-docker", "devsecops-kubernetes", "devsecops-terraform", "devsecops-aws", "devsecops-azure", "devsecops-custom",
 ]);
 
+// Disabled everywhere by default -- unlike vectors/stars above, glow
+// never shipped as a settings-managed effect before, so there's no
+// prior per-page state to preserve here.
+const DEFAULT_GLOW_PAGES = new Set();
+
+const DEFAULT_EFFECT_PAGES = {
+  vectors: DEFAULT_VECTOR_PAGES,
+  stars: DEFAULT_STAR_PAGES,
+  glow: DEFAULT_GLOW_PAGES,
+};
+
 function getRawPageEffects() {
   try {
     return JSON.parse(localStorage.getItem(PAGE_EFFECTS_KEY) || "{}");
@@ -84,7 +100,8 @@ function getPageEffect(pageKey, kind) {
   const all = getRawPageEffects();
   const stored = all[pageKey] && all[pageKey][kind];
   if (typeof stored === "boolean") return stored;
-  return kind === "vectors" ? DEFAULT_VECTOR_PAGES.has(pageKey) : DEFAULT_STAR_PAGES.has(pageKey);
+  const defaults = DEFAULT_EFFECT_PAGES[kind];
+  return defaults ? defaults.has(pageKey) : false;
 }
 
 function setPageEffect(pageKey, kind, value) {

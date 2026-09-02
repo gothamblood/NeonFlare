@@ -138,6 +138,50 @@ function initDashboardLayout(dashboardId) {
     if (layout[panel.id]) detachGroup(panel, layout[panel.id]);
   });
 
+  // Covers the one case withInFlowSiblings() above deliberately leaves
+  // out: Shells resized/dragged while it was HIDDEN (no shell open --
+  // 0x0, so it wasn't pulled into that detach). Network ends up
+  // "dash-positioned" alone, out of the flex row entirely; Shells is
+  // still plain in-flow. The next "+ Shell" click un-hides it into a
+  // .dash-row-top that -- as far as flexbox knows -- now contains only
+  // Shells, so flex: 1 1 auto gives it the row's FULL width, painting
+  // it directly over Network's now-unrelated frozen box.
+  //
+  // Called from dashboard-shells.js's applyShellsState() right as a
+  // hidden Shells panel is revealed. Finds a sibling that's already
+  // dash-positioned and, if there is one, freezes `panel` too -- not at
+  // its (currently accurate, since Network hasn't moved) in-flow rect,
+  // but at whatever of the row is left once that sibling's real,
+  // current box is excluded, packed to the opposite edge (.dash-row-
+  // top's own justify-content: flex-end always packs a lone detached
+  // panel toward the row's end, so the leftover space is on the start
+  // side). A plain in-flow panel with no detached sibling needs none of
+  // this -- ordinary flexbox already places it correctly.
+  function reconcileWithDetachedSibling(panel) {
+    if (panel.classList.contains("dash-positioned")) return;
+    const row = panel.closest(".dash-row-top");
+    if (!row) return;
+    const detachedSibling = Array.from(row.children).find(
+      (sib) => sib !== panel && sib.classList && sib.classList.contains("dash-panel") && sib.classList.contains("dash-positioned")
+    );
+    if (!detachedSibling) return;
+
+    const rootRect = root.getBoundingClientRect();
+    const rowRect = row.getBoundingClientRect();
+    const sibRect = detachedSibling.getBoundingClientRect();
+    const gapPx = 8; // .dash-row-top's own gap: 0.5rem
+    const { minWidth } = panelMinSize(panel);
+
+    const spaceBefore = sibRect.left - rowRect.left;
+    const spaceAfter = rowRect.right - sibRect.right;
+    const rect = spaceBefore >= spaceAfter
+      ? { left: rowRect.left, top: rowRect.top, width: Math.max(minWidth, spaceBefore - gapPx), height: rowRect.height }
+      : { left: sibRect.right + gapPx, top: rowRect.top, width: Math.max(minWidth, spaceAfter - gapPx), height: rowRect.height };
+
+    detachGroup(panel, rectToPct(rect, rootRect));
+  }
+  window.dashLayoutReconcileWithDetachedSibling = reconcileWithDetachedSibling;
+
   function panelMinSize(panel) {
     return { minWidth: 220, minHeight: panel.classList.contains("collapsed") ? 0 : 120 };
   }

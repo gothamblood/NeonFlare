@@ -83,17 +83,41 @@
       revenir au fond propre à chaque page.
     </p>
     <label>Fond d'écran global <select id="wallpaperOverrideSelect" style="width:100%; margin-top:0.4rem; background:#1e1e1e; border:1px solid #444; border-radius:8px; color:#f5f5f5; font-family:inherit; font-size:0.85rem; padding:0.5rem 0.7rem; box-sizing:border-box;"></select></label>
+
+    <div style="margin-top: 1rem;">
+      <span style="font-size: 0.85rem;" data-i18n="settings.sidebarTaglineLabel">Texte du bandeau latéral</span>
+
+      <label style="display:block; margin-top: 0.5rem;">
+        <span style="font-size: 0.75rem; color: #a7b0c7;">Français</span>
+        <input type="text" id="sidebarTaglineInput_fr" oninput="setSidebarTagline('fr', this.value)"
+               style="width: 100%; margin-top: 0.3rem; background: #1e1e1e; border: 1px solid #444; border-radius: 8px; color: #f5f5f5; font-family: inherit; font-size: 0.85rem; padding: 0.5rem 0.7rem; box-sizing: border-box;">
+      </label>
+      <label style="display:block; margin-top: 0.5rem;">
+        <span style="font-size: 0.75rem; color: #a7b0c7;">English</span>
+        <input type="text" id="sidebarTaglineInput_en" oninput="setSidebarTagline('en', this.value)"
+               style="width: 100%; margin-top: 0.3rem; background: #1e1e1e; border: 1px solid #444; border-radius: 8px; color: #f5f5f5; font-family: inherit; font-size: 0.85rem; padding: 0.5rem 0.7rem; box-sizing: border-box;">
+      </label>
+    </div>
+    <p style="font-size: 0.75rem; color: #a7b0c7; margin-top: 0.5rem; line-height: 1.5;" data-i18n="settings.sidebarTaglineDesc">
+      Phrase affichée verticalement sur le bord de la barre latérale, une par
+      langue. Laisse un champ vide pour garder le texte d'origine dans cette
+      langue -- le bandeau bascule automatiquement vers celle actuellement
+      sélectionnée ci-dessus.
+    </p>
   </div>
 
   <div class="mat-card" id="pageEffectsConfigCard">
     <h1>Effets par page</h1>
     <p class="netcfg-desc">
       Fond d'écran, <strong>Vecteurs</strong> (points animés reliés par
-      des lignes) et <strong>Étoiles</strong> (particules flottantes),
-      page par page -- un fond choisi ici passe devant le fond global
-      ci-dessus. Par défaut, Vecteurs/Étoiles restent sur "Défaut" (actif
-      seulement sur les pages qui les avaient déjà) ; force "Activé" ou
-      "Désactivé" pour changer ça sur une page donnée.
+      des lignes), <strong>Étoiles</strong> (particules flottantes) et,
+      pour le Dashboard, <strong>Scintillement du fond</strong> (variation
+      de luminosité/saturation du fond d'écran), page par page -- un fond
+      choisi ici passe devant le fond global ci-dessus. Par défaut,
+      Vecteurs/Étoiles restent sur "Défaut" (actif seulement sur les
+      pages qui les avaient déjà) et Scintillement du fond reste sur
+      "Défaut" (désactivé partout) ; force "Activé" ou "Désactivé" pour
+      changer ça sur une page donnée.
     </p>
     <div id="pageEffectsList"></div>
     <div class="netcfg-io-row" style="margin-top:1rem;">
@@ -617,6 +641,56 @@
   })();
 
   // ============================================================
+  // SIDEBAR TAGLINE -- the vertical "The enemy's gate is down" strip on
+  // the sidebar's edge (index.html's own .sidebar-edge, data-i18n
+  // "sidebar.tagline"). One override per language (fr/en, matching
+  // I18N_DICT's own "sidebar.tagline" entry -- not langLabels below,
+  // which is declared further down this same script and would be a
+  // temporal-dead-zone error to read this early): empty for a given
+  // language (the default) means index.html keeps showing that
+  // language's built-in phrase; typing something in one field only
+  // replaces it for THAT language -- switching the active language
+  // (Langue, below) shows whichever of these two is set, independently.
+  // index.html doesn't read this storage key itself for a LIVE update
+  // (same reasoning as theme/lang -- see notifyParentTheme), only on its
+  // own next load, so this also broadcasts the whole map while Settings
+  // is open.
+  // ============================================================
+  const SIDEBAR_TAGLINE_KEY = "/settings.html/sidebarTagline";
+  const SIDEBAR_TAGLINE_LANGS = Object.keys(I18N_DICT["sidebar.tagline"]);
+
+  function getSidebarTaglineOverrides() {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(SIDEBAR_TAGLINE_KEY) || "{}");
+      return (parsed && typeof parsed === "object") ? parsed : {};
+    } catch (e) {
+      return {};
+    }
+  }
+
+  function notifyParentSidebarTagline(overrides) {
+    if (embedded) window.top.postMessage({ type: "sidebar-tagline-change", overrides: overrides }, "*");
+  }
+
+  (function initSidebarTaglineInputs() {
+    const overrides = getSidebarTaglineOverrides();
+    SIDEBAR_TAGLINE_LANGS.forEach((lang) => {
+      const input = document.getElementById("sidebarTaglineInput_" + lang);
+      if (!input) return;
+      input.value = overrides[lang] || "";
+      input.placeholder = I18N_DICT["sidebar.tagline"][lang] || "";
+    });
+  })();
+
+  function setSidebarTagline(lang, text) {
+    const overrides = getSidebarTaglineOverrides();
+    if (text) overrides[lang] = text;
+    else delete overrides[lang];
+    localStorage.setItem(SIDEBAR_TAGLINE_KEY, JSON.stringify(overrides));
+    notifyParentSidebarTagline(overrides);
+  }
+
+  // ============================================================
   // EFFETS PAR PAGE -- background/vectors/stars, one row per entry in
   // assets/script/page-effects.js's PAGE_EFFECTS_REGISTRY. Built once
   // (the registry is static); only the controls' own values change.
@@ -703,6 +777,13 @@
         starWrap.append("Étoiles ", buildEffectSelect(entry.key, "stars"));
         body.appendChild(starWrap);
 
+        if (entry.glow) {
+          const glowWrap = document.createElement("label");
+          glowWrap.className = "page-effects-control";
+          glowWrap.append("Scintillement du fond ", buildEffectSelect(entry.key, "glow"));
+          body.appendChild(glowWrap);
+        }
+
         li.appendChild(body);
       }
 
@@ -746,7 +827,7 @@
     renderPageEffectsList();
 
     document.getElementById("pageEffectsResetBtn").addEventListener("click", () => {
-      if (!confirm("Rétablir Effets par page par défaut ? Tous les fonds/vecteurs/étoiles choisis page par page seront perdus.")) return;
+      if (!confirm("Rétablir Effets par page par défaut ? Tous les fonds/vecteurs/étoiles/scintillements choisis page par page seront perdus.")) return;
       resetPageEffects();
       localStorage.removeItem(PAGE_WALLPAPER_OVERRIDES_KEY);
       location.reload();

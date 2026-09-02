@@ -266,6 +266,19 @@
   height: 100%;
 }
 
+/* Eases the :has()-driven auto-resize below (Network filling the row
+   when Shells closes, and back) and Shells' own collapsed<->full width
+   change, instead of both snapping instantly. Scoped to :not(.dash-
+   positioned) so it never applies once dashboard-layout.js's freeform
+   drag/resize takes over -- that system sets the same width/flex-basis
+   properties on every mousemove and must track the cursor with zero
+   lag; a transition here would make a live resize visibly rubber-band
+   behind it. */
+.dash-panel-network:not(.dash-positioned),
+.dash-panel-shells:not(.dash-positioned) {
+  transition: flex-grow 0.25s ease, flex-basis 0.25s ease, max-width 0.25s ease, width 0.25s ease;
+}
+
 /* No shells open, or shells minimized to their narrow column: either
    way there's no wide sibling competing for the row's width, so let
    Network spread out to fill whatever's left instead of staying

@@ -24,6 +24,29 @@ body {
   z-index: -1;
 }
 
+/* Drifting node network (assets/script/network-background.js) -- lives
+   here too, not just assets/css/grc.css, so the "Vecteurs" per-page
+   effect (Settings > Apparence > Effets par page) stays safely
+   positioned on every page that loads THIS stylesheet, not just the
+   GRC hub pages grc.css was written for. Without it, the canvas
+   network-background.js prepends to <body> has no positioning of its
+   own at all and renders as a plain, giant in-flow block (its inline
+   style only sets pixel width/height to match the viewport) -- pushing
+   every real element on the page down below it instead of sitting
+   behind them. Kept in sync with grc.css's own copy. */
+.grc-network-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none;
+}
+
+body.embedded .grc-network-canvas {
+  display: none;
+}
+
 /* ============================================================
    GLOW OVERLAY
    ============================================================ */
