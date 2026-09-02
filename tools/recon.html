@@ -329,6 +329,36 @@
 </tr>
 
 
+      <!-- GOTHAMBLOOD CRAWLER -->
+      <tr class="tool-row" onclick="toggleCmd('cmd-gbc')">
+        <td>Gothamblood Crawler</td><td>Custom recursive web content-discovery crawler</td>
+      </tr>
+      <tr id="cmd-gbc" class="command-row">
+  <td colspan="2" class="command-cell">
+
+    <div class="comment-line">---- Common -----</div>
+    <div>[Scan simple (wordlist auto : dirb/common.txt ou liste intégrée)] — gbc http://&lt;IP&gt;/</div>
+    <div>[Run complet : extensions, threads, profondeur] — gbc https://&lt;IP&gt;/ -w &lt;wordlist&gt; -x php,txt,bak,old -t 40 -d 4</div>
+    <div>[Démarrer plus profond dans l'arborescence] — gbc https://&lt;IP&gt;/app/api/</div>
+
+    <div class="comment-line">---- Proxy / Auth -----</div>
+    <div>[Via Burp, ignorer le certificat] — gbc https://&lt;IP&gt;/ --proxy http://127.0.0.1:8080 -k</div>
+    <div>[Authentifié, sauvegarde des résultats] — gbc http://&lt;IP&gt;/ -b "session=abc123" -H "X-Api-Key: xxxx" -o found.txt --json results.json</div>
+
+    <div class="comment-line">---- Logs -----</div>
+    <div>[Fichier de log des énumérations] — gbc https://&lt;IP&gt;/ --logs</div>
+    <div>[Afficher les logs] — gbc https://&lt;IP&gt;/ --showlogs</div>
+    <div>[Vider les logs] — gbc https://&lt;IP&gt;/ --log-clear</div>
+
+    <div class="comment-line">--- Rate / Speed ---</div>
+    <div>[Profondeur illimitée, doux (délai 100 ms/thread)] — gbc http://&lt;IP&gt;/ -d -1 --delay 0.1</div>
+
+    <div class="comment-line">---- Advanced -----</div>
+    <div>[Filesystem local : ce que cette wordlist matcherait sur un webroot] — gbc file:///var/www/html/ -w &lt;wordlist&gt;</div>
+
+  </td>
+</tr>
+
       <tr class="tool-row" onclick="toggleCmd('cmd-wireshark')">
         <td>Wireshark</td><td>GUI packet analysis and filtering</td>
       </tr>
