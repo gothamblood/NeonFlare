@@ -21,6 +21,7 @@ const DEFAULT_DASHBOARD = { id: "default", name: "Dashboard" };
 // below can add/remove .dash-section-off on the right element either way.
 const DASHBOARD_SECTIONS = [
   { key: "panelShells", label: "Shells" },
+  { key: "panelFs", label: "Explorateur" },
   { key: "panelNetwork", label: "Réseau" },
   { key: "panelTools", label: "Outils" },
   { key: "panelDevSecOps", label: "DevSecOps" },
@@ -109,7 +110,7 @@ function hiddenSectionsKey(dashboardId) {
 // "default", this seed is gone for good -- the saved array becomes the
 // only source of truth from then on, same lazy-migration pattern as the
 // rest of this file.
-const DEFAULT_DASHBOARD_HIDDEN_SECTIONS = ["panelNetwork", "panelDevSecOps", "panelWebsite", "panelLog", "panelGrc", "grcHeaderStatus", "panelUpcomingReviews"];
+const DEFAULT_DASHBOARD_HIDDEN_SECTIONS = ["panelFs", "panelNetwork", "panelDevSecOps", "panelWebsite", "panelLog", "panelGrc", "grcHeaderStatus", "panelUpcomingReviews"];
 
 function getHiddenDashboardSections(dashboardId) {
   try {

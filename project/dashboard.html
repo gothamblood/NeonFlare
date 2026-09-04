@@ -8,6 +8,7 @@
   <link rel="stylesheet" type="text/css" href="../assets/css/style.css">
   <link rel="stylesheet" type="text/css" href="../assets/css/network-dashboard.css">
   <link rel="stylesheet" type="text/css" href="../assets/css/dashboard-panels.css">
+  <link rel="stylesheet" type="text/css" href="../assets/css/fs-explorer.css">
 
 </head>
 
@@ -20,6 +21,7 @@
 <div class="hud-bg">
   <div class="hud-grid"></div>
 </div>
+
 
 <div class="network-shell">
   <div class="network-header">
@@ -114,6 +116,22 @@
       </div>
       <div class="dash-resize-handle" data-target="panelNetwork"></div>
     </div>
+  </div>
+
+  <!-- FS Explorer (assets/script/fs-explorer.js) -- visual filesystem
+       manager wired to the ttyd/tmux shell panes. Off by default (see
+       DEFAULT_DASHBOARD_HIDDEN_SECTIONS in dashboards.js); enable via
+       "☰ Panneaux" or Settings > Sections du Dashboard. Full design in
+       spec/fs-explorer/. -->
+  <div class="dash-panel dash-panel-fs" id="panelFs">
+    <div class="dash-panel-header">
+      <span class="dash-panel-title">Explorateur</span>
+      <button class="dash-collapse-btn" type="button" data-target="panelFs">–</button>
+    </div>
+    <div class="dash-panel-body">
+      <div class="fsx-root" id="fsExplorerBody"></div>
+    </div>
+    <div class="dash-resize-handle" data-target="panelFs"></div>
   </div>
 
   <div class="dash-panel dash-panel-tools" id="panelTools">
@@ -227,9 +245,13 @@
 <script src="../assets/script/wallpaper-loader.js"></script>
 <script src="../assets/script/page-effects.js"></script>
 <script src="../assets/script/page-effects-loader.js"></script>
+<script src="../assets/script/system-log.js"></script>
 <script src="../assets/script/network-dashboard.js"></script>
 <script src="../assets/script/dashboard-shells.js"></script>
 <script src="../assets/script/dashboard-layout.js"></script>
+<script src="../config/gtfobins.js"></script>
+<script src="../config/lolbas.js"></script>
+<script src="../assets/script/fs-explorer.js"></script>
 <script src="../assets/script/onboarding-target.js"></script>
 <script>
   // Duplicated from the currentDashboardId computed further down (near

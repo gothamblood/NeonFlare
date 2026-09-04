@@ -132,6 +132,15 @@ Dockerfile  nginx.conf  web.config  Jenkinsfile   deployment
   the host. Keep the site itself access-controlled if the ttyd helper is
   running, even though ttyd only listens on loopback.
 
+## Disclaimer
+
+This tool is provided for educational and authorised security-testing
+purposes only. Only use it against systems you own or have explicit written
+permission to test. The author (GothamBlood) assumes no responsibility and
+disclaims all liability for any misuse, damage, or legal consequences
+resulting from the use of this software. You are solely responsible for
+ensuring your use complies with applicable laws and regulations.
+
 ## License
 
 MIT — see [`LICENSE`](LICENSE).

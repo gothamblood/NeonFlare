@@ -1,0 +1,776 @@
+/* ============================================================
+   FS EXPLORER panel (dashboard.html #panelFs).
+   Chrome (border/title/collapse) comes from the shared
+   .dash-panel / .dash-panel-header rules in dashboard-panels.css;
+   this file is only the panel's own body.
+   See spec/fs-explorer/ for the full design.
+   ============================================================ */
+
+.dash-panel-fs .dash-panel-body {
+  padding: 0.5rem 0.8rem;
+  /* The panel is flex:0 0 auto (sizes to content), so without a cap a
+     tall stack (listing + open preview + journal) grows past the
+     viewport and the journal becomes unreachable. Cap it and let the
+     body's own overflow:auto (dashboard-panels.css) scroll the lot. */
+  max-height: 80vh;
+}
+
+.fsx-root {
+  position: relative; /* anchor for the amber-ack overlay */
+  font-family: monospace;
+  font-size: 0.78rem;
+  color: #9adfff;
+  line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+/* ---- toolbar ---------------------------------------------------- */
+.fsx-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.fsx-toolbar select,
+.fsx-toolbar button {
+  font-family: inherit;
+  font-size: 0.72rem;
+  color: var(--accent);
+  background: rgba(8, 10, 16, 0.65);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+}
+
+.fsx-toolbar select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.fsx-toolbar button:hover {
+  background: var(--accent-glow);
+}
+
+.fsx-hidden-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.72rem;
+  opacity: 0.85;
+  cursor: pointer;
+}
+
+.fsx-cancel {
+  color: #ffb454 !important;
+  border-color: #ffb454 !important;
+}
+
+.fsx-status {
+  font-size: 0.7rem;
+  opacity: 0.7;
+  margin-left: auto;
+}
+
+/* ---- breadcrumb ---------------------------------------------------- */
+.fsx-breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.15rem;
+}
+
+.fsx-crumb {
+  font-family: inherit;
+  font-size: 0.72rem;
+  color: #d6f4ff;
+  background: transparent;
+  border: none;
+  padding: 0.1rem 0.25rem;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.fsx-crumb:hover {
+  background: var(--accent-glow);
+  color: var(--accent);
+}
+
+.fsx-crumb-sep {
+  opacity: 0.4;
+}
+
+/* ---- bookmarks ("intéressants") ---------------------------------- */
+.fsx-bookmarks {
+  border: 1px solid rgba(255, 210, 90, 0.35);
+  background: rgba(255, 210, 90, 0.06);
+  border-radius: 6px;
+  padding: 0.35rem 0.5rem;
+}
+
+.fsx-bm-head {
+  color: #ffd25a;
+  font-size: 0.68rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  user-select: none;
+}
+
+details.fsx-bookmarks[open] .fsx-bm-head {
+  margin-bottom: 0.25rem;
+}
+
+.fsx-bm-list {
+  max-height: 16vh;
+  overflow: auto;
+  resize: vertical;
+}
+
+.fsx-bm-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.fsx-bm-path {
+  flex: 1;
+  text-align: left;
+  font-family: inherit;
+  font-size: 0.7rem;
+  color: #d6f4ff;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.1rem 0.2rem;
+  word-break: break-all;
+}
+
+.fsx-bm-path:hover {
+  color: #ffd25a;
+}
+
+.fsx-bm-x {
+  font-family: inherit;
+  color: #ff8b93;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+/* ---- enumeration presets ---------------------------------------- */
+.fsx-presets {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.fsx-presets[hidden] {
+  display: none;
+}
+
+.fsx-presets-label {
+  font-size: 0.68rem;
+  opacity: 0.6;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.fsx-preset-btn {
+  font-family: inherit;
+  font-size: 0.7rem;
+  color: var(--accent);
+  background: rgba(8, 10, 16, 0.65);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  padding: 0.2rem 0.5rem;
+  cursor: pointer;
+}
+
+.fsx-preset-btn:hover {
+  background: var(--accent-glow);
+}
+
+.fsx-preset-results {
+  border: 1px solid rgba(154, 223, 255, 0.25);
+  border-radius: 6px;
+  background: rgba(8, 10, 16, 0.5);
+}
+
+.fsx-pr-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.72rem;
+  color: var(--accent);
+}
+
+.fsx-pr-head span {
+  flex: 1;
+}
+
+.fsx-pr-close {
+  font-family: inherit;
+  font-size: 0.68rem;
+  color: #ffb454;
+  background: transparent;
+  border: 1px solid rgba(255, 180, 84, 0.5);
+  border-radius: 5px;
+  padding: 0.1rem 0.4rem;
+  cursor: pointer;
+}
+
+.fsx-pr-note {
+  padding: 0.3rem 0.5rem;
+  font-size: 0.68rem;
+  opacity: 0.7;
+}
+
+.fsx-pr-note.fail {
+  color: #ff8b93;
+  opacity: 1;
+}
+
+.fsx-pr-text {
+  margin: 0;
+  padding: 0.4rem 0.6rem;
+  max-height: 30vh;
+  overflow: auto;
+  resize: vertical;
+  white-space: pre-wrap;
+  word-break: break-all;
+  font-size: 0.7rem;
+  color: #cfeaff;
+}
+
+.fsx-pr-list {
+  max-height: 30vh;
+  overflow: auto;
+  resize: vertical;
+  padding: 0.2rem 0.3rem;
+}
+
+.fsx-pr-row {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.fsx-pr-path {
+  flex: 1;
+  text-align: left;
+  font-family: inherit;
+  font-size: 0.7rem;
+  color: #d6f4ff;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0.08rem 0.2rem;
+  word-break: break-all;
+}
+
+.fsx-pr-path:hover {
+  color: var(--accent);
+}
+
+/* ---- star (bookmark toggle) ------------------------------------- */
+.fsx-star {
+  font-family: inherit;
+  font-size: 0.8rem;
+  line-height: 1;
+  color: #6a7686;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0 0.15rem;
+}
+
+.fsx-star.on {
+  color: #ffd25a;
+}
+
+.fsx-c-star {
+  width: 1.1rem;
+  text-align: center;
+}
+
+/* row flashed after jumping to it from a bookmark / preset result */
+.fsx-row.fsx-hl {
+  background: rgba(255, 210, 90, 0.22);
+}
+
+/* ---- amber affordances (P3) ----------------------------------- */
+.fsx-pill,
+.fsx-gear {
+  font-family: inherit;
+  font-size: 0.62rem;
+  margin-left: 0.4rem;
+  padding: 0.02rem 0.35rem;
+  border-radius: 4px;
+  border: 1px solid #ffb454;
+  color: #ffb454;
+  background: rgba(255, 180, 84, 0.08);
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+.fsx-gear {
+  border-color: rgba(255, 180, 84, 0.5);
+}
+
+.fsx-pill:hover,
+.fsx-gear:hover {
+  background: rgba(255, 180, 84, 0.2);
+}
+
+.fsx-actions {
+  border: 1px solid #ffb454;
+  border-radius: 6px;
+  background: rgba(255, 180, 84, 0.06);
+}
+
+.fsx-act-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.5rem;
+  border-bottom: 1px solid rgba(255, 180, 84, 0.3);
+  color: #ffb454;
+  font-size: 0.72rem;
+}
+
+.fsx-act-head span {
+  flex: 1;
+  word-break: break-all;
+}
+
+.fsx-act-close {
+  font-family: inherit;
+  color: #ffb454;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.fsx-act-amber {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.66rem;
+  color: #ffb454;
+  opacity: 0.85;
+}
+
+.fsx-act-sec {
+  padding: 0.3rem 0.5rem 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.fsx-act-sec-h {
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--accent);
+  opacity: 0.75;
+  margin-bottom: 0.3rem;
+}
+
+.fsx-act-note {
+  font-size: 0.68rem;
+  opacity: 0.8;
+  margin-bottom: 0.35rem;
+}
+
+.fsx-act-gblock {
+  margin: 0.35rem 0;
+}
+
+.fsx-act-gblock-h {
+  font-size: 0.64rem;
+  opacity: 0.6;
+  margin-bottom: 0.15rem;
+}
+
+.fsx-act-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.15rem 0;
+}
+
+.fsx-act-cmd {
+  flex: 1;
+  min-width: 12rem;
+  font-family: monospace;
+  font-size: 0.68rem;
+  color: #ffe1b0;
+  background: rgba(0, 0, 0, 0.25);
+  padding: 0.15rem 0.35rem;
+  border-radius: 4px;
+  word-break: break-all;
+}
+
+.fsx-act-paste {
+  font-family: inherit;
+  font-size: 0.66rem;
+  color: rgba(8, 10, 16, 0.95);
+  background: #ffb454;
+  border: none;
+  border-radius: 5px;
+  padding: 0.15rem 0.55rem;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.fsx-act-why {
+  flex-basis: 100%;
+  font-size: 0.64rem;
+  opacity: 0.7;
+  padding-left: 0.2rem;
+}
+
+.fsx-act-src {
+  display: inline-block;
+  margin: 0.2rem 0.5rem 0.4rem;
+  font-size: 0.64rem;
+  color: var(--accent);
+  opacity: 0.7;
+}
+
+.fsx-jentry.amber .fsx-jcmd {
+  color: #ffb454;
+}
+
+/* ---- first-time amber authorization overlay ------------------- */
+.fsx-amber-ack {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(4, 6, 10, 0.82);
+  padding: 1rem;
+}
+
+.fsx-amber-ack[hidden] {
+  display: none;
+}
+
+.fsx-ack-card {
+  max-width: 30rem;
+  border: 1px solid #ffb454;
+  border-radius: 8px;
+  background: #10131a;
+  padding: 0.9rem 1rem;
+}
+
+.fsx-ack-title {
+  color: #ffb454;
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+}
+
+.fsx-ack-text {
+  margin: 0 0 0.6rem;
+  font-size: 0.74rem;
+  line-height: 1.5;
+  color: #cfeaff;
+}
+
+.fsx-ack-check {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.72rem;
+  margin-bottom: 0.6rem;
+  cursor: pointer;
+}
+
+.fsx-ack-btns {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.fsx-ack-ok {
+  font-family: inherit;
+  font-size: 0.72rem;
+  color: rgba(8, 10, 16, 0.95);
+  background: #ffb454;
+  border: none;
+  border-radius: 6px;
+  padding: 0.3rem 0.7rem;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.fsx-ack-cancel {
+  font-family: inherit;
+  font-size: 0.72rem;
+  color: #9adfff;
+  background: transparent;
+  border: 1px solid rgba(154, 223, 255, 0.4);
+  border-radius: 6px;
+  padding: 0.3rem 0.7rem;
+  cursor: pointer;
+}
+
+/* ---- banner ---------------------------------------------------- */
+.fsx-banner {
+  padding: 0.35rem 0.55rem;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  border: 1px solid rgba(154, 223, 255, 0.35);
+  background: rgba(154, 223, 255, 0.08);
+}
+
+.fsx-banner.fail {
+  color: #ff8b93;
+  border-color: rgba(255, 139, 147, 0.5);
+  background: rgba(255, 139, 147, 0.08);
+}
+
+.fsx-degraded {
+  padding: 0.3rem 0.5rem;
+  margin-bottom: 0.35rem;
+  border-radius: 5px;
+  font-size: 0.7rem;
+  color: #ffb454;
+  border: 1px solid rgba(255, 180, 84, 0.4);
+  background: rgba(255, 180, 84, 0.07);
+}
+
+/* ---- listing table ---------------------------------------------------- */
+.fsx-listing {
+  /* content-sized (so a 3-file dir doesn't leave a big gap before the
+     preview), capped and scrollable past the cap, still drag-resizable */
+  min-height: 3rem;
+  max-height: 36vh;
+  overflow: auto;
+  resize: vertical;
+}
+
+.fsx-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.fsx-row {
+  cursor: pointer;
+}
+
+.fsx-row:hover {
+  background: rgba(154, 223, 255, 0.1);
+}
+
+.fsx-row td {
+  padding: 0.12rem 0.4rem;
+  white-space: nowrap;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.fsx-c-icon {
+  width: 1.2rem;
+  text-align: center;
+}
+
+/* Name eats all the slack so the metadata columns stay clustered and
+   compact on the right instead of drifting apart across the panel. */
+.fsx-c-name {
+  width: 100%;
+  white-space: normal;
+  word-break: break-all;
+  color: #d6f4ff;
+}
+
+.fsx-c-perm,
+.fsx-c-size,
+.fsx-c-time {
+  padding-left: 1rem;
+}
+
+.fsx-row.fsx-dir .fsx-c-name {
+  color: var(--accent);
+}
+
+.fsx-row.fsx-link .fsx-c-name {
+  color: #b6a6ff;
+}
+
+.fsx-c-perm {
+  font-size: 0.7rem;
+}
+
+.fsx-perm {
+  opacity: 0.75;
+}
+
+.fsx-perm.ww {
+  color: #ffb454;
+  opacity: 1;
+}
+
+.fsx-perm.suid {
+  color: #ff7bd5;
+  opacity: 1;
+  font-weight: 700;
+}
+
+.fsx-c-size,
+.fsx-c-time {
+  text-align: right;
+  font-size: 0.68rem;
+  opacity: 0.6;
+}
+
+.fsx-empty {
+  padding: 0.5rem;
+  opacity: 0.5;
+  text-align: center;
+}
+
+/* ---- preview ---------------------------------------------------- */
+.fsx-preview {
+  border: 1px solid rgba(154, 223, 255, 0.25);
+  border-radius: 6px;
+  background: rgba(8, 10, 16, 0.5);
+}
+
+.fsx-preview-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.3rem 0.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.fsx-preview-path {
+  flex: 1;
+  color: #d6f4ff;
+  word-break: break-all;
+  font-size: 0.72rem;
+}
+
+.fsx-preview-close {
+  font-family: inherit;
+  color: var(--accent);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.fsx-preview-note {
+  padding: 0.3rem 0.5rem;
+  font-size: 0.68rem;
+  opacity: 0.65;
+}
+
+.fsx-preview-body {
+  margin: 0;
+  padding: 0.4rem 0.6rem;
+  min-height: 3rem;
+  max-height: 30vh;
+  overflow: auto;
+  resize: vertical;
+  white-space: pre-wrap;
+  word-break: break-all;
+  font-size: 0.72rem;
+  color: #cfeaff;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.fsx-preview-actions {
+  display: flex;
+  gap: 0.4rem;
+  padding: 0.35rem 0.5rem;
+}
+
+.fsx-preview-actions button {
+  font-family: inherit;
+  font-size: 0.68rem;
+  color: var(--accent);
+  background: rgba(8, 10, 16, 0.65);
+  border: 1px solid var(--accent);
+  border-radius: 5px;
+  padding: 0.2rem 0.45rem;
+  cursor: pointer;
+}
+
+/* ---- journal ---------------------------------------------------- */
+.fsx-journal {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 0.35rem;
+}
+
+.fsx-journal > summary {
+  cursor: pointer;
+  font-size: 0.7rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--accent);
+  opacity: 0.8;
+}
+
+.fsx-journal-body {
+  margin-top: 0.35rem;
+  height: 22vh;
+  min-height: 4rem;
+  overflow: auto;
+  resize: vertical; /* drag the bottom-right corner to resize */
+  font-size: 0.68rem;
+}
+
+.fsx-jentry {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 0.2rem 0;
+}
+
+.fsx-jlabel {
+  color: var(--accent);
+  opacity: 0.6;
+  font-size: 0.64rem;
+}
+
+.fsx-jcmd {
+  color: #d6f4ff;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.fsx-jentry.fail .fsx-jcmd {
+  color: #ff8b93;
+}
+
+.fsx-jentry.pending .fsx-jcmd {
+  color: #f7dd72;
+}
+
+.fsx-jout {
+  margin: 0.15rem 0 0;
+  padding-left: 0.6rem;
+  white-space: pre-wrap;
+  word-break: break-all;
+  color: #8fbfd8;
+  opacity: 0.85;
+}
+
+/* P0 placeholder leftover -- kept in case the panel mounts before the
+   script (shouldn't happen: fs-explorer.js is loaded in dashboard.html). */
+.fsx-placeholder-title {
+  margin: 0 0 0.4rem;
+  color: var(--accent);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+}
+
+.fsx-placeholder-sub {
+  margin: 0;
+  opacity: 0.8;
+}

@@ -524,6 +524,20 @@ function initShellsHost() {
       return;
     }
 
+    if (e.data.type === "fs-shell-list-request") {
+      // FS Explorer (assets/script/fs-explorer.js, inside dashboard.html)
+      // asking which shell panes are open so it can pick one to drive.
+      // Deliberately NOT routed through tab-link like shell-list-request
+      // below: FS Explorer opens its own WebSocket to a ttyd port on
+      // THIS machine's loopback, so it always wants the shells this tab
+      // actually owns, never a linked peer's.
+      e.source.postMessage(
+        { type: "fs-shell-list-response", requestId: e.data.requestId, shells: listShells() },
+        "*",
+      );
+      return;
+    }
+
     if (e.data.type === "shell-list-request") {
       // Same two-levels-deep sender as shell-copy-request above -- the
       // "copy to shell" dropdown asks for this fresh on every open so

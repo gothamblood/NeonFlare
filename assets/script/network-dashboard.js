@@ -84,19 +84,16 @@ function updateGauge(gaugeSelector, online, total) {
   if (label) label.textContent = total > 0 ? Math.round(ratio * 100) + "%" : "--";
 }
 
+/* Thin forwarder to the shared System log service (assets/script/
+   system-log.js), which now owns the rendering, the line caps and the
+   panel it draws into. Kept here (rather than updating every call site)
+   so the network checks below stay untouched; every line it emits is
+   tagged source "net". Falls back to a no-op if system-log.js somehow
+   didn't load, so a network check can never throw here. */
 function logLine(logSelector, text, kind) {
-  const log = document.querySelector(logSelector);
-  if (!log) return;
-  const line = document.createElement("div");
-  line.className = "hud-log-line " + (kind || "");
-  const time = new Date().toLocaleTimeString();
-  line.textContent = "[" + time + "] " + text;
-  log.appendChild(line);
-  const MAX_LINES = 40;
-  while (log.children.length > MAX_LINES) {
-    log.removeChild(log.firstChild);
+  if (window.systemLog) {
+    window.systemLog.push({ selector: logSelector, text: text, level: kind || "info", source: "net" });
   }
-  log.scrollTop = log.scrollHeight;
 }
 
 function startClock(clockSelector) {

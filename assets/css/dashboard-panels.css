@@ -397,7 +397,8 @@ body:has(#panelNetwork.dash-section-off) #hudLegend {
 .dash-panel-website,
 .dash-panel-log,
 .dash-panel-grc,
-.dash-panel-reviews {
+.dash-panel-reviews,
+.dash-panel-fs {
   flex: 0 0 auto;
 }
 
