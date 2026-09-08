@@ -785,17 +785,41 @@
   // bare object for a single entry). Immune to tab expansion; still
   // capped so it fits one screen.
   function parseWinListing(text) {
-    var t = String(text || "").trim();
-    // isolate the JSON (strip any leftover prompt/echo before/after)
-    var s = t.indexOf("[");
-    var o = t.indexOf("{");
-    var start = s === -1 ? o : o === -1 ? s : Math.min(s, o);
-    if (start > 0) t = t.slice(start);
+    var raw = String(text || "");
+    // ConvertTo-Json -Compress emits the whole payload on ONE line. Scan
+    // the lines back-to-front for the last one that starts like JSON and
+    // actually parses: an earlier "[..." can be a truncated leftover
+    // from a previous listing the shared tmux pane didn't fully clear,
+    // or themed-prompt / echoed-command noise that slipped past the
+    // capture markers -- taking the first "[" (as before) then choked on
+    // that instead of the real result.
     var arr;
-    try {
-      arr = JSON.parse(t);
-    } catch (e) {
-      return { entries: [], warnings: t ? [t.slice(0, 200)] : [] };
+    var lines = raw.split("\n");
+    for (var i = lines.length - 1; i >= 0 && arr === undefined; i--) {
+      var ln = lines[i].trim();
+      if (!ln || (ln.charAt(0) !== "[" && ln.charAt(0) !== "{")) continue;
+      try {
+        arr = JSON.parse(ln);
+      } catch (e) {
+        /* not this line -- keep scanning upward */
+      }
+    }
+    if (arr === undefined) {
+      // Output wasn't split into clean lines (or wrapped): fall back to
+      // the old "slice from the first bracket and hope" heuristic.
+      var t = raw.trim();
+      var b = t.search(/[[{]/);
+      if (b >= 0) {
+        try {
+          arr = JSON.parse(t.slice(b));
+        } catch (e) {
+          /* give up below */
+        }
+      }
+    }
+    if (arr === undefined) {
+      var tt = raw.trim();
+      return { entries: [], warnings: tt ? [tt.slice(0, 200)] : [] };
     }
     if (!Array.isArray(arr)) arr = arr ? [arr] : [];
     var entries = arr.map(function (x) {
@@ -1096,12 +1120,20 @@
     if (!state.pane || state.profile !== "posix") return;
     if (state.presetRun && !state.presetRun.done) return; // one at a time
 
+    // The scan's temp file is named HERE, client-side, instead of being
+    // scraped back from the shell. The kick command is long (nested
+    // groups + redirects + the preset's own find/getcap), so once it is
+    // echoed into the shared tmux pane it soft-wraps past CAP_COLS and,
+    // with a multi-line themed prompt (zsh on Kali), the wrap fusion
+    // mangles our capture markers -- there was nothing dependable to
+    // read the path back from, and it failed differently per shell.
+    var fid = (Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2)).slice(0, 12);
     var pr = {
       id: preset.id,
       label: preset.label,
       kind: preset.kind,
       bookmark: preset.bookmark,
-      file: null,
+      file: "/tmp/.fsx." + fid,
       pid: null,
       count: 0,
       done: false,
@@ -1114,31 +1146,29 @@
     renderPresetResults();
 
     var started = Date.now();
+    // Fire-and-forget: a foreground subshell ( ... ) whose only job is
+    // to spawn the scan in the background and record its pid. Run this
+    // way -- ( ) with no trailing &, stdout/stderr to /dev/null --
+    // neither the subshell nor its inner & makes an interactive bash OR
+    // zsh print a "[1] <pid>" job-control line, and the detached fds let
+    // the prompt return at once even for a slow `find /`. The kick
+    // prints nothing, so it no longer matters that its echo soft-wraps
+    // and corrupts the capture markers: there is no payload between them
+    // to lose. pollPreset() confirms the scan really started by watching
+    // pr.file. The inner `{ cmd; }` wrapper keeps `> file` covering
+    // every sub-command of a multi-statement preset (id/cron/sudo).
+    // NB: `"${!}"`, not `"$!"` -- `$!` glued to a closing double quote
+    // wedges interactive zsh at its PS2 continuation prompt (a lexer
+    // quirk, unrelated to bang-history), so the command is buffered and
+    // never runs. The brace form is equivalent and parses cleanly.
     var kick =
-      'FSXF=$(mktemp "${TMPDIR:-/tmp}/.fsx.XXXXXX" 2>/dev/null || echo "/tmp/.fsx.$$.$RANDOM"); ' +
-      "{ " + preset.cmd + ' > "$FSXF" 2>/dev/null; echo done > "$FSXF.s"; } & ' +
-      'echo "$FSXF|$!"';
+      "( { { " + preset.cmd + "; } > " + shq(pr.file) + " 2>/dev/null; " +
+      "echo done > " + shq(pr.file + ".s") + "; } & echo \"${!}\" > " + shq(pr.file + ".p") +
+      " ) >/dev/null 2>&1";
 
     run(kick, { label: "énum : " + preset.label + " (démarrage)", timeoutMs: 10000 }).then(
-      function (res) {
+      function () {
         if (state.presetRun !== pr || pr.cancelled) return;
-        var last =
-          (res.output || "")
-            .split("\n")
-            .map(function (x) {
-              return x.trim();
-            })
-            .filter(Boolean)
-            .pop() || "";
-        var parts = last.split("|");
-        if (parts.length < 2 || parts[0].charAt(0) !== "/") {
-          pr.error = "démarrage du scan impossible (" + (last || "pas de réponse") + ")";
-          pr.done = true;
-          renderPresetResults();
-          return;
-        }
-        pr.file = parts[0];
-        pr.pid = parts[1];
         pollPreset(pr, started);
       },
       function (err) {
@@ -1183,7 +1213,8 @@
   function finishPreset(pr, timedOut) {
     if (state.presetRun !== pr || pr.done) return;
     var fetch =
-      "head -n " + PRESET_RESULT_CAP + " -- " + shq(pr.file) + "; rm -f " + shq(pr.file) + " " + shq(pr.file + ".s");
+      "head -n " + PRESET_RESULT_CAP + " -- " + shq(pr.file) +
+      "; rm -f " + shq(pr.file) + " " + shq(pr.file + ".s") + " " + shq(pr.file + ".p");
     run(fetch, { label: "énum : " + pr.label + " (résultats)", clearFirst: true, timeoutMs: 20000 }).then(
       function (res) {
         if (state.presetRun !== pr) return;
@@ -1231,11 +1262,14 @@
     if (!pr || pr.done) return;
     pr.cancelled = true;
     pr.done = true;
-    if (pr.file && pr.pid) {
-      run("kill " + pr.pid + " 2>/dev/null; rm -f " + shq(pr.file) + " " + shq(pr.file + ".s"), {
-        label: "énum : " + pr.label + " (annulé)",
-        timeoutMs: 8000,
-      });
+    if (pr.file) {
+      // pid lives in pr.file + ".p" (written by the kick), read back
+      // here rather than threaded through every poll.
+      run(
+        "kill $(cat " + shq(pr.file + ".p") + " 2>/dev/null) 2>/dev/null; " +
+          "rm -f " + shq(pr.file) + " " + shq(pr.file + ".s") + " " + shq(pr.file + ".p"),
+        { label: "énum : " + pr.label + " (annulé)", timeoutMs: 8000 }
+      );
     }
     renderPresetResults();
   }
