@@ -16,24 +16,24 @@
             <div>Sécurité Réseau</div>
         </div>
         <div class="nav-links">
-            <a href="./index.html">&larr; Retour à Sécurité Réseau</a>
+            <a href="./index.html" data-i18n="grc.common.backToReseau">&larr; Retour à Sécurité Réseau</a>
         </div>
     </nav>
 </header>
 
 <main>
-    <h1 class="page-title">Sécurité des communications</h1>
-    <p class="page-subtitle">
+    <h1 class="page-title" data-i18n="grc.securite.reseau.securite-communications.title">Sécurité des communications</h1>
+    <p class="page-subtitle" data-i18n="grc.securite.reseau.securite-communications.subtitle">
         Décrire les mesures pour protéger les flux.
     </p>
 
     <section class="content-block">
-        <h2>Éléments à inclure</h2>
+        <h2 data-i18n="grc.securite.reseau.securite-communications.list1.heading">Éléments à inclure</h2>
         <ul>
-            <li>Chiffrement TLS 1.2+ <span class="grc-control-tags">ISO A.8.24 · NIST PR.DS · CIS 3</span></li>
-            <li>Certificats gérés <span class="grc-control-tags">ISO A.8.24 · NIST PR.DS · CIS 3</span></li>
-            <li>VPN IPSec / SSL <span class="grc-control-tags">ISO A.8.24 · NIST PR.IR · CIS 12</span></li>
-            <li>Interdiction des protocoles obsolètes (FTP, Telnet, SMBv1) <span class="grc-control-tags">ISO A.8.9 · NIST PR.PS · CIS 4</span></li>
+            <li><span data-i18n="grc.securite.reseau.securite-communications.list1.item1">Chiffrement TLS 1.2+</span> <span class="grc-control-tags">ISO A.8.24 · NIST PR.DS · CIS 3</span></li>
+            <li><span data-i18n="grc.securite.reseau.securite-communications.list1.item2">Certificats gérés</span> <span class="grc-control-tags">ISO A.8.24 · NIST PR.DS · CIS 3</span></li>
+            <li><span data-i18n="grc.securite.reseau.securite-communications.list1.item3">VPN IPSec / SSL</span> <span class="grc-control-tags">ISO A.8.24 · NIST PR.IR · CIS 12</span></li>
+            <li><span data-i18n="grc.securite.reseau.securite-communications.list1.item4">Interdiction des protocoles obsolètes (FTP, Telnet, SMBv1)</span> <span class="grc-control-tags">ISO A.8.9 · NIST PR.PS · CIS 4</span></li>
         </ul>
 
 
@@ -60,6 +60,10 @@
   }
 </script>
 
+<script src="../../../assets/script/i18n.js"></script>
+<script src="../../../assets/script/grc-i18n.js"></script>
+<script src="../../../assets/script/grc-i18n-securite-reseau.js"></script>
+
 <script src="../../../config/grc-author.js"></script>
 
 <script src="../../../config/encryption.js"></script>
@@ -69,6 +73,8 @@
 
 <script src="../../../assets/script/vault.js"></script>
 <script src="../../../assets/script/vault-ui.js"></script>
+
+<script>applyI18n(getSavedLang());</script>
 
 <script src="../../../assets/script/grc-checklist.js"></script>
 <script>initGrcChecklist();</script>

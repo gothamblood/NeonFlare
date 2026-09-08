@@ -16,37 +16,37 @@
             <div>GRC Cybersecurity</div>
         </div>
         <div class="nav-links">
-            <a href="./index.html">&larr; Retour au GRC</a>
+            <a href="./index.html" data-i18n="grc.common.backToGrc">&larr; Retour au GRC</a>
         </div>
     </nav>
 </header>
 
 <main>
-    <h1 class="page-title">Gestion des incidents</h1>
-    <p class="page-subtitle">
+    <h1 class="page-title" data-i18n="grc.incidents.title">Gestion des incidents</h1>
+    <p class="page-subtitle" data-i18n="grc.incidents.subtitle">
         Cette section décrit comment l’organisation réagit aux incidents de sécurité.
     </p>
 
     <section class="grc-registry-block">
-        <h2>Journal des incidents</h2>
+        <h2 data-i18n="grc.incidents.registryTitle">Journal des incidents</h2>
         <div id="grcIncidentRegistry"></div>
     </section>
 
     <section class="content-block">
-        <h2>Contenu à inclure</h2>
+        <h2 data-i18n="grc.common.contentInclude">Contenu à inclure</h2>
         <ul>
-            <li><strong>Objectifs</strong> : limiter l’impact, restaurer les services.</li>
-            <li><strong>Définitions</strong> : incident, événement, alerte.</li>
-            <li><strong>Rôles</strong> : SOC, CISO, TI, utilisateurs. <span class="grc-control-tags">ISO A.5.24 · NIST GV.RR</span></li>
-            <li><strong>Classification</strong> : mineur, majeur, critique. <span class="grc-control-tags">ISO A.5.25 · NIST RS.MA</span></li>
-            <li><strong>Processus</strong> : Detect → Respond → Recover. <span class="grc-control-tags">ISO A.5.26 · NIST RS.MA · CIS 17</span></li>
-            <li><strong>Communication</strong> : escalade, notifications. <span class="grc-control-tags">ISO A.5.26 · NIST RS.CO</span></li>
-            <li><strong>Documentation</strong> : rapport d’incident. <span class="grc-control-tags">ISO A.5.28 · NIST RS.AN</span></li>
-            <li><strong>Amélioration continue</strong> : post-mortem. <span class="grc-control-tags">ISO A.5.27 · NIST ID.IM</span></li>
+            <li><strong data-i18n="grc.incidents.item1.label">Objectifs</strong> : <span data-i18n="grc.incidents.item1.desc">limiter l’impact, restaurer les services.</span></li>
+            <li><strong data-i18n="grc.incidents.item2.label">Définitions</strong> : <span data-i18n="grc.incidents.item2.desc">incident, événement, alerte.</span></li>
+            <li><strong data-i18n="grc.incidents.item3.label">Rôles</strong> : <span data-i18n="grc.incidents.item3.desc">SOC, CISO, TI, utilisateurs.</span> <span class="grc-control-tags">ISO A.5.24 · NIST GV.RR</span></li>
+            <li><strong data-i18n="grc.incidents.item4.label">Classification</strong> : <span data-i18n="grc.incidents.item4.desc">mineur, majeur, critique.</span> <span class="grc-control-tags">ISO A.5.25 · NIST RS.MA</span></li>
+            <li><strong data-i18n="grc.incidents.item5.label">Processus</strong> : <span data-i18n="grc.incidents.item5.desc">Detect → Respond → Recover.</span> <span class="grc-control-tags">ISO A.5.26 · NIST RS.MA · CIS 17</span></li>
+            <li><strong data-i18n="grc.incidents.item6.label">Communication</strong> : <span data-i18n="grc.incidents.item6.desc">escalade, notifications.</span> <span class="grc-control-tags">ISO A.5.26 · NIST RS.CO</span></li>
+            <li><strong data-i18n="grc.incidents.item7.label">Documentation</strong> : <span data-i18n="grc.incidents.item7.desc">rapport d’incident.</span> <span class="grc-control-tags">ISO A.5.28 · NIST RS.AN</span></li>
+            <li><strong data-i18n="grc.incidents.item8.label">Amélioration continue</strong> : <span data-i18n="grc.incidents.item8.desc">post-mortem.</span> <span class="grc-control-tags">ISO A.5.27 · NIST ID.IM</span></li>
         </ul>
 
-        <h2>Rôle en GRC</h2>
-        <p>La gestion des incidents protège l’organisation contre les interruptions et les pertes.</p>
+        <h2 data-i18n="grc.common.roleTitle">Rôle en GRC</h2>
+        <p data-i18n="grc.incidents.role">La gestion des incidents protège l’organisation contre les interruptions et les pertes.</p>
     </section>
 </main>
 
@@ -70,6 +70,9 @@
   }
 </script>
 
+<script src="../assets/script/i18n.js"></script>
+<script src="../assets/script/grc-i18n.js"></script>
+
 <script src="../config/grc-author.js"></script>
 
 <script src="../config/encryption.js"></script>
@@ -83,6 +86,8 @@
 <script src="../assets/script/config-io.js"></script>
 <script src="../assets/script/grc-incidents.js"></script>
 <script>initGrcIncidentRegistry();</script>
+
+<script>applyI18n(getSavedLang());</script>
 
 <script src="../assets/script/grc-checklist.js"></script>
 <script>initGrcChecklist();</script>

@@ -16,31 +16,31 @@
             <div>GRC Cybersecurity</div>
         </div>
         <div class="nav-links">
-            <a href="./index.html">&larr; Retour au GRC</a>
+            <a href="./index.html" data-i18n="grc.common.backToGrc">&larr; Retour au GRC</a>
         </div>
     </nav>
 </header>
 
 <main>
-    <h1 class="page-title">Architecture de sécurité</h1>
-    <p class="page-subtitle">
+    <h1 class="page-title" data-i18n="grc.architecture.title">Architecture de sécurité</h1>
+    <p class="page-subtitle" data-i18n="grc.architecture.subtitle">
         L’architecture de sécurité décrit la structure technique qui met en œuvre la gouvernance et les contrôles définis ailleurs dans le programme GRC.
     </p>
 
     <section class="content-block">
-        <h2>Pourquoi c’est important</h2>
+        <h2 data-i18n="grc.architecture.whyTitle">Pourquoi c’est important</h2>
         <ul>
-            <li>Permet de montrer la structure technique de la sécurité.</li>
-            <li>Essentiel pour démontrer la cohérence entre l’architecture technique et la gouvernance GRC.</li>
+            <li><span data-i18n="grc.architecture.why1">Permet de montrer la structure technique de la sécurité.</span></li>
+            <li><span data-i18n="grc.architecture.why2">Essentiel pour démontrer la cohérence entre l’architecture technique et la gouvernance GRC.</span></li>
         </ul>
 
-        <h2>Ce que cette section doit contenir</h2>
+        <h2 data-i18n="grc.architecture.includeTitle">Ce que cette section doit contenir</h2>
         <ul>
-            <li>Modèle de sécurité (Zero Trust, Defense in Depth) <span class="grc-control-tags">ISO A.8.27 · NIST PR.IR</span></li>
-            <li>Architecture réseau <span class="grc-control-tags">ISO A.8.20 · NIST PR.IR · CIS 12</span></li>
-            <li>Architecture applicative <span class="grc-control-tags">ISO A.8.26 · NIST PR.PS · CIS 16</span></li>
-            <li>Architecture cloud / on-prem <span class="grc-control-tags">ISO A.5.23 · NIST PR.IR</span></li>
-            <li>Diagrammes techniques</li>
+            <li><span data-i18n="grc.architecture.item1">Modèle de sécurité (Zero Trust, Defense in Depth)</span> <span class="grc-control-tags">ISO A.8.27 · NIST PR.IR</span></li>
+            <li><span data-i18n="grc.architecture.item2">Architecture réseau</span> <span class="grc-control-tags">ISO A.8.20 · NIST PR.IR · CIS 12</span></li>
+            <li><span data-i18n="grc.architecture.item3">Architecture applicative</span> <span class="grc-control-tags">ISO A.8.26 · NIST PR.PS · CIS 16</span></li>
+            <li><span data-i18n="grc.architecture.item4">Architecture cloud / on-prem</span> <span class="grc-control-tags">ISO A.5.23 · NIST PR.IR</span></li>
+            <li><span data-i18n="grc.architecture.item5">Diagrammes techniques</span></li>
         </ul>
     </section>
 </main>
@@ -65,6 +65,10 @@
   }
 </script>
 
+<script src="../assets/script/i18n.js"></script>
+<script src="../assets/script/grc-i18n.js"></script>
+<script src="../assets/script/grc-i18n-domains.js"></script>
+
 <script src="../config/grc-author.js"></script>
 
 <script src="../config/encryption.js"></script>
@@ -74,6 +78,8 @@
 
 <script src="../assets/script/vault.js"></script>
 <script src="../assets/script/vault-ui.js"></script>
+
+<script>applyI18n(getSavedLang());</script>
 
 <script src="../assets/script/grc-checklist.js"></script>
 <script>initGrcChecklist();</script>

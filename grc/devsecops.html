@@ -16,33 +16,33 @@
             <div>GRC Cybersecurity</div>
         </div>
         <div class="nav-links">
-            <a href="./index.html">&larr; Retour au GRC</a>
+            <a href="./index.html" data-i18n="grc.common.backToGrc">&larr; Retour au GRC</a>
         </div>
     </nav>
 </header>
 
 <main>
-    <h1 class="page-title">DevSecOps</h1>
-    <p class="page-subtitle">
+    <h1 class="page-title" data-i18n="grc.devsecops.title">DevSecOps</h1>
+    <p class="page-subtitle" data-i18n="grc.devsecops.subtitle">
         Le DevSecOps intègre la sécurité directement dans le cycle de vie du développement logiciel.
     </p>
 
     <section class="content-block">
-        <h2>Pourquoi c’est important</h2>
+        <h2 data-i18n="grc.devsecops.whyTitle">Pourquoi c’est important</h2>
         <ul>
-            <li>Évite que les vulnérabilités atteignent la production en les détectant tôt dans le pipeline.</li>
-            <li>Intègre des contrôles de sécurité continus plutôt qu’un audit ponctuel en fin de projet.</li>
-            <li>Complète la gestion du cycle de vie et des tests déjà couverts pour les API et applications web.</li>
+            <li><span data-i18n="grc.devsecops.why1">Évite que les vulnérabilités atteignent la production en les détectant tôt dans le pipeline.</span></li>
+            <li><span data-i18n="grc.devsecops.why2">Intègre des contrôles de sécurité continus plutôt qu’un audit ponctuel en fin de projet.</span></li>
+            <li><span data-i18n="grc.devsecops.why3">Complète la gestion du cycle de vie et des tests déjà couverts pour les API et applications web.</span></li>
         </ul>
 
-        <h2>Ce que cette section doit contenir</h2>
+        <h2 data-i18n="grc.devsecops.includeTitle">Ce que cette section doit contenir</h2>
         <ul>
-            <li>CI/CD sécurisé (pipelines, secrets management) <span class="grc-control-tags">ISO A.8.25 · NIST PR.PS · CIS 16</span></li>
-            <li>SAST (analyse statique du code) <span class="grc-control-tags">ISO A.8.29 · NIST PR.PS · CIS 16</span></li>
-            <li>DAST (analyse dynamique en exécution) <span class="grc-control-tags">ISO A.8.29 · NIST PR.PS · CIS 16</span></li>
-            <li>Analyse des dépendances (SCA) <span class="grc-control-tags">ISO A.8.8 · NIST ID.RA · CIS 7</span></li>
-            <li>Gestion des secrets (clés API, identifiants) <span class="grc-control-tags">ISO A.5.17 · NIST PR.AA</span></li>
-            <li>Sécurité des conteneurs et des images (scan d’images) <span class="grc-control-tags">ISO A.8.8 · NIST ID.RA · CIS 7</span></li>
+            <li><span data-i18n="grc.devsecops.item1">CI/CD sécurisé (pipelines, secrets management)</span> <span class="grc-control-tags">ISO A.8.25 · NIST PR.PS · CIS 16</span></li>
+            <li><span data-i18n="grc.devsecops.item2">SAST (analyse statique du code)</span> <span class="grc-control-tags">ISO A.8.29 · NIST PR.PS · CIS 16</span></li>
+            <li><span data-i18n="grc.devsecops.item3">DAST (analyse dynamique en exécution)</span> <span class="grc-control-tags">ISO A.8.29 · NIST PR.PS · CIS 16</span></li>
+            <li><span data-i18n="grc.devsecops.item4">Analyse des dépendances (SCA)</span> <span class="grc-control-tags">ISO A.8.8 · NIST ID.RA · CIS 7</span></li>
+            <li><span data-i18n="grc.devsecops.item5">Gestion des secrets (clés API, identifiants)</span> <span class="grc-control-tags">ISO A.5.17 · NIST PR.AA</span></li>
+            <li><span data-i18n="grc.devsecops.item6">Sécurité des conteneurs et des images (scan d’images)</span> <span class="grc-control-tags">ISO A.8.8 · NIST ID.RA · CIS 7</span></li>
         </ul>
     </section>
 </main>
@@ -67,6 +67,10 @@
   }
 </script>
 
+<script src="../assets/script/i18n.js"></script>
+<script src="../assets/script/grc-i18n.js"></script>
+<script src="../assets/script/grc-i18n-domains.js"></script>
+
 <script src="../config/grc-author.js"></script>
 
 <script src="../config/encryption.js"></script>
@@ -76,6 +80,8 @@
 
 <script src="../assets/script/vault.js"></script>
 <script src="../assets/script/vault-ui.js"></script>
+
+<script>applyI18n(getSavedLang());</script>
 
 <script src="../assets/script/grc-checklist.js"></script>
 <script>initGrcChecklist();</script>

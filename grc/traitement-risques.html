@@ -16,29 +16,29 @@
             <div>GRC Cybersecurity</div>
         </div>
         <div class="nav-links">
-            <a href="./index.html">&larr; Retour au GRC</a>
+            <a href="./index.html" data-i18n="grc.common.backToGrc">&larr; Retour au GRC</a>
         </div>
     </nav>
 </header>
 
 <main>
-    <h1 class="page-title">Traitement des risques</h1>
-    <p class="page-subtitle">
+    <h1 class="page-title" data-i18n="grc.traitement-risques.title">Traitement des risques</h1>
+    <p class="page-subtitle" data-i18n="grc.traitement-risques.subtitle">
         Cette section explique comment l’organisation gère chaque risque.
     </p>
 
     <section class="content-block">
-        <h2>Contenu à inclure</h2>
+        <h2 data-i18n="grc.common.contentInclude">Contenu à inclure</h2>
         <ul>
-            <li><strong>Évitement</strong> : supprimer l’activité à risque. <span class="grc-control-tags">NIST GV.RM</span></li>
-            <li><strong>Mitigation</strong> : réduire la probabilité ou l’impact. <span class="grc-control-tags">NIST GV.RM</span></li>
-            <li><strong>Transfert</strong> : assurance, sous-traitance. <span class="grc-control-tags">NIST GV.RM</span></li>
-            <li><strong>Acceptation</strong> : risque toléré. <span class="grc-control-tags">NIST GV.RM</span></li>
-            <li><strong>Risques résiduels</strong> : ce qui reste après traitement. <span class="grc-control-tags">NIST ID.RA</span></li>
+            <li><strong data-i18n="grc.traitement-risques.item1.label">Évitement</strong> : <span data-i18n="grc.traitement-risques.item1.desc">supprimer l’activité à risque.</span> <span class="grc-control-tags">NIST GV.RM</span></li>
+            <li><strong data-i18n="grc.traitement-risques.item2.label">Mitigation</strong> : <span data-i18n="grc.traitement-risques.item2.desc">réduire la probabilité ou l’impact.</span> <span class="grc-control-tags">NIST GV.RM</span></li>
+            <li><strong data-i18n="grc.traitement-risques.item3.label">Transfert</strong> : <span data-i18n="grc.traitement-risques.item3.desc">assurance, sous-traitance.</span> <span class="grc-control-tags">NIST GV.RM</span></li>
+            <li><strong data-i18n="grc.traitement-risques.item4.label">Acceptation</strong> : <span data-i18n="grc.traitement-risques.item4.desc">risque toléré.</span> <span class="grc-control-tags">NIST GV.RM</span></li>
+            <li><strong data-i18n="grc.traitement-risques.item5.label">Risques résiduels</strong> : <span data-i18n="grc.traitement-risques.item5.desc">ce qui reste après traitement.</span> <span class="grc-control-tags">NIST ID.RA</span></li>
         </ul>
 
-        <h2>Rôle en GRC</h2>
-        <p>Le traitement des risques permet de prendre des décisions éclairées et alignées avec la tolérance au risque de l’organisation.</p>
+        <h2 data-i18n="grc.common.roleTitle">Rôle en GRC</h2>
+        <p data-i18n="grc.traitement-risques.role">Le traitement des risques permet de prendre des décisions éclairées et alignées avec la tolérance au risque de l’organisation.</p>
     </section>
 </main>
 
@@ -62,6 +62,10 @@
   }
 </script>
 
+<script src="../assets/script/i18n.js"></script>
+<script src="../assets/script/grc-i18n.js"></script>
+<script src="../assets/script/grc-i18n-domains.js"></script>
+
 <script src="../config/grc-author.js"></script>
 
 <script src="../config/encryption.js"></script>
@@ -71,6 +75,8 @@
 
 <script src="../assets/script/vault.js"></script>
 <script src="../assets/script/vault-ui.js"></script>
+
+<script>applyI18n(getSavedLang());</script>
 
 <script src="../assets/script/grc-checklist.js"></script>
 <script>initGrcChecklist();</script>

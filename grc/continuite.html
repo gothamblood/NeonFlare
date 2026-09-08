@@ -16,31 +16,31 @@
             <div>GRC Cybersecurity</div>
         </div>
         <div class="nav-links">
-            <a href="./index.html">&larr; Retour au GRC</a>
+            <a href="./index.html" data-i18n="grc.common.backToGrc">&larr; Retour au GRC</a>
         </div>
     </nav>
 </header>
 
 <main>
-    <h1 class="page-title">Plan de continuité (PCA/PRA)</h1>
-    <p class="page-subtitle">
+    <h1 class="page-title" data-i18n="grc.continuite.title">Plan de continuité (PCA/PRA)</h1>
+    <p class="page-subtitle" data-i18n="grc.continuite.subtitle">
         Cette section assure la résilience de l’organisation.
     </p>
 
     <section class="content-block">
-        <h2>Contenu à inclure</h2>
+        <h2 data-i18n="grc.common.contentInclude">Contenu à inclure</h2>
         <ul>
-            <li><strong>Objectifs</strong> : maintenir les services essentiels.</li>
-            <li><strong>Sinistres couverts</strong> : panne, cyberattaque, incendie, etc.</li>
-            <li><strong>Sauvegardes</strong> : RPO, RTO. <span class="grc-control-tags">ISO A.5.30 · NIST RC.RP</span></li>
-            <li><strong>Redondance</strong> : systèmes, réseaux, sites. <span class="grc-control-tags">ISO A.8.14 · NIST PR.IR</span></li>
-            <li><strong>Reprise</strong> : procédures PRA. <span class="grc-control-tags">ISO A.5.30 · NIST RC.RP</span></li>
-            <li><strong>Tests</strong> : fréquence, résultats. <span class="grc-control-tags">ISO A.5.30 · NIST RC.RP</span></li>
-            <li><strong>Mise à jour</strong> : révision annuelle.</li>
+            <li><strong data-i18n="grc.continuite.item1.label">Objectifs</strong> : <span data-i18n="grc.continuite.item1.desc">maintenir les services essentiels.</span></li>
+            <li><strong data-i18n="grc.continuite.item2.label">Sinistres couverts</strong> : <span data-i18n="grc.continuite.item2.desc">panne, cyberattaque, incendie, etc.</span></li>
+            <li><strong data-i18n="grc.continuite.item3.label">Sauvegardes</strong> : <span data-i18n="grc.continuite.item3.desc">RPO, RTO.</span> <span class="grc-control-tags">ISO A.5.30 · NIST RC.RP</span></li>
+            <li><strong data-i18n="grc.continuite.item4.label">Redondance</strong> : <span data-i18n="grc.continuite.item4.desc">systèmes, réseaux, sites.</span> <span class="grc-control-tags">ISO A.8.14 · NIST PR.IR</span></li>
+            <li><strong data-i18n="grc.continuite.item5.label">Reprise</strong> : <span data-i18n="grc.continuite.item5.desc">procédures PRA.</span> <span class="grc-control-tags">ISO A.5.30 · NIST RC.RP</span></li>
+            <li><strong data-i18n="grc.continuite.item6.label">Tests</strong> : <span data-i18n="grc.continuite.item6.desc">fréquence, résultats.</span> <span class="grc-control-tags">ISO A.5.30 · NIST RC.RP</span></li>
+            <li><strong data-i18n="grc.continuite.item7.label">Mise à jour</strong> : <span data-i18n="grc.continuite.item7.desc">révision annuelle.</span></li>
         </ul>
 
-        <h2>Rôle en GRC</h2>
-        <p>Le PCA/PRA garantit que l’organisation peut survivre à un incident majeur.</p>
+        <h2 data-i18n="grc.common.roleTitle">Rôle en GRC</h2>
+        <p data-i18n="grc.continuite.role">Le PCA/PRA garantit que l’organisation peut survivre à un incident majeur.</p>
     </section>
 </main>
 
@@ -64,6 +64,10 @@
   }
 </script>
 
+<script src="../assets/script/i18n.js"></script>
+<script src="../assets/script/grc-i18n.js"></script>
+<script src="../assets/script/grc-i18n-domains.js"></script>
+
 <script src="../config/grc-author.js"></script>
 
 <script src="../config/encryption.js"></script>
@@ -73,6 +77,8 @@
 
 <script src="../assets/script/vault.js"></script>
 <script src="../assets/script/vault-ui.js"></script>
+
+<script>applyI18n(getSavedLang());</script>
 
 <script src="../assets/script/grc-checklist.js"></script>
 <script>initGrcChecklist();</script>

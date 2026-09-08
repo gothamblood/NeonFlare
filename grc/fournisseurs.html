@@ -16,32 +16,32 @@
             <div>GRC Cybersecurity</div>
         </div>
         <div class="nav-links">
-            <a href="./index.html">&larr; Retour au GRC</a>
+            <a href="./index.html" data-i18n="grc.common.backToGrc">&larr; Retour au GRC</a>
         </div>
     </nav>
 </header>
 
 <main>
-    <h1 class="page-title">Gestion des fournisseurs</h1>
-    <p class="page-subtitle">
+    <h1 class="page-title" data-i18n="grc.fournisseurs.title">Gestion des fournisseurs</h1>
+    <p class="page-subtitle" data-i18n="grc.fournisseurs.subtitle">
         Les risques liés aux fournisseurs sont un pilier GRC moderne : ils représentent une surface d’attaque majeure et sont encadrés par ISO 27001 (Annexe A.15).
     </p>
 
     <section class="content-block">
-        <h2>Pourquoi c’est important</h2>
+        <h2 data-i18n="grc.fournisseurs.whyTitle">Pourquoi c’est important</h2>
         <ul>
-            <li>Les fournisseurs représentent une surface d’attaque majeure.</li>
-            <li>Obligatoire dans ISO 27001 (Annexe A.15).</li>
-            <li>Permet de contrôler les risques de sous-traitance. <span class="grc-control-tags">ISO A.5.19 · NIST GV.SC · CIS 15</span></li>
+            <li><span data-i18n="grc.fournisseurs.why1">Les fournisseurs représentent une surface d’attaque majeure.</span></li>
+            <li><span data-i18n="grc.fournisseurs.why2">Obligatoire dans ISO 27001 (Annexe A.15).</span></li>
+            <li><span data-i18n="grc.fournisseurs.why3">Permet de contrôler les risques de sous-traitance.</span> <span class="grc-control-tags">ISO A.5.19 · NIST GV.SC · CIS 15</span></li>
         </ul>
 
-        <h2>Ce que cette section doit contenir</h2>
+        <h2 data-i18n="grc.fournisseurs.includeTitle">Ce que cette section doit contenir</h2>
         <ul>
-            <li>Registre des fournisseurs <span class="grc-control-tags">ISO A.5.19 · NIST GV.SC · CIS 15</span></li>
-            <li>Évaluation des risques tiers <span class="grc-control-tags">ISO A.5.19 · NIST GV.SC · CIS 15</span></li>
-            <li>Exigences contractuelles de sécurité <span class="grc-control-tags">ISO A.5.20 · NIST GV.SC · CIS 15</span></li>
-            <li>Suivi des certifications (ISO, SOC2, etc.) <span class="grc-control-tags">ISO A.5.22 · NIST GV.SC</span></li>
-            <li>Processus d’onboarding / offboarding fournisseur <span class="grc-control-tags">ISO A.5.19 · NIST GV.SC</span></li>
+            <li><span data-i18n="grc.fournisseurs.item1">Registre des fournisseurs</span> <span class="grc-control-tags">ISO A.5.19 · NIST GV.SC · CIS 15</span></li>
+            <li><span data-i18n="grc.fournisseurs.item2">Évaluation des risques tiers</span> <span class="grc-control-tags">ISO A.5.19 · NIST GV.SC · CIS 15</span></li>
+            <li><span data-i18n="grc.fournisseurs.item3">Exigences contractuelles de sécurité</span> <span class="grc-control-tags">ISO A.5.20 · NIST GV.SC · CIS 15</span></li>
+            <li><span data-i18n="grc.fournisseurs.item4">Suivi des certifications (ISO, SOC2, etc.)</span> <span class="grc-control-tags">ISO A.5.22 · NIST GV.SC</span></li>
+            <li><span data-i18n="grc.fournisseurs.item5">Processus d’onboarding / offboarding fournisseur</span> <span class="grc-control-tags">ISO A.5.19 · NIST GV.SC</span></li>
         </ul>
     </section>
 </main>
@@ -66,6 +66,10 @@
   }
 </script>
 
+<script src="../assets/script/i18n.js"></script>
+<script src="../assets/script/grc-i18n.js"></script>
+<script src="../assets/script/grc-i18n-domains.js"></script>
+
 <script src="../config/grc-author.js"></script>
 
 <script src="../config/encryption.js"></script>
@@ -75,6 +79,8 @@
 
 <script src="../assets/script/vault.js"></script>
 <script src="../assets/script/vault-ui.js"></script>
+
+<script>applyI18n(getSavedLang());</script>
 
 <script src="../assets/script/grc-checklist.js"></script>
 <script>initGrcChecklist();</script>

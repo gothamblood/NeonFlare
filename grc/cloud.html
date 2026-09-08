@@ -16,33 +16,33 @@
             <div>GRC Cybersecurity</div>
         </div>
         <div class="nav-links">
-            <a href="./index.html">&larr; Retour au GRC</a>
+            <a href="./index.html" data-i18n="grc.common.backToGrc">&larr; Retour au GRC</a>
         </div>
     </nav>
 </header>
 
 <main>
-    <h1 class="page-title">Cloud Security</h1>
-    <p class="page-subtitle">
+    <h1 class="page-title" data-i18n="grc.cloud.title">Cloud Security</h1>
+    <p class="page-subtitle" data-i18n="grc.cloud.subtitle">
         Décrire les mesures de sécurité spécifiques aux environnements cloud utilisés par l’organisation, le cas échéant.
     </p>
 
     <section class="content-block">
-        <h2>Pourquoi c’est important</h2>
+        <h2 data-i18n="grc.cloud.whyTitle">Pourquoi c’est important</h2>
         <ul>
-            <li>Ne s’applique que si l’organisation exploite des services cloud.</li>
-            <li>Complète les contrôles réseau et applicatifs déjà couverts ailleurs dans le programme.</li>
-            <li>Modèle de responsabilité partagée : certains contrôles reviennent au fournisseur, d’autres à l’organisation.</li>
+            <li><span data-i18n="grc.cloud.why1">Ne s’applique que si l’organisation exploite des services cloud.</span></li>
+            <li><span data-i18n="grc.cloud.why2">Complète les contrôles réseau et applicatifs déjà couverts ailleurs dans le programme.</span></li>
+            <li><span data-i18n="grc.cloud.why3">Modèle de responsabilité partagée : certains contrôles reviennent au fournisseur, d’autres à l’organisation.</span></li>
         </ul>
 
-        <h2>Ce que cette section doit contenir</h2>
+        <h2 data-i18n="grc.cloud.includeTitle">Ce que cette section doit contenir</h2>
         <ul>
-            <li>Modèle de responsabilité partagée (Shared Responsibility Model) <span class="grc-control-tags">ISO A.5.23 · NIST GV.SC</span></li>
-            <li>Configuration sécurisée (CSPM) <span class="grc-control-tags">ISO A.8.9 · NIST PR.PS · CIS 4</span></li>
-            <li>Gestion des identités cloud (IAM cloud, rôles, clés d’accès) <span class="grc-control-tags">ISO A.5.16 · NIST PR.AA · CIS 6</span></li>
-            <li>Chiffrement des données cloud (au repos et en transit) <span class="grc-control-tags">ISO A.8.24 · NIST PR.DS · CIS 3</span></li>
-            <li>Sécurité des conteneurs et de l’orchestration (Kubernetes, Docker) <span class="grc-control-tags">ISO A.8.9 · NIST PR.PS · CIS 4</span></li>
-            <li>Journalisation et surveillance cloud-native <span class="grc-control-tags">ISO A.8.16 · NIST DE.CM · CIS 8</span></li>
+            <li><span data-i18n="grc.cloud.item1">Modèle de responsabilité partagée (Shared Responsibility Model)</span> <span class="grc-control-tags">ISO A.5.23 · NIST GV.SC</span></li>
+            <li><span data-i18n="grc.cloud.item2">Configuration sécurisée (CSPM)</span> <span class="grc-control-tags">ISO A.8.9 · NIST PR.PS · CIS 4</span></li>
+            <li><span data-i18n="grc.cloud.item3">Gestion des identités cloud (IAM cloud, rôles, clés d’accès)</span> <span class="grc-control-tags">ISO A.5.16 · NIST PR.AA · CIS 6</span></li>
+            <li><span data-i18n="grc.cloud.item4">Chiffrement des données cloud (au repos et en transit)</span> <span class="grc-control-tags">ISO A.8.24 · NIST PR.DS · CIS 3</span></li>
+            <li><span data-i18n="grc.cloud.item5">Sécurité des conteneurs et de l’orchestration (Kubernetes, Docker)</span> <span class="grc-control-tags">ISO A.8.9 · NIST PR.PS · CIS 4</span></li>
+            <li><span data-i18n="grc.cloud.item6">Journalisation et surveillance cloud-native</span> <span class="grc-control-tags">ISO A.8.16 · NIST DE.CM · CIS 8</span></li>
         </ul>
     </section>
 </main>
@@ -67,6 +67,10 @@
   }
 </script>
 
+<script src="../assets/script/i18n.js"></script>
+<script src="../assets/script/grc-i18n.js"></script>
+<script src="../assets/script/grc-i18n-domains.js"></script>
+
 <script src="../config/grc-author.js"></script>
 
 <script src="../config/encryption.js"></script>
@@ -76,6 +80,8 @@
 
 <script src="../assets/script/vault.js"></script>
 <script src="../assets/script/vault-ui.js"></script>
+
+<script>applyI18n(getSavedLang());</script>
 
 <script src="../assets/script/grc-checklist.js"></script>
 <script>initGrcChecklist();</script>

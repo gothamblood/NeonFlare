@@ -16,28 +16,28 @@
             <div>Sécurité WebApp</div>
         </div>
         <div class="nav-links">
-            <a href="./index.html">&larr; Retour à Sécurité WebApp</a>
+            <a href="./index.html" data-i18n="grc.common.backToWebapp">&larr; Retour à Sécurité WebApp</a>
         </div>
     </nav>
 </header>
 
 <main>
-    <h1 class="page-title">Protection contre les attaques WebApp</h1>
-    <p class="page-subtitle">
+    <h1 class="page-title" data-i18n="grc.securite.webapp.protection-attaques-webapp.title">Protection contre les attaques WebApp</h1>
+    <p class="page-subtitle" data-i18n="grc.securite.webapp.protection-attaques-webapp.subtitle">
         Décrire les protections mises en place contre les attaques ciblant l’application web.
     </p>
 
     <section class="content-block">
-        <h2>Menaces couvertes</h2>
+        <h2 data-i18n="grc.securite.webapp.protection-attaques-webapp.sectionTitle">Menaces couvertes</h2>
         <ul>
-            <li>XSS (stocké, réfléchi, DOM)</li>
-            <li>CSRF</li>
-            <li>SQL Injection</li>
-            <li>Command Injection</li>
-            <li>Directory Traversal</li>
-            <li>File Upload abuse</li>
-            <li>Broken Access Control</li>
-            <li>Insecure Direct Object Reference (IDOR)</li>
+            <li><span data-i18n="grc.securite.webapp.protection-attaques-webapp.item1.label">XSS (stocké, réfléchi, DOM)</span></li>
+            <li><span data-i18n="grc.securite.webapp.protection-attaques-webapp.item2.label">CSRF</span></li>
+            <li><span data-i18n="grc.securite.webapp.protection-attaques-webapp.item3.label">SQL Injection</span></li>
+            <li><span data-i18n="grc.securite.webapp.protection-attaques-webapp.item4.label">Command Injection</span></li>
+            <li><span data-i18n="grc.securite.webapp.protection-attaques-webapp.item5.label">Directory Traversal</span></li>
+            <li><span data-i18n="grc.securite.webapp.protection-attaques-webapp.item6.label">File Upload abuse</span></li>
+            <li><span data-i18n="grc.securite.webapp.protection-attaques-webapp.item7.label">Broken Access Control</span></li>
+            <li><span data-i18n="grc.securite.webapp.protection-attaques-webapp.item8.label">Insecure Direct Object Reference (IDOR)</span></li>
         </ul>
 
     </section>
@@ -63,6 +63,10 @@
   }
 </script>
 
+<script src="../../../assets/script/i18n.js"></script>
+<script src="../../../assets/script/grc-i18n.js"></script>
+<script src="../../../assets/script/grc-i18n-securite-webapp.js"></script>
+
 <script src="../../../config/grc-author.js"></script>
 
 <script src="../../../config/encryption.js"></script>
@@ -72,6 +76,8 @@
 
 <script src="../../../assets/script/vault.js"></script>
 <script src="../../../assets/script/vault-ui.js"></script>
+
+<script>applyI18n(getSavedLang());</script>
 
 <script src="../../../assets/script/grc-checklist.js"></script>
 <script>initGrcChecklist();</script>

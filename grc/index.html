@@ -20,8 +20,8 @@
 </header>
 
 <main>
-    <h1 class="page-title">Gouvernance, Risques &amp; Conformité</h1>
-    <p class="page-subtitle">
+    <h1 class="page-title" data-i18n="grc.hub.title">Gouvernance, Risques &amp; Conformité</h1>
+    <p class="page-subtitle" data-i18n="grc.hub.subtitle">
         Le système de management de la sécurité de l'information, organisé en 20 domaines : de la gouvernance et
         l'analyse des risques jusqu'à l'IAM, le cloud et le DevSecOps.
     </p>
@@ -29,13 +29,13 @@
     <div class="grc-progress" id="grc-coverage-summary"></div>
 
     <div class="grc-toolbar">
-      <button type="button" class="grc-toolbar-btn" onclick="exportGrcAsJson(grcAllSections)">Exporter JSON</button>
-      <button type="button" class="grc-toolbar-btn" onclick="saveGrcAsJson(grcAllSections)">Enregistrer sous…</button>
-      <button type="button" class="grc-toolbar-btn" onclick="exportGrcAsWord(grcAllSections)">Exporter Word</button>
-      <button type="button" class="grc-toolbar-btn" onclick="exportGrcAsPdf(grcAllSections)">Exporter PDF</button>
-      <button type="button" class="grc-toolbar-btn" onclick="document.getElementById('grcImportInput').click()">Importer JSON</button>
+      <button type="button" class="grc-toolbar-btn" data-i18n="grc.hub.exportJson" onclick="exportGrcAsJson(grcAllSections)">Exporter JSON</button>
+      <button type="button" class="grc-toolbar-btn" data-i18n="grc.hub.saveAs" onclick="saveGrcAsJson(grcAllSections)">Enregistrer sous…</button>
+      <button type="button" class="grc-toolbar-btn" data-i18n="grc.hub.exportWord" onclick="exportGrcAsWord(grcAllSections)">Exporter Word</button>
+      <button type="button" class="grc-toolbar-btn" data-i18n="grc.hub.exportPdf" onclick="exportGrcAsPdf(grcAllSections)">Exporter PDF</button>
+      <button type="button" class="grc-toolbar-btn" data-i18n="grc.hub.importJson" onclick="document.getElementById('grcImportInput').click()">Importer JSON</button>
       <input type="file" id="grcImportInput" accept=".json,application/json" style="display:none" onchange="handleGrcImport(this.files[0])">
-      <button type="button" class="grc-toolbar-btn grc-toolbar-btn-danger" onclick="confirmResetGrc()">Réinitialiser</button>
+      <button type="button" class="grc-toolbar-btn grc-toolbar-btn-danger" data-i18n="grc.hub.reset" onclick="confirmResetGrc()">Réinitialiser</button>
     </div>
 
     <div class="grid-3" id="grc-grid"></div>
@@ -52,6 +52,13 @@
   </div>
 </div>
 
+<script src="../assets/script/i18n.js"></script>
+<script src="../assets/script/grc-i18n.js"></script>
+<script src="../assets/script/grc-i18n-domains.js"></script>
+<script src="../assets/script/grc-i18n-securite-reseau.js"></script>
+<script src="../assets/script/grc-i18n-securite-api.js"></script>
+<script src="../assets/script/grc-i18n-securite-webapp.js"></script>
+<script src="../assets/script/grc-i18n-securite-database.js"></script>
 <script src="index.js"></script>
 <script src="securite/api/index.js"></script>
 <script src="securite/database/index.js"></script>
@@ -78,6 +85,7 @@
     window.top.postMessage({ type: "theme-change", theme: savedTheme }, "*");
   }
 
+  applyI18n(getSavedLang());
   renderGrcDomains(grcIndexConfig.domains, "#grc-grid");
   renderGrcCoverage(grcIndexConfig.domains, "#grc-grid", "#grc-coverage-summary");
 
@@ -85,32 +93,33 @@
   // sub-hubs), not just the 20 domains shown on this page -- same scope
   // as the dashboard's "Couverture GRC" panel.
   const grcAllSections = [
-    { title: "GRC", domains: grcIndexConfig.domains, basePath: "./" },
-    { title: "Sécurité réseau", domains: securiteReseauIndexConfig.domains, basePath: "securite/reseau/" },
-    { title: "Sécurité API", domains: securiteApiIndexConfig.domains, basePath: "securite/api/" },
-    { title: "Sécurité WebApp", domains: securiteWebappIndexConfig.domains, basePath: "securite/webapp/" },
-    { title: "Sécurité base de données", domains: securiteDatabaseIndexConfig.domains, basePath: "securite/database/" },
+    { title: grcT("nav.grc"), domains: grcIndexConfig.domains, basePath: "./", keyPrefix: "grc" },
+    { title: grcT("nav.networkSecurity"), domains: securiteReseauIndexConfig.domains, basePath: "securite/reseau/", keyPrefix: "grc.securite.reseau" },
+    { title: grcT("nav.apiSecurity"), domains: securiteApiIndexConfig.domains, basePath: "securite/api/", keyPrefix: "grc.securite.api" },
+    { title: grcT("nav.webappSecurity"), domains: securiteWebappIndexConfig.domains, basePath: "securite/webapp/", keyPrefix: "grc.securite.webapp" },
+    { title: grcT("nav.databaseSecurity"), domains: securiteDatabaseIndexConfig.domains, basePath: "securite/database/", keyPrefix: "grc.securite.database" },
   ];
 
   function confirmResetGrc() {
-    if (!confirm("Effacer toutes les cases cochées et toutes les notes, sur les 5 sections GRC ? Cette action est irréversible.")) return;
+    if (!confirm(grcT("grc.hub.confirmReset"))) return;
     resetGrcData(grcAllSections, () => location.reload());
   }
 
   function handleGrcImport(file) {
     if (!file) return;
-    if (!confirm("Importer ce fichier remplacera toutes les cases cochées et notes actuelles sur les 5 sections GRC. Continuer ?")) {
+    if (!confirm(grcT("grc.hub.confirmImport"))) {
       document.getElementById("grcImportInput").value = "";
       return;
     }
     importGrcData(
       file,
+      grcAllSections,
       (count) => {
-        alert(count + " domaine(s) restauré(s) depuis le fichier.");
+        alert(grcT("grc.hub.importRestoredCount").replace("{count}", count));
         location.reload();
       },
       (message) => {
-        alert("Import impossible : " + message);
+        alert(grcT("grc.hub.importFailed").replace("{message}", message));
         document.getElementById("grcImportInput").value = "";
       }
     );

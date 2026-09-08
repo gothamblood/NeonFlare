@@ -16,25 +16,25 @@
             <div>Sécurité API</div>
         </div>
         <div class="nav-links">
-            <a href="./index.html">&larr; Retour à Sécurité API</a>
+            <a href="./index.html" data-i18n="grc.common.backToApi">&larr; Retour à Sécurité API</a>
         </div>
     </nav>
 </header>
 
 <main>
-    <h1 class="page-title">Journalisation & monitoring</h1>
-    <p class="page-subtitle">
+    <h1 class="page-title" data-i18n="grc.securite.api.journalisation-monitoring.title">Journalisation & monitoring</h1>
+    <p class="page-subtitle" data-i18n="grc.securite.api.journalisation-monitoring.subtitle">
         Décrire les outils et processus de surveillance des API.
     </p>
 
     <section class="content-block">
-        <h2>Éléments à inclure</h2>
+        <h2 data-i18n="grc.common.contentInclude">Contenu à inclure</h2>
         <ul>
-            <li>Logs API Gateway <span class="grc-control-tags">ISO A.8.15 · NIST DE.CM · CIS 8</span></li>
-            <li>Logs d’erreurs <span class="grc-control-tags">ISO A.8.15 · NIST DE.CM · CIS 8</span></li>
-            <li>Logs d’accès <span class="grc-control-tags">ISO A.8.15 · NIST DE.CM · CIS 8</span></li>
-            <li>Corrélation SIEM <span class="grc-control-tags">ISO A.8.16 · NIST DE.AE · CIS 8</span></li>
-            <li>Alertes en temps réel <span class="grc-control-tags">ISO A.8.16 · NIST DE.AE · CIS 8</span></li>
+            <li><span data-i18n="grc.securite.api.journalisation-monitoring.item1.label">Logs API Gateway</span> <span class="grc-control-tags">ISO A.8.15 · NIST DE.CM · CIS 8</span></li>
+            <li><span data-i18n="grc.securite.api.journalisation-monitoring.item2.label">Logs d’erreurs</span> <span class="grc-control-tags">ISO A.8.15 · NIST DE.CM · CIS 8</span></li>
+            <li><span data-i18n="grc.securite.api.journalisation-monitoring.item3.label">Logs d’accès</span> <span class="grc-control-tags">ISO A.8.15 · NIST DE.CM · CIS 8</span></li>
+            <li><span data-i18n="grc.securite.api.journalisation-monitoring.item4.label">Corrélation SIEM</span> <span class="grc-control-tags">ISO A.8.16 · NIST DE.AE · CIS 8</span></li>
+            <li><span data-i18n="grc.securite.api.journalisation-monitoring.item5.label">Alertes en temps réel</span> <span class="grc-control-tags">ISO A.8.16 · NIST DE.AE · CIS 8</span></li>
         </ul>
 
     </section>
@@ -60,6 +60,9 @@
   }
 </script>
 
+<script src="../../../assets/script/i18n.js"></script>
+<script src="../../../assets/script/grc-i18n.js"></script>
+<script src="../../../assets/script/grc-i18n-securite-api.js"></script>
 <script src="../../../config/grc-author.js"></script>
 
 <script src="../../../config/encryption.js"></script>
@@ -69,6 +72,8 @@
 
 <script src="../../../assets/script/vault.js"></script>
 <script src="../../../assets/script/vault-ui.js"></script>
+
+<script>applyI18n(getSavedLang());</script>
 
 <script src="../../../assets/script/grc-checklist.js"></script>
 <script>initGrcChecklist();</script>

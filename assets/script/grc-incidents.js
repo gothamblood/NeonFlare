@@ -3,21 +3,22 @@
    #3). Remplace/complète la checklist d'auto-évaluation de
    grc/incidents.html (inchangée, voir assets/script/grc-checklist.js)
    par un vrai journal : sévérité, timeline détection/réponse/résolution,
-   statut, post-mortem. */
+   statut, post-mortem.
+
+   Tout le texte affiché passe par grcT() (assets/script/grc-i18n.js) --
+   SEVERITIES/STATUSES restent des clés internes stables, la traduction
+   vient de grc.incidents.severity.* et grc.incidents.status.* à
+   l'affichage. */
 
 const GRC_INCIDENTS_KEY = "/grc/incidents/registry";
 
-const GRC_INCIDENT_SEVERITIES = [
-  { value: "mineur", label: "Mineur" },
-  { value: "majeur", label: "Majeur" },
-  { value: "critique", label: "Critique" },
-];
+const GRC_INCIDENT_SEVERITIES = ["mineur", "majeur", "critique"];
 
 const GRC_INCIDENT_STATUSES = [
-  { value: "ouvert", label: "Ouvert" },
-  { value: "en_cours", label: "En cours" },
-  { value: "resolu", label: "Résolu" },
-  { value: "clos", label: "Clos" },
+  { value: "ouvert", i18nKey: "ouvert" },
+  { value: "en_cours", i18nKey: "enCours" },
+  { value: "resolu", i18nKey: "resolu" },
+  { value: "clos", i18nKey: "clos" },
 ];
 
 function getGrcIncidents() {
@@ -57,14 +58,14 @@ function removeGrcIncident(id) {
 // (.grc-crit-badge low/medium/high, déjà dans grc.css) -- mineur/majeur/
 // critique se lit naturellement sur la même échelle Faible/Moyenne/Élevée.
 function grcIncidentSeverityBadge(severity) {
-  if (severity === "critique") return { cls: "high", text: "Critique" };
-  if (severity === "majeur") return { cls: "medium", text: "Majeur" };
-  return { cls: "low", text: "Mineur" };
+  if (severity === "critique") return { cls: "high", text: grcT("grc.incidents.severity.critique") };
+  if (severity === "majeur") return { cls: "medium", text: grcT("grc.incidents.severity.majeur") };
+  return { cls: "low", text: grcT("grc.incidents.severity.mineur") };
 }
 
 function grcIncidentStatusLabel(value) {
   const found = GRC_INCIDENT_STATUSES.find((s) => s.value === value);
-  return found ? found.label : value;
+  return grcT("grc.incidents.status." + (found ? found.i18nKey : "ouvert"));
 }
 
 // Temps de résolution lisible (détection -> résolution), ou null si l'une
@@ -76,7 +77,9 @@ function grcIncidentResolutionDuration(incident) {
   const end = new Date(incident.resolvedAt).getTime();
   if (isNaN(start) || isNaN(end) || end < start) return null;
   const hours = Math.round((end - start) / 36000) / 100;
-  return hours < 48 ? hours + " h" : Math.round(hours / 24) + " j";
+  return hours < 48
+    ? grcT("grc.incidents.detail.durationHours").replace("{value}", hours)
+    : grcT("grc.incidents.detail.durationDays").replace("{value}", Math.round(hours / 24));
 }
 
 async function exportGrcIncidentsAsJson() {
@@ -87,7 +90,7 @@ async function exportGrcIncidentsAsJson() {
 async function importGrcIncidentsFromJson(file) {
   const raw = await readJsonFile(file);
   const incidents = await vaultMaybeDecryptImport(raw);
-  if (!Array.isArray(incidents)) throw new Error("Format invalide : un tableau d'incidents est attendu.");
+  if (!Array.isArray(incidents)) throw new Error(grcT("grc.incidents.invalidImport"));
   saveGrcIncidents(incidents);
 }
 
@@ -109,37 +112,37 @@ function initGrcIncidentRegistry() {
 
   container.innerHTML = `
     <div class="grc-registry-toolbar">
-      <button type="button" class="grc-registry-add-btn" id="incidentAddBtn">+ Déclarer un incident</button>
-      <button type="button" class="grc-registry-io-btn" id="incidentExportBtn">⬇ Exporter</button>
-      <button type="button" class="grc-registry-io-btn" id="incidentImportBtn">⬆ Importer</button>
+      <button type="button" class="grc-registry-add-btn" id="incidentAddBtn">${grcT("grc.incidents.form.addBtn")}</button>
+      <button type="button" class="grc-registry-io-btn" id="incidentExportBtn">${grcT("grc.common.btnExport")}</button>
+      <button type="button" class="grc-registry-io-btn" id="incidentImportBtn">${grcT("grc.common.btnImport")}</button>
       <input type="file" accept="application/json" id="incidentImportFile" style="display:none">
     </div>
     <form class="grc-registry-form" id="incidentForm" style="display:none">
-      <h3 id="incidentFormTitle">Déclarer un incident</h3>
-      <label>Titre <input type="text" id="incidentTitle" required></label>
-      <label>Description <textarea id="incidentDescription" rows="2"></textarea></label>
+      <h3 id="incidentFormTitle">${grcT("grc.incidents.form.title")}</h3>
+      <label>${grcT("grc.incidents.form.title2")} <input type="text" id="incidentTitle" required></label>
+      <label>${grcT("grc.incidents.form.description")} <textarea id="incidentDescription" rows="2"></textarea></label>
       <div class="grc-registry-form-row">
-        <label>Sévérité
+        <label>${grcT("grc.incidents.form.severity")}
           <select id="incidentSeverity">
-            ${GRC_INCIDENT_SEVERITIES.map((s) => `<option value="${s.value}">${s.label}</option>`).join("")}
+            ${GRC_INCIDENT_SEVERITIES.map((s) => `<option value="${s}">${grcT("grc.incidents.severity." + s)}</option>`).join("")}
           </select>
         </label>
-        <label>Statut
+        <label>${grcT("grc.incidents.form.status")}
           <select id="incidentStatus">
-            ${GRC_INCIDENT_STATUSES.map((s) => `<option value="${s.value}">${s.label}</option>`).join("")}
+            ${GRC_INCIDENT_STATUSES.map((s) => `<option value="${s.value}">${grcT("grc.incidents.status." + s.i18nKey)}</option>`).join("")}
           </select>
         </label>
       </div>
       <div class="grc-registry-form-row">
-        <label>Détection <input type="datetime-local" id="incidentDetectedAt"></label>
-        <label>Réponse <input type="datetime-local" id="incidentRespondedAt"></label>
-        <label>Résolution <input type="datetime-local" id="incidentResolvedAt"></label>
+        <label>${grcT("grc.incidents.form.detectedAt")} <input type="datetime-local" id="incidentDetectedAt"></label>
+        <label>${grcT("grc.incidents.form.respondedAt")} <input type="datetime-local" id="incidentRespondedAt"></label>
+        <label>${grcT("grc.incidents.form.resolvedAt")} <input type="datetime-local" id="incidentResolvedAt"></label>
       </div>
-      <label>Propriétaire <input type="text" id="incidentOwner"></label>
-      <label>Post-mortem / amélioration continue <textarea id="incidentPostmortem" rows="3"></textarea></label>
+      <label>${grcT("grc.incidents.form.owner")} <input type="text" id="incidentOwner"></label>
+      <label>${grcT("grc.incidents.form.postmortem")} <textarea id="incidentPostmortem" rows="3"></textarea></label>
       <div class="grc-registry-form-actions">
-        <button type="submit" class="grc-registry-add-btn">Enregistrer</button>
-        <button type="button" class="grc-registry-io-btn" id="incidentCancelBtn">Annuler</button>
+        <button type="submit" class="grc-registry-add-btn">${grcT("grc.common.btnSave")}</button>
+        <button type="button" class="grc-registry-io-btn" id="incidentCancelBtn">${grcT("grc.common.btnCancel")}</button>
       </div>
     </form>
     <ul class="grc-registry-list" id="incidentList"></ul>
@@ -147,10 +150,10 @@ function initGrcIncidentRegistry() {
 
   function showForm(incident) {
     editingId = incident ? incident.id : null;
-    container.querySelector("#incidentFormTitle").textContent = incident ? "Modifier l'incident" : "Déclarer un incident";
+    container.querySelector("#incidentFormTitle").textContent = incident ? grcT("grc.incidents.form.titleEdit") : grcT("grc.incidents.form.title");
     container.querySelector("#incidentTitle").value = incident ? incident.title : "";
     container.querySelector("#incidentDescription").value = incident ? (incident.description || "") : "";
-    container.querySelector("#incidentSeverity").value = incident ? incident.severity : GRC_INCIDENT_SEVERITIES[0].value;
+    container.querySelector("#incidentSeverity").value = incident ? incident.severity : GRC_INCIDENT_SEVERITIES[0];
     container.querySelector("#incidentStatus").value = incident ? incident.status : GRC_INCIDENT_STATUSES[0].value;
     container.querySelector("#incidentDetectedAt").value = incident ? (incident.detectedAt || "") : "";
     container.querySelector("#incidentRespondedAt").value = incident ? (incident.respondedAt || "") : "";
@@ -178,7 +181,7 @@ function initGrcIncidentRegistry() {
     if (!file) return;
     importGrcIncidentsFromJson(file)
       .then(renderGrcIncidentList)
-      .catch((err) => alert(err.message || "Fichier JSON invalide."))
+      .catch((err) => alert(err.message || grcT("grc.common.invalidJsonFile")))
       .finally(() => { e.target.value = ""; });
   });
 
@@ -228,26 +231,26 @@ function initGrcIncidentRegistry() {
 
       body.innerHTML =
         (incident.description ? `<p>${incident.description}</p>` : "") +
-        (incident.detectedAt ? `<p>Détection : ${incident.detectedAt.replace("T", " ")}</p>` : "") +
-        (incident.respondedAt ? `<p>Réponse : ${incident.respondedAt.replace("T", " ")}</p>` : "") +
-        (incident.resolvedAt ? `<p>Résolution : ${incident.resolvedAt.replace("T", " ")}</p>` : "") +
-        (duration ? `<p>Temps de résolution : ${duration}</p>` : "") +
-        (incident.owner ? `<p>Propriétaire : ${incident.owner}</p>` : "") +
-        (incident.postmortem ? `<p>Post-mortem : ${incident.postmortem}</p>` : "");
+        (incident.detectedAt ? `<p>${grcT("grc.incidents.detail.detectedAt").replace("{value}", incident.detectedAt.replace("T", " "))}</p>` : "") +
+        (incident.respondedAt ? `<p>${grcT("grc.incidents.detail.respondedAt").replace("{value}", incident.respondedAt.replace("T", " "))}</p>` : "") +
+        (incident.resolvedAt ? `<p>${grcT("grc.incidents.detail.resolvedAt").replace("{value}", incident.resolvedAt.replace("T", " "))}</p>` : "") +
+        (duration ? `<p>${grcT("grc.incidents.detail.duration").replace("{value}", duration)}</p>` : "") +
+        (incident.owner ? `<p>${grcT("grc.incidents.detail.owner").replace("{value}", incident.owner)}</p>` : "") +
+        (incident.postmortem ? `<p>${grcT("grc.incidents.detail.postmortem").replace("{value}", incident.postmortem)}</p>` : "");
 
       const editBtn = document.createElement("button");
       editBtn.type = "button";
       editBtn.className = "grc-registry-add-btn";
-      editBtn.textContent = "Modifier";
+      editBtn.textContent = grcT("grc.common.btnEdit");
       editBtn.onclick = () => showForm(incident);
       body.appendChild(editBtn);
 
       const deleteBtn = document.createElement("button");
       deleteBtn.type = "button";
       deleteBtn.className = "grc-registry-io-btn";
-      deleteBtn.textContent = "Supprimer";
+      deleteBtn.textContent = grcT("grc.common.btnDelete");
       deleteBtn.onclick = () => {
-        if (!confirm(`Supprimer "${incident.title}" ?`)) return;
+        if (!confirm(grcT("grc.common.confirmDelete").replace("{name}", incident.title))) return;
         removeGrcIncident(incident.id);
         if (expandedId === incident.id) expandedId = null;
         renderGrcIncidentList();

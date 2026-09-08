@@ -16,33 +16,33 @@
             <div>GRC Cybersecurity</div>
         </div>
         <div class="nav-links">
-            <a href="./index.html">&larr; Retour au GRC</a>
+            <a href="./index.html" data-i18n="grc.common.backToGrc">&larr; Retour au GRC</a>
         </div>
     </nav>
 </header>
 
 <main>
-    <h1 class="page-title">Directives de sécurité</h1>
-    <p class="page-subtitle">
+    <h1 class="page-title" data-i18n="grc.directives.title">Directives de sécurité</h1>
+    <p class="page-subtitle" data-i18n="grc.directives.subtitle">
         Les directives sont les règles que les employés doivent suivre.
     </p>
 
     <section class="content-block">
-        <h2>Contenu à inclure</h2>
+        <h2 data-i18n="grc.common.contentInclude">Contenu à inclure</h2>
         <ul>
-            <li><strong>Contrôle d’accès</strong> : moindre privilège, MFA. <span class="grc-control-tags">ISO A.5.15 · NIST PR.AA · CIS 6</span></li>
-            <li><strong>Authentification</strong> : gestion des identifiants. <span class="grc-control-tags">ISO A.5.17 · NIST PR.AA · CIS 5</span></li>
-            <li><strong>Sécurité des postes</strong> : antivirus, mises à jour, verrouillage. <span class="grc-control-tags">ISO A.8.7 · NIST PR.PS · CIS 10</span></li>
-            <li><strong>Sécurité réseau</strong> : segmentation, filtrage, chiffrement. <span class="grc-control-tags">ISO A.8.22 · NIST PR.IR · CIS 12</span></li>
-            <li><strong>Classification des données</strong> : niveaux de sensibilité. <span class="grc-control-tags">ISO A.5.12 · NIST PR.DS · CIS 3</span></li>
-            <li><strong>Sauvegarde</strong> : fréquence, stockage, restauration. <span class="grc-control-tags">ISO A.8.13 · NIST PR.DS · CIS 11</span></li>
-            <li><strong>DevSecOps</strong> : sécurité intégrée au développement. <span class="grc-control-tags">ISO A.8.25 · NIST PR.PS · CIS 16</span></li>
-            <li><strong>Sensibilisation</strong> : formation continue. <span class="grc-control-tags">ISO A.6.3 · NIST PR.AT · CIS 14</span></li>
-            <li><strong>Supervision</strong> : audits, conformité. <span class="grc-control-tags">ISO A.5.35 · NIST GV.OV</span></li>
+            <li><strong data-i18n="grc.directives.item1.label">Contrôle d’accès</strong> : <span data-i18n="grc.directives.item1.desc">moindre privilège, MFA.</span> <span class="grc-control-tags">ISO A.5.15 · NIST PR.AA · CIS 6</span></li>
+            <li><strong data-i18n="grc.directives.item2.label">Authentification</strong> : <span data-i18n="grc.directives.item2.desc">gestion des identifiants.</span> <span class="grc-control-tags">ISO A.5.17 · NIST PR.AA · CIS 5</span></li>
+            <li><strong data-i18n="grc.directives.item3.label">Sécurité des postes</strong> : <span data-i18n="grc.directives.item3.desc">antivirus, mises à jour, verrouillage.</span> <span class="grc-control-tags">ISO A.8.7 · NIST PR.PS · CIS 10</span></li>
+            <li><strong data-i18n="grc.directives.item4.label">Sécurité réseau</strong> : <span data-i18n="grc.directives.item4.desc">segmentation, filtrage, chiffrement.</span> <span class="grc-control-tags">ISO A.8.22 · NIST PR.IR · CIS 12</span></li>
+            <li><strong data-i18n="grc.directives.item5.label">Classification des données</strong> : <span data-i18n="grc.directives.item5.desc">niveaux de sensibilité.</span> <span class="grc-control-tags">ISO A.5.12 · NIST PR.DS · CIS 3</span></li>
+            <li><strong data-i18n="grc.directives.item6.label">Sauvegarde</strong> : <span data-i18n="grc.directives.item6.desc">fréquence, stockage, restauration.</span> <span class="grc-control-tags">ISO A.8.13 · NIST PR.DS · CIS 11</span></li>
+            <li><strong data-i18n="grc.directives.item7.label">DevSecOps</strong> : <span data-i18n="grc.directives.item7.desc">sécurité intégrée au développement.</span> <span class="grc-control-tags">ISO A.8.25 · NIST PR.PS · CIS 16</span></li>
+            <li><strong data-i18n="grc.directives.item8.label">Sensibilisation</strong> : <span data-i18n="grc.directives.item8.desc">formation continue.</span> <span class="grc-control-tags">ISO A.6.3 · NIST PR.AT · CIS 14</span></li>
+            <li><strong data-i18n="grc.directives.item9.label">Supervision</strong> : <span data-i18n="grc.directives.item9.desc">audits, conformité.</span> <span class="grc-control-tags">ISO A.5.35 · NIST GV.OV</span></li>
         </ul>
 
-        <h2>Rôle en GRC</h2>
-        <p>Les directives assurent que les employés adoptent des comportements sécuritaires.</p>
+        <h2 data-i18n="grc.common.roleTitle">Rôle en GRC</h2>
+        <p data-i18n="grc.directives.role">Les directives assurent que les employés adoptent des comportements sécuritaires.</p>
     </section>
 </main>
 
@@ -66,6 +66,10 @@
   }
 </script>
 
+<script src="../assets/script/i18n.js"></script>
+<script src="../assets/script/grc-i18n.js"></script>
+<script src="../assets/script/grc-i18n-domains.js"></script>
+
 <script src="../config/grc-author.js"></script>
 
 <script src="../config/encryption.js"></script>
@@ -75,6 +79,8 @@
 
 <script src="../assets/script/vault.js"></script>
 <script src="../assets/script/vault-ui.js"></script>
+
+<script>applyI18n(getSavedLang());</script>
 
 <script src="../assets/script/grc-checklist.js"></script>
 <script>initGrcChecklist();</script>

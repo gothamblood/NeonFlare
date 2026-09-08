@@ -16,25 +16,25 @@
             <div>Sécurité API</div>
         </div>
         <div class="nav-links">
-            <a href="./index.html">&larr; Retour à Sécurité API</a>
+            <a href="./index.html" data-i18n="grc.common.backToApi">&larr; Retour à Sécurité API</a>
         </div>
     </nav>
 </header>
 
 <main>
-    <h1 class="page-title">Authentification & Autorisation</h1>
-    <p class="page-subtitle">
+    <h1 class="page-title" data-i18n="grc.securite.api.authentification-autorisation.title">Authentification & Autorisation</h1>
+    <p class="page-subtitle" data-i18n="grc.securite.api.authentification-autorisation.subtitle">
         Décrire les mécanismes d’authentification et d’autorisation des API.
     </p>
 
     <section class="content-block">
-        <h2>Éléments à inclure</h2>
+        <h2 data-i18n="grc.common.contentInclude">Contenu à inclure</h2>
         <ul>
-            <li>OAuth2 / OIDC</li>
-            <li>JWT (rotation, expiration, signature) <span class="grc-control-tags">ISO A.8.5 · NIST PR.AA · CIS 6</span></li>
-            <li>API Keys (rotation, restrictions IP) <span class="grc-control-tags">ISO A.8.5 · NIST PR.AA · CIS 6</span></li>
-            <li>RBAC / ABAC</li>
-            <li>Moindre privilège <span class="grc-control-tags">ISO A.8.2 · NIST PR.AA · CIS 6</span></li>
+            <li><span data-i18n="grc.securite.api.authentification-autorisation.item1.label">OAuth2 / OIDC</span></li>
+            <li><span data-i18n="grc.securite.api.authentification-autorisation.item2.label">JWT (rotation, expiration, signature)</span> <span class="grc-control-tags">ISO A.8.5 · NIST PR.AA · CIS 6</span></li>
+            <li><span data-i18n="grc.securite.api.authentification-autorisation.item3.label">API Keys (rotation, restrictions IP)</span> <span class="grc-control-tags">ISO A.8.5 · NIST PR.AA · CIS 6</span></li>
+            <li><span data-i18n="grc.securite.api.authentification-autorisation.item4.label">RBAC / ABAC</span></li>
+            <li><span data-i18n="grc.securite.api.authentification-autorisation.item5.label">Moindre privilège</span> <span class="grc-control-tags">ISO A.8.2 · NIST PR.AA · CIS 6</span></li>
         </ul>
 
     </section>
@@ -60,6 +60,9 @@
   }
 </script>
 
+<script src="../../../assets/script/i18n.js"></script>
+<script src="../../../assets/script/grc-i18n.js"></script>
+<script src="../../../assets/script/grc-i18n-securite-api.js"></script>
 <script src="../../../config/grc-author.js"></script>
 
 <script src="../../../config/encryption.js"></script>
@@ -69,6 +72,8 @@
 
 <script src="../../../assets/script/vault.js"></script>
 <script src="../../../assets/script/vault-ui.js"></script>
+
+<script>applyI18n(getSavedLang());</script>
 
 <script src="../../../assets/script/grc-checklist.js"></script>
 <script>initGrcChecklist();</script>

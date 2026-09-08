@@ -16,29 +16,29 @@
             <div>GRC Cybersecurity</div>
         </div>
         <div class="nav-links">
-            <a href="./index.html">&larr; Retour au GRC</a>
+            <a href="./index.html" data-i18n="grc.common.backToGrc">&larr; Retour au GRC</a>
         </div>
     </nav>
 </header>
 
 <main>
-    <h1 class="page-title">Contexte organisationnel</h1>
-    <p class="page-subtitle">
+    <h1 class="page-title" data-i18n="grc.contexte-organisationnel.title">Contexte organisationnel</h1>
+    <p class="page-subtitle" data-i18n="grc.contexte-organisationnel.subtitle">
         Cette section décrit l’environnement dans lequel la sécurité de l’information doit opérer. Elle sert à comprendre l’entreprise, ses activités, ses enjeux et ses obligations.
     </p>
 
     <section class="content-block">
-        <h2>Contenu à inclure</h2>
+        <h2 data-i18n="grc.common.contentInclude">Contenu à inclure</h2>
         <ul>
-            <li><strong>Présentation de l’organisation</strong> : secteur d’activité, taille, services, clientèle.</li>
-            <li><strong>Enjeux informationnels</strong> : confidentialité, intégrité, disponibilité, traçabilité, conformité.</li>
-            <li><strong>Contexte légal</strong> : lois provinciales/fédérales, obligations réglementaires. <span class="grc-control-tags">ISO A.5.31 · NIST GV.OC</span></li>
-            <li><strong>Normes de référence</strong> : ISO 27001, ISO 27005, NIST, CIS.</li>
-            <li><strong>Importance stratégique de la sécurité</strong> : impact sur les opérations, réputation, finances.</li>
+            <li><strong data-i18n="grc.contexte-organisationnel.item1.label">Présentation de l’organisation</strong> : <span data-i18n="grc.contexte-organisationnel.item1.desc">secteur d’activité, taille, services, clientèle.</span></li>
+            <li><strong data-i18n="grc.contexte-organisationnel.item2.label">Enjeux informationnels</strong> : <span data-i18n="grc.contexte-organisationnel.item2.desc">confidentialité, intégrité, disponibilité, traçabilité, conformité.</span></li>
+            <li><strong data-i18n="grc.contexte-organisationnel.item3.label">Contexte légal</strong> : <span data-i18n="grc.contexte-organisationnel.item3.desc">lois provinciales/fédérales, obligations réglementaires.</span> <span class="grc-control-tags">ISO A.5.31 · NIST GV.OC</span></li>
+            <li><strong data-i18n="grc.contexte-organisationnel.item4.label">Normes de référence</strong> : <span data-i18n="grc.contexte-organisationnel.item4.desc">ISO 27001, ISO 27005, NIST, CIS.</span></li>
+            <li><strong data-i18n="grc.contexte-organisationnel.item5.label">Importance stratégique de la sécurité</strong> : <span data-i18n="grc.contexte-organisationnel.item5.desc">impact sur les opérations, réputation, finances.</span></li>
         </ul>
 
-        <h2>Rôle en GRC</h2>
-        <p>Le contexte organisationnel permet de comprendre pourquoi la sécurité est essentielle et quels risques sont les plus critiques.</p>
+        <h2 data-i18n="grc.common.roleTitle">Rôle en GRC</h2>
+        <p data-i18n="grc.contexte-organisationnel.role">Le contexte organisationnel permet de comprendre pourquoi la sécurité est essentielle et quels risques sont les plus critiques.</p>
     </section>
 </main>
 
@@ -62,6 +62,10 @@
   }
 </script>
 
+<script src="../assets/script/i18n.js"></script>
+<script src="../assets/script/grc-i18n.js"></script>
+<script src="../assets/script/grc-i18n-domains.js"></script>
+
 <script src="../config/grc-author.js"></script>
 
 <script src="../config/encryption.js"></script>
@@ -71,6 +75,8 @@
 
 <script src="../assets/script/vault.js"></script>
 <script src="../assets/script/vault-ui.js"></script>
+
+<script>applyI18n(getSavedLang());</script>
 
 <script src="../assets/script/grc-checklist.js"></script>
 <script>initGrcChecklist();</script>

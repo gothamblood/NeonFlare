@@ -57,10 +57,21 @@ The image is `nginx:alpine` + this folder. `.dockerignore` and the `nginx.conf`
 
 ### Behind your own nginx
 
-Point a server block at the folder and copy in the hardening rules from
-[`nginx.conf`](nginx.conf) (security headers, short cache lifetime, and the
-internal-file `deny` blocks). `web.config` carries the equivalent cache rule
-for IIS.
+`nginx.conf` is a complete `server {}` block, ready to drop straight into
+`conf.d/` — or copy the hardening rules out of it (security headers, short
+cache lifetime, internal-file `deny` blocks) into a server block you already
+manage. Either way: it listens on `*:80` with `server_name _;`, a catch-all
+default. If your nginx already has its own default server for port 80 (a
+fresh Debian/Ubuntu install ships one at `sites-enabled/default`), disable
+that one first — two default servers for the same port/address makes
+`nginx -s reload` fail with "duplicate default server".
+
+### IIS
+
+Copy the folder into the site root; `web.config` carries the equivalent
+cache rule, plus `hiddenSegments` rules matching `nginx.conf`'s `deny`
+blocks (`Jenkinsfile`, `nginx.conf`, `scripts/`, dotfiles) — IIS already
+refuses to serve `web.config` itself by default.
 
 ### CI
 
@@ -79,6 +90,15 @@ instances wrapped in `tmux`, started by a helper script. They bind to
 
 ```bash
 # needs: ttyd, tmux  (and zsh / pwsh if you want those shell types)
+
+# Debian / Ubuntu / Kali
+sudo apt install tmux
+
+# ttyd: package name varies by distro, or grab a binary from
+# https://github.com/tsl0922/ttyd/releases
+sudo wget -O /usr/local/bin/ttyd https://github.com/tsl0922/ttyd/releases/download/1.7.7/ttyd.x86_64
+sudo chmod +x /usr/local/bin/ttyd
+
 scripts/ttyd-shells.sh start [count]   # default 6 per type
 scripts/ttyd-shells.sh status
 scripts/ttyd-shells.sh stop

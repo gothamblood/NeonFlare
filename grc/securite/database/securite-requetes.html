@@ -16,24 +16,24 @@
             <div>Sécurité Base de données</div>
         </div>
         <div class="nav-links">
-            <a href="./index.html">&larr; Retour à Sécurité Base de données</a>
+            <a href="./index.html" data-i18n="grc.common.backToDatabase">&larr; Retour à Sécurité Base de données</a>
         </div>
     </nav>
 </header>
 
 <main>
-    <h1 class="page-title">Sécurité des requêtes</h1>
-    <p class="page-subtitle">
+    <h1 class="page-title" data-i18n="grc.securite.database.securite-requetes.title">Sécurité des requêtes</h1>
+    <p class="page-subtitle" data-i18n="grc.securite.database.securite-requetes.subtitle">
         Décrire les mesures de sécurité appliquées aux requêtes.
     </p>
 
     <section class="content-block">
-        <h2>Éléments à inclure</h2>
+        <h2 data-i18n="grc.common.contentInclude">Éléments à inclure</h2>
         <ul>
-            <li>Requêtes préparées <span class="grc-control-tags">ISO A.8.28 · NIST PR.PS · CIS 16</span></li>
-            <li>ORM sécurisé <span class="grc-control-tags">ISO A.8.28 · NIST PR.PS · CIS 16</span></li>
-            <li>Interdiction de concaténation SQL <span class="grc-control-tags">ISO A.8.28 · NIST PR.PS · CIS 16</span></li>
-            <li>Validation des paramètres <span class="grc-control-tags">ISO A.8.28 · NIST PR.PS · CIS 16</span></li>
+            <li><span data-i18n="grc.securite.database.securite-requetes.item1.label">Requêtes préparées</span> <span class="grc-control-tags">ISO A.8.28 · NIST PR.PS · CIS 16</span></li>
+            <li><span data-i18n="grc.securite.database.securite-requetes.item2.label">ORM sécurisé</span> <span class="grc-control-tags">ISO A.8.28 · NIST PR.PS · CIS 16</span></li>
+            <li><span data-i18n="grc.securite.database.securite-requetes.item3.label">Interdiction de concaténation SQL</span> <span class="grc-control-tags">ISO A.8.28 · NIST PR.PS · CIS 16</span></li>
+            <li><span data-i18n="grc.securite.database.securite-requetes.item4.label">Validation des paramètres</span> <span class="grc-control-tags">ISO A.8.28 · NIST PR.PS · CIS 16</span></li>
         </ul>
 
     </section>
@@ -59,6 +59,10 @@
   }
 </script>
 
+<script src="../../../assets/script/i18n.js"></script>
+<script src="../../../assets/script/grc-i18n.js"></script>
+<script src="../../../assets/script/grc-i18n-securite-database.js"></script>
+
 <script src="../../../config/grc-author.js"></script>
 
 <script src="../../../config/encryption.js"></script>
@@ -68,6 +72,8 @@
 
 <script src="../../../assets/script/vault.js"></script>
 <script src="../../../assets/script/vault-ui.js"></script>
+
+<script>applyI18n(getSavedLang());</script>
 
 <script src="../../../assets/script/grc-checklist.js"></script>
 <script>initGrcChecklist();</script>

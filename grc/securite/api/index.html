@@ -20,12 +20,22 @@
 </header>
 
 <main>
-    <h1 class="page-title">Sécurité API</h1>
-    <p class="page-subtitle">
+    <h1 class="page-title" data-i18n="grc.securite.api.hub.title">Sécurité API</h1>
+    <p class="page-subtitle" data-i18n="grc.securite.api.hub.subtitle">
         Architecture, authentification, contrôles et protection des API, organisés en 7 domaines.
     </p>
 
     <div class="grc-progress" id="grc-coverage-summary"></div>
+
+    <div class="grc-toolbar">
+      <button type="button" class="grc-toolbar-btn" data-i18n="grc.hub.exportJson" onclick="exportGrcAsJson(securiteApiSections, 'grc-securite-api')">Exporter JSON</button>
+      <button type="button" class="grc-toolbar-btn" data-i18n="grc.hub.saveAs" onclick="saveGrcAsJson(securiteApiSections, 'grc-securite-api')">Enregistrer sous…</button>
+      <button type="button" class="grc-toolbar-btn" data-i18n="grc.hub.exportWord" onclick="exportGrcAsWord(securiteApiSections, 'grc-securite-api')">Exporter Word</button>
+      <button type="button" class="grc-toolbar-btn" data-i18n="grc.hub.exportPdf" onclick="exportGrcAsPdf(securiteApiSections)">Exporter PDF</button>
+      <button type="button" class="grc-toolbar-btn" data-i18n="grc.hub.importJson" onclick="document.getElementById('sectionImportInput').click()">Importer JSON</button>
+      <input type="file" id="sectionImportInput" accept=".json,application/json" style="display:none" onchange="handleSectionImport(this.files[0])">
+      <button type="button" class="grc-toolbar-btn grc-toolbar-btn-danger" data-i18n="grc.hub.reset" onclick="confirmResetSection()">Réinitialiser</button>
+    </div>
 
     <div class="grid-3" id="securite-api-grid"></div>
 </main>
@@ -41,6 +51,9 @@
   </div>
 </div>
 
+<script src="../../../assets/script/i18n.js"></script>
+<script src="../../../assets/script/grc-i18n.js"></script>
+<script src="../../../assets/script/grc-i18n-securite-api.js"></script>
 <script src="index.js"></script>
 <script src="../../../assets/script/grc-loader.js"></script>
 <script src="../../../assets/script/theme-accent.js"></script>
@@ -62,8 +75,44 @@
     window.top.postMessage({ type: "theme-change", theme: savedTheme }, "*");
   }
 
-  renderGrcDomains(securiteApiIndexConfig.domains, "#securite-api-grid");
+  applyI18n(getSavedLang());
+  renderGrcDomains(securiteApiIndexConfig.domains, "#securite-api-grid", "grc.securite.api");
   renderGrcCoverage(securiteApiIndexConfig.domains, "#securite-api-grid", "#grc-coverage-summary");
+
+
+  // Section-scoped export/import/reset toolbar -- same functions the
+  // main GRC hub uses (assets/script/grc-checklist.js), just given a
+  // single-section array instead of grcAllSections's five, so none of
+  // them can reach past this section's own domains (see
+  // resetGrcData()/importGrcData()'s 2026-09-08 scoping fix).
+  const securiteApiSections = [
+    { title: grcT("nav.apiSecurity"), domains: securiteApiIndexConfig.domains, basePath: "./", keyPrefix: "grc.securite.api" },
+  ];
+
+  function confirmResetSection() {
+    if (!confirm(grcT("grc.hub.confirmResetSection"))) return;
+    resetGrcData(securiteApiSections, () => location.reload());
+  }
+
+  function handleSectionImport(file) {
+    if (!file) return;
+    if (!confirm(grcT("grc.hub.confirmImportSection"))) {
+      document.getElementById("sectionImportInput").value = "";
+      return;
+    }
+    importGrcData(
+      file,
+      securiteApiSections,
+      (count) => {
+        alert(grcT("grc.hub.importRestoredCount").replace("{count}", count));
+        location.reload();
+      },
+      (message) => {
+        alert(grcT("grc.hub.importFailed").replace("{message}", message));
+        document.getElementById("sectionImportInput").value = "";
+      }
+    );
+  }
 </script>
 
 </body>

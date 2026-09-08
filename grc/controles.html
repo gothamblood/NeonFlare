@@ -16,30 +16,35 @@
             <div>GRC Cybersecurity</div>
         </div>
         <div class="nav-links">
-            <a href="./index.html">&larr; Retour au GRC</a>
+            <a href="./index.html" data-i18n="grc.common.backToGrc">&larr; Retour au GRC</a>
         </div>
     </nav>
 </header>
 
 <main>
-    <h1 class="page-title">Sélection des contrôles</h1>
-    <p class="page-subtitle">
+    <h1 class="page-title" data-i18n="grc.controles.title">Sélection des contrôles</h1>
+    <p class="page-subtitle" data-i18n="grc.controles.subtitle">
         Cette section décrit les mesures de sécurité choisies pour réduire les risques.
     </p>
 
+    <section class="grc-registry-block">
+        <h2 data-i18n="grc.controles.registryTitle">Registre des contrôles</h2>
+        <div id="grcControlRegistry"></div>
+    </section>
+
     <section class="content-block">
-        <h2>Contenu à inclure</h2>
+        <h2 data-i18n="grc.common.contentInclude">Contenu à inclure</h2>
         <ul>
-            <li><strong>Contrôles ISO 27001 Annexe A</strong></li>
-            <li><strong>Mapping</strong> : ISO / NIST / CIS.</li>
-            <li><strong>Déclaration d’Applicabilité (DDA)</strong> : contrôles retenus ou non retenus.</li>
-            <li><strong>Contrôles organisationnels</strong> : politiques, gouvernance, sensibilisation.</li>
-            <li><strong>Contrôles techniques</strong> : MFA, pare-feu, segmentation, chiffrement.</li>
-            <li><strong>Contrôles humains</strong> : formation, responsabilités. <span class="grc-control-tags">ISO A.6.3 · NIST PR.AT · CIS 14</span></li>
+            <li><strong data-i18n="grc.controles.item1.label">Contrôles ISO 27001 Annexe A</strong></li>
+            <li><strong data-i18n="grc.controles.item2.label">Mapping</strong> : <span data-i18n="grc.controles.item2.desc">ISO / NIST / CIS.</span></li>
+            <li><strong data-i18n="grc.controles.item3.label">Déclaration d’Applicabilité (DDA)</strong> : <span data-i18n="grc.controles.item3.desc">contrôles retenus ou non retenus.</span></li>
+            <li><strong data-i18n="grc.controles.item4.label">Contrôles organisationnels</strong> : <span data-i18n="grc.controles.item4.desc">politiques, gouvernance, sensibilisation.</span></li>
+            <li><strong data-i18n="grc.controles.item5.label">Contrôles techniques</strong> : <span data-i18n="grc.controles.item5.desc">MFA, pare-feu, segmentation, chiffrement.</span></li>
+            <li><strong data-i18n="grc.controles.item6.label">Contrôles humains</strong> : <span data-i18n="grc.controles.item6.desc">formation, responsabilités.</span> <span class="grc-control-tags">ISO A.6.3 · NIST PR.AT · CIS 14</span></li>
         </ul>
 
-        <h2>Rôle en GRC</h2>
-        <p>Les contrôles sont les outils concrets qui protègent les actifs et réduisent les risques.</p>
+        <h2 data-i18n="grc.common.roleTitle">Rôle en GRC</h2>
+        <p data-i18n="grc.controles.role">Les contrôles sont les outils concrets qui protègent les actifs et réduisent les risques.</p>
     </section>
 </main>
 
@@ -63,6 +68,9 @@
   }
 </script>
 
+<script src="../assets/script/i18n.js"></script>
+<script src="../assets/script/grc-i18n.js"></script>
+
 <script src="../config/grc-author.js"></script>
 
 <script src="../config/encryption.js"></script>
@@ -72,6 +80,13 @@
 
 <script src="../assets/script/vault.js"></script>
 <script src="../assets/script/vault-ui.js"></script>
+
+<script src="../assets/script/config-io.js"></script>
+<script src="../assets/script/grc-risks.js"></script>
+<script src="../assets/script/grc-controls.js"></script>
+<script>initGrcControlRegistry();</script>
+
+<script>applyI18n(getSavedLang());</script>
 
 <script src="../assets/script/grc-checklist.js"></script>
 <script>initGrcChecklist();</script>

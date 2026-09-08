@@ -640,3 +640,25 @@ body:has(#panelNetwork.dash-section-off) #hudLegend {
 .dash-panel.collapsed .dash-resize-handle {
   display: none;
 }
+
+/* "+ Finding rapide" modal (assets/script/pentest-quick-add.js) -- the
+   form itself reuses .pentest-finding-form/.pentest-image-* from
+   assets/css/pentest.css (loaded on this page for exactly that reuse),
+   these two are just the bits that page doesn't have. Narrower than
+   the site-wide .modal's 1000px cap (style.css) -- that width suits
+   the Tools/Website modals' multi-column tile grids, but stretches a
+   single-column form into awkwardly long input rows. */
+#modal-quick-finding .modal {
+  max-width: 560px;
+}
+
+.quick-finding-form-actions {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+.quick-finding-empty {
+  padding: 0.5rem 0;
+  line-height: 1.6;
+}

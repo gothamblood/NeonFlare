@@ -9,17 +9,17 @@
    (1-3/axe), rôle primaire/support, propriétaire, dépendances vers
    d'autres actifs. La clé est protégée par le coffre (voir
    assets/script/vault.js, VAULT_PROTECTED_EXACT_KEYS) car elle révèle de
-   la vraie infrastructure, même justification que Network/Topology. */
+   la vraie infrastructure, même justification que Network/Topology.
+
+   Tout le texte affiché passe par grcT() (assets/script/grc-i18n.js) --
+   les libellés de TYPE (GRC_ASSET_TYPES) restent en clé interne stable
+   ("physique", "logiciel"...), leur traduction vient de
+   grc.actifs.type.* au moment de l'affichage, pas d'un champ .label
+   statique. */
 
 const GRC_ASSETS_KEY = "/grc/actifs/registry";
 
-const GRC_ASSET_TYPES = [
-  { value: "physique", label: "Physique" },
-  { value: "logiciel", label: "Logiciel" },
-  { value: "donnee", label: "Donnée" },
-  { value: "humain", label: "Humain" },
-  { value: "reseau", label: "Réseau" },
-];
+const GRC_ASSET_TYPES = ["physique", "logiciel", "donnee", "humain", "reseau"];
 
 function getGrcAssets() {
   try {
@@ -66,14 +66,13 @@ function grcAssetCriticality(asset) {
 }
 
 function grcAssetCriticalityLabel(level) {
-  if (level >= 3) return { cls: "high", text: "Élevée" };
-  if (level >= 2) return { cls: "medium", text: "Moyenne" };
-  return { cls: "low", text: "Faible" };
+  if (level >= 3) return { cls: "high", text: grcT("grc.actifs.crit.high") };
+  if (level >= 2) return { cls: "medium", text: grcT("grc.actifs.crit.medium") };
+  return { cls: "low", text: grcT("grc.actifs.crit.low") };
 }
 
 function grcAssetTypeLabel(value) {
-  const found = GRC_ASSET_TYPES.find((t) => t.value === value);
-  return found ? found.label : value;
+  return GRC_ASSET_TYPES.includes(value) ? grcT("grc.actifs.type." + value) : value;
 }
 
 async function exportGrcAssetsAsJson() {
@@ -84,12 +83,80 @@ async function exportGrcAssetsAsJson() {
 async function importGrcAssetsFromJson(file) {
   const raw = await readJsonFile(file);
   const assets = await vaultMaybeDecryptImport(raw);
-  if (!Array.isArray(assets)) throw new Error("Format invalide : un tableau d'actifs est attendu.");
+  if (!Array.isArray(assets)) throw new Error(grcT("grc.actifs.pdf.invalidImport"));
   saveGrcAssets(assets);
 }
 
 function resetGrcAssets() {
   vaultRemoveItem(GRC_ASSETS_KEY);
+}
+
+/* Rapport HTML du registre des actifs seul (pas le rapport GRC complet
+   de grc-checklist.js) -- même mécanique que exportGrcAsPdf : aucune
+   librairie tierce, une page HTML autonome imprimée via window.print()
+   dans un nouvel onglet, laissée à l'utilisateur ("Enregistrer en PDF"
+   dans la boîte d'impression). */
+function grcAssetsReportBody() {
+  const assets = getGrcAssets();
+  const generated = new Date().toLocaleString("fr-CA");
+  let html = "<h1>" + grcT("grc.actifs.pdf.title") + "</h1><p>" + grcT("grc.common.generatedOn") + " " + grcEscapeHtml(generated) + "</p>";
+
+  if (assets.length === 0) {
+    html += "<p>" + grcT("grc.actifs.pdf.empty") + "</p>";
+    return html;
+  }
+
+  html += "<table><thead><tr>" +
+    "<th>" + grcT("grc.actifs.pdf.colName") + "</th><th>" + grcT("grc.actifs.pdf.colType") + "</th>" +
+    "<th>C</th><th>I</th><th>A</th><th>" + grcT("grc.actifs.pdf.colCrit") + "</th>" +
+    "<th>" + grcT("grc.actifs.pdf.colRole") + "</th><th>" + grcT("grc.actifs.pdf.colOwner") + "</th>" +
+    "<th>" + grcT("grc.actifs.pdf.colNextReview") + "</th><th>" + grcT("grc.actifs.pdf.colDependsOn") + "</th>" +
+    "<th>" + grcT("grc.actifs.pdf.colNotes") + "</th>" +
+    "</tr></thead><tbody>";
+  assets.forEach((asset) => {
+    const crit = grcAssetCriticalityLabel(grcAssetCriticality(asset));
+    const deps = (asset.dependsOn || [])
+      .map((depId) => assets.find((a) => a.id === depId))
+      .filter(Boolean)
+      .map((a) => a.name)
+      .join(", ");
+    html += "<tr>" +
+      "<td>" + grcEscapeHtml(asset.name) + "</td>" +
+      "<td>" + grcEscapeHtml(grcAssetTypeLabel(asset.type)) + "</td>" +
+      "<td>" + grcEscapeHtml(asset.c) + "</td><td>" + grcEscapeHtml(asset.i) + "</td><td>" + grcEscapeHtml(asset.a) + "</td>" +
+      "<td>" + grcEscapeHtml(crit.text) + "</td>" +
+      "<td>" + (asset.role === "support" ? grcT("grc.actifs.form.roleSupport") : grcT("grc.actifs.form.rolePrimary")) + "</td>" +
+      "<td>" + grcEscapeHtml(asset.owner || "") + "</td>" +
+      "<td>" + grcEscapeHtml(asset.nextReviewDate || "") + "</td>" +
+      "<td>" + grcEscapeHtml(deps) + "</td>" +
+      "<td>" + grcEscapeHtml(asset.notes || "") + "</td>" +
+      "</tr>";
+  });
+  html += "</tbody></table>";
+  return html;
+}
+
+function exportGrcAssetsAsPdf() {
+  const body = grcAssetsReportBody();
+  const html =
+    "<!doctype html><html><head><meta charset='utf-8'><title>" + grcT("grc.actifs.pdf.title") + "</title><style>" +
+    "body{font-family:system-ui,Arial,sans-serif;color:#111;max-width:1100px;margin:2rem auto;line-height:1.5;}" +
+    "h1{margin-bottom:0;}" +
+    "table{border-collapse:collapse;width:100%;font-size:0.85em;}" +
+    "th,td{border:1px solid #ccc;padding:0.4em 0.6em;text-align:left;vertical-align:top;}" +
+    "th{background:#f0f0f0;}" +
+    "@media print{body{margin:0;}}" +
+    "</style></head><body>" + body +
+    "<script>window.onload=()=>setTimeout(()=>window.print(),200);<\/script>" +
+    "</body></html>";
+  const win = window.open("", "_blank");
+  if (!win) {
+    alert(grcT("grc.common.popupBlocked"));
+    return;
+  }
+  win.document.open();
+  win.document.write(html);
+  win.document.close();
 }
 
 /* Construit et branche la section "Registre des actifs" de
@@ -106,39 +173,40 @@ function initGrcAssetRegistry() {
 
   container.innerHTML = `
     <div class="grc-registry-toolbar">
-      <button type="button" class="grc-registry-add-btn" id="assetAddBtn">+ Ajouter un actif</button>
-      <button type="button" class="grc-registry-io-btn" id="assetExportBtn">⬇ Exporter</button>
-      <button type="button" class="grc-registry-io-btn" id="assetImportBtn">⬆ Importer</button>
+      <button type="button" class="grc-registry-add-btn" id="assetAddBtn">${grcT("grc.actifs.form.addBtn")}</button>
+      <button type="button" class="grc-registry-io-btn" id="assetExportBtn">${grcT("grc.common.btnExport")}</button>
+      <button type="button" class="grc-registry-io-btn" id="assetExportPdfBtn">${grcT("grc.common.btnExportPdf")}</button>
+      <button type="button" class="grc-registry-io-btn" id="assetImportBtn">${grcT("grc.common.btnImport")}</button>
       <input type="file" accept="application/json" id="assetImportFile" style="display:none">
     </div>
     <form class="grc-registry-form" id="assetForm" style="display:none">
-      <h3 id="assetFormTitle">Ajouter un actif</h3>
-      <label>Nom <input type="text" id="assetName" required></label>
-      <label>Type
+      <h3 id="assetFormTitle">${grcT("grc.actifs.form.title")}</h3>
+      <label>${grcT("grc.actifs.form.name")} <input type="text" id="assetName" required></label>
+      <label>${grcT("grc.actifs.form.type")}
         <select id="assetType">
-          ${GRC_ASSET_TYPES.map((t) => `<option value="${t.value}">${t.label}</option>`).join("")}
+          ${GRC_ASSET_TYPES.map((t) => `<option value="${t}">${grcT("grc.actifs.type." + t)}</option>`).join("")}
         </select>
       </label>
       <div class="grc-registry-form-row">
-        <label>Confidentialité (1-3) <input type="number" id="assetC" min="1" max="3" value="1" required></label>
-        <label>Intégrité (1-3) <input type="number" id="assetI" min="1" max="3" value="1" required></label>
-        <label>Disponibilité (1-3) <input type="number" id="assetA" min="1" max="3" value="1" required></label>
+        <label>${grcT("grc.actifs.form.confidentiality")} <input type="number" id="assetC" min="1" max="3" value="1" required></label>
+        <label>${grcT("grc.actifs.form.integrity")} <input type="number" id="assetI" min="1" max="3" value="1" required></label>
+        <label>${grcT("grc.actifs.form.availability")} <input type="number" id="assetA" min="1" max="3" value="1" required></label>
       </div>
-      <label>Rôle
+      <label>${grcT("grc.actifs.form.role")}
         <select id="assetRole">
-          <option value="primaire">Primaire</option>
-          <option value="support">Support</option>
+          <option value="primaire">${grcT("grc.actifs.form.rolePrimary")}</option>
+          <option value="support">${grcT("grc.actifs.form.roleSupport")}</option>
         </select>
       </label>
-      <label>Propriétaire <input type="text" id="assetOwner"></label>
-      <label>Prochaine revue <input type="date" id="assetNextReviewDate"></label>
-      <label>Dépendances (autres actifs)
+      <label>${grcT("grc.actifs.form.owner")} <input type="text" id="assetOwner"></label>
+      <label>${grcT("grc.actifs.form.nextReview")} <input type="date" id="assetNextReviewDate"></label>
+      <label>${grcT("grc.actifs.form.dependsOn")}
         <select id="assetDependsOn" multiple size="4"></select>
       </label>
-      <label>Notes <textarea id="assetNotes" rows="2"></textarea></label>
+      <label>${grcT("grc.actifs.form.notes")} <textarea id="assetNotes" rows="2"></textarea></label>
       <div class="grc-registry-form-actions">
-        <button type="submit" class="grc-registry-add-btn">Enregistrer</button>
-        <button type="button" class="grc-registry-io-btn" id="assetCancelBtn">Annuler</button>
+        <button type="submit" class="grc-registry-add-btn">${grcT("grc.common.btnSave")}</button>
+        <button type="button" class="grc-registry-io-btn" id="assetCancelBtn">${grcT("grc.common.btnCancel")}</button>
       </div>
     </form>
     <ul class="grc-registry-list" id="assetList"></ul>
@@ -159,9 +227,9 @@ function initGrcAssetRegistry() {
 
   function showForm(asset) {
     editingId = asset ? asset.id : null;
-    container.querySelector("#assetFormTitle").textContent = asset ? "Modifier l'actif" : "Ajouter un actif";
+    container.querySelector("#assetFormTitle").textContent = asset ? grcT("grc.actifs.form.titleEdit") : grcT("grc.actifs.form.title");
     container.querySelector("#assetName").value = asset ? asset.name : "";
-    container.querySelector("#assetType").value = asset ? asset.type : GRC_ASSET_TYPES[0].value;
+    container.querySelector("#assetType").value = asset ? asset.type : GRC_ASSET_TYPES[0];
     container.querySelector("#assetC").value = asset ? asset.c : 1;
     container.querySelector("#assetI").value = asset ? asset.i : 1;
     container.querySelector("#assetA").value = asset ? asset.a : 1;
@@ -189,13 +257,14 @@ function initGrcAssetRegistry() {
   container.querySelector("#assetAddBtn").addEventListener("click", () => showForm(null));
   container.querySelector("#assetCancelBtn").addEventListener("click", hideForm);
   container.querySelector("#assetExportBtn").addEventListener("click", exportGrcAssetsAsJson);
+  container.querySelector("#assetExportPdfBtn").addEventListener("click", exportGrcAssetsAsPdf);
   container.querySelector("#assetImportBtn").addEventListener("click", () => container.querySelector("#assetImportFile").click());
   container.querySelector("#assetImportFile").addEventListener("change", (e) => {
     const file = e.target.files[0];
     if (!file) return;
     importGrcAssetsFromJson(file)
       .then(renderGrcAssetList)
-      .catch((err) => alert(err.message || "Fichier JSON invalide."))
+      .catch((err) => alert(err.message || grcT("grc.common.invalidJsonFile")))
       .finally(() => { e.target.value = ""; });
   });
 
@@ -248,26 +317,28 @@ function initGrcAssetRegistry() {
         .filter(Boolean)
         .map((a) => a.name);
 
+      const roleLabel = asset.role === "support" ? grcT("grc.actifs.form.roleSupport") : grcT("grc.actifs.form.rolePrimary");
+
       body.innerHTML =
-        `<p>CIA : C${asset.c} / I${asset.i} / A${asset.a} — Rôle : ${asset.role === "support" ? "Support" : "Primaire"}</p>` +
-        (asset.owner ? `<p>Propriétaire : ${asset.owner}</p>` : "") +
-        (asset.nextReviewDate ? `<p>Prochaine revue : ${asset.nextReviewDate}</p>` : "") +
-        (deps.length ? `<p>Dépend de : ${deps.join(", ")}</p>` : "") +
+        `<p>${grcT("grc.actifs.detail.cia").replace("{c}", asset.c).replace("{i}", asset.i).replace("{a}", asset.a).replace("{role}", roleLabel)}</p>` +
+        (asset.owner ? `<p>${grcT("grc.actifs.detail.owner").replace("{owner}", asset.owner)}</p>` : "") +
+        (asset.nextReviewDate ? `<p>${grcT("grc.actifs.detail.nextReview").replace("{date}", asset.nextReviewDate)}</p>` : "") +
+        (deps.length ? `<p>${grcT("grc.actifs.detail.dependsOn").replace("{names}", deps.join(", "))}</p>` : "") +
         (asset.notes ? `<p>${asset.notes}</p>` : "");
 
       const editBtn = document.createElement("button");
       editBtn.type = "button";
       editBtn.className = "grc-registry-add-btn";
-      editBtn.textContent = "Modifier";
+      editBtn.textContent = grcT("grc.common.btnEdit");
       editBtn.onclick = () => showForm(asset);
       body.appendChild(editBtn);
 
       const deleteBtn = document.createElement("button");
       deleteBtn.type = "button";
       deleteBtn.className = "grc-registry-io-btn";
-      deleteBtn.textContent = "Supprimer";
+      deleteBtn.textContent = grcT("grc.common.btnDelete");
       deleteBtn.onclick = () => {
-        if (!confirm(`Supprimer "${asset.name}" ?`)) return;
+        if (!confirm(grcT("grc.common.confirmDelete").replace("{name}", asset.name))) return;
         removeGrcAsset(asset.id);
         if (expandedId === asset.id) expandedId = null;
         renderGrcAssetList();

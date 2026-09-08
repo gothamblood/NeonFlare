@@ -16,25 +16,25 @@
             <div>Sécurité WebApp</div>
         </div>
         <div class="nav-links">
-            <a href="./index.html">&larr; Retour à Sécurité WebApp</a>
+            <a href="./index.html" data-i18n="grc.common.backToWebapp">&larr; Retour à Sécurité WebApp</a>
         </div>
     </nav>
 </header>
 
 <main>
-    <h1 class="page-title">Architecture applicative</h1>
-    <p class="page-subtitle">
+    <h1 class="page-title" data-i18n="grc.securite.webapp.architecture-applicative.title">Architecture applicative</h1>
+    <p class="page-subtitle" data-i18n="grc.securite.webapp.architecture-applicative.subtitle">
         Décrire l’architecture de l’application web.
     </p>
 
     <section class="content-block">
-        <h2>Éléments à inclure</h2>
+        <h2 data-i18n="grc.securite.webapp.architecture-applicative.sectionTitle">Éléments à inclure</h2>
         <ul>
-            <li>Frontend (SPA, SSR, CSR)</li>
-            <li>Backend (API, microservices)</li>
-            <li>Reverse proxy</li>
-            <li>CDN</li>
-            <li>WAF (Web Application Firewall)</li>
+            <li><span data-i18n="grc.securite.webapp.architecture-applicative.item1.label">Frontend (SPA, SSR, CSR)</span></li>
+            <li><span data-i18n="grc.securite.webapp.architecture-applicative.item2.label">Backend (API, microservices)</span></li>
+            <li><span data-i18n="grc.securite.webapp.architecture-applicative.item3.label">Reverse proxy</span></li>
+            <li><span data-i18n="grc.securite.webapp.architecture-applicative.item4.label">CDN</span></li>
+            <li><span data-i18n="grc.securite.webapp.architecture-applicative.item5.label">WAF (Web Application Firewall)</span></li>
         </ul>
 
     </section>
@@ -60,6 +60,10 @@
   }
 </script>
 
+<script src="../../../assets/script/i18n.js"></script>
+<script src="../../../assets/script/grc-i18n.js"></script>
+<script src="../../../assets/script/grc-i18n-securite-webapp.js"></script>
+
 <script src="../../../config/grc-author.js"></script>
 
 <script src="../../../config/encryption.js"></script>
@@ -69,6 +73,8 @@
 
 <script src="../../../assets/script/vault.js"></script>
 <script src="../../../assets/script/vault-ui.js"></script>
+
+<script>applyI18n(getSavedLang());</script>
 
 <script src="../../../assets/script/grc-checklist.js"></script>
 <script>initGrcChecklist();</script>

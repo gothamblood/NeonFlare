@@ -99,7 +99,9 @@ function grcLastModifiedInfo(state) {
 }
 
 function grcModifiedLabel(at, by) {
-  return "Modifié par " + (by || "anonyme") + " le " + grcFormatTimestamp(at);
+  return grcT("grc.common.modifiedBy")
+    .replace("{by}", by || grcT("grc.common.modifiedByAnonymous"))
+    .replace("{date}", grcFormatTimestamp(at));
 }
 
 // Settings > Checklist GRC > "Afficher les pourcentages". Runs immediately
@@ -179,7 +181,11 @@ function initGrcChecklist() {
     bar.classList.toggle("complete", pct === 100);
 
     const info = grcLastModifiedInfo(state);
-    lastMod.textContent = info.at ? "Dernière modification : " + grcFormatTimestamp(info.at) + (info.by ? " par " + info.by : " (anonyme)") : "";
+    lastMod.textContent = info.at
+      ? (info.by
+          ? grcT("grc.common.lastModifiedBy").replace("{date}", grcFormatTimestamp(info.at)).replace("{by}", info.by)
+          : grcT("grc.common.lastModifiedAnonymous").replace("{date}", grcFormatTimestamp(info.at)))
+      : "";
     lastMod.style.display = info.at ? "" : "none";
 
     // Let the hub (grc/index.html or a grc/securite/* index) know this
@@ -224,8 +230,8 @@ function initGrcChecklist() {
   const commentWrap = document.createElement("div");
   commentWrap.className = "grc-comment";
   commentWrap.innerHTML =
-    '<h2 class="grc-comment-label">Notes</h2>' +
-    '<textarea class="grc-comment-box" placeholder="Vos notes sur ce domaine…" rows="4"></textarea>';
+    '<h2 class="grc-comment-label">' + grcT("grc.common.notesTitle") + '</h2>' +
+    '<textarea class="grc-comment-box" placeholder="' + grcT("grc.common.notesPlaceholder") + '" rows="4"></textarea>';
   lastBlock.appendChild(commentWrap);
 
   const textarea = commentWrap.querySelector(".grc-comment-box");
@@ -329,11 +335,11 @@ function renderGrcCoverage(domains, gridSelector, summarySelector) {
         const pct = Math.round((done / total) * 100);
         badge.className = "grc-coverage-badge " + grcCoverageStatus(pct);
         badge.textContent = pct + "%";
-        badge.title = done + " / " + total + " cochés";
+        badge.title = grcT("grc.common.checkedCount").replace("{done}", done).replace("{total}", total);
       } else {
         badge.className = "grc-coverage-badge empty";
         badge.textContent = "0%";
-        badge.title = "Pas encore consulté";
+        badge.title = grcT("grc.common.notVisited");
       }
     }
     const note = notes[domain.link];
@@ -354,7 +360,7 @@ function renderGrcCoverage(domains, gridSelector, summarySelector) {
     const note = document.createElement("div");
     note.className = "grc-note-mark";
     note.textContent = "✎"; // pencil
-    note.title = "Ce domaine a des notes";
+    note.title = grcT("grc.common.hasNotes");
     note.style.display = "none";
     card.appendChild(note);
     notes[domain.link] = note;
@@ -456,9 +462,9 @@ function renderGrcHeaderCoverage(sections, fillSelector, countSelector) {
    resetGrcData() is deliberately NOT guarded (see 2.6). Returns true
    when the caller must stop; a no-op (false) whenever the feature is
    off or not yet set up. */
-function grcVaultBlocks(actionLabel) {
+function grcVaultBlocks() {
   if (typeof vaultShouldGate === "function" && vaultShouldGate()) {
-    alert("Coffre verrouillé — déverrouille le chiffrement (Paramètres ▸ Chiffrement) avant " + actionLabel + ".");
+    alert(grcT("grc.common.vaultLockedExport"));
     return true;
   }
   return false;
@@ -472,9 +478,21 @@ function collectGrcExportData(sections) {
       .map((d) => {
         const url = section.basePath + d.link;
         const cov = readDomainCoverageFromLink(url);
+        // Same lookup grc-loader.js's cards use (grcLoaderText(), defined
+        // there -- this function only ever runs from pages that also load
+        // grc-loader.js): falls back to the raw config text untranslated
+        // when no dict entry exists yet, exactly like the on-screen cards.
+        const slug = d.link.replace(/\.html$/, "");
+        const prefix = section.keyPrefix || "grc";
+        const title = typeof grcLoaderText === "function"
+          ? grcLoaderText(prefix + "." + slug + ".hubCard.title", d.title)
+          : d.title;
+        const description = typeof grcLoaderText === "function"
+          ? grcLoaderText(prefix + "." + slug + ".hubCard.desc", d.description || "")
+          : (d.description || "");
         return {
-          title: d.title,
-          description: d.description || "",
+          title,
+          description,
           // Resolved absolute pathname (eg. "/grc/actifs.html"), same as
           // grcChecklistKeyFor() uses as its storage key -- importGrcData()
           // needs this to write each domain's data back to the right key
@@ -490,9 +508,70 @@ function collectGrcExportData(sections) {
   }));
 }
 
-function grcExportFilename(ext) {
+/* Every domain that has ANY saved checklist state, as {url, path} --
+   url is section.basePath + link (what an iframe src= or new URL(link,
+   location.href) expects), path is the already-resolved absolute
+   pathname used as the vaultGetItem() cache key. Domains never opened
+   have nothing to refresh (they'd still read as unvisited either way). */
+function grcCollectRefreshTargets(sections) {
+  const targets = [];
+  sections.forEach((section) => {
+    section.domains
+      .filter((d) => d.enabled !== false)
+      .forEach((d) => {
+        const url = section.basePath + d.link;
+        const path = new URL(url, location.href).pathname;
+        if (vaultGetItem(grcChecklistKeyFor(path))) targets.push({ url, path });
+      });
+  });
+  return targets;
+}
+
+/* Bug fixed 2026-09-08: switching the site language and immediately
+   exporting the full GRC report showed checklist items still in
+   whatever language each domain page had last actually been opened in
+   -- collectGrcExportData() only ever READS the cache (see its own
+   comment), it never re-derives the item text itself, and
+   initGrcChecklist() (the only thing that re-reads a domain's own DOM
+   and re-persists) only runs when that specific page loads.
+
+   Fix: before building the export, re-visit every domain that has saved
+   state in a hidden, off-screen iframe -- same "load a sibling page in
+   an iframe" trick already used by the hub's own openModal() (works
+   under file://, where fetch() doesn't -- see this file's header
+   comment). Each domain's initGrcChecklist() runs synchronously inline
+   on load, re-reading its own (now correctly-translated) DOM text and
+   re-persisting it, before that iframe's load event fires -- so by the
+   time onDone() runs, every visited domain's cache matches the
+   CURRENTLY selected language. One iframe reused sequentially rather
+   than dozens in parallel: simpler, and each page's script must finish
+   before its own persist() runs anyway, so parallel loading wouldn't
+   actually save wall-clock time here. */
+function grcRefreshDomainCaches(targets, onDone) {
+  if (targets.length === 0) {
+    onDone();
+    return;
+  }
+  const iframe = document.createElement("iframe");
+  iframe.style.cssText = "position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;left:-9999px;top:-9999px;";
+  document.body.appendChild(iframe);
+
+  let i = 0;
+  iframe.onload = () => {
+    i++;
+    if (i >= targets.length) {
+      iframe.remove();
+      onDone();
+    } else {
+      iframe.src = targets[i].url;
+    }
+  };
+  iframe.src = targets[0].url;
+}
+
+function grcExportFilename(ext, prefix) {
   const date = new Date().toISOString().slice(0, 10);
-  return "grc-export-" + date + "." + ext;
+  return (prefix || "grc-export") + "-" + date + "." + ext;
 }
 
 function triggerDownload(blob, filename) {
@@ -506,11 +585,11 @@ function triggerDownload(blob, filename) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-async function exportGrcAsJson(sections) {
-  if (grcVaultBlocks("d'exporter")) return;
+async function exportGrcAsJson(sections, filenamePrefix) {
+  if (grcVaultBlocks()) return;
   const data = await vaultMaybeEncryptForExport(collectGrcExportData(sections));
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-  triggerDownload(blob, grcExportFilename("json"));
+  triggerDownload(blob, grcExportFilename("json", filenamePrefix));
 }
 
 function grcSanitizeFilename(name) {
@@ -533,11 +612,11 @@ function grcSanitizeFilename(name) {
      part outside of it.
    Only wired up for JSON -- that's the round-trippable format (see
    importGrcData()), the one worth actually naming/placing yourself. */
-async function saveGrcAsJson(sections) {
-  if (grcVaultBlocks("d'exporter")) return;
+async function saveGrcAsJson(sections, filenamePrefix) {
+  if (grcVaultBlocks()) return;
   const data = await vaultMaybeEncryptForExport(collectGrcExportData(sections));
   const json = JSON.stringify(data, null, 2);
-  const defaultName = grcExportFilename("json");
+  const defaultName = grcExportFilename("json", filenamePrefix);
 
   if (window.showSaveFilePicker) {
     window
@@ -551,14 +630,14 @@ async function saveGrcAsJson(sections) {
         if (err && err.name === "AbortError") return; // user cancelled the picker
         // Picker exists but failed for some other reason -- still let
         // them name it rather than silently giving up.
-        const chosen = prompt("Nom du fichier :", defaultName);
+        const chosen = prompt(grcT("grc.common.filenamePrompt"), defaultName);
         if (chosen === null) return;
         triggerDownload(new Blob([json], { type: "application/json" }), grcSanitizeFilename(chosen));
       });
     return;
   }
 
-  const chosen = prompt("Nom du fichier :", defaultName);
+  const chosen = prompt(grcT("grc.common.filenamePrompt"), defaultName);
   if (chosen === null) return; // cancelled
   triggerDownload(new Blob([json], { type: "application/json" }), grcSanitizeFilename(chosen));
 }
@@ -576,7 +655,7 @@ function grcEscapeHtml(s) {
 function grcExportReportBody(sections) {
   const data = collectGrcExportData(sections);
   const generated = new Date().toLocaleString("fr-CA");
-  let html = "<h1>Rapport GRC</h1><p>Généré le " + grcEscapeHtml(generated) + "</p>";
+  let html = "<h1>" + grcT("grc.common.fullReportTitle") + "</h1><p>" + grcT("grc.common.generatedOn") + " " + grcEscapeHtml(generated) + "</p>";
 
   data.forEach((section) => {
     html += "<h2>" + grcEscapeHtml(section.title) + "</h2>";
@@ -589,10 +668,10 @@ function grcExportReportBody(sections) {
         html += "<p><em>" + grcEscapeHtml(domain.description) + "</em></p>";
       }
       if (!domain.visited) {
-        html += "<p>Pas encore consulté.</p>";
+        html += "<p>" + grcT("grc.common.notVisitedSentence") + "</p>";
       } else {
         const modInfo = grcLastModifiedInfo(domain);
-        html += "<p>Couverture : " + done + " / " + total + " (" + pct + "%)</p>";
+        html += "<p>" + grcT("grc.common.coverage").replace("{done}", done).replace("{total}", total).replace("{pct}", pct) + "</p>";
         if (modInfo.at) {
           html += "<p><em>" + grcEscapeHtml(grcModifiedLabel(modInfo.at, modInfo.by)) + "</em></p>";
         }
@@ -602,7 +681,7 @@ function grcExportReportBody(sections) {
         });
         html += "</ul>";
         if (domain.comment && domain.comment.trim()) {
-          html += "<p><strong>Notes :</strong><br>" + grcEscapeHtml(domain.comment).replace(/\n/g, "<br>") + "</p>";
+          html += "<p><strong>" + grcT("grc.common.notesLabel") + "</strong><br>" + grcEscapeHtml(domain.comment).replace(/\n/g, "<br>") + "</p>";
         }
       }
     });
@@ -611,56 +690,99 @@ function grcExportReportBody(sections) {
   return html;
 }
 
-function exportGrcAsWord(sections) {
-  if (grcVaultBlocks("d'exporter")) return;
-  const body = grcExportReportBody(sections);
-  const html =
-    "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>" +
-    "<head><meta charset='utf-8'><title>Rapport GRC</title></head>" +
-    "<body style='font-family:Calibri,Arial,sans-serif;'>" + body + "</body></html>";
-  const blob = new Blob(["﻿", html], { type: "application/msword" });
-  triggerDownload(blob, grcExportFilename("doc"));
+function exportGrcAsWord(sections, filenamePrefix) {
+  if (grcVaultBlocks()) return;
+  grcRefreshDomainCaches(grcCollectRefreshTargets(sections), () => {
+    const body = grcExportReportBody(sections);
+    const html =
+      "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>" +
+      "<head><meta charset='utf-8'><title>" + grcT("grc.common.fullReportTitle") + "</title></head>" +
+      "<body style='font-family:Calibri,Arial,sans-serif;'>" + body + "</body></html>";
+    const blob = new Blob(["﻿", html], { type: "application/msword" });
+    triggerDownload(blob, grcExportFilename("doc", filenamePrefix));
+  });
 }
 
 function exportGrcAsPdf(sections) {
-  if (grcVaultBlocks("d'exporter")) return;
-  const body = grcExportReportBody(sections);
-  const html =
-    "<!doctype html><html><head><meta charset='utf-8'><title>Rapport GRC</title><style>" +
-    "body{font-family:system-ui,Arial,sans-serif;color:#111;max-width:800px;margin:2rem auto;line-height:1.5;}" +
-    "h1{margin-bottom:0;}h2{border-bottom:2px solid #333;margin-top:2rem;}h3{margin-bottom:0.2rem;}" +
-    "ul{margin-top:0.3rem;}li{margin-bottom:0.15rem;}" +
-    "@media print{body{margin:0;}}" +
-    "</style></head><body>" + body +
-    "<script>window.onload=()=>setTimeout(()=>window.print(),200);</script>" +
-    "</body></html>";
+  if (grcVaultBlocks()) return;
+  // window.open() must fire synchronously in this click handler, before
+  // any async refresh work below -- otherwise the browser no longer sees
+  // it as a direct result of the user's gesture and blocks it as a
+  // pop-up. The refresh writes into this already-open, still-blank tab
+  // once it's done instead.
   const win = window.open("", "_blank");
   if (!win) {
-    alert("Le navigateur a bloqué l'ouverture d'un nouvel onglet pour l'export PDF -- autorise les pop-ups pour ce site et réessaie.");
+    alert(grcT("grc.common.popupBlocked"));
     return;
   }
-  win.document.open();
-  win.document.write(html);
-  win.document.close();
+  grcRefreshDomainCaches(grcCollectRefreshTargets(sections), () => {
+    const body = grcExportReportBody(sections);
+    const html =
+      "<!doctype html><html><head><meta charset='utf-8'><title>" + grcT("grc.common.fullReportTitle") + "</title><style>" +
+      "body{font-family:system-ui,Arial,sans-serif;color:#111;max-width:800px;margin:2rem auto;line-height:1.5;}" +
+      "h1{margin-bottom:0;}h2{border-bottom:2px solid #333;margin-top:2rem;}h3{margin-bottom:0.2rem;}" +
+      "ul{margin-top:0.3rem;}li{margin-bottom:0.15rem;}" +
+      "@media print{body{margin:0;}}" +
+      "</style></head><body>" + body +
+      "<script>window.onload=()=>setTimeout(()=>window.print(),200);</script>" +
+      "</body></html>";
+    win.document.open();
+    win.document.write(html);
+    win.document.close();
+  });
 }
 
-/* Wipes every saved checklist/comment across the given sections, back to
-   the exact state defined by the config files (nothing checked, no
-   notes) -- ie. what a domain looks like the first time it's ever
-   opened. Iterates real localStorage keys rather than each domain's
-   expected key, so it also cleans up entries for domains since renamed
-   or removed from a config. */
+/* Wipes saved checklist/comment data back to the exact state defined by
+   the config files (nothing checked, no notes) -- ie. what a domain
+   looks like the first time it's ever opened.
+
+   Two modes, chosen by whether `sections` is given:
+   - `sections` omitted/null: wipe EVERY "/grc/checklist..." key in
+     localStorage, site-wide, no config needed -- the original behavior,
+     still used by Settings' centralized "reset everything" buttons
+     (project/settings.html), which don't have any GRC config loaded and
+     deliberately want "truly everything, including orphaned entries for
+     domains since renamed/removed from a config" -- not just what's
+     currently declared.
+   - `sections` given: scoped -- only wipes domains actually IN those
+     sections, deriving each one's exact storage key the same way
+     collectGrcExportData()/grcCollectRefreshTargets() do (basePath +
+     link, resolved to an absolute pathname).
+
+   Bug fixed 2026-09-08: before this two-mode split, `sections` was
+   accepted but silently ignored -- always wipe-everything, regardless of
+   what was passed in. Harmless while the only sections-aware caller (the
+   main GRC hub's "Réinitialiser") always passed every section anyway,
+   but the moment a per-section hub (grc/securite/<x>/index.html) wired
+   its own scoped "Réinitialiser" button, that button would have silently
+   wiped every OTHER section's data too. */
 function resetGrcData(sections, onDone) {
   // NOT gated on the vault: vaultRemoveItem() doesn't need an unlock, and
   // clearing a registry you can't currently see back to its defaults is
   // an allowed operation (PlanDeTestSecurite 2.6) -- the caller's own
   // confirm() is the safeguard. Only import (wipe-then-fail, 0.1) and
   // export (silent-empty, 0.2) are actually broken while locked.
-  const keys = [];
-  for (let i = 0; i < localStorage.length; i++) {
-    const k = localStorage.key(i);
-    if (k && k.indexOf(GRC_CHECKLIST_PREFIX) === 0) keys.push(k);
+  if (!sections) {
+    const keys = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.indexOf(GRC_CHECKLIST_PREFIX) === 0) keys.push(k);
+    }
+    keys.forEach((k) => vaultRemoveItem(k));
+    if (typeof onDone === "function") onDone(keys.length);
+    return;
   }
+
+  const keys = [];
+  sections.forEach((section) => {
+    section.domains
+      .filter((d) => d.enabled !== false)
+      .forEach((d) => {
+        const url = section.basePath + d.link;
+        const path = new URL(url, location.href).pathname;
+        keys.push(grcChecklistKeyFor(path));
+      });
+  });
   keys.forEach((k) => vaultRemoveItem(k));
   if (typeof onDone === "function") onDone(keys.length);
 }
@@ -672,46 +794,64 @@ function resetGrcData(sections, onDone) {
    restore-from-backup would. `file` is a File from an <input
    type="file">; reading a locally-picked file this way is unrelated to
    the fetch()-under-file:// restriction elsewhere in this file -- it
-   never touches the network, so it works the same everywhere. */
-function importGrcData(file, onDone, onError) {
+   never touches the network, so it works the same everywhere.
+
+   `sections` scopes BOTH the reset-first step and the restore itself
+   (see resetGrcData()'s 2026-09-08 fix) -- an import triggered from a
+   per-section hub can only wipe/write domains within that section, even
+   if the picked file happens to contain a full site export (eg.
+   importing an "everything" backup from a scoped page). Pass
+   grcAllSections for a real full-site restore. */
+function importGrcData(file, sections, onDone, onError) {
   if (typeof vaultShouldGate === "function" && vaultShouldGate()) {
     // Stop before touching anything -- resetGrcData() below would wipe
     // first and the restore writes would then throw (PlanDeTestSecurite
     // 0.1). Surface it through onError like every other import failure.
-    if (onError) onError("Coffre verrouillé — déverrouille le chiffrement (Paramètres ▸ Chiffrement) avant d'importer.");
+    if (onError) onError(grcT("grc.common.vaultLockedImport"));
     return;
   }
   const reader = new FileReader();
   reader.onerror = () => {
-    if (onError) onError("Impossible de lire le fichier.");
+    if (onError) onError(grcT("grc.common.cannotReadFile"));
   };
   reader.onload = async () => {
     let raw;
     try {
       raw = JSON.parse(reader.result);
     } catch (e) {
-      if (onError) onError("Ce fichier n'est pas un JSON valide.");
+      if (onError) onError(grcT("grc.common.notValidJson"));
       return;
     }
     let data;
     try {
       data = await vaultMaybeDecryptImport(raw);
     } catch (e) {
-      if (onError) onError(e.message || "Impossible de déchiffrer ce fichier.");
+      if (onError) onError(e.message || grcT("grc.common.cannotDecrypt"));
       return;
     }
     if (!Array.isArray(data)) {
-      if (onError) onError("Format inattendu -- ce n'est pas un export GRC.");
+      if (onError) onError(grcT("grc.common.unexpectedFormat"));
       return;
     }
 
+    const allowedPaths = new Set();
+    sections.forEach((section) => {
+      section.domains
+        .filter((d) => d.enabled !== false)
+        .forEach((d) => {
+          const url = section.basePath + d.link;
+          allowedPaths.add(new URL(url, location.href).pathname);
+        });
+    });
+
     let restored = 0;
-    resetGrcData(null, () => {
+    resetGrcData(sections, () => {
       data.forEach((section) => {
         if (!section || !Array.isArray(section.domains)) return;
         section.domains.forEach((domain) => {
           if (!domain || !domain.path || !Array.isArray(domain.items)) return;
           if (!domain.visited) return; // never-reviewed domains have nothing to restore
+          if (!allowedPaths.has(domain.path)) return; // out of scope for this import
           const key = grcChecklistKeyFor(domain.path);
           vaultSetItem(key, JSON.stringify({
             items: domain.items,

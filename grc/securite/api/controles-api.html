@@ -16,26 +16,26 @@
             <div>Sécurité API</div>
         </div>
         <div class="nav-links">
-            <a href="./index.html">&larr; Retour à Sécurité API</a>
+            <a href="./index.html" data-i18n="grc.common.backToApi">&larr; Retour à Sécurité API</a>
         </div>
     </nav>
 </header>
 
 <main>
-    <h1 class="page-title">Contrôles de sécurité API</h1>
-    <p class="page-subtitle">
+    <h1 class="page-title" data-i18n="grc.securite.api.controles-api.title">Contrôles de sécurité API</h1>
+    <p class="page-subtitle" data-i18n="grc.securite.api.controles-api.subtitle">
         Inclure les contrôles techniques obligatoires pour sécuriser les API.
     </p>
 
     <section class="content-block">
-        <h2>Éléments à inclure</h2>
+        <h2 data-i18n="grc.common.contentInclude">Contenu à inclure</h2>
         <ul>
-            <li>Rate limiting <span class="grc-control-tags">ISO A.8.26 · NIST PR.PS · CIS 16</span></li>
-            <li>Throttling <span class="grc-control-tags">ISO A.8.26 · NIST PR.PS · CIS 16</span></li>
-            <li>IP allow/deny lists <span class="grc-control-tags">ISO A.8.20 · NIST PR.IR · CIS 13</span></li>
-            <li>Validation stricte des entrées <span class="grc-control-tags">ISO A.8.28 · NIST PR.PS · CIS 16</span></li>
-            <li>Normalisation des données <span class="grc-control-tags">ISO A.8.28 · NIST PR.PS · CIS 16</span></li>
-            <li>Chiffrement TLS obligatoire <span class="grc-control-tags">ISO A.8.24 · NIST PR.DS · CIS 3</span></li>
+            <li><span data-i18n="grc.securite.api.controles-api.item1.label">Rate limiting</span> <span class="grc-control-tags">ISO A.8.26 · NIST PR.PS · CIS 16</span></li>
+            <li><span data-i18n="grc.securite.api.controles-api.item2.label">Throttling</span> <span class="grc-control-tags">ISO A.8.26 · NIST PR.PS · CIS 16</span></li>
+            <li><span data-i18n="grc.securite.api.controles-api.item3.label">IP allow/deny lists</span> <span class="grc-control-tags">ISO A.8.20 · NIST PR.IR · CIS 13</span></li>
+            <li><span data-i18n="grc.securite.api.controles-api.item4.label">Validation stricte des entrées</span> <span class="grc-control-tags">ISO A.8.28 · NIST PR.PS · CIS 16</span></li>
+            <li><span data-i18n="grc.securite.api.controles-api.item5.label">Normalisation des données</span> <span class="grc-control-tags">ISO A.8.28 · NIST PR.PS · CIS 16</span></li>
+            <li><span data-i18n="grc.securite.api.controles-api.item6.label">Chiffrement TLS obligatoire</span> <span class="grc-control-tags">ISO A.8.24 · NIST PR.DS · CIS 3</span></li>
         </ul>
 
     </section>
@@ -61,6 +61,9 @@
   }
 </script>
 
+<script src="../../../assets/script/i18n.js"></script>
+<script src="../../../assets/script/grc-i18n.js"></script>
+<script src="../../../assets/script/grc-i18n-securite-api.js"></script>
 <script src="../../../config/grc-author.js"></script>
 
 <script src="../../../config/encryption.js"></script>
@@ -70,6 +73,8 @@
 
 <script src="../../../assets/script/vault.js"></script>
 <script src="../../../assets/script/vault-ui.js"></script>
+
+<script>applyI18n(getSavedLang());</script>
 
 <script src="../../../assets/script/grc-checklist.js"></script>
 <script>initGrcChecklist();</script>

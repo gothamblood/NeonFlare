@@ -16,24 +16,24 @@
             <div>Sécurité API</div>
         </div>
         <div class="nav-links">
-            <a href="./index.html">&larr; Retour à Sécurité API</a>
+            <a href="./index.html" data-i18n="grc.common.backToApi">&larr; Retour à Sécurité API</a>
         </div>
     </nav>
 </header>
 
 <main>
-    <h1 class="page-title">Tests & audits API</h1>
-    <p class="page-subtitle">
+    <h1 class="page-title" data-i18n="grc.securite.api.tests-audits-api.title">Tests & audits API</h1>
+    <p class="page-subtitle" data-i18n="grc.securite.api.tests-audits-api.subtitle">
         Décrire les tests et audits réalisés pour valider la sécurité des API.
     </p>
 
     <section class="content-block">
-        <h2>Éléments à inclure</h2>
+        <h2 data-i18n="grc.common.contentInclude">Contenu à inclure</h2>
         <ul>
-            <li>Tests automatisés (Postman, Newman) <span class="grc-control-tags">ISO A.8.29 · NIST PR.PS · CIS 16</span></li>
-            <li>Tests de sécurité (OWASP API Security Top 10) <span class="grc-control-tags">ISO A.8.29 · NIST ID.RA · CIS 18</span></li>
-            <li>Pentest API <span class="grc-control-tags">ISO A.8.29 · NIST ID.RA · CIS 18</span></li>
-            <li>Scans de vulnérabilités <span class="grc-control-tags">ISO A.8.8 · NIST ID.RA · CIS 7</span></li>
+            <li><span data-i18n="grc.securite.api.tests-audits-api.item1.label">Tests automatisés (Postman, Newman)</span> <span class="grc-control-tags">ISO A.8.29 · NIST PR.PS · CIS 16</span></li>
+            <li><span data-i18n="grc.securite.api.tests-audits-api.item2.label">Tests de sécurité (OWASP API Security Top 10)</span> <span class="grc-control-tags">ISO A.8.29 · NIST ID.RA · CIS 18</span></li>
+            <li><span data-i18n="grc.securite.api.tests-audits-api.item3.label">Pentest API</span> <span class="grc-control-tags">ISO A.8.29 · NIST ID.RA · CIS 18</span></li>
+            <li><span data-i18n="grc.securite.api.tests-audits-api.item4.label">Scans de vulnérabilités</span> <span class="grc-control-tags">ISO A.8.8 · NIST ID.RA · CIS 7</span></li>
         </ul>
 
     </section>
@@ -59,6 +59,9 @@
   }
 </script>
 
+<script src="../../../assets/script/i18n.js"></script>
+<script src="../../../assets/script/grc-i18n.js"></script>
+<script src="../../../assets/script/grc-i18n-securite-api.js"></script>
 <script src="../../../config/grc-author.js"></script>
 
 <script src="../../../config/encryption.js"></script>
@@ -68,6 +71,8 @@
 
 <script src="../../../assets/script/vault.js"></script>
 <script src="../../../assets/script/vault-ui.js"></script>
+
+<script>applyI18n(getSavedLang());</script>
 
 <script src="../../../assets/script/grc-checklist.js"></script>
 <script>initGrcChecklist();</script>

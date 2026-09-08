@@ -9,6 +9,7 @@
   <link rel="stylesheet" type="text/css" href="../assets/css/network-dashboard.css">
   <link rel="stylesheet" type="text/css" href="../assets/css/dashboard-panels.css">
   <link rel="stylesheet" type="text/css" href="../assets/css/fs-explorer.css">
+  <link rel="stylesheet" type="text/css" href="../assets/css/pentest.css">
 
 </head>
 
@@ -21,7 +22,6 @@
 <div class="hud-bg">
   <div class="hud-grid"></div>
 </div>
-
 
 <div class="network-shell">
   <div class="network-header">
@@ -60,6 +60,8 @@
         <button id="btnTabLink" class="dash-btn" type="button" title="Link -- renvoyer les commandes « Shell » de cet onglet vers un autre onglet ouvert">🔗 Link</button>
         <div class="dash-shell-menu dash-panels-menu" id="tabLinkMenu"></div>
       </div>
+
+      <button id="btnQuickFinding" class="dash-btn" type="button" title="Ajouter un finding à une mission pentest existante, sans quitter le dashboard" onclick="openQuickFindingModal()">+ Finding</button>
     </div>
 
     <div class="hud-status grc-header-status" id="grcHeaderStatus">
@@ -212,7 +214,7 @@
 </div>
 
 
-<div id="overlay" onclick="closeToolModal(); closeWebsiteModal();"></div>
+<div id="overlay" onclick="closeToolModal(); closeWebsiteModal(); closeQuickFindingModal();"></div>
 
 <!-- Shared tool modal (same pattern as tools.html): loads the picked
      section's standalone page in an iframe. -->
@@ -229,6 +231,17 @@
   <div class="modal" onclick="event.stopPropagation()">
     <div class="modal-title" id="website-title"></div>
     <div id="website-content"></div>
+  </div>
+</div>
+
+<!-- "+ Finding rapide" modal (assets/script/pentest-quick-add.js) --
+     same inline-content pattern as #modal-website above, not an
+     iframe: adds a finding to an EXISTING pentest engagement without
+     leaving the dashboard. -->
+<div id="modal-quick-finding" class="modal-overlay" onclick="closeQuickFindingModal()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-title">Finding rapide</div>
+    <div id="quick-finding-content"></div>
   </div>
 </div>
 
@@ -340,6 +353,12 @@
   }
   renderUpcomingReviews();
 </script>
+
+
+<!-- "+ Finding rapide" (Couverture GRC panel) -- vault/vault-ui/config-io
+     already loaded above. -->
+<script src="../assets/script/grc-pentest.js"></script>
+<script src="../assets/script/pentest-quick-add.js"></script>
 
 
 <!-- TOOLS MODAL -->

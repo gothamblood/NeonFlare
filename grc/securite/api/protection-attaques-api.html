@@ -16,27 +16,27 @@
             <div>Sécurité API</div>
         </div>
         <div class="nav-links">
-            <a href="./index.html">&larr; Retour à Sécurité API</a>
+            <a href="./index.html" data-i18n="grc.common.backToApi">&larr; Retour à Sécurité API</a>
         </div>
     </nav>
 </header>
 
 <main>
-    <h1 class="page-title">Protection contre les attaques API</h1>
-    <p class="page-subtitle">
+    <h1 class="page-title" data-i18n="grc.securite.api.protection-attaques-api.title">Protection contre les attaques API</h1>
+    <p class="page-subtitle" data-i18n="grc.securite.api.protection-attaques-api.subtitle">
         Décrire les protections mises en place contre les attaques ciblant les API (OWASP API Security Top 10).
     </p>
 
     <section class="content-block">
-        <h2>Menaces couvertes</h2>
+        <h2 data-i18n="grc.securite.api.protection-attaques-api.sectionTitle">Menaces couvertes</h2>
         <ul>
-            <li>Injection (SQL, NoSQL, LDAP, OS)</li>
-            <li>Broken Authentication</li>
-            <li>Broken Object Level Authorization (BOLA)</li>
-            <li>Broken Function Level Authorization (BFLA)</li>
-            <li>Mass Assignment</li>
-            <li>Excessive Data Exposure</li>
-            <li>SSRF</li>
+            <li><span data-i18n="grc.securite.api.protection-attaques-api.item1.label">Injection (SQL, NoSQL, LDAP, OS)</span></li>
+            <li><span data-i18n="grc.securite.api.protection-attaques-api.item2.label">Broken Authentication</span></li>
+            <li><span data-i18n="grc.securite.api.protection-attaques-api.item3.label">Broken Object Level Authorization (BOLA)</span></li>
+            <li><span data-i18n="grc.securite.api.protection-attaques-api.item4.label">Broken Function Level Authorization (BFLA)</span></li>
+            <li><span data-i18n="grc.securite.api.protection-attaques-api.item5.label">Mass Assignment</span></li>
+            <li><span data-i18n="grc.securite.api.protection-attaques-api.item6.label">Excessive Data Exposure</span></li>
+            <li><span data-i18n="grc.securite.api.protection-attaques-api.item7.label">SSRF</span></li>
         </ul>
 
     </section>
@@ -62,6 +62,9 @@
   }
 </script>
 
+<script src="../../../assets/script/i18n.js"></script>
+<script src="../../../assets/script/grc-i18n.js"></script>
+<script src="../../../assets/script/grc-i18n-securite-api.js"></script>
 <script src="../../../config/grc-author.js"></script>
 
 <script src="../../../config/encryption.js"></script>
@@ -71,6 +74,8 @@
 
 <script src="../../../assets/script/vault.js"></script>
 <script src="../../../assets/script/vault-ui.js"></script>
+
+<script>applyI18n(getSavedLang());</script>
 
 <script src="../../../assets/script/grc-checklist.js"></script>
 <script>initGrcChecklist();</script>

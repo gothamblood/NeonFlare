@@ -16,34 +16,34 @@
             <div>GRC Cybersecurity</div>
         </div>
         <div class="nav-links">
-            <a href="./index.html">&larr; Retour au GRC</a>
+            <a href="./index.html" data-i18n="grc.common.backToGrc">&larr; Retour au GRC</a>
         </div>
     </nav>
 </header>
 
 <main>
-    <h1 class="page-title">Analyse des risques (ISO 27005)</h1>
-    <p class="page-subtitle">
+    <h1 class="page-title" data-i18n="grc.risques.title">Analyse des risques (ISO 27005)</h1>
+    <p class="page-subtitle" data-i18n="grc.risques.subtitle">
         Cette section identifie les risques, les analyse et les priorise.
     </p>
 
     <section class="grc-registry-block">
-        <h2>Registre des risques</h2>
+        <h2 data-i18n="grc.risques.registryTitle">Registre des risques</h2>
         <div id="grcRiskRegistry"></div>
     </section>
 
     <section class="content-block">
-        <h2>Contenu à inclure</h2>
+        <h2 data-i18n="grc.common.contentInclude">Contenu à inclure</h2>
         <ul>
-            <li><strong>Méthodologie ISO 27005</strong> : analyse qualitative basée sur les conséquences.</li>
-            <li><strong>Identification des risques</strong> : menaces, vulnérabilités, impacts. <span class="grc-control-tags">ISO A.5.7 · NIST ID.RA · CIS 7</span></li>
-            <li><strong>Scénarios de risques</strong> : techniques, humains, physiques, légaux. <span class="grc-control-tags">NIST ID.RA · CIS 7</span></li>
-            <li><strong>Matrices</strong> : exposition, criticité, ISO 27005.</li>
-            <li><strong>Synthèse</strong> : risques critiques, risques modérés, risques faibles. <span class="grc-control-tags">NIST GV.OV</span></li>
+            <li><strong data-i18n="grc.risques.item1.label">Méthodologie ISO 27005</strong> : <span data-i18n="grc.risques.item1.desc">analyse qualitative basée sur les conséquences.</span></li>
+            <li><strong data-i18n="grc.risques.item2.label">Identification des risques</strong> : <span data-i18n="grc.risques.item2.desc">menaces, vulnérabilités, impacts.</span> <span class="grc-control-tags">ISO A.5.7 · NIST ID.RA · CIS 7</span></li>
+            <li><strong data-i18n="grc.risques.item3.label">Scénarios de risques</strong> : <span data-i18n="grc.risques.item3.desc">techniques, humains, physiques, légaux.</span> <span class="grc-control-tags">NIST ID.RA · CIS 7</span></li>
+            <li><strong data-i18n="grc.risques.item4.label">Matrices</strong> : <span data-i18n="grc.risques.item4.desc">exposition, criticité, ISO 27005.</span></li>
+            <li><strong data-i18n="grc.risques.item5.label">Synthèse</strong> : <span data-i18n="grc.risques.item5.desc">risques critiques, risques modérés, risques faibles.</span> <span class="grc-control-tags">NIST GV.OV</span></li>
         </ul>
 
-        <h2>Rôle en GRC</h2>
-        <p>L’analyse des risques permet de comprendre où se trouvent les dangers et quelles actions sont prioritaires.</p>
+        <h2 data-i18n="grc.common.roleTitle">Rôle en GRC</h2>
+        <p data-i18n="grc.risques.role">L’analyse des risques permet de comprendre où se trouvent les dangers et quelles actions sont prioritaires.</p>
     </section>
 </main>
 
@@ -67,6 +67,9 @@
   }
 </script>
 
+<script src="../assets/script/i18n.js"></script>
+<script src="../assets/script/grc-i18n.js"></script>
+
 <script src="../config/grc-author.js"></script>
 
 <script src="../config/encryption.js"></script>
@@ -80,7 +83,10 @@
 <script src="../assets/script/config-io.js"></script>
 <script src="../assets/script/grc-assets.js"></script>
 <script src="../assets/script/grc-risks.js"></script>
+<script src="../assets/script/grc-controls.js"></script>
 <script>initGrcRiskRegistry();</script>
+
+<script>applyI18n(getSavedLang());</script>
 
 <script src="../assets/script/grc-checklist.js"></script>
 <script>initGrcChecklist();</script>

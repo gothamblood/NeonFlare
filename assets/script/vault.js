@@ -27,6 +27,7 @@ const VAULT_PROTECTED_EXACT_KEYS = [
   "/grc/actifs/registry",
   "/grc/analyse-risques/registry",
   "/grc/incidents/registry",
+  "/grc/controles/registry",
   "/pentest/engagements",
 ];
 const VAULT_PROTECTED_PREFIX = "/grc/checklist";

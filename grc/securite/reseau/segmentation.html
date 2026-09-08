@@ -16,29 +16,29 @@
             <div>Sécurité Réseau</div>
         </div>
         <div class="nav-links">
-            <a href="./index.html">&larr; Retour à Sécurité Réseau</a>
+            <a href="./index.html" data-i18n="grc.common.backToReseau">&larr; Retour à Sécurité Réseau</a>
         </div>
     </nav>
 </header>
 
 <main>
-    <h1 class="page-title">Segmentation réseau</h1>
-    <p class="page-subtitle">
+    <h1 class="page-title" data-i18n="grc.securite.reseau.segmentation.title">Segmentation réseau</h1>
+    <p class="page-subtitle" data-i18n="grc.securite.reseau.segmentation.subtitle">
         Décrire comment les réseaux sont séparés pour limiter les risques.
     </p>
 
     <section class="content-block">
-        <h2>Éléments à inclure</h2>
+        <h2 data-i18n="grc.securite.reseau.segmentation.list1.heading">Éléments à inclure</h2>
         <ul>
-            <li>VLAN par département <span class="grc-control-tags">ISO A.8.22 · NIST PR.IR · CIS 12</span></li>
-            <li>VLAN pour les serveurs <span class="grc-control-tags">ISO A.8.22 · NIST PR.IR · CIS 12</span></li>
-            <li>VLAN pour les équipements IoT <span class="grc-control-tags">ISO A.8.22 · NIST PR.IR · CIS 12</span></li>
-            <li>VLAN pour les invités <span class="grc-control-tags">ISO A.8.22 · NIST PR.IR · CIS 12</span></li>
-            <li>ACL entre VLAN <span class="grc-control-tags">ISO A.8.22 · NIST PR.IR · CIS 12</span></li>
-            <li>Micro-segmentation pour les environnements critiques <span class="grc-control-tags">ISO A.8.22 · NIST PR.IR · CIS 12</span></li>
+            <li><span data-i18n="grc.securite.reseau.segmentation.list1.item1">VLAN par département</span> <span class="grc-control-tags">ISO A.8.22 · NIST PR.IR · CIS 12</span></li>
+            <li><span data-i18n="grc.securite.reseau.segmentation.list1.item2">VLAN pour les serveurs</span> <span class="grc-control-tags">ISO A.8.22 · NIST PR.IR · CIS 12</span></li>
+            <li><span data-i18n="grc.securite.reseau.segmentation.list1.item3">VLAN pour les équipements IoT</span> <span class="grc-control-tags">ISO A.8.22 · NIST PR.IR · CIS 12</span></li>
+            <li><span data-i18n="grc.securite.reseau.segmentation.list1.item4">VLAN pour les invités</span> <span class="grc-control-tags">ISO A.8.22 · NIST PR.IR · CIS 12</span></li>
+            <li><span data-i18n="grc.securite.reseau.segmentation.list1.item5">ACL entre VLAN</span> <span class="grc-control-tags">ISO A.8.22 · NIST PR.IR · CIS 12</span></li>
+            <li><span data-i18n="grc.securite.reseau.segmentation.list1.item6">Micro-segmentation pour les environnements critiques</span> <span class="grc-control-tags">ISO A.8.22 · NIST PR.IR · CIS 12</span></li>
         </ul>
 
-        <p class="highlight"><strong>Objectif :</strong> Empêcher un attaquant de se déplacer latéralement.</p>
+        <p class="highlight"><strong data-i18n="grc.securite.reseau.segmentation.highlight.label">Objectif :</strong> <span data-i18n="grc.securite.reseau.segmentation.highlight.text">Empêcher un attaquant de se déplacer latéralement.</span></p>
 
     </section>
 </main>
@@ -63,6 +63,10 @@
   }
 </script>
 
+<script src="../../../assets/script/i18n.js"></script>
+<script src="../../../assets/script/grc-i18n.js"></script>
+<script src="../../../assets/script/grc-i18n-securite-reseau.js"></script>
+
 <script src="../../../config/grc-author.js"></script>
 
 <script src="../../../config/encryption.js"></script>
@@ -72,6 +76,8 @@
 
 <script src="../../../assets/script/vault.js"></script>
 <script src="../../../assets/script/vault-ui.js"></script>
+
+<script>applyI18n(getSavedLang());</script>
 
 <script src="../../../assets/script/grc-checklist.js"></script>
 <script>initGrcChecklist();</script>

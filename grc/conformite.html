@@ -16,33 +16,33 @@
             <div>GRC Cybersecurity</div>
         </div>
         <div class="nav-links">
-            <a href="./index.html">&larr; Retour au GRC</a>
+            <a href="./index.html" data-i18n="grc.common.backToGrc">&larr; Retour au GRC</a>
         </div>
     </nav>
 </header>
 
 <main>
-    <h1 class="page-title">Gestion de la conformité</h1>
-    <p class="page-subtitle">
+    <h1 class="page-title" data-i18n="grc.conformite.title">Gestion de la conformité</h1>
+    <p class="page-subtitle" data-i18n="grc.conformite.subtitle">
         La gestion de la conformité assure que l’organisation respecte ses obligations légales, contractuelles et normatives, et structure ses audits internes et externes.
     </p>
 
     <section class="content-block">
-        <h2>Pourquoi c’est important</h2>
+        <h2 data-i18n="grc.conformite.whyTitle">Pourquoi c’est important</h2>
         <ul>
-            <li>Assure que l’organisation respecte les lois, normes, obligations contractuelles. <span class="grc-control-tags">ISO A.5.31 · NIST GV.OC</span></li>
-            <li>Permet de suivre les écarts de conformité. <span class="grc-control-tags">ISO A.5.36 · NIST GV.OV</span></li>
-            <li>Structure les audits internes et externes. <span class="grc-control-tags">ISO A.5.35 · NIST GV.OV</span></li>
+            <li><span data-i18n="grc.conformite.why1">Assure que l’organisation respecte les lois, normes, obligations contractuelles.</span> <span class="grc-control-tags">ISO A.5.31 · NIST GV.OC</span></li>
+            <li><span data-i18n="grc.conformite.why2">Permet de suivre les écarts de conformité.</span> <span class="grc-control-tags">ISO A.5.36 · NIST GV.OV</span></li>
+            <li><span data-i18n="grc.conformite.why3">Structure les audits internes et externes.</span> <span class="grc-control-tags">ISO A.5.35 · NIST GV.OV</span></li>
         </ul>
 
-        <h2>Ce que cette section doit contenir</h2>
+        <h2 data-i18n="grc.conformite.includeTitle">Ce que cette section doit contenir</h2>
         <ul>
-            <li>Obligations légales (LPRPDE, Loi 25, etc.) <span class="grc-control-tags">ISO A.5.31 · NIST GV.OC</span></li>
-            <li>Obligations contractuelles <span class="grc-control-tags">ISO A.5.31 · NIST GV.OC</span></li>
-            <li>Normes (ISO, NIST, CIS)</li>
-            <li>Registre de conformité <span class="grc-control-tags">ISO A.5.36 · NIST GV.OV</span></li>
-            <li>Processus d’audit <span class="grc-control-tags">ISO A.5.35 · NIST GV.OV</span></li>
-            <li>Suivi des non-conformités <span class="grc-control-tags">ISO A.5.36 · NIST GV.OV</span></li>
+            <li><span data-i18n="grc.conformite.item1">Obligations légales (LPRPDE, Loi 25, etc.)</span> <span class="grc-control-tags">ISO A.5.31 · NIST GV.OC</span></li>
+            <li><span data-i18n="grc.conformite.item2">Obligations contractuelles</span> <span class="grc-control-tags">ISO A.5.31 · NIST GV.OC</span></li>
+            <li><span data-i18n="grc.conformite.item3">Normes (ISO, NIST, CIS)</span></li>
+            <li><span data-i18n="grc.conformite.item4">Registre de conformité</span> <span class="grc-control-tags">ISO A.5.36 · NIST GV.OV</span></li>
+            <li><span data-i18n="grc.conformite.item5">Processus d’audit</span> <span class="grc-control-tags">ISO A.5.35 · NIST GV.OV</span></li>
+            <li><span data-i18n="grc.conformite.item6">Suivi des non-conformités</span> <span class="grc-control-tags">ISO A.5.36 · NIST GV.OV</span></li>
         </ul>
     </section>
 </main>
@@ -67,6 +67,10 @@
   }
 </script>
 
+<script src="../assets/script/i18n.js"></script>
+<script src="../assets/script/grc-i18n.js"></script>
+<script src="../assets/script/grc-i18n-domains.js"></script>
+
 <script src="../config/grc-author.js"></script>
 
 <script src="../config/encryption.js"></script>
@@ -76,6 +80,8 @@
 
 <script src="../assets/script/vault.js"></script>
 <script src="../assets/script/vault-ui.js"></script>
+
+<script>applyI18n(getSavedLang());</script>
 
 <script src="../assets/script/grc-checklist.js"></script>
 <script>initGrcChecklist();</script>

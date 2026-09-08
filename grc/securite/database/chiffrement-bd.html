@@ -16,24 +16,24 @@
             <div>Sécurité Base de données</div>
         </div>
         <div class="nav-links">
-            <a href="./index.html">&larr; Retour à Sécurité Base de données</a>
+            <a href="./index.html" data-i18n="grc.common.backToDatabase">&larr; Retour à Sécurité Base de données</a>
         </div>
     </nav>
 </header>
 
 <main>
-    <h1 class="page-title">Chiffrement</h1>
-    <p class="page-subtitle">
+    <h1 class="page-title" data-i18n="grc.securite.database.chiffrement-bd.title">Chiffrement</h1>
+    <p class="page-subtitle" data-i18n="grc.securite.database.chiffrement-bd.subtitle">
         Décrire les mesures de chiffrement appliquées aux données.
     </p>
 
     <section class="content-block">
-        <h2>Éléments à inclure</h2>
+        <h2 data-i18n="grc.common.contentInclude">Éléments à inclure</h2>
         <ul>
-            <li>Chiffrement au repos (TDE) <span class="grc-control-tags">ISO A.8.24 · NIST PR.DS · CIS 3</span></li>
-            <li>Chiffrement en transit (TLS) <span class="grc-control-tags">ISO A.8.24 · NIST PR.DS · CIS 3</span></li>
-            <li>Chiffrement des colonnes sensibles <span class="grc-control-tags">ISO A.8.24 · NIST PR.DS · CIS 3</span></li>
-            <li>Hashing sécurisé (bcrypt, Argon2) <span class="grc-control-tags">ISO A.8.24 · NIST PR.DS · CIS 3</span></li>
+            <li><span data-i18n="grc.securite.database.chiffrement-bd.item1.label">Chiffrement au repos (TDE)</span> <span class="grc-control-tags">ISO A.8.24 · NIST PR.DS · CIS 3</span></li>
+            <li><span data-i18n="grc.securite.database.chiffrement-bd.item2.label">Chiffrement en transit (TLS)</span> <span class="grc-control-tags">ISO A.8.24 · NIST PR.DS · CIS 3</span></li>
+            <li><span data-i18n="grc.securite.database.chiffrement-bd.item3.label">Chiffrement des colonnes sensibles</span> <span class="grc-control-tags">ISO A.8.24 · NIST PR.DS · CIS 3</span></li>
+            <li><span data-i18n="grc.securite.database.chiffrement-bd.item4.label">Hashing sécurisé (bcrypt, Argon2)</span> <span class="grc-control-tags">ISO A.8.24 · NIST PR.DS · CIS 3</span></li>
         </ul>
 
     </section>
@@ -59,6 +59,10 @@
   }
 </script>
 
+<script src="../../../assets/script/i18n.js"></script>
+<script src="../../../assets/script/grc-i18n.js"></script>
+<script src="../../../assets/script/grc-i18n-securite-database.js"></script>
+
 <script src="../../../config/grc-author.js"></script>
 
 <script src="../../../config/encryption.js"></script>
@@ -68,6 +72,8 @@
 
 <script src="../../../assets/script/vault.js"></script>
 <script src="../../../assets/script/vault-ui.js"></script>
+
+<script>applyI18n(getSavedLang());</script>
 
 <script src="../../../assets/script/grc-checklist.js"></script>
 <script>initGrcChecklist();</script>

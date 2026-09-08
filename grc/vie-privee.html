@@ -16,33 +16,33 @@
             <div>GRC Cybersecurity</div>
         </div>
         <div class="nav-links">
-            <a href="./index.html">&larr; Retour au GRC</a>
+            <a href="./index.html" data-i18n="grc.common.backToGrc">&larr; Retour au GRC</a>
         </div>
     </nav>
 </header>
 
 <main>
-    <h1 class="page-title">Gestion de la vie privée</h1>
-    <p class="page-subtitle">
+    <h1 class="page-title" data-i18n="grc.vie-privee.title">Gestion de la vie privée</h1>
+    <p class="page-subtitle" data-i18n="grc.vie-privee.subtitle">
         La protection des renseignements personnels est un complément essentiel à la sécurité de l’information, encadré au Québec par la Loi 25.
     </p>
 
     <section class="content-block">
-        <h2>Pourquoi c’est important</h2>
+        <h2 data-i18n="grc.vie-privee.whyTitle">Pourquoi c’est important</h2>
         <ul>
-            <li>Obligatoire avec la Loi 25 au Québec.</li>
-            <li>Complément essentiel à la sécurité de l’information.</li>
-            <li>Nécessite des processus spécifiques.</li>
+            <li><span data-i18n="grc.vie-privee.why1">Obligatoire avec la Loi 25 au Québec.</span></li>
+            <li><span data-i18n="grc.vie-privee.why2">Complément essentiel à la sécurité de l’information.</span></li>
+            <li><span data-i18n="grc.vie-privee.why3">Nécessite des processus spécifiques.</span></li>
         </ul>
 
-        <h2>Ce que cette section doit contenir</h2>
+        <h2 data-i18n="grc.vie-privee.includeTitle">Ce que cette section doit contenir</h2>
         <ul>
-            <li>Politique de vie privée <span class="grc-control-tags">ISO A.5.34 · NIST GV.PO</span></li>
-            <li>Registre des renseignements personnels <span class="grc-control-tags">ISO A.5.34</span></li>
-            <li>Consentement <span class="grc-control-tags">ISO A.5.34</span></li>
-            <li>Minimisation des données <span class="grc-control-tags">ISO A.5.34 · NIST PR.DS</span></li>
-            <li>DPIA (Privacy Impact Assessment) <span class="grc-control-tags">ISO A.5.34 · NIST ID.RA</span></li>
-            <li>Droits des personnes (accès, rectification, suppression) <span class="grc-control-tags">ISO A.5.34</span></li>
+            <li><span data-i18n="grc.vie-privee.item1">Politique de vie privée</span> <span class="grc-control-tags">ISO A.5.34 · NIST GV.PO</span></li>
+            <li><span data-i18n="grc.vie-privee.item2">Registre des renseignements personnels</span> <span class="grc-control-tags">ISO A.5.34</span></li>
+            <li><span data-i18n="grc.vie-privee.item3">Consentement</span> <span class="grc-control-tags">ISO A.5.34</span></li>
+            <li><span data-i18n="grc.vie-privee.item4">Minimisation des données</span> <span class="grc-control-tags">ISO A.5.34 · NIST PR.DS</span></li>
+            <li><span data-i18n="grc.vie-privee.item5">DPIA (Privacy Impact Assessment)</span> <span class="grc-control-tags">ISO A.5.34 · NIST ID.RA</span></li>
+            <li><span data-i18n="grc.vie-privee.item6">Droits des personnes (accès, rectification, suppression)</span> <span class="grc-control-tags">ISO A.5.34</span></li>
         </ul>
     </section>
 </main>
@@ -67,6 +67,10 @@
   }
 </script>
 
+<script src="../assets/script/i18n.js"></script>
+<script src="../assets/script/grc-i18n.js"></script>
+<script src="../assets/script/grc-i18n-domains.js"></script>
+
 <script src="../config/grc-author.js"></script>
 
 <script src="../config/encryption.js"></script>
@@ -76,6 +80,8 @@
 
 <script src="../assets/script/vault.js"></script>
 <script src="../assets/script/vault-ui.js"></script>
+
+<script>applyI18n(getSavedLang());</script>
 
 <script src="../assets/script/grc-checklist.js"></script>
 <script>initGrcChecklist();</script>

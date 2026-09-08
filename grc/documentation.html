@@ -16,28 +16,28 @@
             <div>GRC Cybersecurity</div>
         </div>
         <div class="nav-links">
-            <a href="./index.html">&larr; Retour au GRC</a>
+            <a href="./index.html" data-i18n="grc.common.backToGrc">&larr; Retour au GRC</a>
         </div>
     </nav>
 </header>
 
 <main>
-    <h1 class="page-title">Gestion documentaire</h1>
-    <p class="page-subtitle">
+    <h1 class="page-title" data-i18n="grc.documentation.title">Gestion documentaire</h1>
+    <p class="page-subtitle" data-i18n="grc.documentation.subtitle">
         Cette section encadre la vie des documents de sécurité.
     </p>
 
     <section class="content-block">
-        <h2>Contenu à inclure</h2>
+        <h2 data-i18n="grc.common.contentInclude">Contenu à inclure</h2>
         <ul>
-            <li><strong>Mise en vigueur</strong> : date, approbation. <span class="grc-control-tags">ISO A.5.1 · NIST GV.PO</span></li>
-            <li><strong>Révision</strong> : fréquence, versioning. <span class="grc-control-tags">ISO A.5.1 · NIST GV.PO</span></li>
-            <li><strong>Archivage</strong> : conservation, accès. <span class="grc-control-tags">ISO A.5.33 · NIST PR.DS</span></li>
-            <li><strong>Références</strong> : normes, lois, documents internes.</li>
+            <li><strong data-i18n="grc.documentation.item1.label">Mise en vigueur</strong> : <span data-i18n="grc.documentation.item1.desc">date, approbation.</span> <span class="grc-control-tags">ISO A.5.1 · NIST GV.PO</span></li>
+            <li><strong data-i18n="grc.documentation.item2.label">Révision</strong> : <span data-i18n="grc.documentation.item2.desc">fréquence, versioning.</span> <span class="grc-control-tags">ISO A.5.1 · NIST GV.PO</span></li>
+            <li><strong data-i18n="grc.documentation.item3.label">Archivage</strong> : <span data-i18n="grc.documentation.item3.desc">conservation, accès.</span> <span class="grc-control-tags">ISO A.5.33 · NIST PR.DS</span></li>
+            <li><strong data-i18n="grc.documentation.item4.label">Références</strong> : <span data-i18n="grc.documentation.item4.desc">normes, lois, documents internes.</span></li>
         </ul>
 
-        <h2>Rôle en GRC</h2>
-        <p>La gestion documentaire assure que les documents sont à jour, accessibles et conformes.</p>
+        <h2 data-i18n="grc.common.roleTitle">Rôle en GRC</h2>
+        <p data-i18n="grc.documentation.role">La gestion documentaire assure que les documents sont à jour, accessibles et conformes.</p>
     </section>
 </main>
 
@@ -61,6 +61,10 @@
   }
 </script>
 
+<script src="../assets/script/i18n.js"></script>
+<script src="../assets/script/grc-i18n.js"></script>
+<script src="../assets/script/grc-i18n-domains.js"></script>
+
 <script src="../config/grc-author.js"></script>
 
 <script src="../config/encryption.js"></script>
@@ -70,6 +74,8 @@
 
 <script src="../assets/script/vault.js"></script>
 <script src="../assets/script/vault-ui.js"></script>
+
+<script>applyI18n(getSavedLang());</script>
 
 <script src="../assets/script/grc-checklist.js"></script>
 <script>initGrcChecklist();</script>

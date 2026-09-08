@@ -16,26 +16,26 @@
             <div>Sécurité Base de données</div>
         </div>
         <div class="nav-links">
-            <a href="./index.html">&larr; Retour à Sécurité Base de données</a>
+            <a href="./index.html" data-i18n="grc.common.backToDatabase">&larr; Retour à Sécurité Base de données</a>
         </div>
     </nav>
 </header>
 
 <main>
-    <h1 class="page-title">Protection contre les attaques BD</h1>
-    <p class="page-subtitle">
+    <h1 class="page-title" data-i18n="grc.securite.database.protection-attaques-bd.title">Protection contre les attaques BD</h1>
+    <p class="page-subtitle" data-i18n="grc.securite.database.protection-attaques-bd.subtitle">
         Décrire les protections mises en place contre les attaques ciblant la base de données.
     </p>
 
     <section class="content-block">
-        <h2>Menaces couvertes</h2>
+        <h2 data-i18n="grc.securite.database.protection-attaques-bd.threatsTitle">Menaces couvertes</h2>
         <ul>
-            <li>SQL Injection</li>
-            <li>NoSQL Injection</li>
-            <li>Privilege escalation</li>
-            <li>Dump non autorisé</li>
-            <li>Exfiltration de données</li>
-            <li>Ransomware</li>
+            <li><span data-i18n="grc.securite.database.protection-attaques-bd.item1.label">SQL Injection</span></li>
+            <li><span data-i18n="grc.securite.database.protection-attaques-bd.item2.label">NoSQL Injection</span></li>
+            <li><span data-i18n="grc.securite.database.protection-attaques-bd.item3.label">Privilege escalation</span></li>
+            <li><span data-i18n="grc.securite.database.protection-attaques-bd.item4.label">Dump non autorisé</span></li>
+            <li><span data-i18n="grc.securite.database.protection-attaques-bd.item5.label">Exfiltration de données</span></li>
+            <li><span data-i18n="grc.securite.database.protection-attaques-bd.item6.label">Ransomware</span></li>
         </ul>
 
     </section>
@@ -61,6 +61,10 @@
   }
 </script>
 
+<script src="../../../assets/script/i18n.js"></script>
+<script src="../../../assets/script/grc-i18n.js"></script>
+<script src="../../../assets/script/grc-i18n-securite-database.js"></script>
+
 <script src="../../../config/grc-author.js"></script>
 
 <script src="../../../config/encryption.js"></script>
@@ -70,6 +74,8 @@
 
 <script src="../../../assets/script/vault.js"></script>
 <script src="../../../assets/script/vault-ui.js"></script>
+
+<script>applyI18n(getSavedLang());</script>
 
 <script src="../../../assets/script/grc-checklist.js"></script>
 <script>initGrcChecklist();</script>
