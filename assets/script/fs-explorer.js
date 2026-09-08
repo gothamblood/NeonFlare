@@ -105,6 +105,42 @@
     { id: "flags", label: "Flags (user/root/flag.txt)", kind: "paths", bookmark: true,
       cmd: "find / -xdev -type f \\( -name user.txt -o -name root.txt -o -name flag.txt \\) 2>/dev/null" },
   ];
+
+  /* windows enumeration presets -- PowerShell, run SYNCHRONOUSLY (one
+     capped command each, no background temp file: these checks are
+     quick, unlike `find /`). `kind:"paths"` results are one full path
+     per line, spaces and all -- clickable + bookmarkable; `kind:"text"`
+     is free output shown as-is. See runWinPreset(). */
+  var PRESETS_WIN = [
+    { id: "priv", label: "whoami /priv", kind: "text", bookmark: false,
+      cmd: "whoami /priv" },
+    { id: "groups", label: "whoami /groups", kind: "text", bookmark: false,
+      cmd: "whoami /groups" },
+    { id: "aie", label: "AlwaysInstallElevated", kind: "text", bookmark: false,
+      cmd: "reg query \"HKLM\\SOFTWARE\\Policies\\Microsoft\\Windows\\Installer\" /v AlwaysInstallElevated 2>&1; " +
+           "reg query \"HKCU\\SOFTWARE\\Policies\\Microsoft\\Windows\\Installer\" /v AlwaysInstallElevated 2>&1" },
+    { id: "creds", label: "Identifiants stockés", kind: "text", bookmark: false,
+      cmd: "cmdkey /list" },
+    { id: "admins", label: "Administrateurs locaux", kind: "text", bookmark: false,
+      cmd: "net localgroup administrators" },
+    { id: "hotfix", label: "Correctifs (Get-HotFix)", kind: "text", bookmark: false,
+      cmd: "Get-HotFix -EA SilentlyContinue | Select-Object -Last 15 HotFixID,Description,InstalledOn | Format-Table -AutoSize | Out-String" },
+    { id: "unquoted", label: "Services : chemin non quoté", kind: "text", bookmark: false,
+      cmd: "Get-CimInstance Win32_Service -EA SilentlyContinue | " +
+           "Where-Object { $_.PathName -and $_.PathName -notmatch '^\\s*\"' -and $_.PathName -match ' ' -and $_.PathName -notmatch '\\.dll' } | " +
+           "Select-Object Name,StartMode,PathName | Format-Table -AutoSize | Out-String" },
+    { id: "flags", label: "Flags (user/root/flag.txt)", kind: "paths", bookmark: true,
+      cmd: "Get-ChildItem C:\\Users,C:\\ -Recurse -Depth 5 -Force -Include user.txt,root.txt,flag.txt -EA SilentlyContinue | " +
+           "Select-Object -First 91 -ExpandProperty FullName" },
+    { id: "writablepath", label: "PATH inscriptible (DLL hijack)", kind: "paths", bookmark: false,
+      cmd: "$env:PATH -split ';' | Where-Object { $_ } | Select-Object -Unique | Where-Object { Test-Path $_ } | " +
+           "Where-Object { try { $f = Join-Path $_ ([guid]::NewGuid().ToString()); Set-Content -Path $f -Value 1 -EA Stop; " +
+           "Remove-Item $f -EA SilentlyContinue; $true } catch { $false } }" },
+    { id: "configs", label: "Fichiers de conf sensibles", kind: "paths", bookmark: true,
+      cmd: "Get-ChildItem C:\\,C:\\Users,C:\\Windows\\Panther,C:\\Windows\\System32\\sysprep -Recurse -Depth 4 -Force " +
+           "-Include unattend.xml,unattend.inf,sysprep.xml,sysprep.inf,web.config,*.kdbx -EA SilentlyContinue | " +
+           "Select-Object -First 91 -ExpandProperty FullName" },
+  ];
   var PRESET_RESULT_CAP = 90;
   var PRESET_POLL_MS = 1500;
   var PRESET_MAX_MS = 180000;
@@ -1108,18 +1144,24 @@
   }
 
   // ------------------------------------------------------------------
-  // Enumeration presets (P2) -- posix
+  // Enumeration presets (P2)
   //
-  // The scan itself can take a minute and its output can be long, both
+  // posix: the scan can take a minute and its output can be long, both
   // of which corrupt a live screen-scrape (see runCapture). So: run the
   // scan in the background writing to a temp file on the target, poll a
   // one-line count while it runs, then fetch the (capped) file once
   // it's done and delete it.
+  // windows: the checks are quick -- one capped command, run
+  // synchronously, no temp file (see runWinPreset).
   // ------------------------------------------------------------------
   function runPreset(preset) {
-    if (!state.pane || state.profile !== "posix") return;
+    if (!state.pane) return;
     if (state.presetRun && !state.presetRun.done) return; // one at a time
+    if (state.profile === "posix") runPosixPreset(preset);
+    else if (state.profile === "windows") runWinPreset(preset);
+  }
 
+  function runPosixPreset(preset) {
     // The scan's temp file is named HERE, client-side, instead of being
     // scraped back from the shell. The kick command is long (nested
     // groups + redirects + the preset's own find/getcap), so once it is
@@ -1272,6 +1314,74 @@
       );
     }
     renderPresetResults();
+  }
+
+  // Windows: one PowerShell command, capped in the command itself, run
+  // straight through -- no temp file / poll / job. `clearFirst` trims
+  // stale pane content the themed prompt's redraw would otherwise fold
+  // into the capture. Path presets keep only real drive/UNC paths, so
+  // any prompt/echo noise that slips past the markers is dropped.
+  function runWinPreset(preset) {
+    var pr = {
+      id: preset.id,
+      label: preset.label,
+      kind: preset.kind,
+      bookmark: preset.bookmark,
+      file: null,
+      pid: null,
+      count: 0,
+      done: false,
+      cancelled: false,
+      results: null,
+      error: null,
+      timedOut: false,
+      winPaths: preset.kind === "paths",
+    };
+    state.presetRun = pr;
+    renderPresetResults();
+
+    run(preset.cmd, { label: "énum : " + preset.label, clearFirst: true, timeoutMs: 60000 }).then(
+      function (res) {
+        if (state.presetRun !== pr || pr.cancelled) return;
+        var lines = (res.output || "").split("\n").map(function (x) {
+          return x.replace(/\s+$/, "");
+        });
+        if (pr.winPaths) {
+          lines = lines.filter(function (x) {
+            return /^[A-Za-z]:[\\/]/.test(x) || x.indexOf("\\\\") === 0;
+          });
+        } else {
+          lines = lines.filter(function (x) {
+            return x.length;
+          });
+        }
+        pr.results = lines;
+        pr.count = lines.length;
+        pr.done = true;
+        if (pr.bookmark) {
+          var added = 0;
+          pr.results.forEach(function (p) {
+            if (addBookmark(p, "preset:" + pr.id)) added++;
+          });
+          if (added) renderBookmarks();
+        }
+        renderPresetResults();
+        renderListing();
+        if (window.systemLog) {
+          window.systemLog.push({
+            source: "fs",
+            text: "énum " + pr.label + " — " + pr.results.length + " résultat(s)",
+            level: "info",
+          });
+        }
+      },
+      function (err) {
+        if (state.presetRun !== pr) return;
+        pr.done = true;
+        pr.error = String((err && err.message) || err);
+        renderPresetResults();
+      }
+    );
   }
 
   // ------------------------------------------------------------------
@@ -1830,7 +1940,9 @@
   function renderPresets() {
     var box = els.presets;
     box.innerHTML = "";
-    if (state.profile !== "posix") {
+    var list =
+      state.profile === "windows" ? PRESETS_WIN : state.profile === "posix" ? PRESETS : null;
+    if (!list) {
       box.hidden = true;
       return;
     }
@@ -1839,7 +1951,7 @@
     lbl.className = "fsx-presets-label";
     lbl.textContent = "Énum :";
     box.appendChild(lbl);
-    PRESETS.forEach(function (p) {
+    list.forEach(function (p) {
       var b = document.createElement("button");
       b.type = "button";
       b.className = "fsx-preset-btn";
@@ -1905,8 +2017,9 @@
     if (!pr.done) {
       var n = document.createElement("div");
       n.className = "fsx-pr-note";
-      n.textContent =
-        "Le scan tourne sur la cible (jusqu'à ~1 min) — sortie dans un fichier temporaire, pas dans le terminal.";
+      n.textContent = pr.file
+        ? "Le scan tourne sur la cible (jusqu'à ~1 min) — sortie dans un fichier temporaire, pas dans le terminal."
+        : "Commande en cours sur la cible…";
       box.appendChild(n);
       return;
     }
@@ -1929,8 +2042,10 @@
     var list = document.createElement("div");
     list.className = "fsx-pr-list";
     pr.results.forEach(function (line) {
-      var p = line.split(/\s+/)[0];
-      var extra = line.slice(p.length).trim();
+      // Windows path results are a whole path per line (spaces and all);
+      // posix ones are "path  extra…" from find/getcap.
+      var p = pr.winPaths ? line.trim() : line.split(/\s+/)[0];
+      var extra = pr.winPaths ? "" : line.slice(p.length).trim();
       var row = document.createElement("div");
       row.className = "fsx-pr-row";
 
