@@ -304,6 +304,13 @@ function findTopologyDropTargetId(clientX, clientY, draggedEl) {
 }
 
 function startTopologyDrag(e) {
+  // A nested custom node sits inside its container node, which carries
+  // its own mousedown->startTopologyDrag handler too (wireCustomTopologyDrag
+  // wires every [data-topo-custom] at any depth). Without this, the
+  // event bubbles up and the ancestor's handler runs a second time,
+  // overwriting `dragging` with the container -- so grabbing a child to
+  // pull it out of a box actually grabs (and moves) the box instead.
+  e.stopPropagation();
   const node = e.currentTarget;
   if (node.dataset.topoCustom === "1") detachTopologyNodeToCanvas(node);
   const canvasRect = canvas.getBoundingClientRect();
@@ -381,6 +388,13 @@ function renderProtectedTopologyBits() {
 // need a fresh pass too since the DOM underneath them was rebuilt.
 function refreshCustomTopologyNodes() {
   renderCustomTopologyNodes();
+  // renderCustomTopologyNodes() rebuilds every custom element from
+  // scratch with no inline position -- a free-floating node relies
+  // entirely on the saved layout for its coords, so reapply it here
+  // just like the initial renderProtectedTopologyBits() pass does.
+  // Without this a node snaps back to .node's default spot the moment
+  // it's dropped, even though its position was just saved.
+  applyTopologyLayout();
   wireCustomTopologyDrag();
   renderCustomTopologyLinks();
   updateAllLinks();

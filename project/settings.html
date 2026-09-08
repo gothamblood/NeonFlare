@@ -146,10 +146,12 @@
     <p style="font-size: 0.8rem; color: #a7b0c7; margin-bottom: 1rem; line-height: 1.5;">
       Un seul fichier JSON avec tous les registres (Réseau, Outils,
       DevSecOps, Website, Topologie, About, Checklist GRC, Actifs, Risques,
-      Incidents, Pentest) -- pratique pour migrer vers un autre navigateur ou faire
-      une sauvegarde avant un "Tout réinitialiser". Le coffre-fort n'est
-      pas concerné : si actif, déverrouille-le d'abord (onglet Sécurité)
-      pour que l'export inclue les registres protégés.
+      Contrôles, Incidents, Pentest), les Dashboards que tu as créés et
+      leurs sections, plus ton nom de traçabilité GRC -- pratique pour
+      migrer vers un autre navigateur ou faire une sauvegarde avant un
+      "Tout réinitialiser". Le coffre-fort n'est pas concerné : si actif,
+      déverrouille-le d'abord (onglet Sécurité) pour que l'export inclue
+      les registres protégés.
     </p>
 
     <button type="button" class="dash-btn dash-btn-block" onclick="settingsExportAllAsJson()">⬇ Exporter toute la configuration</button>
@@ -202,6 +204,10 @@
     <div class="toggle-row">
       <span>Registre de risques</span>
       <button type="button" class="dash-btn" onclick="settingsConfirmReset('le registre de risques', resetGrcRisks)">Réinitialiser</button>
+    </div>
+    <div class="toggle-row">
+      <span>Registre de contrôles</span>
+      <button type="button" class="dash-btn" onclick="settingsConfirmReset('le registre de contrôles', resetGrcControls)">Réinitialiser</button>
     </div>
     <div class="toggle-row">
       <span>Journal d'incidents</span>
@@ -410,6 +416,7 @@
 <script src="../assets/script/grc-checklist.js"></script>
 <script src="../assets/script/grc-assets.js"></script>
 <script src="../assets/script/grc-risks.js"></script>
+<script src="../assets/script/grc-controls.js"></script>
 <script src="../assets/script/grc-incidents.js"></script>
 <script src="../assets/script/grc-pentest.js"></script>
 <script src="../assets/script/network-config.js"></script>
@@ -499,7 +506,7 @@
   // registry (deleting dashboards someone created is a different kind of
   // destructive than clearing config data back to defaults).
   function settingsResetEverything() {
-    if (!confirm("Tout réinitialiser (Réseau, Outils, DevSecOps, Website, Topologie, About, Checklist GRC, Actifs, Risques, Incidents, Pentest) ? Cette action est irréversible et supprime toutes tes personnalisations. Le coffre-fort n'est pas touché.")) return;
+    if (!confirm("Tout réinitialiser (Réseau, Outils, DevSecOps, Website, Topologie, About, Checklist GRC, Actifs, Risques, Contrôles, Incidents, Pentest) ? Cette action est irréversible et supprime toutes tes personnalisations. Le coffre-fort n'est pas touché.")) return;
     resetNetworkNodes();
     resetToolsConfig();
     resetDevSecOpsConfig();
@@ -509,27 +516,37 @@
     resetGrcData(null, () => {});
     resetGrcAssets();
     resetGrcRisks();
+    resetGrcControls();
     resetGrcIncidents();
     resetPentestEngagements();
     alert("Tout a été réinitialisé.");
   }
 
   // Assistant de configuration > Sauvegarde complète -- one JSON file
-  // covering the exact same registries as "Tout réinitialiser" above.
+  // covering every registry a user can add to or edit. It is a superset
+  // of "Tout réinitialiser" above: that flow deliberately spares the
+  // dashboards registry (see settingsResetEverything's comment), but a
+  // BACKUP has no reason to drop it, so dashboards, the GRC controls
+  // registry and the GRC change-log name are all included here too.
   // Assembled from each registry's own existing getters (the same ones
   // that registry's own exportXAsJson() already reads) rather than
   // reading raw localStorage directly, so this stays correct if a
   // registry's own storage shape ever changes -- except the GRC
-  // checklist, which has no single "get everything" getter of its own
-  // (grc-checklist.js's exportGrcAsJson() needs the full 5-hub domain
-  // config just to attach human-readable titles) -- a raw key/value
-  // snapshot of every /grc/checklist-prefixed key is simpler here and
-  // round-trips perfectly since restoring just writes the same keys back.
+  // checklist and the dashboards section-visibility keys, which have no
+  // single "get everything" getter of their own (grc-checklist.js's
+  // exportGrcAsJson() needs the full 5-hub domain config just to attach
+  // human-readable titles; dashboards spreads hidden sections across one
+  // key per dashboard) -- a raw key/value snapshot of every matching
+  // prefix is simpler for those two and round-trips perfectly since
+  // restoring just writes the same keys back.
   function settingsCollectAllConfigData() {
     const grcChecklist = {};
+    const dashboards = {};
     for (let i = 0; i < localStorage.length; i++) {
       const k = localStorage.key(i);
-      if (k && k.indexOf(GRC_CHECKLIST_PREFIX) === 0) grcChecklist[k] = vaultGetItem(k);
+      if (!k) continue;
+      if (k.indexOf(GRC_CHECKLIST_PREFIX) === 0) grcChecklist[k] = vaultGetItem(k);
+      if (k === DASHBOARDS_KEY || k.indexOf("/settings.html/hiddenDashboardSections") === 0) dashboards[k] = localStorage.getItem(k);
     }
     const toolsCommands = {};
     getToolsCategories().forEach((cat) => {
@@ -555,8 +572,11 @@
       grcChecklist,
       grcAssets: getGrcAssets(),
       grcRisks: getGrcRisks(),
+      grcControls: getGrcControls(),
       grcIncidents: getGrcIncidents(),
       pentest: getPentestEngagements(),
+      grcAuthor: localStorage.getItem(GRC_AUTHOR_KEY),
+      dashboards,
     };
   }
 
@@ -586,19 +606,40 @@
     if (Array.isArray(data.website)) saveWebsiteCategories(data.website);
     if (data.about && typeof data.about === "object") saveAboutConfig(data.about);
     if (data.topology) {
-      saveTopologyCustomNodes(Array.isArray(data.topology.customNodes) ? data.topology.customNodes : []);
-      saveTopologyCustomLinks(Array.isArray(data.topology.customLinks) ? data.topology.customLinks : []);
-      vaultSetItem(TOPOLOGY_HIDDEN_SEED_KEY, JSON.stringify(Array.isArray(data.topology.hiddenSeed) ? data.topology.hiddenSeed : []));
-      saveTopologyLayout(data.topology.layout && typeof data.topology.layout === "object" ? data.topology.layout : {});
-      vaultSetItem(TOPOLOGY_TITLE_OVERRIDES_KEY, JSON.stringify(data.topology.titleOverrides && typeof data.topology.titleOverrides === "object" ? data.topology.titleOverrides : {}));
+      // Only overwrite a sub-key that is actually present in the file. A
+      // partial or older backup (one predating layout / titleOverrides)
+      // must not wipe the current values back to empty -- absent means
+      // "leave as-is", not "reset".
+      const t = data.topology;
+      if ("customNodes" in t) saveTopologyCustomNodes(Array.isArray(t.customNodes) ? t.customNodes : []);
+      if ("customLinks" in t) saveTopologyCustomLinks(Array.isArray(t.customLinks) ? t.customLinks : []);
+      if ("hiddenSeed" in t) vaultSetItem(TOPOLOGY_HIDDEN_SEED_KEY, JSON.stringify(Array.isArray(t.hiddenSeed) ? t.hiddenSeed : []));
+      if ("layout" in t) saveTopologyLayout(t.layout && typeof t.layout === "object" ? t.layout : {});
+      if ("titleOverrides" in t) vaultSetItem(TOPOLOGY_TITLE_OVERRIDES_KEY, JSON.stringify(t.titleOverrides && typeof t.titleOverrides === "object" ? t.titleOverrides : {}));
     }
     if (data.grcChecklist && typeof data.grcChecklist === "object") {
       Object.keys(data.grcChecklist).forEach((k) => vaultSetItem(k, data.grcChecklist[k]));
     }
     if (Array.isArray(data.grcAssets)) saveGrcAssets(data.grcAssets);
     if (Array.isArray(data.grcRisks)) saveGrcRisks(data.grcRisks);
+    if (Array.isArray(data.grcControls)) saveGrcControls(data.grcControls);
     if (Array.isArray(data.grcIncidents)) saveGrcIncidents(data.grcIncidents);
     if (Array.isArray(data.pentest)) savePentestEngagements(data.pentest);
+    // Change-log name: an empty string is a legitimate saved value
+    // ("cleared on purpose"), so restore any string, not just truthy.
+    if (typeof data.grcAuthor === "string") localStorage.setItem(GRC_AUTHOR_KEY, data.grcAuthor);
+    // Dashboards registry + one hidden-sections key per dashboard, keyed
+    // by their real localStorage names -- guarded to those two shapes so
+    // a hand-edited file can't write arbitrary keys. notifyDashboardsChanged()
+    // tells index.html's sidebar to re-read the list if we're embedded.
+    if (data.dashboards && typeof data.dashboards === "object") {
+      Object.keys(data.dashboards).forEach((k) => {
+        if (k === DASHBOARDS_KEY || k.indexOf("/settings.html/hiddenDashboardSections") === 0) {
+          localStorage.setItem(k, data.dashboards[k]);
+        }
+      });
+      if (typeof notifyDashboardsChanged === "function") notifyDashboardsChanged();
+    }
   }
 
   function settingsHandleImportAllFile(input) {
