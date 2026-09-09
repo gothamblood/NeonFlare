@@ -214,6 +214,38 @@
       <button type="button" class="dash-btn" onclick="settingsConfirmReset('le journal d\'incidents', resetGrcIncidents)">Réinitialiser</button>
     </div>
     <div class="toggle-row">
+      <span>Registre PCA/PRA</span>
+      <button type="button" class="dash-btn" onclick="settingsConfirmReset('le registre PCA/PRA', resetGrcContinuity)">Réinitialiser</button>
+    </div>
+    <div class="toggle-row">
+      <span>Registre des fournisseurs</span>
+      <button type="button" class="dash-btn" onclick="settingsConfirmReset('le registre des fournisseurs', resetGrcSuppliers)">Réinitialiser</button>
+    </div>
+    <div class="toggle-row">
+      <span>Suivi des vulnérabilités</span>
+      <button type="button" class="dash-btn" onclick="settingsConfirmReset('le suivi des vulnérabilités', resetGrcVulns)">Réinitialiser</button>
+    </div>
+    <div class="toggle-row">
+      <span>Registre vie privée (ROPA + demandes)</span>
+      <button type="button" class="dash-btn" onclick="settingsConfirmReset('le registre vie privée', resetGrcPrivacy)">Réinitialiser</button>
+    </div>
+    <div class="toggle-row">
+      <span>Registre de conformité (obligations + audits)</span>
+      <button type="button" class="dash-btn" onclick="settingsConfirmReset('le registre de conformité', resetGrcCompliance)">Réinitialiser</button>
+    </div>
+    <div class="toggle-row">
+      <span>Recertification des accès (campagnes + JML)</span>
+      <button type="button" class="dash-btn" onclick="settingsConfirmReset('la recertification des accès', resetGrcAccessReviews)">Réinitialiser</button>
+    </div>
+    <div class="toggle-row">
+      <span>Registre d'indicateurs (KPI / KRI)</span>
+      <button type="button" class="dash-btn" onclick="settingsConfirmReset('le registre d\'indicateurs', resetGrcMetrics)">Réinitialiser</button>
+    </div>
+    <div class="toggle-row">
+      <span>Registre documentaire (politiques / directives / procédures)</span>
+      <button type="button" class="dash-btn" onclick="settingsConfirmReset('le registre documentaire', resetGrcDocuments)">Réinitialiser</button>
+    </div>
+    <div class="toggle-row">
       <span>Tracker Pentest (Findings)</span>
       <button type="button" class="dash-btn" onclick="settingsConfirmReset('le tracker de findings pentest', resetPentestEngagements)">Réinitialiser</button>
     </div>
@@ -414,10 +446,19 @@
 <script src="../assets/script/dashboards.js"></script>
 <script src="../assets/script/config-io.js"></script>
 <script src="../assets/script/grc-checklist.js"></script>
+<script src="../assets/script/grc-registry-kit.js"></script>
 <script src="../assets/script/grc-assets.js"></script>
 <script src="../assets/script/grc-risks.js"></script>
 <script src="../assets/script/grc-controls.js"></script>
 <script src="../assets/script/grc-incidents.js"></script>
+<script src="../assets/script/grc-continuity.js"></script>
+<script src="../assets/script/grc-suppliers.js"></script>
+<script src="../assets/script/grc-vulns.js"></script>
+<script src="../assets/script/grc-privacy.js"></script>
+<script src="../assets/script/grc-compliance.js"></script>
+<script src="../assets/script/grc-access-reviews.js"></script>
+<script src="../assets/script/grc-metrics.js"></script>
+<script src="../assets/script/grc-documents.js"></script>
 <script src="../assets/script/grc-pentest.js"></script>
 <script src="../assets/script/network-config.js"></script>
 <script src="../assets/script/tools-config.js"></script>
@@ -518,6 +559,14 @@
     resetGrcRisks();
     resetGrcControls();
     resetGrcIncidents();
+    resetGrcContinuity();
+    resetGrcSuppliers();
+    resetGrcVulns();
+    resetGrcPrivacy();
+    resetGrcCompliance();
+    resetGrcAccessReviews();
+    resetGrcMetrics();
+    resetGrcDocuments();
     resetPentestEngagements();
     alert("Tout a été réinitialisé.");
   }
@@ -574,6 +623,14 @@
       grcRisks: getGrcRisks(),
       grcControls: getGrcControls(),
       grcIncidents: getGrcIncidents(),
+      grcContinuity: getGrcContinuity(),
+      grcSuppliers: getGrcSuppliers(),
+      grcVulns: getGrcVulns(),
+      grcPrivacy: getGrcPrivacy(),
+      grcCompliance: getGrcCompliance(),
+      grcAccessReviews: getGrcAccessReviews(),
+      grcMetrics: getGrcMetrics(),
+      grcDocuments: getGrcDocuments(),
       pentest: getPentestEngagements(),
       grcAuthor: localStorage.getItem(GRC_AUTHOR_KEY),
       dashboards,
@@ -624,6 +681,14 @@
     if (Array.isArray(data.grcRisks)) saveGrcRisks(data.grcRisks);
     if (Array.isArray(data.grcControls)) saveGrcControls(data.grcControls);
     if (Array.isArray(data.grcIncidents)) saveGrcIncidents(data.grcIncidents);
+    if (Array.isArray(data.grcContinuity)) saveGrcContinuity(data.grcContinuity);
+    if (Array.isArray(data.grcSuppliers)) saveGrcSuppliers(data.grcSuppliers);
+    if (Array.isArray(data.grcVulns)) saveGrcVulns(data.grcVulns);
+    if (Array.isArray(data.grcPrivacy)) saveGrcPrivacy(data.grcPrivacy);
+    if (Array.isArray(data.grcCompliance)) saveGrcCompliance(data.grcCompliance);
+    if (Array.isArray(data.grcAccessReviews)) saveGrcAccessReviews(data.grcAccessReviews);
+    if (Array.isArray(data.grcMetrics)) saveGrcMetrics(data.grcMetrics);
+    if (Array.isArray(data.grcDocuments)) saveGrcDocuments(data.grcDocuments);
     if (Array.isArray(data.pentest)) savePentestEngagements(data.pentest);
     // Change-log name: an empty string is a legitimate saved value
     // ("cleared on purpose"), so restore any string, not just truthy.

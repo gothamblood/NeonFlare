@@ -27,6 +27,12 @@
         Les risques liés aux fournisseurs sont un pilier GRC moderne : ils représentent une surface d’attaque majeure et sont encadrés par ISO 27001 (Annexe A.15).
     </p>
 
+    <section class="grc-registry-block">
+        <h2 data-i18n="grc.fournisseurs.reg.title">Registre des fournisseurs</h2>
+        <div id="grcSuppliersSummary"></div>
+        <div id="grcSuppliersRegistry"></div>
+    </section>
+
     <section class="content-block">
         <h2 data-i18n="grc.fournisseurs.whyTitle">Pourquoi c’est important</h2>
         <ul>
@@ -79,6 +85,12 @@
 
 <script src="../assets/script/vault.js"></script>
 <script src="../assets/script/vault-ui.js"></script>
+
+<script src="../assets/script/config-io.js"></script>
+<script src="../assets/script/grc-registry-kit.js"></script>
+<script src="../assets/script/grc-suppliers.js"></script>
+<script src="../assets/script/grc-suppliers-panel.js"></script>
+<script>initGrcSuppliersRegistry();</script>
 
 <script>applyI18n(getSavedLang());</script>
 

@@ -2,7 +2,8 @@
 
 **A self-hostable operations dashboard for security work** — GRC checklists,
 a pentest findings tracker, a tool/command library with click-to-terminal, a
-drag-and-drop network map, and live shell panels, wrapped in a cyberpunk UI.
+drag-and-drop network map, live shell panels, and a filesystem explorer that
+drives them, wrapped in a cyberpunk UI.
 
 It's a **static site**: plain HTML/CSS/JS, no build step, no database. Every
 piece of state you create lives in your browser's `localStorage`; nothing is
@@ -19,14 +20,15 @@ Source code: [github.com/gothamblood/NeonFlare](https://github.com/gothamblood/N
 
 | Area | What it does |
 |---|---|
-| **Dashboard** | Multiple named dashboards, each with its own panel layout (drag/resize), network panel, and **live shell terminals** (ttyd + tmux, see below). "Copy to shell" on any command in the Tools pages types it straight into a terminal. |
+| **Dashboard** | Multiple named dashboards, each with its own panel layout (drag/resize): network panel, **live shell terminals** (ttyd + tmux, see below), and the **filesystem explorer**. "Copy to shell" on any command in the Tools pages types it straight into a terminal. Panels can be hidden per dashboard (`☰ Panneaux`). |
+| **Filesystem explorer** | A dashboard panel ("Explorateur") that drives **one shell pane at a time** — a local shell or a reverse shell you caught in it. Read-only navigation: OS probe, directory listing, breadcrumb, hidden-files toggle, permission grid, text-file preview. Per-target **bookmarks** ("Intéressants"). **Énum presets** — SUID / SGID binaries, capabilities, world-writable dirs, cron, `sudo -l`, `id`/groups, `user.txt`/`root.txt`/`flag.txt` — run on the target; path results are clickable and auto-bookmarked. **GTFOBins / LOLBAS** pills on known privesc binaries. **Amber actions** (chmod, privesc, change target) require a one-time in-app authorisation, then run in the driven pane. Every command it issues is shown verbatim in the panel's own "Journal des commandes" and as a one-liner in the shared System log. Off by default — enable via `☰ Panneaux` or Settings → Sections du Dashboard. |
 | **Linked tabs** | A `🔗 Link` toggle in the dashboard toolbar routes this browser tab's "Shell" actions into *another* open tab — pick commands in one window, run them in the terminal of another. |
-| **GRC** | 58 checklist pages across five hubs — Governance/Risk/Compliance, Network, API, WebApp and Database security — with coverage %, a per-item change-log (timestamp + author), plus asset / risk / incident registers. |
-| **Findings** | A lightweight pentest engagement + findings tracker. |
+| **GRC** | 58 checklist pages across five hubs — Governance/Risk/Compliance, Network, API, WebApp and Database security — with coverage %, a per-item change-log (timestamp + author), plus asset / risk / control / incident registers. Incidents open into an **IR workspace** (interactive timeline, investigation notes / hypotheses / IOCs, tasks kanban, case-file export as JSON + Word/PDF + IOC list). **BCP/DRP register** on the Continuity page: BIA (MTD/RTO/RPO with a consistency alert), dependencies, redundancy, an ordered recovery procedure, a test log, and a full case-file export plus a one-page recovery card. **Vendor register** on the Suppliers page: third-party risk scoring, contract clauses with a contract-expiry alert, certification tracking with expiry badges, an onboarding/offboarding checklist and periodic review, incident cross-links, plus vendor report / one-page sheet / register CSV exports. **Vulnerability tracker** on the Vulnerabilities page: end-to-end lifecycle with a CVSS-derived severity and SLA due date, an SLA-breach alert, a status-change timeline, affected-asset / incident / risk cross-links, a risk-acceptance block with an expiry alert, and severity-sorted Word/PDF report plus register CSV exports. **Privacy register** on the Privacy page (Québec Law 25): a ROPA of processing activities — legal basis, cross-border transfers with a missing-safeguard alert, retention with an expiry alert, a DPIA score (sensitivity × volume × exposure) with a required-not-done alert, periodic review — plus a data-subject-request log with an automatic 30-day deadline and an overdue alert; ROPA Word/CSV, DSR log CSV and one-page acknowledgement exports. **Compliance register** on the Compliance page: obligations (law / standard / contract) with an applicability flag (SoA), a compliance status and a periodic assessment with an overdue alert, plus audits carrying findings — each a non-conformity with a severity, a corrective action with an overdue alert and a verification state; compliance-rate summary, SoA Word/CSV, compliance report and per-audit report exports. **Access-recertification register** on the IAM page: review campaigns with a per-line keep/revoke/reduce decision, a bulk paste-parser, a progress bar, an overdue-deadline alert and a sign-off that requires every line decided and then locks them (re-open logged), plus a JML (joiner/mover/leaver) log with a "leaver not deprovisioned > 7 days" alert; campaign report and lines CSV exports. **Metrics register** on the Metrics page: KPIs/KRIs each with a target, amber/red thresholds and a direction, a measurement series drawn as a vanilla SVG sparkline (target line + threshold bands), a RAG status, a trend vs. the previous measurement and a measurement-overdue alert; the summary is a small RAG dashboard, plus periodic report, definitions CSV, series CSV and JSON exports. **Risk-treatment plan** on the Risk-analysis page: each risk can be given an optional structured plan (100% backward-compatible) — a strategy (avoid/mitigate/transfer/accept) with rationale, an ordered action plan with owners/due-dates and an overdue alert, a residual score (likelihood × impact) with the inherent→residual reduction, linked controls, and a risk-acceptance block (required when the strategy is *accept* or the residual is non-zero) with a review-due alert; a treatment summary above the register plus a treatment CSV export. **Document register** shared across the Procedures / Directives / Documentation / Governance pages (one store, each page filtered by document type): editorial lifecycle (draft → in-review → approved → published → under-revision → retired), a free-form version with a "new version" button that bumps it and appends a version-log entry, an approver (feeding an authority register), a periodic review with an overdue alert, a stale-draft alert (never approved for 90+ days), covered controls and document-to-document relations; the Governance page also shows a read-only authority table (document → approver), plus document-summary Word/CSV, authority-register CSV and JSON exports. |
+| **Findings** | A lightweight pentest engagement + findings tracker, with an explicit mapping to GRC controls. |
 | **Topology** | Drag-and-drop network diagram editor with nestable "container" nodes; layout persists per browser. |
-| **Tools** | Curated command references (recon, web, AD, linux, windows, cloud, k8s, docker, C2, …) with placeholder substitution (`<IP>`, `<wordlist>`), copy-to-clipboard and copy-to-shell. Two "custom" pages for your own commands. |
-| **Settings** | Themes — Standard / Neon Terminal / Blade Runner / Black ICE / **Custom colour picker**; per-page background & particle effects; sidebar page visibility; shell opacity; language (FR / EN); dashboards manager; full config export/import as one JSON file. |
-| **Encryption vault** *(optional)* | Passphrase-derived AES-GCM (WebCrypto) encryption at rest for the Network / Topology / GRC registers. Off by default; the passphrase is never stored. |
+| **Tools** | Curated command references (recon, OSINT, web, AD, lateral movement, post-exploitation, linux, windows, AWS, Azure, Terraform, docker, kubernetes, C2, misc, …) with placeholder substitution (`<IP>`, `<wordlist>`), copy-to-clipboard and copy-to-shell. Two "custom" pages for your own commands. |
+| **Settings** | Themes — Standard / Neon Terminal / Blade Runner / Black ICE / **custom colour picker**; per-page background & particle effects; sidebar page visibility; shell opacity; language (FR / EN); dashboards manager; full config export/import as one JSON file, with per-register reset. |
+| **Encryption vault** *(optional)* | Passphrase-derived AES-GCM (WebCrypto) encryption at rest for the Network / Topology / GRC registers. Off by default; the passphrase is never stored. Locked sections show an unlock gate; reloading re-locks. |
 | **Onboarding** | A short guided tour on first load, re-launchable from Settings. |
 
 ---
@@ -60,33 +62,34 @@ The image is `nginx:alpine` + this folder. `.dockerignore` and the `nginx.conf`
 `nginx.conf` is a complete `server {}` block, ready to drop straight into
 `conf.d/` — or copy the hardening rules out of it (security headers, short
 cache lifetime, internal-file `deny` blocks) into a server block you already
-manage. Either way: it listens on `*:80` with `server_name _;`, a catch-all
-default. If your nginx already has its own default server for port 80 (a
-fresh Debian/Ubuntu install ships one at `sites-enabled/default`), disable
-that one first — two default servers for the same port/address makes
-`nginx -s reload` fail with "duplicate default server".
+manage. It listens on `*:80` with `server_name _;`, a catch-all default; if
+your nginx already has its own default server for port 80 (a fresh
+Debian/Ubuntu install ships one at `sites-enabled/default`), disable that one
+first, or `nginx -s reload` fails with "duplicate default server".
 
 ### IIS
 
-Copy the folder into the site root; `web.config` carries the equivalent
-cache rule, plus `hiddenSegments` rules matching `nginx.conf`'s `deny`
-blocks (`Jenkinsfile`, `nginx.conf`, `scripts/`, dotfiles) — IIS already
-refuses to serve `web.config` itself by default.
+Copy the folder into the site root; `web.config` carries the equivalent cache
+rule, plus `hiddenSegments` rules matching `nginx.conf`'s `deny` blocks
+(`Jenkinsfile`, `nginx.conf`, `scripts/`, dotfiles).
 
 ### CI
 
-[`Jenkinsfile`](Jenkinsfile) is a declarative-pipeline example — build the
-image, push it to a registry, `docker run` it on the build node. Fill in the
-`environment` block (`REGISTRY`, `IMAGE_NAME`, `REGISTRY_CREDENTIALS`,
-`DEPLOY_NAME`, `HOST_PORT`) for your setup.
+[`Jenkinsfile`](Jenkinsfile) is a declarative pipeline: build the image, push
+it to a registry, then `docker rm -f` any previous container and `docker run`
+the fresh image straight on the build node (no Kubernetes for the running
+site). It is wired for this repo's own setup — a Gitea registry and a
+`localrepo` container on port 80; change the `environment` block and the
+container name for yours.
 
 ---
 
 ## Shell terminals (optional backend)
 
-The dashboard's shell panels are [ttyd](https://github.com/tsl0922/ttyd)
-instances wrapped in `tmux`, started by a helper script. They bind to
-**loopback only** and are never exposed by the site itself.
+The dashboard's shell panels — and everything the filesystem explorer does —
+are [ttyd](https://github.com/tsl0922/ttyd) instances wrapped in `tmux`,
+started by a helper script. They bind to **loopback only** and are never
+exposed by the site itself.
 
 ```bash
 # needs: ttyd, tmux  (and zsh / pwsh if you want those shell types)
@@ -105,25 +108,27 @@ scripts/ttyd-shells.sh stop
 ```
 
 Ports: bash `7681+`, zsh `7691+`, PowerShell `7701+` (one per slot). Without
-this running, everything else works — the shell panels just have nothing to
-connect to. tmux is what lets "copy to shell" land in the terminal you're
-actually looking at; see the comments in
-[`assets/script/shells-host.js`](assets/script/shells-host.js).
+this running, everything else works — the shell panels and the explorer just
+have nothing to connect to. tmux is what lets "copy to shell" and the
+explorer's automatic commands land in the terminal you're actually looking
+at; see the comments in
+[`assets/script/shells-host.js`](assets/script/shells-host.js) and
+[`assets/script/fs-explorer.js`](assets/script/fs-explorer.js).
 
 ---
 
 ## Configuration & data
 
 - **`config/*.js`** and **`config/tools/*.js`** are *seed* files — starting
-  values only (mostly just a background image; the network / topology / about
-  seeds ship empty). The moment you change something in the UI, `localStorage`
+  values only. The moment you change something in the UI, `localStorage`
   becomes the single source of truth and the seed file is ignored.
 - Everything you build — dashboards, panel layouts, network nodes, topology,
-  tool commands, GRC answers and notes, findings, theme, language — is
-  **per-browser**, in `localStorage`. Nothing leaves the machine.
-- **Settings → Assistant & réinitialisation** exports/imports the whole lot as
-  a single JSON file (encrypted if the vault is unlocked), and can reset any
-  register individually.
+  tool commands, GRC answers and notes, findings, explorer bookmarks, theme,
+  language — is **per-browser**, in `localStorage`. Nothing leaves the
+  machine.
+- **Settings → Assistant & réinitialisation** exports/imports the whole lot
+  as a single JSON file (encrypted if the vault is unlocked), and can reset
+  any register individually.
 
 ---
 
@@ -131,7 +136,7 @@ actually looking at; see the comments in
 
 ```
 index.html              app shell (sidebar + iframe router; theme/lang sync)
-project/                dashboard, topology, findings, about, settings, neonflare-technology
+project/                dashboard, topology, findings, about, settings, neonflare-technology, dragons
 grc/                    GRC hub + 58 checklist pages (grc/securite/{reseau,api,webapp,database})
 tools/                  command-reference pages
 config/                 seed data (config/tools/ = per-tool background)
@@ -139,6 +144,8 @@ assets/
   css/  script/  images/
   cheatsheet/           extra reference docs linked from tool pages
 scripts/ttyd-shells.sh  starts the ttyd/tmux shell backend
+ProjetTest/             Playwright security-test harness (see PlanDeTestSecurite.txt)
+Video/                  automated screencasts of the app (Playwright, fictional data)
 Dockerfile  nginx.conf  web.config  Jenkinsfile   deployment
 ```
 
@@ -149,8 +156,18 @@ Dockerfile  nginx.conf  web.config  Jenkinsfile   deployment
 - No CSP is set — the app leans on inline `<script>` blocks on nearly every
   page (theme/language boot code). See the comment in `nginx.conf`.
 - The shell backend gives whoever can reach the dashboard a real terminal on
-  the host. Keep the site itself access-controlled if the ttyd helper is
-  running, even though ttyd only listens on loopback.
+  the host, and the filesystem explorer will issue commands into it. Keep the
+  site itself access-controlled whenever the ttyd helper is running, even
+  though ttyd only listens on loopback.
+- The explorer's "amber" actions (chmod, privesc, target change) are the only
+  ones that modify the target; they run only after an explicit one-time
+  in-app authorisation and are always echoed to the Journal.
+- The GRC "register + tabbed panel" domains (Incidents / IR workspace,
+  Continuity BCP/DRP, and the ones being added) share
+  `assets/script/grc-registry-kit.js` — a dependency-free toolkit (schema
+  helper, tabbed panel shell, list widgets, vault-gated JSON/Word/PDF/CSV
+  exports). Loaded before each domain's own script. See
+  `spec/grc-registry-upgrades/`.
 
 ## Disclaimer
 

@@ -27,6 +27,12 @@
         L’IAM encadre la gestion des identités, l’authentification et les droits d’accès à travers l’organisation.
     </p>
 
+    <section class="grc-registry-block">
+        <h2 data-i18n="grc.iam.reg.title">Recertification des accès</h2>
+        <div id="grcIamSummary"></div>
+        <div id="grcIamRegistry"></div>
+    </section>
+
     <section class="content-block">
         <h2 data-i18n="grc.iam.whyTitle">Pourquoi c’est important</h2>
         <ul>
@@ -80,6 +86,12 @@
 
 <script src="../assets/script/vault.js"></script>
 <script src="../assets/script/vault-ui.js"></script>
+
+<script src="../assets/script/config-io.js"></script>
+<script src="../assets/script/grc-registry-kit.js"></script>
+<script src="../assets/script/grc-access-reviews.js"></script>
+<script src="../assets/script/grc-access-reviews-panel.js"></script>
+<script>initGrcIamRegistry();</script>
 
 <script>applyI18n(getSavedLang());</script>
 

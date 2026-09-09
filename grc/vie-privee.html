@@ -27,6 +27,12 @@
         La protection des renseignements personnels est un complément essentiel à la sécurité de l’information, encadré au Québec par la Loi 25.
     </p>
 
+    <section class="grc-registry-block">
+        <h2 data-i18n="grc.vie-privee.reg.title">Registre vie privée</h2>
+        <div id="grcPrivacySummary"></div>
+        <div id="grcPrivacyRegistry"></div>
+    </section>
+
     <section class="content-block">
         <h2 data-i18n="grc.vie-privee.whyTitle">Pourquoi c’est important</h2>
         <ul>
@@ -80,6 +86,12 @@
 
 <script src="../assets/script/vault.js"></script>
 <script src="../assets/script/vault-ui.js"></script>
+
+<script src="../assets/script/config-io.js"></script>
+<script src="../assets/script/grc-registry-kit.js"></script>
+<script src="../assets/script/grc-privacy.js"></script>
+<script src="../assets/script/grc-privacy-panel.js"></script>
+<script>initGrcPrivacyRegistry();</script>
 
 <script>applyI18n(getSavedLang());</script>
 

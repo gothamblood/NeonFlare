@@ -304,11 +304,15 @@ function initGrcRiskRegistry() {
     const li = document.createElement("li");
     li.className = "grc-registry-item" + (risk.id === expandedId ? " open" : "");
 
+    const treated = grcRiskHasTreatment(risk);
     const header = document.createElement("div");
     header.className = "grc-registry-header";
     header.innerHTML =
       `<span>${risk.name}</span>` +
       `<span class="grc-crit-badge ${crit.cls}">${crit.text}</span>` +
+      (treated ? `<span class="grc-rt-badge">${grcT("grc.risques.rt.badge")}</span>` : "") +
+      (treated && grcRiskTreatmentOverdueActions(risk)
+        ? `<span class="grc-sup-mini-badge grc-sup-badge-expired">${grcT("grc.risques.rt.actionsOverdue")}</span>` : "") +
       `<span class="chevron">▸</span>`;
     header.onclick = () => {
       expandedId = expandedId === risk.id ? null : risk.id;
@@ -355,6 +359,28 @@ function initGrcRiskRegistry() {
       };
       body.appendChild(deleteBtn);
 
+      /* --- Plan de traitement (spec/grc-registry-upgrades/70-risk-treatment.md) --- */
+      if (treated && typeof renderRiskTreatmentPanel === "function") {
+        renderRiskTreatmentPanel(body, risk);
+        const dropBtn = document.createElement("button");
+        dropBtn.type = "button";
+        dropBtn.className = "grc-registry-io-btn grc-rt-drop";
+        dropBtn.textContent = grcT("grc.risques.rt.drop");
+        dropBtn.onclick = () => {
+          if (!confirm(grcT("grc.risques.rt.dropConfirm"))) return;
+          grcRiskDropTreatment(risk.id);
+          renderGrcRiskRegistry();
+        };
+        body.appendChild(dropBtn);
+      } else if (!treated) {
+        const startBtn = document.createElement("button");
+        startBtn.type = "button";
+        startBtn.className = "grc-registry-add-btn grc-rt-start";
+        startBtn.textContent = grcT("grc.risques.rt.start");
+        startBtn.onclick = () => { grcRiskStartTreatment(risk.id); renderGrcRiskRegistry(); };
+        body.appendChild(startBtn);
+      }
+
       li.appendChild(body);
     }
 
@@ -387,12 +413,371 @@ function initGrcRiskRegistry() {
     container.querySelector("#riskMatrix").innerHTML = html;
   }
 
+  function renderRiskTreatmentSummary() {
+    const el = document.getElementById("grcRisksTreatmentSummary");
+    if (!el) return;
+    const s = grcRisksTreatmentSummary(getGrcRisks());
+    el.innerHTML = "";
+    if (!s.total) return;
+    const wrap = document.createElement("div");
+    wrap.className = "grc-cont-summary";
+    const chips = document.createElement("div");
+    chips.className = "grc-cont-summary-chips";
+    [
+      grcT("grc.risques.rt.summary.untreated").replace("{n}", s.untreated),
+      grcT("grc.risques.rt.summary.overdueActions").replace("{n}", s.overdueActions),
+      grcT("grc.risques.rt.summary.acceptanceReview").replace("{n}", s.acceptanceReview),
+      grcT("grc.risques.rt.summary.avgReduction").replace("{v}", s.avgReductionPct == null ? "—" : s.avgReductionPct),
+    ].forEach((tx) => {
+      const c = document.createElement("span");
+      c.className = "grc-cont-chip";
+      c.textContent = tx;
+      chips.appendChild(c);
+    });
+    wrap.appendChild(chips);
+    el.appendChild(wrap);
+  }
+
   window.renderGrcRiskRegistry = function () {
     renderMatrix();
     const list = container.querySelector("#riskList");
     list.innerHTML = "";
     getGrcRisks().forEach((risk) => list.appendChild(buildRiskItem(risk)));
+    renderRiskTreatmentSummary();
   };
 
   renderGrcRiskRegistry();
+}
+
+/* ================================================================== *
+ *  Plan de traitement des risques -- EXTENSION de l'objet risque
+ *  (sous-objet OPTIONNEL `risk.treatmentPlan`), exactement comme le
+ *  Mode IR a étendu l'objet incident (`incident.ir`). Rétro-compat :
+ *  un risque sans `treatmentPlan` s'affiche / s'exporte comme avant.
+ *  Voir spec/grc-registry-upgrades/70-risk-treatment.md.
+ *
+ *  NB : `risk.treatment` (string) et `risk.treatmentStrategy` (string)
+ *  sont des champs LEGACY du formulaire -- le nouveau plan structuré
+ *  utilise donc la clé `treatmentPlan` (objet) pour éviter la collision.
+ *
+ *  Nécessite grc-registry-kit.js (grk*) chargé avant ce fichier.
+ * ================================================================== */
+
+const GRC_RT_STRATEGIES = ["avoid", "mitigate", "transfer", "accept"];
+const GRC_RT_ACTION_STATUSES = ["todo", "doing", "done"];
+
+// Map depuis l'ancienne stratégie texte (grc-risks form) si présente.
+const _GRC_RT_LEGACY_STRATEGY = {
+  evitement: "avoid", mitigation: "mitigate", transfert: "transfer", acceptation: "accept",
+};
+
+const GRC_RT_ACTION_SCHEMA = {
+  id: { type: "string" },
+  order: { type: "number", default: 0 },
+  text: { type: "string" },
+  owner: { type: "string" },
+  dueAt: { type: "iso" },
+  status: { type: "string", enum: GRC_RT_ACTION_STATUSES, default: "todo" },
+  doneAt: { type: "iso" },
+};
+
+const GRC_RT_SCHEMA = {
+  schema: { type: "number", default: 1 },
+  strategy: { type: "string", enum: GRC_RT_STRATEGIES, default: "mitigate" },
+  rationale: { type: "string" },
+  actions: { type: "array", sortBy: "order", of: GRC_RT_ACTION_SCHEMA },
+  residual: {
+    type: "object", of: {
+      likelihood: { type: "number", default: null },
+      impact: { type: "number", default: null },
+    },
+  },
+  transferTo: { type: "string" },
+  acceptance: {
+    type: "object", of: {
+      by: { type: "string" },
+      at: { type: "iso" },
+      reason: { type: "string" },
+      reviewAt: { type: "iso" },
+    },
+  },
+  linkedControls: { type: "array" },
+};
+
+function grcRiskHasTreatment(risk) {
+  return !!(risk && risk.treatmentPlan && typeof risk.treatmentPlan === "object");
+}
+
+// Renvoie une COPIE du plan bien formé (ne sauve pas).
+function grcRiskEnsureTreatment(risk) {
+  const src = risk && risk.treatmentPlan && typeof risk.treatmentPlan === "object" ? risk.treatmentPlan : {};
+  const t = grkEnsure(src, GRC_RT_SCHEMA);
+  t.actions.forEach((a, i) => { a.order = i + 1; });
+  return t;
+}
+
+// Crée le plan s'il n'existe pas (seed stratégie depuis le legacy).
+function grcRiskStartTreatment(id) {
+  const risks = getGrcRisks();
+  const idx = risks.findIndex((r) => r && r.id === id);
+  if (idx === -1 || grcRiskHasTreatment(risks[idx])) return false;
+  const seed = _GRC_RT_LEGACY_STRATEGY[risks[idx].treatmentStrategy] || "mitigate";
+  const t = grkEnsure({ strategy: seed }, GRC_RT_SCHEMA);
+  risks[idx] = Object.assign({}, risks[idx], { treatmentPlan: t });
+  saveGrcRisks(risks);
+  return true;
+}
+
+function grcRiskDropTreatment(id) {
+  const risks = getGrcRisks();
+  const idx = risks.findIndex((r) => r && r.id === id);
+  if (idx === -1) return false;
+  const copy = Object.assign({}, risks[idx]);
+  delete copy.treatmentPlan;
+  risks[idx] = copy;
+  saveGrcRisks(risks);
+  return true;
+}
+
+// Mutation atomique du plan (le crée si absent).
+function grcRiskTreatmentMutate(id, fn) {
+  const risks = getGrcRisks();
+  const idx = risks.findIndex((r) => r && r.id === id);
+  if (idx === -1) return null;
+  const t = grcRiskEnsureTreatment(risks[idx]);
+  const out = fn(t);
+  risks[idx] = Object.assign({}, risks[idx], { treatmentPlan: t });
+  saveGrcRisks(risks);
+  return out === undefined ? null : out;
+}
+
+function grcRiskSetStrategy(id, changes) {
+  return grcRiskTreatmentMutate(id, (t) => {
+    if ("strategy" in changes && GRC_RT_STRATEGIES.indexOf(changes.strategy) !== -1) t.strategy = changes.strategy;
+    if ("rationale" in changes && typeof changes.rationale === "string") t.rationale = changes.rationale;
+    if ("transferTo" in changes && typeof changes.transferTo === "string") t.transferTo = changes.transferTo.trim();
+    return true;
+  });
+}
+
+/* ---------- plan d'action (liste ordonnée) --------------- */
+
+function _grcRtReindex(t) { t.actions.forEach((a, i) => { a.order = i + 1; }); }
+
+function grcRiskAddAction(id, action) {
+  return grcRiskTreatmentMutate(id, (t) => {
+    const a = grkEnsure(action || {}, GRC_RT_ACTION_SCHEMA);
+    a.id = grkId("rta");
+    a.order = t.actions.length + 1;
+    t.actions.push(a);
+    _grcRtReindex(t);
+    return a.id;
+  });
+}
+
+function grcRiskUpdateAction(id, actionId, changes) {
+  return grcRiskTreatmentMutate(id, (t) => {
+    const a = t.actions.find((x) => x.id === actionId);
+    if (!a) return false;
+    const n = Object.assign({}, changes);
+    delete n.order;
+    if ("status" in n) {
+      if (GRC_RT_ACTION_STATUSES.indexOf(n.status) === -1) delete n.status;
+      else if (n.status === "done" && !a.doneAt) a.doneAt = new Date().toISOString();
+      else if (n.status !== "done") a.doneAt = null;
+    }
+    if ("dueAt" in n) n.dueAt = grkToIso(n.dueAt);
+    Object.assign(a, n);
+    return true;
+  });
+}
+
+function grcRiskRemoveAction(id, actionId) {
+  return grcRiskTreatmentMutate(id, (t) => {
+    const before = t.actions.length;
+    t.actions = t.actions.filter((x) => x.id !== actionId);
+    _grcRtReindex(t);
+    return t.actions.length < before;
+  });
+}
+
+function grcRiskMoveAction(id, actionId, dir) {
+  return grcRiskTreatmentMutate(id, (t) => {
+    const i = t.actions.findIndex((x) => x.id === actionId);
+    if (i === -1) return false;
+    const j = dir < 0 ? i - 1 : i + 1;
+    if (j < 0 || j >= t.actions.length) return false;
+    const tmp = t.actions[i]; t.actions[i] = t.actions[j]; t.actions[j] = tmp;
+    _grcRtReindex(t);
+    return true;
+  });
+}
+
+/* ---------- résiduel / acceptation / contrôles --------- */
+
+function grcRiskSetResidual(id, patch) {
+  return grcRiskTreatmentMutate(id, (t) => {
+    const p = patch || {};
+    ["likelihood", "impact"].forEach((k) => {
+      if (k in p) {
+        const n = Math.round(Number(p[k]));
+        t.residual[k] = Number.isFinite(n) && n >= 1 && n <= 5 ? n : null;
+      }
+    });
+    return true;
+  });
+}
+
+function grcRiskSetAcceptance(id, patch) {
+  return grcRiskTreatmentMutate(id, (t) => {
+    const a = t.acceptance;
+    const p = patch || {};
+    if ("by" in p && typeof p.by === "string") a.by = p.by.trim();
+    if ("reason" in p && typeof p.reason === "string") a.reason = p.reason;
+    if ("at" in p) a.at = grkToIso(p.at);
+    if ("reviewAt" in p) a.reviewAt = grkToIso(p.reviewAt);
+    return true;
+  });
+}
+
+function grcRiskAddTreatmentControl(id, ref) {
+  return grcRiskTreatmentMutate(id, (t) => {
+    const v = String(ref || "").trim();
+    if (!v || t.linkedControls.indexOf(v) !== -1) return false;
+    t.linkedControls.push(v);
+    return true;
+  });
+}
+
+function grcRiskRemoveTreatmentControl(id, ref) {
+  return grcRiskTreatmentMutate(id, (t) => {
+    const before = t.linkedControls.length;
+    t.linkedControls = t.linkedControls.filter((x) => x !== ref);
+    return t.linkedControls.length < before;
+  });
+}
+
+/* ---------- dérivés ---------------------------------- */
+
+function grcRiskInherentScore(risk) {
+  return (Number(risk && risk.probability) || 1) * (Number(risk && risk.impact) || 1);
+}
+
+// Score résiduel l×i, ou null si l'un des deux manque.
+function grcRiskResidualScore(risk) {
+  const t = grcRiskHasTreatment(risk) ? grcRiskEnsureTreatment(risk) : null;
+  const r = t && t.residual;
+  if (!r || r.likelihood == null || r.impact == null) return null;
+  return r.likelihood * r.impact;
+}
+
+// Réduction inhérent -> résiduel : { from, to, pct } (pct = 0..100), ou null.
+function grcRiskReduction(risk) {
+  const from = grcRiskInherentScore(risk);
+  const to = grcRiskResidualScore(risk);
+  if (to == null || !from) return null;
+  return { from: from, to: to, pct: Math.max(0, Math.round((from - to) / from * 100)) };
+}
+
+function grcRiskActionOverdue(action) {
+  if (!action || action.status === "done" || !action.dueAt) return false;
+  const t = Date.parse(action.dueAt);
+  return !isNaN(t) && t < Date.now();
+}
+
+function grcRiskTreatmentOverdueActions(risk) {
+  if (!grcRiskHasTreatment(risk)) return 0;
+  return grcRiskEnsureTreatment(risk).actions.filter(grcRiskActionOverdue).length;
+}
+
+// Acceptation requise ? (stratégie accept OU résiduel non nul)
+function grcRiskAcceptanceRequired(risk) {
+  if (!grcRiskHasTreatment(risk)) return false;
+  const t = grcRiskEnsureTreatment(risk);
+  if (t.strategy === "accept") return true;
+  const rs = grcRiskResidualScore(risk);
+  return rs != null && rs > 0;
+}
+
+function grcRiskAcceptanceDueForReview(risk) {
+  if (!grcRiskHasTreatment(risk)) return false;
+  const a = grcRiskEnsureTreatment(risk).acceptance;
+  if (!a || !a.reviewAt) return false;
+  const t = Date.parse(a.reviewAt);
+  return !isNaN(t) && t < Date.now();
+}
+
+function grcRisksTreatmentSummary(list) {
+  const arr = Array.isArray(list) ? list : [];
+  const treated = arr.filter(grcRiskHasTreatment);
+  const reductions = treated.map(grcRiskReduction).filter(Boolean);
+  return {
+    total: arr.length,
+    untreated: arr.length - treated.length,
+    overdueActions: treated.reduce((acc, r) => acc + grcRiskTreatmentOverdueActions(r), 0),
+    acceptanceReview: treated.filter(grcRiskAcceptanceDueForReview).length,
+    avgReductionPct: reductions.length
+      ? Math.round(reductions.reduce((acc, x) => acc + x.pct, 0) / reductions.length)
+      : null,
+  };
+}
+
+/* ================================================================== *
+ *  Traitement -- exports (spec 70-risk-treatment.md, T6).
+ *  Le JSON du registre risques (exportGrcRisksAsJson) porte déjà
+ *  `treatmentPlan`. Ci-dessous : un CSV « plan de traitement » et une
+ *  section HTML réutilisable par le rapport GRC du hub.
+ * ================================================================== */
+
+function riskTreatmentReportSection(risk) {
+  if (!grcRiskHasTreatment(risk)) return "";
+  const t = grcRiskEnsureTreatment(risk);
+  const L = (k) => grcT(k);
+  const esc = (typeof grkEscapeHtml === "function") ? grkEscapeHtml : (s) => String(s == null ? "" : s);
+  const red = grcRiskReduction(risk);
+  let h = "<h4>" + L("grc.risques.rt.reportTitle") + "</h4>";
+  h += "<table><tbody>" +
+    "<tr><th>" + L("grc.risques.rt.strategy") + "</th><td>" + esc(L("grc.risques.rt.strat." + t.strategy)) + "</td></tr>" +
+    "<tr><th>" + L("grc.risques.rt.rationale") + "</th><td>" + esc(t.rationale) + "</td></tr>" +
+    (t.strategy === "transfer" ? "<tr><th>" + L("grc.risques.rt.transferTo") + "</th><td>" + esc(t.transferTo) + "</td></tr>" : "") +
+    "<tr><th>" + L("grc.risques.rt.reduction") + "</th><td>" +
+      (red ? esc(red.from + " → " + red.to + " (−" + red.pct + " %)") : "—") + "</td></tr>" +
+    "</tbody></table>";
+  if (t.actions.length) {
+    h += "<ol>" + t.actions.map((a) =>
+      "<li>" + (a.status === "done" ? "<s>" : "") + esc(a.text) + (a.status === "done" ? "</s>" : "") +
+      (a.owner ? " — " + esc(a.owner) : "") +
+      (a.dueAt ? " (" + esc(a.dueAt.slice(0, 10)) + (grcRiskActionOverdue(a) ? " ⚠" : "") + ")" : "") +
+      "</li>").join("") + "</ol>";
+  }
+  if (grcRiskAcceptanceRequired(risk)) {
+    h += "<p><strong>" + L("grc.risques.rt.acceptance") + " :</strong> " +
+      esc((t.acceptance.by || "—") + " — " + (t.acceptance.reason || "") +
+      (t.acceptance.reviewAt ? " (" + L("grc.risques.rt.reviewAt") + " " + t.acceptance.reviewAt.slice(0, 10) +
+        (grcRiskAcceptanceDueForReview(risk) ? " ⚠" : "") + ")" : "")) + "</p>";
+  }
+  return h;
+}
+
+function exportRiskTreatmentCsv(risks) {
+  if (typeof grkExportGated === "function" && grkExportGated()) return;
+  const arr = Array.isArray(risks) ? risks : [risks];
+  const rows = [["risk", "strategy", "inherent", "residual", "reduction_pct",
+    "open_actions", "acceptance_review"]];
+  arr.filter(grcRiskHasTreatment).forEach((r) => {
+    const t = grcRiskEnsureTreatment(r);
+    const red = grcRiskReduction(r);
+    rows.push([
+      r.name, t.strategy,
+      grcRiskInherentScore(r),
+      grcRiskResidualScore(r) == null ? "" : grcRiskResidualScore(r),
+      red ? red.pct : "",
+      t.actions.filter((a) => a.status !== "done").length,
+      grcRiskAcceptanceDueForReview(r) ? "1" : "0",
+    ]);
+  });
+  const stamp = (typeof grkDateStamp === "function") ? grkDateStamp() : new Date().toISOString().slice(0, 10);
+  if (typeof grkExportCsv === "function") {
+    grkExportCsv(rows, "risques-plan-traitement-" + stamp + ".csv");
+  }
 }

@@ -27,6 +27,12 @@
         Cette section encadre la vie des documents de sécurité.
     </p>
 
+
+    <section class="grc-registry-block">
+        <h2 data-i18n="grc.documents.reg.title">Registre documentaire</h2>
+        <div id="grcDocumentsSummary"></div>
+        <div id="grcDocumentsRegistry"></div>
+    </section>
     <section class="content-block">
         <h2 data-i18n="grc.common.contentInclude">Contenu à inclure</h2>
         <ul>
@@ -79,6 +85,13 @@
 
 <script src="../assets/script/grc-checklist.js"></script>
 <script>initGrcChecklist();</script>
+
+
+<script src="../assets/script/config-io.js"></script>
+<script src="../assets/script/grc-registry-kit.js"></script>
+<script src="../assets/script/grc-documents.js"></script>
+<script src="../assets/script/grc-documents-panel.js"></script>
+<script>initGrcDocumentsRegistry({ docTypes: ["policy", "standard", "form", "other"], primaryType: "policy" });</script>
 
 </body>
 </html>

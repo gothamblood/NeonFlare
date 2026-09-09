@@ -27,6 +27,12 @@
         Cette section assure la résilience de l’organisation.
     </p>
 
+    <section class="grc-registry-block">
+        <h2 data-i18n="grc.continuite.pca.registryTitle">Registre PCA/PRA</h2>
+        <div id="grcContinuitySummary"></div>
+        <div id="grcContinuityRegistry"></div>
+    </section>
+
     <section class="content-block">
         <h2 data-i18n="grc.common.contentInclude">Contenu à inclure</h2>
         <ul>
@@ -77,6 +83,12 @@
 
 <script src="../assets/script/vault.js"></script>
 <script src="../assets/script/vault-ui.js"></script>
+
+<script src="../assets/script/config-io.js"></script>
+<script src="../assets/script/grc-registry-kit.js"></script>
+<script src="../assets/script/grc-continuity.js"></script>
+<script src="../assets/script/grc-continuity-panel.js"></script>
+<script>initGrcContinuityRegistry();</script>
 
 <script>applyI18n(getSavedLang());</script>
 
