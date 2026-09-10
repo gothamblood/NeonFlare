@@ -12,8 +12,11 @@
      cap:  "shell" | "file-read" | "file-write",   // default "shell"
      note: "<explication FR, une phrase>"
    }
-   `{bin}` in a command is replaced with the binary's real path by the
-   module before it is pasted into the terminal (never run automatically).
+   `{bin}` in a command is replaced (shell-quoted) with the binary's real
+   path by the module. In the FS Explorer "Actions" panel each command has
+   its own "Exécuter" button that runs it in the driven pane with a
+   trailing Enter (execInPane) -- behind the one-time amber acknowledgement,
+   but it does run, it is not just a paste.
    Multi-step techniques (open a pager, then `!sh`) are given as the
    first command with the follow-up described in `note`. */
 

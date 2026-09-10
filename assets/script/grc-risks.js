@@ -308,7 +308,7 @@ function initGrcRiskRegistry() {
     const header = document.createElement("div");
     header.className = "grc-registry-header";
     header.innerHTML =
-      `<span>${risk.name}</span>` +
+      `<span>${grkEscapeHtml(risk.name)}</span>` +
       `<span class="grc-crit-badge ${crit.cls}">${crit.text}</span>` +
       (treated ? `<span class="grc-rt-badge">${grcT("grc.risques.rt.badge")}</span>` : "") +
       (treated && grcRiskTreatmentOverdueActions(risk)
@@ -330,15 +330,15 @@ function initGrcRiskRegistry() {
         : [];
 
       body.innerHTML =
-        (risk.threat ? `<p>${grcT("grc.risques.detail.threat").replace("{value}", risk.threat)}</p>` : "") +
-        (risk.vulnerability ? `<p>${grcT("grc.risques.detail.vulnerability").replace("{value}", risk.vulnerability)}</p>` : "") +
-        (assetNames.length ? `<p>${grcT("grc.risques.detail.assets").replace("{names}", assetNames.join(", "))}</p>` : "") +
-        `<p>${grcT("grc.risques.detail.probImpact").replace("{p}", risk.probability).replace("{i}", risk.impact).replace("{status}", grcRiskStatusLabel(risk.status))}</p>` +
-        (risk.owner ? `<p>${grcT("grc.risques.detail.owner").replace("{owner}", risk.owner)}</p>` : "") +
-        (risk.reviewDate ? `<p>${grcT("grc.risques.detail.reviewDate").replace("{date}", risk.reviewDate)}</p>` : "") +
+        (risk.threat ? `<p>${grcT("grc.risques.detail.threat").replace("{value}", grkEscapeHtml(risk.threat))}</p>` : "") +
+        (risk.vulnerability ? `<p>${grcT("grc.risques.detail.vulnerability").replace("{value}", grkEscapeHtml(risk.vulnerability))}</p>` : "") +
+        (assetNames.length ? `<p>${grcT("grc.risques.detail.assets").replace("{names}", grkEscapeHtml(assetNames.join(", ")))}</p>` : "") +
+        `<p>${grcT("grc.risques.detail.probImpact").replace("{p}", grkEscapeHtml(risk.probability)).replace("{i}", grkEscapeHtml(risk.impact)).replace("{status}", grcRiskStatusLabel(risk.status))}</p>` +
+        (risk.owner ? `<p>${grcT("grc.risques.detail.owner").replace("{owner}", grkEscapeHtml(risk.owner))}</p>` : "") +
+        (risk.reviewDate ? `<p>${grcT("grc.risques.detail.reviewDate").replace("{date}", grkEscapeHtml(risk.reviewDate))}</p>` : "") +
         (risk.treatmentStrategy ? `<p>${grcT("grc.risques.detail.strategy").replace("{value}", grcRiskTreatmentStrategyLabel(risk.treatmentStrategy))}</p>` : "") +
-        (risk.treatment ? `<p>${grcT("grc.risques.detail.treatment").replace("{value}", risk.treatment)}</p>` : "") +
-        (controllingControls.length ? `<p>${grcT("grc.risques.detail.treatedBy").replace("{names}", controllingControls.join(", "))}</p>` : "");
+        (risk.treatment ? `<p>${grcT("grc.risques.detail.treatment").replace("{value}", grkEscapeHtml(risk.treatment))}</p>` : "") +
+        (controllingControls.length ? `<p>${grcT("grc.risques.detail.treatedBy").replace("{names}", grkEscapeHtml(controllingControls.join(", ")))}</p>` : "");
 
       const editBtn = document.createElement("button");
       editBtn.type = "button";

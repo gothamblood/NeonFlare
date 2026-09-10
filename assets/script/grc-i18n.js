@@ -417,8 +417,14 @@ Object.assign(I18N_DICT, {
   },
   "grc.incidents.ir.synthese.classification": { fr: "Classification", en: "Classification" },
   "grc.incidents.ir.synthese.nistPhase": { fr: "Phase NIST", en: "NIST phase" },
-  "grc.incidents.ir.synthese.playbook": { fr: "Playbook", en: "Playbook" },
-  "grc.incidents.ir.synthese.tlp": { fr: "TLP", en: "TLP" },
+  "grc.incidents.ir.synthese.playbook": {
+    fr: "Playbook (procédure de réponse pré-écrite suivie)",
+    en: "Playbook (pre-written response procedure followed)"
+  },
+  "grc.incidents.ir.synthese.tlp": {
+    fr: "TLP (Traffic Light Protocol — règle de partage : RED/AMBER/GREEN/CLEAR)",
+    en: "TLP (Traffic Light Protocol — sharing rule: RED/AMBER/GREEN/CLEAR)"
+  },
   "grc.incidents.ir.synthese.leadResponder": { fr: "Responsable IR", en: "IR lead" },
   "grc.incidents.ir.synthese.openedAt": { fr: "Ouvert le", en: "Opened on" },
   "grc.incidents.ir.synthese.closedAt": { fr: "Clos le", en: "Closed on" },
@@ -486,7 +492,7 @@ Object.assign(I18N_DICT, {
   "grc.incidents.ir.hyp.open": { fr: "Ouverte", en: "Open" },
   "grc.incidents.ir.hyp.confirmed": { fr: "Confirmée", en: "Confirmed" },
   "grc.incidents.ir.hyp.rejected": { fr: "Écartée", en: "Rejected" },
-  "grc.incidents.ir.inv.iocTitle": { fr: "IOC", en: "IOCs" },
+  "grc.incidents.ir.inv.iocTitle": { fr: "IOC (indicateurs de compromission)", en: "IOCs (indicators of compromise)" },
   "grc.incidents.ir.inv.iocAdd": { fr: "Ajouter", en: "Add" },
   "grc.incidents.ir.inv.iocValue": { fr: "Valeur (IP, hash, domaine…)", en: "Value (IP, hash, domain…)" },
   "grc.incidents.ir.inv.iocNote": { fr: "Note", en: "Note" },
@@ -569,9 +575,30 @@ Object.assign(I18N_DICT, {
   "grc.continuite.pca.form.description": { fr: "Description", en: "Description" },
   "grc.continuite.pca.form.owner": { fr: "Responsable", en: "Owner" },
   "grc.continuite.pca.form.criticality": { fr: "Criticité", en: "Criticality" },
-  "grc.continuite.pca.form.mtd": { fr: "DMIA", en: "MTD" },
-  "grc.continuite.pca.form.rto": { fr: "RTO", en: "RTO" },
-  "grc.continuite.pca.form.rpo": { fr: "RPO", en: "RPO" },
+  "grc.continuite.pca.form.mtd": {
+    fr: "DMIA (durée max. d'interruption admissible)",
+    en: "MTD (maximum tolerable downtime)"
+  },
+  "grc.continuite.pca.form.rto": {
+    fr: "RTO (délai de reprise visé)",
+    en: "RTO (recovery time objective)"
+  },
+  "grc.continuite.pca.form.rpo": {
+    fr: "RPO (perte de données max. tolérée)",
+    en: "RPO (recovery point objective)"
+  },
+  "grc.continuite.pca.form.mtdHint": {
+    fr: "DMIA : au-delà de cette durée d'interruption, l'activité ne s'en remet plus. RTO ≤ DMIA.",
+    en: "MTD: past this outage length, the activity does not recover. RTO ≤ MTD."
+  },
+  "grc.continuite.pca.form.rtoHint": {
+    fr: "RTO : en combien de temps le service doit être rétabli après le sinistre.",
+    en: "RTO: how fast the service must be restored after the disaster."
+  },
+  "grc.continuite.pca.form.rpoHint": {
+    fr: "RPO : quantité de données récentes que l'on accepte de perdre (fixe la fréquence des sauvegardes).",
+    en: "RPO: how much recent data you accept losing (drives backup frequency)."
+  },
 
   "grc.continuite.pca.crit.vital": { fr: "Vital", en: "Vital" },
   "grc.continuite.pca.crit.critique": { fr: "Critique", en: "Critical" },
@@ -883,7 +910,7 @@ Object.assign(I18N_DICT, {
   "grc.vulnerabilites.summary.none": { fr: "Aucune vulnérabilité enregistrée.", en: "No vulnerabilities recorded." },
   "grc.vulnerabilites.summary.open": { fr: "Ouvertes : {value}", en: "Open: {value}" },
   "grc.vulnerabilites.summary.sla": { fr: "{n} SLA dépassé(s)", en: "{n} SLA breached" },
-  "grc.vulnerabilites.summary.mttr": { fr: "MTTR ~ {v} j (90 j)", en: "MTTR ~ {v} d (90 d)" },
+  "grc.vulnerabilites.summary.mttr": { fr: "MTTR ~ {v} j (délai moyen de remédiation, 90 j)", en: "MTTR ~ {v} d (mean time to remediate, 90 d)" },
   "grc.vulnerabilites.summary.accepted": { fr: "{n} acceptée(s)", en: "{n} accepted" },
 
   "grc.vulnerabilites.tab.fiche": { fr: "Fiche", en: "Profile" },
@@ -1315,7 +1342,7 @@ Object.assign(I18N_DICT, {
   "grc.indicateurs.meas.target": { fr: "Cible", en: "Target" },
   "grc.indicateurs.meas.empty": { fr: "Aucune mesure -- ajoute la première.", en: "No measurement -- add the first one." },
 
-  "grc.indicateurs.ana.rag": { fr: "Statut RAG : {value}", en: "RAG status: {value}" },
+  "grc.indicateurs.ana.rag": { fr: "Statut RAG (rouge / ambre / vert) : {value}", en: "RAG status (red / amber / green): {value}" },
   "grc.indicateurs.ana.explainGreen": { fr: "{value} respecte la cible ({dir}).", en: "{value} meets the target ({dir})." },
   "grc.indicateurs.ana.explainAmber": { fr: "{value} entre le seuil ambre et le seuil rouge ({dir}).", en: "{value} between the amber and red thresholds ({dir})." },
   "grc.indicateurs.ana.explainRed": { fr: "{value} au-delà du seuil rouge ({dir}).", en: "{value} past the red threshold ({dir})." },

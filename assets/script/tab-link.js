@@ -328,6 +328,13 @@
   window.addEventListener("message", function (e) {
     var d = e && e.data;
     if (!d) return;
+    // Only our own top-level tab may drive the link state: our own window,
+    // or a frame nested inside it (dashboard.html posts up to window.top).
+    // A separate tab/popup that grabbed a handle to us has its own .top
+    // and is dropped -- otherwise it could flip the link target and
+    // reroute "copy to shell" (Sweep3 §5.1). e.origin is useless here:
+    // under file:// every page reports "null".
+    if (!e.source || (e.source !== window && e.source.top !== window)) return;
     if (d.type === "tablink-query") {
       try { if (e.source) e.source.postMessage(stateMsg(), "*"); } catch (err) {}
       return;

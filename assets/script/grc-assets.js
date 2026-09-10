@@ -299,7 +299,7 @@ function initGrcAssetRegistry() {
     const header = document.createElement("div");
     header.className = "grc-registry-header";
     header.innerHTML =
-      `<span>${asset.name} — ${grcAssetTypeLabel(asset.type)}</span>` +
+      `<span>${grkEscapeHtml(asset.name)} — ${grcAssetTypeLabel(asset.type)}</span>` +
       `<span class="grc-crit-badge ${crit.cls}">${crit.text}</span>` +
       `<span class="chevron">▸</span>`;
     header.onclick = () => {
@@ -320,11 +320,11 @@ function initGrcAssetRegistry() {
       const roleLabel = asset.role === "support" ? grcT("grc.actifs.form.roleSupport") : grcT("grc.actifs.form.rolePrimary");
 
       body.innerHTML =
-        `<p>${grcT("grc.actifs.detail.cia").replace("{c}", asset.c).replace("{i}", asset.i).replace("{a}", asset.a).replace("{role}", roleLabel)}</p>` +
-        (asset.owner ? `<p>${grcT("grc.actifs.detail.owner").replace("{owner}", asset.owner)}</p>` : "") +
-        (asset.nextReviewDate ? `<p>${grcT("grc.actifs.detail.nextReview").replace("{date}", asset.nextReviewDate)}</p>` : "") +
-        (deps.length ? `<p>${grcT("grc.actifs.detail.dependsOn").replace("{names}", deps.join(", "))}</p>` : "") +
-        (asset.notes ? `<p>${asset.notes}</p>` : "");
+        `<p>${grcT("grc.actifs.detail.cia").replace("{c}", grkEscapeHtml(asset.c)).replace("{i}", grkEscapeHtml(asset.i)).replace("{a}", grkEscapeHtml(asset.a)).replace("{role}", roleLabel)}</p>` +
+        (asset.owner ? `<p>${grcT("grc.actifs.detail.owner").replace("{owner}", grkEscapeHtml(asset.owner))}</p>` : "") +
+        (asset.nextReviewDate ? `<p>${grcT("grc.actifs.detail.nextReview").replace("{date}", grkEscapeHtml(asset.nextReviewDate))}</p>` : "") +
+        (deps.length ? `<p>${grcT("grc.actifs.detail.dependsOn").replace("{names}", grkEscapeHtml(deps.join(", ")))}</p>` : "") +
+        (asset.notes ? `<p>${grkEscapeHtml(asset.notes)}</p>` : "");
 
       const editBtn = document.createElement("button");
       editBtn.type = "button";

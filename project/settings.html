@@ -675,7 +675,14 @@
       if ("titleOverrides" in t) vaultSetItem(TOPOLOGY_TITLE_OVERRIDES_KEY, JSON.stringify(t.titleOverrides && typeof t.titleOverrides === "object" ? t.titleOverrides : {}));
     }
     if (data.grcChecklist && typeof data.grcChecklist === "object") {
-      Object.keys(data.grcChecklist).forEach((k) => vaultSetItem(k, data.grcChecklist[k]));
+      // Only restore keys under the checklist prefix -- an imported file
+      // must not be able to write arbitrary localStorage keys through
+      // this block (Sweep3 §2.1), same guard as the dashboards block below.
+      Object.keys(data.grcChecklist).forEach((k) => {
+        if (typeof k === "string" && k.indexOf(GRC_CHECKLIST_PREFIX) === 0) {
+          vaultSetItem(k, data.grcChecklist[k]);
+        }
+      });
     }
     if (Array.isArray(data.grcAssets)) saveGrcAssets(data.grcAssets);
     if (Array.isArray(data.grcRisks)) saveGrcRisks(data.grcRisks);

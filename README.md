@@ -33,6 +33,34 @@ Source code: [github.com/gothamblood/NeonFlare](https://github.com/gothamblood/N
 
 ---
 
+## Architecture
+
+Everything runs in the browser. There is no backend and no account — every
+register is read from and written to a **single browser's `localStorage`**, and
+the site works opened straight from disk (`file://`).
+
+```
+BROWSER                                  │ loopback 127.0.0.1  │  HOST MACHINE
+  index.html  (shell, postMessage)       │                     │  (shell bridge — optional)
+  Dashboard ─── iframe (HTTP) ───────┐   │  shell-proxy.py      │   scripts/ttyd-shells.sh
+  FS Explorer / "copy to shell" ─────┼───┼─▶ 127.0.0.1:768x ────┼──▶  ttyd ×N  (private UNIX socket)
+        (short WebSocket)            │   │  ?session=<token>    │      → tmux  (shared session / slot)
+  config/shell-session.js  (token)  ─┘   │  or 403              │      → bash · zsh · pwsh
+  localStorage (config, checklists, log) │                     │
+  encrypted vault (opt-in, AES-GCM)      │                     │
+served from file://  or  nginx / Docker  │                     │
+```
+
+The shell bridge is started by `scripts/ttyd-shells.sh` and is entirely
+optional. Each `ttyd` runs on a private UNIX socket; `scripts/shell-proxy.py`
+publishes `127.0.0.1:768x` in its place and only forwards a request that
+carries the session token minted at `start` (the Dashboard adds it from the
+generated `config/shell-session.js`) — a page in another tab has no token and
+gets a `403`. The token is revoked at `stop`. Still, prefer a dedicated
+browser profile and stop the shells when done.
+
+---
+
 ## Running it
 
 ### Locally (no server)
@@ -88,11 +116,13 @@ container name for yours.
 
 The dashboard's shell panels — and everything the filesystem explorer does —
 are [ttyd](https://github.com/tsl0922/ttyd) instances wrapped in `tmux`,
-started by a helper script. They bind to **loopback only** and are never
-exposed by the site itself.
+started by a helper script. Each `ttyd` runs on a **private UNIX socket**;
+`scripts/shell-proxy.py` (also started by the helper) publishes
+`127.0.0.1:768x` and only forwards requests carrying the session token minted
+at `start` — see the Architecture section above.
 
 ```bash
-# needs: ttyd, tmux  (and zsh / pwsh if you want those shell types)
+# needs: ttyd, tmux, python3  (and zsh / pwsh if you want those shell types)
 
 # Debian / Ubuntu / Kali
 sudo apt install tmux
@@ -107,9 +137,9 @@ scripts/ttyd-shells.sh status
 scripts/ttyd-shells.sh stop
 ```
 
-Ports: bash `7681+`, zsh `7691+`, PowerShell `7701+` (one per slot). Without
-this running, everything else works — the shell panels and the explorer just
-have nothing to connect to. tmux is what lets "copy to shell" and the
+Ports (the proxy's): bash `7681+`, zsh `7691+`, PowerShell `7701+` (one per
+slot). Without this running, everything else works — the shell panels and the
+explorer just have nothing to connect to. tmux is what lets "copy to shell" and the
 explorer's automatic commands land in the terminal you're actually looking
 at; see the comments in
 [`assets/script/shells-host.js`](assets/script/shells-host.js) and
@@ -143,9 +173,7 @@ config/                 seed data (config/tools/ = per-tool background)
 assets/
   css/  script/  images/
   cheatsheet/           extra reference docs linked from tool pages
-scripts/ttyd-shells.sh  starts the ttyd/tmux shell backend
-ProjetTest/             Playwright security-test harness (see PlanDeTestSecurite.txt)
-Video/                  automated screencasts of the app (Playwright, fictional data)
+scripts/                ttyd-shells.sh (ttyd/tmux shell backend) + shell-proxy.py (token gate)
 Dockerfile  nginx.conf  web.config  Jenkinsfile   deployment
 ```
 
@@ -158,7 +186,13 @@ Dockerfile  nginx.conf  web.config  Jenkinsfile   deployment
 - The shell backend gives whoever can reach the dashboard a real terminal on
   the host, and the filesystem explorer will issue commands into it. Keep the
   site itself access-controlled whenever the ttyd helper is running, even
-  though ttyd only listens on loopback.
+  though ttyd only listens on loopback. Loopback is not a boundary against
+  other software on the same machine: `ttyd` runs writable with no
+  credential and no origin check, so **any page open in the same browser
+  can reach `127.0.0.1:768x` and drive a shell** while one is running. Until
+  that is fixed at the root, run the shells only during hands-on-keyboard
+  work (`scripts/ttyd-shells.sh stop` as soon as you're done) and ideally
+  from a browser profile dedicated to this tool.
 - The explorer's "amber" actions (chmod, privesc, target change) are the only
   ones that modify the target; they run only after an explicit one-time
   in-app authorisation and are always echoed to the Journal.

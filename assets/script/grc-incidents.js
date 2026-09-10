@@ -616,7 +616,7 @@ function initGrcIncidentRegistry() {
     const header = document.createElement("div");
     header.className = "grc-registry-header";
     header.innerHTML =
-      `<span>${incident.title} — ${grcIncidentStatusLabel(incident.status)}</span>` +
+      `<span>${grkEscapeHtml(incident.title)} — ${grcIncidentStatusLabel(incident.status)}</span>` +
       (irActive ? `<span class="grc-ir-badge">${grcT("grc.incidents.ir.badge")}</span>` : "") +
       `<span class="grc-crit-badge ${sev.cls}">${sev.text}</span>` +
       `<span class="chevron">▸</span>`;
@@ -666,13 +666,13 @@ function initGrcIncidentRegistry() {
       const duration = grcIncidentResolutionDuration(incident);
 
       body.innerHTML =
-        (incident.description ? `<p>${incident.description}</p>` : "") +
-        (incident.detectedAt ? `<p>${grcT("grc.incidents.detail.detectedAt").replace("{value}", incident.detectedAt.replace("T", " "))}</p>` : "") +
-        (incident.respondedAt ? `<p>${grcT("grc.incidents.detail.respondedAt").replace("{value}", incident.respondedAt.replace("T", " "))}</p>` : "") +
-        (incident.resolvedAt ? `<p>${grcT("grc.incidents.detail.resolvedAt").replace("{value}", incident.resolvedAt.replace("T", " "))}</p>` : "") +
+        (incident.description ? `<p>${grkEscapeHtml(incident.description)}</p>` : "") +
+        (incident.detectedAt ? `<p>${grcT("grc.incidents.detail.detectedAt").replace("{value}", grkEscapeHtml(incident.detectedAt.replace("T", " ")))}</p>` : "") +
+        (incident.respondedAt ? `<p>${grcT("grc.incidents.detail.respondedAt").replace("{value}", grkEscapeHtml(incident.respondedAt.replace("T", " ")))}</p>` : "") +
+        (incident.resolvedAt ? `<p>${grcT("grc.incidents.detail.resolvedAt").replace("{value}", grkEscapeHtml(incident.resolvedAt.replace("T", " ")))}</p>` : "") +
         (duration ? `<p>${grcT("grc.incidents.detail.duration").replace("{value}", duration)}</p>` : "") +
-        (incident.owner ? `<p>${grcT("grc.incidents.detail.owner").replace("{value}", incident.owner)}</p>` : "") +
-        (incident.postmortem ? `<p>${grcT("grc.incidents.detail.postmortem").replace("{value}", incident.postmortem)}</p>` : "");
+        (incident.owner ? `<p>${grcT("grc.incidents.detail.owner").replace("{value}", grkEscapeHtml(incident.owner))}</p>` : "") +
+        (incident.postmortem ? `<p>${grcT("grc.incidents.detail.postmortem").replace("{value}", grkEscapeHtml(incident.postmortem))}</p>` : "");
 
       const editBtn = document.createElement("button");
       editBtn.type = "button";

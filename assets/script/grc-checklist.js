@@ -643,10 +643,12 @@ async function saveGrcAsJson(sections, filenamePrefix) {
 }
 
 function grcEscapeHtml(s) {
-  return String(s)
+  return String(s == null ? "" : s)
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
 /* Shared by the Word and PDF exports -- a self-contained HTML report,

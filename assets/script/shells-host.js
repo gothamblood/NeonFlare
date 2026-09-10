@@ -36,6 +36,29 @@ function anyShellActive() {
   return Object.values(activeShells).some((set) => set.size > 0);
 }
 
+/* Re-reads config/shell-session.js so window.shellSession reflects the
+   token currently on disk -- scripts/ttyd-shells.sh rewrites that file on
+   every start/stop, and a page loaded before (or across) a restart would
+   otherwise keep a stale or empty token and get 403'd by the proxy.
+   Cache-busted so it actually re-fetches under file:// too. Always calls
+   back (even on error -- we fall back to whatever is already loaded). */
+let _shellSessionPath = null;
+function refreshShellSession(cb) {
+  if (_shellSessionPath === null) {
+    const self = [...document.scripts].find((s) => /\/shells-host\.js(\?|$)/.test(s.src));
+    _shellSessionPath = self
+      ? self.src.replace(/assets\/script\/shells-host\.js.*$/, "config/shell-session.js")
+      : "config/shell-session.js";
+  }
+  const s = document.createElement("script");
+  s.src = _shellSessionPath + (_shellSessionPath.includes("?") ? "&" : "?") + "_=" + Date.now();
+  s.onload = s.onerror = () => {
+    s.remove();
+    try { cb(); } catch (e) {}
+  };
+  document.head.appendChild(s);
+}
+
 /* Calls back once el's box has stopped changing size for a beat.
    Adding a *second* shell-window to the overlay (a flex row, see
    shells-overlay.css) reflows the row -- the new one doesn't get its
@@ -185,13 +208,23 @@ function addShell(type, wantedSlot, savedTitle) {
 
   const iframe = document.createElement("iframe");
   iframe.className = "shell-iframe";
-  iframe.src = "http://127.0.0.1:" + port + "/";
   iframe.title = spec.label + " " + slot;
 
   win.appendChild(header);
   win.appendChild(iframe);
   win.style.opacity = getShellOpacity();
   overlayHost.appendChild(win);
+
+  // config/shell-session.js carries the session token that the proxy in
+  // front of ttyd checks (?session=...). It's baked in at page load, so a
+  // dashboard that was already open when `scripts/ttyd-shells.sh start`
+  // (or stop+start, which mints a NEW token) ran still holds a stale or
+  // empty value -- the iframe would then 403. Pull a fresh copy right
+  // before pointing the iframe at ttyd.
+  refreshShellSession(() => {
+    iframe.src = (window.shellSession && window.shellSession.iframeSrc(port)) ||
+      ("http://127.0.0.1:" + port + "/");
+  });
 
   notifyDashboard();
   persistOpenShells();
@@ -277,12 +310,14 @@ function listShells() {
    would (editable, cursor at the end) -- it's still up to whoever's
    at the keyboard to look it over and press Enter themselves.
 
-   AuthToken is normally fetched from GET /token, but that's a plain
-   cross-origin request ttyd answers with no CORS headers at all, so
-   the browser blocks reading
-   the response here; hardcoding "" instead is fine only because
-   scripts/ttyd-shells.sh never passes ttyd -c/--credential, which is
-   the one thing that makes /token return anything else.
+   Every ttyd port now sits behind the local token proxy
+   (scripts/shell-proxy.py): the URL carries ?session=<token> (from the
+   generated config/shell-session.js) so the proxy lets the upgrade
+   through, and it starts ttyd with `-c dashboard:<token>`, so the first
+   message's AuthToken has to be base64("dashboard:"+token) --
+   shellSession.wsAuthToken() returns exactly that. GET /token is still
+   a no-CORS cross-origin read we can't use from here; the closure hands
+   us the value directly instead.
 
    Sending the input frame right after open() (as this used to do)
    loses a race: ttyd hasn't spawned the tmux/shell process yet at
@@ -318,7 +353,9 @@ function pasteIntoShell(type, slot, text) {
   if (!spec) return;
   const port = spec.basePort + slot - 1;
 
-  const ws = new WebSocket("ws://127.0.0.1:" + port + "/ws", ["tty"]);
+  const wsUrl = (window.shellSession && window.shellSession.wsUrl(port)) ||
+    ("ws://127.0.0.1:" + port + "/ws");
+  const ws = new WebSocket(wsUrl, ["tty"]);
   ws.binaryType = "arraybuffer";
   // \x15 (Ctrl-U) first: bash/zsh/PowerShell all bind it to "clear back
   // to start of line" by default. Without it, a paste lands wherever the
@@ -352,7 +389,8 @@ function pasteIntoShell(type, slot, text) {
     // positions itself with cursor moves sized for that wider layout,
     // so redrawn at the real (narrower) width it visibly split/doubled
     // up. 1x1 can't be the largest of anything.
-    ws.send(JSON.stringify({ AuthToken: "", columns: 1, rows: 1 }));
+    const authToken = (window.shellSession && window.shellSession.wsAuthToken()) || "";
+    ws.send(JSON.stringify({ AuthToken: authToken, columns: 1, rows: 1 }));
   });
   // The very first '0' (real PTY output) message isn't necessarily the
   // *whole* prompt: fancier themes (see the two-line box-drawing one
@@ -512,6 +550,18 @@ function initShellsHost() {
 
   window.addEventListener("message", (e) => {
     if (!e.data) return;
+
+    // Only act on messages from this same top-level tab: our own window
+    // (tab-link.js relays a cross-tab request by re-posting to itself),
+    // or a frame nested somewhere inside #frame (dashboard.html, the
+    // tools/*.html pages two levels down, fs-explorer.js). A separate
+    // tab or popup that grabbed a handle to us via window.open() has
+    // its own .top and is dropped here -- otherwise it could drive the
+    // shells (shell-copy-request -> pasteIntoShell, shell-request-add).
+    // e.origin is useless for this: under file:// (the primary usage
+    // mode) every page, attacker's included, reports "null".
+    // See PlanDeTestSecurite-ShellBridge.txt 0.2.
+    if (!e.source || (e.source !== window && e.source.top !== window)) return;
 
     if (e.data.type === "shell-copy-request") {
       // Sent directly by a tools/*.html page nested two levels down

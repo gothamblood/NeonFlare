@@ -162,7 +162,10 @@ Object.assign(I18N_DICT, {
   "grc.continuite.item2.label": { fr: "Sinistres couverts", en: "Covered disasters" },
   "grc.continuite.item2.desc": { fr: "panne, cyberattaque, incendie, etc.", en: "outage, cyberattack, fire, etc." },
   "grc.continuite.item3.label": { fr: "Sauvegardes", en: "Backups" },
-  "grc.continuite.item3.desc": { fr: "RPO, RTO.", en: "RPO, RTO." },
+  "grc.continuite.item3.desc": {
+    fr: "RPO (perte de données max. tolérée — fixe la fréquence des sauvegardes), RTO (délai de reprise visé). Les deux restent ≤ DMIA (durée d'interruption au-delà de laquelle l'activité ne s'en remet plus).",
+    en: "RPO (max acceptable data loss — sets backup frequency), RTO (target recovery time). Both stay ≤ MTD (outage length beyond which the activity does not recover)."
+  },
   "grc.continuite.item4.label": { fr: "Redondance", en: "Redundancy" },
   "grc.continuite.item4.desc": { fr: "systèmes, réseaux, sites.", en: "systems, networks, sites." },
   "grc.continuite.item5.label": { fr: "Reprise", en: "Recovery" },

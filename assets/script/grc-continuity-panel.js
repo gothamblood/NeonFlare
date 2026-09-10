@@ -155,10 +155,24 @@ function _contRenderSynthese(root, plan) {
   const biaGrid = document.createElement("div");
   biaGrid.className = "grc-ir-formgrid";
   const setBia = (patch) => { grcContSetBia(id, patch); _contRefresh(root); };
-  biaGrid.appendChild(_contDurField(grcT("grc.continuite.pca.form.mtd"), plan.bia.mtdMin, (m) => setBia({ mtdMin: m })));
-  biaGrid.appendChild(_contDurField(grcT("grc.continuite.pca.form.rto"), plan.bia.rtoMin, (m) => setBia({ rtoMin: m })));
-  biaGrid.appendChild(_contDurField(grcT("grc.continuite.pca.form.rpo"), plan.bia.rpoMin, (m) => setBia({ rpoMin: m })));
+  const mtdF = _contDurField(grcT("grc.continuite.pca.form.mtd"), plan.bia.mtdMin, (m) => setBia({ mtdMin: m }));
+  const rtoF = _contDurField(grcT("grc.continuite.pca.form.rto"), plan.bia.rtoMin, (m) => setBia({ rtoMin: m }));
+  const rpoF = _contDurField(grcT("grc.continuite.pca.form.rpo"), plan.bia.rpoMin, (m) => setBia({ rpoMin: m }));
+  mtdF.title = grcT("grc.continuite.pca.form.mtdHint");
+  rtoF.title = grcT("grc.continuite.pca.form.rtoHint");
+  rpoF.title = grcT("grc.continuite.pca.form.rpoHint");
+  biaGrid.appendChild(mtdF);
+  biaGrid.appendChild(rtoF);
+  biaGrid.appendChild(rpoF);
   biaSec.appendChild(biaGrid);
+
+  const biaHint = document.createElement("p");
+  biaHint.className = "grc-ir-hint";
+  biaHint.textContent =
+    grcT("grc.continuite.pca.form.mtdHint") + " " +
+    grcT("grc.continuite.pca.form.rtoHint") + " " +
+    grcT("grc.continuite.pca.form.rpoHint");
+  biaSec.appendChild(biaHint);
 
   if (grcContRtoGap(plan) != null) {
     const warn = document.createElement("p");

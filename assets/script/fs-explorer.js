@@ -482,7 +482,9 @@
       }, timeoutMs);
 
       try {
-        ws = new WebSocket("ws://127.0.0.1:" + port + "/ws", ["tty"]);
+        ws = new WebSocket(
+          (window.shellSession && window.shellSession.wsUrl(port)) ||
+          ("ws://127.0.0.1:" + port + "/ws"), ["tty"]);
       } catch (e) {
         finish(null, e);
         return;
@@ -519,7 +521,10 @@
       }
 
       ws.addEventListener("open", function () {
-        ws.send(JSON.stringify({ AuthToken: "", columns: CAP_COLS, rows: CAP_ROWS }));
+        ws.send(JSON.stringify({
+          AuthToken: (window.shellSession && window.shellSession.wsAuthToken()) || "",
+          columns: CAP_COLS, rows: CAP_ROWS
+        }));
         // Fallback: tmux normally paints the screen on attach, but if it
         // doesn't we'd never arm the settle timer from a message.
         settleTimer = setTimeout(onSettle, T.openFallbackMs);
@@ -1472,14 +1477,19 @@
     }
 
     try {
-      ws = new WebSocket("ws://127.0.0.1:" + port + "/ws", ["tty"]);
+      ws = new WebSocket(
+        (window.shellSession && window.shellSession.wsUrl(port)) ||
+        ("ws://127.0.0.1:" + port + "/ws"), ["tty"]);
     } catch (e) {
       finish();
       return;
     }
     ws.binaryType = "arraybuffer";
     ws.addEventListener("open", function () {
-      ws.send(JSON.stringify({ AuthToken: "", columns: CAP_COLS, rows: CAP_ROWS }));
+      ws.send(JSON.stringify({
+        AuthToken: (window.shellSession && window.shellSession.wsAuthToken()) || "",
+        columns: CAP_COLS, rows: CAP_ROWS
+      }));
       settle = setTimeout(fire, 800);
     });
     ws.addEventListener("message", function (ev) {
@@ -2237,7 +2247,14 @@
         bh.textContent = b[0];
         bl.appendChild(bh);
         b[1].forEach(function (raw) {
-          var cmd = raw.replace(/\{bin\}/g, a.path);
+          // shq(), not a bare substitution: a.path comes from directory
+          // traversal, so a component (a dir named by whoever the target
+          // FS belongs to) can carry shell metacharacters. actionRow's
+          // button runs this with a trailing Enter (execInPane), so an
+          // unquoted `; ... #` in the path would execute. {bin} is always
+          // bare in config/gtfobins.js -- never pre-quoted -- so wrapping
+          // is safe. See PlanDeTestSecurite-ShellBridge.txt 0.3.
+          var cmd = raw.replace(/\{bin\}/g, shq(a.path));
           bl.appendChild(actionRow(cmd, null));
         });
         gSec.appendChild(bl);

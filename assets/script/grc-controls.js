@@ -309,7 +309,7 @@ function initGrcControlRegistry() {
     const header = document.createElement("div");
     header.className = "grc-registry-header";
     header.innerHTML =
-      `<span>${control.name}${control.isoRef ? " — " + control.isoRef : ""}</span>` +
+      `<span>${grkEscapeHtml(control.name)}${control.isoRef ? " — " + grkEscapeHtml(control.isoRef) : ""}</span>` +
       `<span class="grc-crit-badge ${status.cls}">${status.text}</span>` +
       `<span class="chevron">▸</span>`;
     header.onclick = () => {
@@ -332,10 +332,10 @@ function initGrcControlRegistry() {
 
       body.innerHTML =
         `<p>${grcT("grc.controles.detail.type").replace("{value}", grcControlTypeLabel(control.type))}</p>` +
-        (refs.length ? `<p>${grcT("grc.controles.detail.refs").replace("{value}", refs.join(" · "))}</p>` : "") +
-        (riskNames.length ? `<p>${grcT("grc.controles.detail.risks").replace("{names}", riskNames.join(", "))}</p>` : "") +
-        (control.owner ? `<p>${grcT("grc.controles.detail.owner").replace("{owner}", control.owner)}</p>` : "") +
-        (control.evidence ? `<p>${grcT("grc.controles.detail.evidence").replace("{value}", control.evidence)}</p>` : "");
+        (refs.length ? `<p>${grcT("grc.controles.detail.refs").replace("{value}", grkEscapeHtml(refs.join(" · ")))}</p>` : "") +
+        (riskNames.length ? `<p>${grcT("grc.controles.detail.risks").replace("{names}", grkEscapeHtml(riskNames.join(", ")))}</p>` : "") +
+        (control.owner ? `<p>${grcT("grc.controles.detail.owner").replace("{owner}", grkEscapeHtml(control.owner))}</p>` : "") +
+        (control.evidence ? `<p>${grcT("grc.controles.detail.evidence").replace("{value}", grkEscapeHtml(control.evidence))}</p>` : "");
 
       const editBtn = document.createElement("button");
       editBtn.type = "button";
