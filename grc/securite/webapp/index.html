@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8" />
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'">
     <link rel="icon" type="image/svg+xml" href="../../../assets/images/dragon-logo.svg">
     <link rel="icon" type="image/png" href="../../../assets/images/dragon-favicon.png">
     <title>Sécurité WebApp</title>
@@ -28,24 +29,24 @@
     <div class="grc-progress" id="grc-coverage-summary"></div>
 
     <div class="grc-toolbar">
-      <button type="button" class="grc-toolbar-btn" data-i18n="grc.hub.exportJson" onclick="exportGrcAsJson(securiteWebappSections, 'grc-securite-webapp')">Exporter JSON</button>
-      <button type="button" class="grc-toolbar-btn" data-i18n="grc.hub.saveAs" onclick="saveGrcAsJson(securiteWebappSections, 'grc-securite-webapp')">Enregistrer sous…</button>
-      <button type="button" class="grc-toolbar-btn" data-i18n="grc.hub.exportWord" onclick="exportGrcAsWord(securiteWebappSections, 'grc-securite-webapp')">Exporter Word</button>
-      <button type="button" class="grc-toolbar-btn" data-i18n="grc.hub.exportPdf" onclick="exportGrcAsPdf(securiteWebappSections)">Exporter PDF</button>
-      <button type="button" class="grc-toolbar-btn" data-i18n="grc.hub.importJson" onclick="document.getElementById('sectionImportInput').click()">Importer JSON</button>
-      <input type="file" id="sectionImportInput" accept=".json,application/json" style="display:none" onchange="handleSectionImport(this.files[0])">
-      <button type="button" class="grc-toolbar-btn grc-toolbar-btn-danger" data-i18n="grc.hub.reset" onclick="confirmResetSection()">Réinitialiser</button>
+      <button type="button" id="btnExportJson" class="grc-toolbar-btn" data-i18n="grc.hub.exportJson">Exporter JSON</button>
+      <button type="button" id="btnSaveAs" class="grc-toolbar-btn" data-i18n="grc.hub.saveAs">Enregistrer sous…</button>
+      <button type="button" id="btnExportWord" class="grc-toolbar-btn" data-i18n="grc.hub.exportWord">Exporter Word</button>
+      <button type="button" id="btnExportPdf" class="grc-toolbar-btn" data-i18n="grc.hub.exportPdf">Exporter PDF</button>
+      <button type="button" id="btnImportTrigger" class="grc-toolbar-btn" data-i18n="grc.hub.importJson">Importer JSON</button>
+      <input type="file" id="sectionImportInput" accept=".json,application/json" style="display:none">
+      <button type="button" id="btnReset" class="grc-toolbar-btn grc-toolbar-btn-danger" data-i18n="grc.hub.reset">Réinitialiser</button>
     </div>
 
     <div class="grid-3" id="securite-webapp-grid"></div>
 </main>
 
 
-<div id="overlay" onclick="closeModal()"></div>
+<div id="overlay"></div>
 
 <!-- Shared modal: loads the picked domain's standalone page in an iframe -->
-<div id="modal-grc" class="modal-overlay" onclick="closeModal()">
-  <div class="modal-box" onclick="event.stopPropagation()">
+<div id="modal-grc" class="modal-overlay">
+  <div class="modal-box">
     <div class="modal-box-title" id="modal-grc-title"></div>
     <iframe id="modal-grc-frame" src="about:blank" title="Domaine Sécurité WebApp"></iframe>
   </div>
@@ -65,55 +66,8 @@
 <script src="../../../assets/script/vault-ui.js"></script>
 <script src="../../../assets/script/grc-checklist.js"></script>
 <script src="../../../assets/script/hub-modal.js"></script>
-<script>
-  const savedTheme = localStorage.getItem("/settings.html") || "standard";
-  document.body.classList.add("theme-" + savedTheme);
-
-  // Let the parent shell (encapsulation.html) sync its sidebar theme --
-  // the parent doesn't read storage directly, see settings.html.
-  if (window.self !== window.top) {
-    window.top.postMessage({ type: "theme-change", theme: savedTheme }, "*");
-  }
-
-  applyI18n(getSavedLang());
-  renderGrcDomains(securiteWebappIndexConfig.domains, "#securite-webapp-grid", "grc.securite.webapp");
-  renderGrcCoverage(securiteWebappIndexConfig.domains, "#securite-webapp-grid", "#grc-coverage-summary");
-
-
-  // Section-scoped export/import/reset toolbar -- same functions the
-  // main GRC hub uses (assets/script/grc-checklist.js), just given a
-  // single-section array instead of grcAllSections's five, so none of
-  // them can reach past this section's own domains (see
-  // resetGrcData()/importGrcData()'s 2026-09-08 scoping fix).
-  const securiteWebappSections = [
-    { title: grcT("nav.webappSecurity"), domains: securiteWebappIndexConfig.domains, basePath: "./", keyPrefix: "grc.securite.webapp" },
-  ];
-
-  function confirmResetSection() {
-    if (!confirm(grcT("grc.hub.confirmResetSection"))) return;
-    resetGrcData(securiteWebappSections, () => location.reload());
-  }
-
-  function handleSectionImport(file) {
-    if (!file) return;
-    if (!confirm(grcT("grc.hub.confirmImportSection"))) {
-      document.getElementById("sectionImportInput").value = "";
-      return;
-    }
-    importGrcData(
-      file,
-      securiteWebappSections,
-      (count) => {
-        alert(grcT("grc.hub.importRestoredCount").replace("{count}", count));
-        location.reload();
-      },
-      (message) => {
-        alert(grcT("grc.hub.importFailed").replace("{message}", message));
-        document.getElementById("sectionImportInput").value = "";
-      }
-    );
-  }
-</script>
+<script src="../../../assets/script/inline/grc-securite-webapp.js"></script>
+<script src="../../../assets/script/inline/grc-hub-modal-wiring.js"></script>
 
 </body>
 </html>

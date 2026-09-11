@@ -19,6 +19,16 @@ function exportJsonFile(data, filename) {
   triggerDownload(new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }), filename);
 }
 
+// grcT() lives in i18n.js, and grc.common.* keys in grc-i18n.js (loaded
+// right after it) -- both loaded on every page that actually calls
+// readJsonFile()/wireConfigIoControls() EXCEPT project/dashboard.html
+// (loads config-io.js only as a dependency of grc-pentest.js, never
+// either i18n file) -- guarded rather than assumed, degrades to the
+// French default there instead of a ReferenceError.
+function _cfgIoT(key, fallback) {
+  return typeof grcT === "function" ? grcT(key) : fallback;
+}
+
 function readJsonFile(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -26,10 +36,10 @@ function readJsonFile(file) {
       try {
         resolve(JSON.parse(reader.result));
       } catch (e) {
-        reject(new Error("Fichier JSON invalide"));
+        reject(new Error(_cfgIoT("grc.common.invalidJsonFile", "Fichier JSON invalide.")));
       }
     };
-    reader.onerror = () => reject(new Error("Impossible de lire le fichier"));
+    reader.onerror = () => reject(new Error(_cfgIoT("grc.common.cannotReadFile", "Impossible de lire le fichier.")));
     reader.readAsText(file);
   });
 }
@@ -40,10 +50,10 @@ function readJsonFile(file) {
 function configIoControlsHtml() {
   return `
     <div class="netcfg-io-row">
-      <div class="dash-btn dash-btn-block cfgio-export">⬇ Exporter JSON</div>
-      <div class="dash-btn dash-btn-block cfgio-import">⬆ Importer JSON</div>
+      <div class="dash-btn dash-btn-block cfgio-export" data-i18n="settings.cfgIo.export">⬇ Exporter JSON</div>
+      <div class="dash-btn dash-btn-block cfgio-import" data-i18n="settings.cfgIo.import">⬆ Importer JSON</div>
       <input type="file" accept="application/json" class="cfgio-import-file" style="display:none">
-      <div class="dash-btn dash-btn-block cfgio-reset">↺ Rétablir par défaut</div>
+      <div class="dash-btn dash-btn-block cfgio-reset" data-i18n="settings.cfgIo.reset">↺ Rétablir par défaut</div>
     </div>
   `;
 }
@@ -58,12 +68,13 @@ function wireConfigIoControls(card, { exportFn, importFn, resetFn, onDone, reset
     if (!file) return;
     importFn(file)
       .then(onDone)
-      .catch((err) => alert(err.message || "Fichier JSON invalide."))
+      .catch((err) => alert(err.message || _cfgIoT("grc.common.invalidJsonFile", "Fichier JSON invalide.")))
       .finally(() => { fileInput.value = ""; });
   });
 
   card.querySelector(".cfgio-reset").addEventListener("click", () => {
-    if (!confirm(resetConfirm || "Rétablir la configuration par défaut ? Cette action est irréversible.")) return;
+    if (!confirm(resetConfirm || _cfgIoT("settings.cfgIo.resetConfirmDefault",
+        "Rétablir la configuration par défaut ? Cette action est irréversible."))) return;
     resetFn();
     onDone();
   });

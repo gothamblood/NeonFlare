@@ -28,37 +28,41 @@ const PAGE_EFFECTS_KEY = "/settings.html/pageEffects";
 // bg: true only for pages with a .wallpaper div of their own -- GRC
 // pages use a plain CSS gradient instead (see assets/css/grc.css) and
 // aren't part of the background-override system.
+// groupI18nKey/labelI18nKey are only ever read by project/settings.html
+// (the one page that renders this list) -- group/label stay as the
+// French fallback for the other 26 pages that load this file just for
+// page-effects-loader.js and never touch this array's display text.
 const PAGE_EFFECTS_REGISTRY = [
-  { group: "Pages principales", key: "about", label: "About", bg: true },
-  { group: "Pages principales", key: "settings", label: "Settings", bg: true },
-  { group: "Pages principales", key: "pentest", label: "Findings", bg: true },
-  { group: "Pages principales", key: "neonflare-technology", label: "NeonFlare Technology", bg: true },
-  { group: "Pages principales", key: "dashboard", label: "Dashboard (vecteurs/étoiles -- fond par dashboard, voir Interface)", bg: false, glow: true },
+  { group: "Pages principales", groupI18nKey: "settings.pageEffects.groupMain", key: "about", label: "About", bg: true },
+  { group: "Pages principales", groupI18nKey: "settings.pageEffects.groupMain", key: "settings", label: "Settings", bg: true },
+  { group: "Pages principales", groupI18nKey: "settings.pageEffects.groupMain", key: "pentest", label: "Findings", bg: true },
+  { group: "Pages principales", groupI18nKey: "settings.pageEffects.groupMain", key: "neonflare-technology", label: "NeonFlare Technology", bg: true },
+  { group: "Pages principales", groupI18nKey: "settings.pageEffects.groupMain", key: "dashboard", label: "Dashboard (vecteurs/étoiles -- fond par dashboard, voir Interface)", labelI18nKey: "settings.pageEffects.dashboardLabel", bg: false, glow: true },
 
   { group: "GRC", key: "grc-hub", label: "GRC -- Hub", bg: false },
-  { group: "GRC", key: "grc-api", label: "GRC -- Sécurité API", bg: false },
-  { group: "GRC", key: "grc-database", label: "GRC -- Sécurité Base de données", bg: false },
-  { group: "GRC", key: "grc-reseau", label: "GRC -- Sécurité Réseau", bg: false },
-  { group: "GRC", key: "grc-webapp", label: "GRC -- Sécurité WebApp", bg: false },
+  { group: "GRC", key: "grc-api", label: "GRC -- Sécurité API", labelI18nKey: "settings.pageEffects.grcApi", bg: false },
+  { group: "GRC", key: "grc-database", label: "GRC -- Sécurité Base de données", labelI18nKey: "settings.pageEffects.grcDatabase", bg: false },
+  { group: "GRC", key: "grc-reseau", label: "GRC -- Sécurité Réseau", labelI18nKey: "settings.pageEffects.grcReseau", bg: false },
+  { group: "GRC", key: "grc-webapp", label: "GRC -- Sécurité WebApp", labelI18nKey: "settings.pageEffects.grcWebapp", bg: false },
 
-  { group: "Outils", key: "tools-recon", label: "Recon & Enumeration", bg: true },
-  { group: "Outils", key: "tools-web", label: "Web Exploitation", bg: true },
-  { group: "Outils", key: "tools-linux", label: "Linux PrivEsc", bg: true },
-  { group: "Outils", key: "tools-windows", label: "Windows PrivEsc", bg: true },
-  { group: "Outils", key: "tools-ad", label: "Active Directory Attacks", bg: true },
-  { group: "Outils", key: "tools-lateral", label: "Lateral Movement", bg: true },
-  { group: "Outils", key: "tools-c2", label: "C2 Frameworks", bg: true },
-  { group: "Outils", key: "tools-post", label: "Post-Exploitation", bg: true },
-  { group: "Outils", key: "tools-osint", label: "OSINT", bg: true },
-  { group: "Outils", key: "tools-misc", label: "Autres", bg: true },
-  { group: "Outils", key: "tools-custom", label: "Catégories personnalisées", bg: true },
+  { group: "Outils", groupI18nKey: "dash.panel.tools", key: "tools-recon", label: "Recon & Enumeration", bg: true },
+  { group: "Outils", groupI18nKey: "dash.panel.tools", key: "tools-web", label: "Web Exploitation", bg: true },
+  { group: "Outils", groupI18nKey: "dash.panel.tools", key: "tools-linux", label: "Linux PrivEsc", bg: true },
+  { group: "Outils", groupI18nKey: "dash.panel.tools", key: "tools-windows", label: "Windows PrivEsc", bg: true },
+  { group: "Outils", groupI18nKey: "dash.panel.tools", key: "tools-ad", label: "Active Directory Attacks", bg: true },
+  { group: "Outils", groupI18nKey: "dash.panel.tools", key: "tools-lateral", label: "Lateral Movement", bg: true },
+  { group: "Outils", groupI18nKey: "dash.panel.tools", key: "tools-c2", label: "C2 Frameworks", bg: true },
+  { group: "Outils", groupI18nKey: "dash.panel.tools", key: "tools-post", label: "Post-Exploitation", bg: true },
+  { group: "Outils", groupI18nKey: "dash.panel.tools", key: "tools-osint", label: "OSINT", bg: true },
+  { group: "Outils", groupI18nKey: "dash.panel.tools", key: "tools-misc", label: "Autres", labelI18nKey: "settings.pageEffects.groupOther", bg: true },
+  { group: "Outils", groupI18nKey: "dash.panel.tools", key: "tools-custom", label: "Catégories personnalisées", labelI18nKey: "settings.pageEffects.customCategories", bg: true },
 
-  { group: "DevSecOps", key: "devsecops-docker", label: "Docker", bg: true },
-  { group: "DevSecOps", key: "devsecops-kubernetes", label: "Kubernetes", bg: true },
-  { group: "DevSecOps", key: "devsecops-terraform", label: "Terraform", bg: true },
-  { group: "DevSecOps", key: "devsecops-aws", label: "AWS CLI", bg: true },
-  { group: "DevSecOps", key: "devsecops-azure", label: "Azure CLI", bg: true },
-  { group: "DevSecOps", key: "devsecops-custom", label: "Catégories personnalisées", bg: true },
+  { group: "DevSecOps", groupI18nKey: "dash.panel.devsecops", key: "devsecops-docker", label: "Docker", bg: true },
+  { group: "DevSecOps", groupI18nKey: "dash.panel.devsecops", key: "devsecops-kubernetes", label: "Kubernetes", bg: true },
+  { group: "DevSecOps", groupI18nKey: "dash.panel.devsecops", key: "devsecops-terraform", label: "Terraform", bg: true },
+  { group: "DevSecOps", groupI18nKey: "dash.panel.devsecops", key: "devsecops-aws", label: "AWS CLI", bg: true },
+  { group: "DevSecOps", groupI18nKey: "dash.panel.devsecops", key: "devsecops-azure", label: "Azure CLI", bg: true },
+  { group: "DevSecOps", groupI18nKey: "dash.panel.devsecops", key: "devsecops-custom", label: "Catégories personnalisées", labelI18nKey: "settings.pageEffects.customCategories", bg: true },
 ];
 
 const DEFAULT_VECTOR_PAGES = new Set(["grc-hub", "grc-api", "grc-database", "grc-reseau", "grc-webapp"]);

@@ -40,7 +40,7 @@ function checkReachable(url, timeoutMs) {
 function buildNodeCard(entry) {
   const card = document.createElement("div");
   card.className = "card node-card";
-  card.onclick = () => window.open(entry.url, "_blank");
+  card.onclick = () => window.open(entry.url, "_blank", "noopener");
 
   const status = document.createElement("div");
   status.className = "node-status checking";

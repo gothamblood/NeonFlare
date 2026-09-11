@@ -19,18 +19,28 @@ const DEFAULT_DASHBOARD = { id: "default", name: "Dashboard" };
 // both toggle -- `key` must match the panel's own `id` (or, for
 // grcHeaderStatus, the header widget's id) so setDashboardSectionVisible()
 // below can add/remove .dash-section-off on the right element either way.
+// `label` is the French fallback ; `i18nKey` (added 2026-09-11, same
+// sweep as dashboard.html's own panel titles) is preferred via
+// dashSectionLabel() below wherever this list is displayed.
 const DASHBOARD_SECTIONS = [
-  { key: "panelShells", label: "Shells" },
-  { key: "panelFs", label: "Explorateur" },
-  { key: "panelNetwork", label: "Réseau" },
-  { key: "panelTools", label: "Outils" },
-  { key: "panelDevSecOps", label: "DevSecOps" },
-  { key: "panelWebsite", label: "Website" },
-  { key: "panelLog", label: "System log" },
-  { key: "panelGrc", label: "Couverture GRC (panneau)" },
-  { key: "grcHeaderStatus", label: "Couverture GRC (en-tête)" },
-  { key: "panelUpcomingReviews", label: "Prochaines revues" },
+  { key: "panelShells", label: "Shells", i18nKey: "dash.panel.shells" },
+  { key: "panelFs", label: "Explorateur", i18nKey: "dash.panel.explorer" },
+  { key: "panelNetwork", label: "Réseau", i18nKey: "dash.panel.network" },
+  { key: "panelTools", label: "Outils", i18nKey: "dash.panel.tools" },
+  { key: "panelDevSecOps", label: "DevSecOps", i18nKey: "dash.panel.devsecops" },
+  { key: "panelWebsite", label: "Website", i18nKey: "dash.panel.website" },
+  { key: "panelLog", label: "System log", i18nKey: "dash.panel.systemLog" },
+  { key: "panelGrc", label: "Couverture GRC (panneau)", i18nKey: "dash.panel.grcPanel" },
+  { key: "grcHeaderStatus", label: "Couverture GRC (en-tête)", i18nKey: "dash.panel.grcHeader" },
+  { key: "panelUpcomingReviews", label: "Prochaines revues", i18nKey: "dash.panel.upcomingReviews" },
 ];
+
+// Guarded on `grcT` (dashboards.js is loaded on index.html, dashboard.html
+// and settings.html -- all three already load i18n.js too, but this
+// keeps the fallback explicit rather than assuming it).
+function dashSectionLabel(section) {
+  return (section.i18nKey && typeof grcT === "function") ? grcT(section.i18nKey) : section.label;
+}
 
 function getRawExtraDashboards() {
   try {

@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="script-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'">
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="icon" type="image/svg+xml" href="../assets/images/dragon-logo.svg">
 <link rel="icon" type="image/png" href="../assets/images/dragon-favicon.png">
@@ -23,7 +24,7 @@
       <tr><th>Tool</th><th>Description</th></tr>
 
     <!-- IDENTITY & IAM -->
-    <tr class="tool-row" onclick="toggleCmd('cmd-iam')">
+    <tr class="tool-row" data-toggle="cmd-iam">
       <td style="color:red">Identity & IAM</td>
       <td>Who am I, users, policies, keys</td>
     </tr>
@@ -45,7 +46,7 @@
     </tr>
 
     <!-- S3 -->
-    <tr class="tool-row" onclick="toggleCmd('cmd-s3')">
+    <tr class="tool-row" data-toggle="cmd-s3">
       <td>S3</td>
       <td>Buckets, objects, public access</td>
     </tr>
@@ -67,7 +68,7 @@
     </tr>
 
     <!-- EC2 & NETWORK -->
-    <tr class="tool-row" onclick="toggleCmd('cmd-ec2')">
+    <tr class="tool-row" data-toggle="cmd-ec2">
       <td>EC2 & network</td>
       <td>Instances, security groups</td>
     </tr>
@@ -87,7 +88,7 @@
     </tr>
 
     <!-- LOGGING & AUDIT -->
-    <tr class="tool-row" onclick="toggleCmd('cmd-logging')">
+    <tr class="tool-row" data-toggle="cmd-logging">
       <td style="color:red">Logging & audit</td>
       <td>CloudTrail, GuardDuty, Config</td>
     </tr>
@@ -108,7 +109,7 @@
     </tr>
 
     <!-- ENGAGEMENT SETUP -->
-    <tr class="tool-row" onclick="toggleCmd('cmd-setup')">
+    <tr class="tool-row" data-toggle="cmd-setup">
       <td>Engagement setup</td>
       <td>Profiles, MFA session</td>
     </tr>
@@ -126,32 +127,7 @@
   </div>
 </div>
 
-<script>
-  const embedded = window.self !== window.top;
-
-  function reportHeight() {
-    if (embedded) {
-      window.parent.postMessage({ type: "tool-frame-height", height: document.body.scrollHeight }, "*");
-    }
-  }
-
-  function toggleCmd(id) {
-    const row = document.getElementById(id);
-    row.style.display = (row.style.display === "table-row") ? "none" : "table-row";
-    reportHeight();
-  }
-
-  (function() {
-    const savedTheme = localStorage.getItem("/settings.html") || "standard";
-    document.body.classList.add("theme-" + savedTheme);
-    if (embedded) document.body.classList.add("embedded");
-  })();
-
-  if (embedded) {
-    new ResizeObserver(reportHeight).observe(document.body);
-    window.addEventListener("load", reportHeight);
-  }
-</script>
+<script src="../assets/script/tools-page-boot.js"></script>
 
 <script src="../config/tools/aws.js"></script>
 <script src="../assets/script/wallpaper-loader.js"></script>
@@ -159,9 +135,7 @@
 <script src="../assets/script/copy-commands.js"></script>
 <script src="../assets/script/page-effects.js"></script>
 <script src="../assets/script/page-effects-loader.js"></script>
-<script>
-  applyWallpaper(toolsAwsConfig.background, "devsecops-aws");
-</script>
+<script src="../assets/script/inline/tools-aws.js"></script>
 
 </body>
 </html>

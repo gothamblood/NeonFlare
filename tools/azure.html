@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="script-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'">
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="icon" type="image/svg+xml" href="../assets/images/dragon-logo.svg">
 <link rel="icon" type="image/png" href="../assets/images/dragon-favicon.png">
@@ -23,7 +24,7 @@
       <tr><th>Tool</th><th>Description</th></tr>
 
     <!-- ACCOUNT & RBAC -->
-    <tr class="tool-row" onclick="toggleCmd('cmd-account')">
+    <tr class="tool-row" data-toggle="cmd-account">
       <td style="color:red">Account & RBAC</td>
       <td>Login, subscriptions, role assignments</td>
     </tr>
@@ -44,7 +45,7 @@
     </tr>
 
     <!-- RESOURCES -->
-    <tr class="tool-row" onclick="toggleCmd('cmd-resources')">
+    <tr class="tool-row" data-toggle="cmd-resources">
       <td>Resources</td>
       <td>Groups, VMs, list/inspect</td>
     </tr>
@@ -61,7 +62,7 @@
     </tr>
 
     <!-- STORAGE -->
-    <tr class="tool-row" onclick="toggleCmd('cmd-storage')">
+    <tr class="tool-row" data-toggle="cmd-storage">
       <td>Storage</td>
       <td>Accounts, containers, public access</td>
     </tr>
@@ -81,7 +82,7 @@
     </tr>
 
     <!-- KEY VAULT & SECRETS -->
-    <tr class="tool-row" onclick="toggleCmd('cmd-keyvault')">
+    <tr class="tool-row" data-toggle="cmd-keyvault">
       <td style="color:red">Key Vault & secrets</td>
       <td>Secrets, keys, access policies</td>
     </tr>
@@ -97,7 +98,7 @@
     </tr>
 
     <!-- LOGGING & AUDIT -->
-    <tr class="tool-row" onclick="toggleCmd('cmd-logging')">
+    <tr class="tool-row" data-toggle="cmd-logging">
       <td>Logging & audit</td>
       <td>Activity log, Defender for Cloud</td>
     </tr>
@@ -117,32 +118,7 @@
   </div>
 </div>
 
-<script>
-  const embedded = window.self !== window.top;
-
-  function reportHeight() {
-    if (embedded) {
-      window.parent.postMessage({ type: "tool-frame-height", height: document.body.scrollHeight }, "*");
-    }
-  }
-
-  function toggleCmd(id) {
-    const row = document.getElementById(id);
-    row.style.display = (row.style.display === "table-row") ? "none" : "table-row";
-    reportHeight();
-  }
-
-  (function() {
-    const savedTheme = localStorage.getItem("/settings.html") || "standard";
-    document.body.classList.add("theme-" + savedTheme);
-    if (embedded) document.body.classList.add("embedded");
-  })();
-
-  if (embedded) {
-    new ResizeObserver(reportHeight).observe(document.body);
-    window.addEventListener("load", reportHeight);
-  }
-</script>
+<script src="../assets/script/tools-page-boot.js"></script>
 
 <script src="../config/tools/azure.js"></script>
 <script src="../assets/script/wallpaper-loader.js"></script>
@@ -150,9 +126,7 @@
 <script src="../assets/script/copy-commands.js"></script>
 <script src="../assets/script/page-effects.js"></script>
 <script src="../assets/script/page-effects-loader.js"></script>
-<script>
-  applyWallpaper(toolsAzureConfig.background, "devsecops-azure");
-</script>
+<script src="../assets/script/inline/tools-azure.js"></script>
 
 </body>
 </html>

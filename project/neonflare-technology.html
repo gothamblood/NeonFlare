@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="script-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'">
   <link rel="icon" type="image/svg+xml" href="../assets/images/dragon-logo.svg">
   <link rel="icon" type="image/png" href="../assets/images/dragon-favicon.png">
   <title>NeonFlare Technology</title>
@@ -35,32 +36,18 @@
 <div class="grid" id="neonflare-grid"></div>
 
 
+<script src="../assets/script/i18n.js"></script>
 <script src="../config/GothamBlood-tech.js"></script>
 <script src="../assets/script/wallpaper-loader.js"></script>
 <script src="../assets/script/theme-accent.js"></script>
 <script src="../assets/script/page-effects.js"></script>
 <script src="../assets/script/page-effects-loader.js"></script>
 <script src="../assets/script/config-loader.js"></script>
-<script>
-  // Guard each step on its own -- a failure in one (eg. config/GothamBlood-tech.js
-  // not loading) must not stop the other from running.
-  var cfg = (typeof neonflareTechnologyConfig === "object" && neonflareTechnologyConfig) || { background: null, cards: [] };
-  try { applyWallpaper(cfg.background, "neonflare-technology"); } catch (e) { console.error("[GothamBlood Tech] wallpaper:", e); }
-  try { renderCardGrid(cfg.cards || [], "#neonflare-grid"); } catch (e) { console.error("[GothamBlood Tech] cards:", e); }
-</script>
+<script src="../assets/script/inline/neonflare-technology.js"></script>
 
 
 <!-- THEME LOADER -->
-<script>
-  const theme = localStorage.getItem("/settings.html") || "standard";
-  document.body.classList.add("theme-" + theme);
-
-  // Let the parent shell (encapsulation.html) sync its sidebar theme --
-  // the parent doesn't read storage directly, see settings.html.
-  if (window.self !== window.top) {
-    window.top.postMessage({ type: "theme-change", theme: theme }, "*");
-  }
-</script>
+<script src="../assets/script/inline/theme-change-notify.js"></script>
 
 
 </body>

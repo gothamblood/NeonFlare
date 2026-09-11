@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="script-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'">
 <link rel="icon" type="image/svg+xml" href="../assets/images/dragon-logo.svg">
 <link rel="icon" type="image/png" href="../assets/images/dragon-favicon.png">
 <title>Cyberpunk Permit</title>
@@ -30,14 +31,14 @@
 
     <div class="permit-id"></div>
 
-    <div class="barcode" onclick="openModal()"></div>
+    <div class="barcode"></div>
 
     <div class="signature">
       Licensed Operator
       <div class="signature-line"></div>
     </div>
 
-    <div class="qr" onclick="openModal()"></div>
+    <div class="qr"></div>
     <!-- <div class="holo-seal"></div> -->
   </div>
 </div>
@@ -50,7 +51,7 @@
 
     <div class="modal-links"></div>
 
-    <button class="close-btn" onclick="closeModal()">Close</button>
+    <button class="close-btn">Close</button>
   </div>
 </div>
 
@@ -61,33 +62,7 @@
 <script src="../assets/script/about-loader.js"></script>
 <script src="../assets/script/page-effects.js"></script>
 <script src="../assets/script/page-effects-loader.js"></script>
-<script>
-
-  const theme = localStorage.getItem("/settings.html") || "standard";
-  document.body.classList.add("theme-" + theme);
-
-  // Let the parent shell (encapsulation.html) sync its sidebar theme --
-  // the parent doesn't read storage directly, see settings.html.
-  if (window.self !== window.top) {
-    window.top.postMessage({ type: "theme-change", theme: theme }, "*");
-  }
-
-  // getAboutConfig() falls back to the static aboutConfig (config/about.js)
-  // until a Settings > Config About edit creates a localStorage override
-  // -- see assets/script/about-config.js.
-  const activeAboutConfig = getAboutConfig();
-  applyWallpaper(activeAboutConfig.background, "about");
-  renderAbout(activeAboutConfig);
-
-  function openModal() {
-    document.getElementById("modal").style.display = "flex";
-  }
-
-  function closeModal() {
-    document.getElementById("modal").style.display = "none";
-  }
-
-</script>
+<script src="../assets/script/inline/about.js"></script>
 
 </body>
 </html>

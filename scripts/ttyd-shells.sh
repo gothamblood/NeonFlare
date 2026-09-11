@@ -32,12 +32,19 @@
 #   scripts/ttyd-shells.sh start [count]   # default 6 per shell type
 #   scripts/ttyd-shells.sh stop
 #   scripts/ttyd-shells.sh status
+#
+# IDLE_TIMEOUT_SECONDS=1800 (env, default shown) makes the proxy call
+# `stop` on its own once no byte has been relayed on any route for that
+# long -- the token gate closes the cross-origin hole, but a shell left
+# running unattended for hours is still more exposure than one running for
+# minutes. Set to 0 to disable (shells then only stop when you run `stop`).
 
 set -euo pipefail
 
 declare -A BASE_PORT=( [bash]=7681 [zsh]=7691 [pwsh]=7701 )
 declare -A SHELL_CMD=( [bash]=bash [zsh]=zsh [pwsh]=pwsh )
 DEFAULT_SLOTS=6
+: "${IDLE_TIMEOUT_SECONDS:=1800}"
 PID_DIR="${XDG_RUNTIME_DIR:-/tmp}/dashboard-ttyd"
 TMUX_PREFIX="dashboard-shell"
 TMUX_CONF="$PID_DIR/tmux.conf"
@@ -105,12 +112,19 @@ start_proxy() {
     exit 1
   fi
 
+  local idle_args=() idle_note=""
+  if [ "$IDLE_TIMEOUT_SECONDS" -gt 0 ] 2>/dev/null; then
+    idle_args=( --idle-timeout "$IDLE_TIMEOUT_SECONDS"
+                --idle-stop-cmd "\"$SCRIPT_DIR/ttyd-shells.sh\" stop" )
+    idle_note=", idle-timeout ${IDLE_TIMEOUT_SECONDS}s"
+  fi
+
   stop_proxy
   ( umask 077; printf '%s' "$token" > "$TOKEN_FILE" )
-  python3 "$PROXY_SCRIPT" --token-file "$TOKEN_FILE" "${routes[@]}" \
+  python3 "$PROXY_SCRIPT" --token-file "$TOKEN_FILE" "${routes[@]}" "${idle_args[@]}" \
     >"$PID_DIR/shell-proxy.log" 2>&1 &
   echo $! > "$PROXY_PID_FILE"
-  echo "token proxy started on 127.0.0.1:768x (pid $!, ${#routes[@]} routes)"
+  echo "token proxy started on 127.0.0.1:768x (pid $!, ${#routes[@]} routes$idle_note)"
 }
 
 # For stop/status: every slot that has ever been started (a pid file
@@ -149,7 +163,19 @@ start() {
   # "latest" window-size mode resizes to whichever client was most
   # recently active, including a one-shot connection that's gone half
   # a second later.
-  echo "set-option -g window-size largest" >"$TMUX_CONF"
+  # mouse on: without it tmux ignores the scroll wheel entirely (its
+  # default), so the browser terminal looks like it has no scrollback
+  # at all -- reported as "can't scroll up" (2026-09-11). With it,
+  # xterm.js/ttyd forwards wheel events as mouse escape sequences that
+  # tmux turns into copy-mode scrolling on its own; no client-side
+  # change needed. Minor trade-off: dragging to select text in the pane
+  # now needs Shift+drag (mouse mode intercepts a plain drag as a tmux
+  # pane/scroll gesture instead of a plain terminal text selection) --
+  # standard tmux behavior, not specific to this setup.
+  {
+    echo "set-option -g window-size largest"
+    echo "set-option -g mouse on"
+  } >"$TMUX_CONF"
 
   # One session token per `start`. If a proxy from an earlier `start` is
   # still up, reuse its token so shells already open in the browser keep

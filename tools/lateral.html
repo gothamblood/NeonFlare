@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="script-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'">
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="icon" type="image/svg+xml" href="../assets/images/dragon-logo.svg">
 <link rel="icon" type="image/png" href="../assets/images/dragon-favicon.png">
@@ -22,7 +23,7 @@
     <table>
       <tr><th>Tool</th><th>Description</th></tr>
 
-      <tr class="tool-row" onclick="toggleCmd('cmd-psexec')">
+      <tr class="tool-row" data-toggle="cmd-psexec">
         <td>PsExec</td><td>Execute commands on remote Windows hosts</td>
       </tr>
       <tr id="cmd-psexec" class="command-row">
@@ -40,7 +41,7 @@
   </td>
 </tr>
 
-      <tr class="tool-row" onclick="toggleCmd('cmd-wmiexec')">
+      <tr class="tool-row" data-toggle="cmd-wmiexec">
         <td>WMIExec</td><td>Use WMI for remote command execution</td>
       </tr>
       <tr id="cmd-wmiexec" class="command-row">
@@ -57,7 +58,7 @@
   </td>
 </tr>
 
-      <tr class="tool-row" onclick="toggleCmd('cmd-evilwinrm-lat')">
+      <tr class="tool-row" data-toggle="cmd-evilwinrm-lat">
         <td>Evil-WinRM</td><td>WinRM shell used for lateral movement</td>
       </tr>
       <tr id="cmd-evilwinrm-lat" class="command-row">
@@ -78,7 +79,7 @@
   </td>
 </tr>
 
-      <tr class="tool-row" onclick="toggleCmd('cmd-cme-lat')">
+      <tr class="tool-row" data-toggle="cmd-cme-lat">
         <td>CrackMapExec</td><td>Spray creds and pivot across hosts</td>
       </tr>
       <tr id="cmd-cme-lat" class="command-row">
@@ -95,7 +96,7 @@
   </td>
 </tr>
 
-      <tr class="tool-row" onclick="toggleCmd('cmd-ssh-tunnel')">
+      <tr class="tool-row" data-toggle="cmd-ssh-tunnel">
         <td>SSH tunneling</td><td>Forward ports and pivot through SSH</td>
       </tr>
       <tr id="cmd-ssh-tunnel" class="command-row">
@@ -114,7 +115,7 @@
   </td>
 </tr>
 
-      <tr class="tool-row" onclick="toggleCmd('cmd-chisel')">
+      <tr class="tool-row" data-toggle="cmd-chisel">
         <td>Chisel</td><td>TCP tunneling and reverse proxies</td>
       </tr>
       <tr id="cmd-chisel" class="command-row">
@@ -138,36 +139,7 @@
   </div>
 </div>
 
-<script>
-  const embedded = window.self !== window.top;
-
-  // Tell the hub's modal our real content height. Called synchronously on
-  // the one interaction that changes it (toggling a command row) so there's
-  // no dependency on observer/timer scheduling; ResizeObserver below is
-  // just a fallback for anything else (initial layout, font swaps, etc).
-  function reportHeight() {
-    if (embedded) {
-      window.parent.postMessage({ type: "tool-frame-height", height: document.body.scrollHeight }, "*");
-    }
-  }
-
-  function toggleCmd(id) {
-    const row = document.getElementById(id);
-    row.style.display = (row.style.display === "table-row") ? "none" : "table-row";
-    reportHeight();
-  }
-
-  (function() {
-    const savedTheme = localStorage.getItem("/settings.html") || "standard";
-    document.body.classList.add("theme-" + savedTheme);
-    if (embedded) document.body.classList.add("embedded");
-  })();
-
-  if (embedded) {
-    new ResizeObserver(reportHeight).observe(document.body);
-    window.addEventListener("load", reportHeight);
-  }
-</script>
+<script src="../assets/script/tools-page-boot.js"></script>
 
 <script src="../config/tools/lateral.js"></script>
 <script src="../assets/script/wallpaper-loader.js"></script>
@@ -175,9 +147,7 @@
 <script src="../assets/script/copy-commands.js"></script>
 <script src="../assets/script/page-effects.js"></script>
 <script src="../assets/script/page-effects-loader.js"></script>
-<script>
-  applyWallpaper(toolsLateralConfig.background, "tools-lateral");
-</script>
+<script src="../assets/script/inline/tools-lateral.js"></script>
 
 </body>
 </html>

@@ -1,0 +1,4 @@
+// Was an inline <script> on grc/directives.html -- externalized for CSP
+// script-src (PlanDurcissement-Securite.txt P1). Must load after
+// its registry's own script(s).
+initGrcDocumentsRegistry({ docTypes: ["directive"], primaryType: "directive" });

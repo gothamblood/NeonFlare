@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="script-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'">
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="icon" type="image/svg+xml" href="../assets/images/dragon-logo.svg">
 <link rel="icon" type="image/png" href="../assets/images/dragon-favicon.png">
@@ -22,7 +23,7 @@
     <table>
       <tr><th>Tool</th><th>Description</th></tr>
 
-      <tr class="tool-row" onclick="toggleCmd('cmd-burp')">
+      <tr class="tool-row" data-toggle="cmd-burp">
         <td>Burp Suite</td><td>Intercept, modify, and fuzz HTTP traffic</td>
       </tr>
       <tr id="cmd-burp" class="command-row">
@@ -45,7 +46,7 @@
   </td>
 </tr>
 
-      <tr class="tool-row" onclick="toggleCmd('cmd-sqlmap')">
+      <tr class="tool-row" data-toggle="cmd-sqlmap">
         <td>sqlmap</td><td>Automated SQL injection exploitation</td>
       </tr>
       <tr id="cmd-sqlmap" class="command-row">
@@ -69,7 +70,7 @@
   </td>
 </tr>
 
-      <tr class="tool-row" onclick="toggleCmd('cmd-wpscan')">
+      <tr class="tool-row" data-toggle="cmd-wpscan">
         <td>WPScan</td><td>Scan WordPress for vulns and weak creds</td>
       </tr>
       <tr id="cmd-wpscan" class="command-row">
@@ -88,7 +89,7 @@
   </td>
 </tr>
 
-      <tr class="tool-row" onclick="toggleCmd('cmd-hydra')">
+      <tr class="tool-row" data-toggle="cmd-hydra">
         <td>Hydra</td><td>Brute-force logins over many protocols</td>
       </tr>
 <tr id="cmd-hydra" class="command-row">
@@ -136,7 +137,7 @@
   </td>
 </tr>
 
-      <tr class="tool-row" onclick="toggleCmd('cmd-ffuf')">
+      <tr class="tool-row" data-toggle="cmd-ffuf">
         <td>ffuf</td><td>Fast fuzzing of directories and parameters</td>
       </tr>
       <tr id="cmd-ffuf" class="command-row">
@@ -163,7 +164,7 @@
   </td>
 </tr>
 
-      <tr class="tool-row" onclick="toggleCmd('cmd-curl')">
+      <tr class="tool-row" data-toggle="cmd-curl">
         <td>curl</td><td>Manual HTTP requests and response inspection</td>
       </tr>
 <tr id="cmd-curl" class="command-row">
@@ -176,7 +177,7 @@
     <div>[Silent] — curl -s &lt;URL&gt;</div>
 
     <div class="comment-line">---- POST -----</div>
-    <div>[POST form] — curl -X POST -d "user=admin&pass=test" &lt;URL&gt;</div>
+    <div>[POST form] — curl -X POST -d "user=chloe&pass=test" &lt;URL&gt;</div>
     <div>[POST JSON] — curl -X POST -H "Content-Type: application/json" -d '{"id":1}' &lt;URL&gt;</div>
     <div>[POST file upload] — curl -X POST -F "file=@image.png" &lt;URL&gt;/upload</div>
 
@@ -221,7 +222,7 @@
   </td>
 </tr>
 
-      <tr class="tool-row" onclick="toggleCmd('cmd-wget')">
+      <tr class="tool-row" data-toggle="cmd-wget">
         <td>wget</td><td>Download files and mirror sites</td>
       </tr>
 <tr id="cmd-wget" class="command-row">
@@ -272,7 +273,7 @@
   </td>
 </tr>
 
-      <tr class="tool-row" onclick="toggleCmd('cmd-postman')">
+      <tr class="tool-row" data-toggle="cmd-postman">
         <td>Postman</td><td>Test and debug APIs with custom requests</td>
       </tr>
       <tr id="cmd-postman" class="command-row">
@@ -291,7 +292,7 @@
   </td>
 </tr>
 
-      <tr class="tool-row" onclick="toggleCmd('cmd-jwt')">
+      <tr class="tool-row" data-toggle="cmd-jwt">
         <td>jwt_tool</td><td>Inspect and tamper with JWT tokens</td>
       </tr>
       <tr id="cmd-jwt" class="command-row">
@@ -316,36 +317,7 @@
   </div>
 </div>
 
-<script>
-  const embedded = window.self !== window.top;
-
-  // Tell the hub's modal our real content height. Called synchronously on
-  // the one interaction that changes it (toggling a command row) so there's
-  // no dependency on observer/timer scheduling; ResizeObserver below is
-  // just a fallback for anything else (initial layout, font swaps, etc).
-  function reportHeight() {
-    if (embedded) {
-      window.parent.postMessage({ type: "tool-frame-height", height: document.body.scrollHeight }, "*");
-    }
-  }
-
-  function toggleCmd(id) {
-    const row = document.getElementById(id);
-    row.style.display = (row.style.display === "table-row") ? "none" : "table-row";
-    reportHeight();
-  }
-
-  (function() {
-    const savedTheme = localStorage.getItem("/settings.html") || "standard";
-    document.body.classList.add("theme-" + savedTheme);
-    if (embedded) document.body.classList.add("embedded");
-  })();
-
-  if (embedded) {
-    new ResizeObserver(reportHeight).observe(document.body);
-    window.addEventListener("load", reportHeight);
-  }
-</script>
+<script src="../assets/script/tools-page-boot.js"></script>
 
 <script src="../config/tools/web.js"></script>
 <script src="../assets/script/wallpaper-loader.js"></script>
@@ -353,9 +325,7 @@
 <script src="../assets/script/copy-commands.js"></script>
 <script src="../assets/script/page-effects.js"></script>
 <script src="../assets/script/page-effects-loader.js"></script>
-<script>
-  applyWallpaper(toolsWebConfig.background, "tools-web");
-</script>
+<script src="../assets/script/inline/tools-web.js"></script>
 
 </body>
 </html>

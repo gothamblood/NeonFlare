@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="script-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'">
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="icon" type="image/svg+xml" href="../assets/images/dragon-logo.svg">
 <link rel="icon" type="image/png" href="../assets/images/dragon-favicon.png">
@@ -29,82 +30,17 @@
   </div>
 </div>
 
-<script>
-  const embedded = window.self !== window.top;
-
-  function reportHeight() {
-    if (embedded) {
-      window.parent.postMessage({ type: "tool-frame-height", height: document.body.scrollHeight }, "*");
-    }
-  }
-
-  function toggleCmd(id) {
-    const row = document.getElementById(id);
-    row.style.display = (row.style.display === "table-row") ? "none" : "table-row";
-    reportHeight();
-  }
-
-  (function () {
-    const savedTheme = localStorage.getItem("/settings.html") || "standard";
-    document.body.classList.add("theme-" + savedTheme);
-    if (embedded) document.body.classList.add("embedded");
-  })();
-
-  if (embedded) {
-    new ResizeObserver(reportHeight).observe(document.body);
-    window.addEventListener("load", reportHeight);
-  }
-</script>
+<script src="../assets/script/tools-page-boot.js"></script>
 
 <script src="../assets/script/tools-config.js"></script>
 <script src="../assets/script/theme-accent.js"></script>
-<script>
-  const catId = new URLSearchParams(window.location.search).get("catId");
-  const category = catId ? getToolsCategory(catId) : null;
-  document.getElementById("customCategoryTitle").textContent = category ? category.title : "Outils personnalisés";
-
-  const tools = catId ? getToolsCommands(catId) : [];
-  const table = document.getElementById("customTable");
-
-  if (!tools.length) {
-    document.getElementById("customEmptyState").style.display = "block";
-  } else {
-    table.style.display = "";
-    tools.forEach((tool, i) => {
-      const rowId = "cmd-custom-" + i;
-      const toolRow = document.createElement("tr");
-      toolRow.className = "tool-row";
-      toolRow.onclick = () => toggleCmd(rowId);
-      toolRow.innerHTML = `<td></td><td></td>`;
-      toolRow.children[0].textContent = tool.name;
-      toolRow.children[1].textContent = tool.description || "";
-      table.appendChild(toolRow);
-
-      const cmdRow = document.createElement("tr");
-      cmdRow.id = rowId;
-      cmdRow.className = "command-row";
-      const cell = document.createElement("td");
-      cell.colSpan = 2;
-      cell.className = "command-cell";
-      (tool.commands || []).forEach((cmd) => {
-        const div = document.createElement("div");
-        div.textContent = "— " + cmd;
-        cell.appendChild(div);
-      });
-      cmdRow.appendChild(cell);
-      table.appendChild(cmdRow);
-    });
-  }
-</script>
+<script src="../assets/script/inline/tools-custom-build.js"></script>
 
 <script src="../assets/script/wallpaper-loader.js"></script>
 <script src="../assets/script/copy-commands.js"></script>
 <script src="../assets/script/page-effects.js"></script>
 <script src="../assets/script/page-effects-loader.js"></script>
-<script>
-  applyWallpaper("../assets/images/atlantis.png", "tools-custom");
-  reportHeight();
-</script>
+<script src="../assets/script/inline/tools-custom-wallpaper.js"></script>
 
 </body>
 </html>

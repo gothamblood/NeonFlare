@@ -1,18 +1,41 @@
-/* Registre de risques -- CRUD + localStorage, même pattern que
-   assets/script/grc-assets.js et assets/script/network-config.js.
+/* Registre de risques -- migré sur grc-registry-kit.js (grk*) pour le
+   CRUD/registre/liste (PlanDurcissement-Securite.txt P2, module 2/5).
+   Le plan de traitement (risk.treatmentPlan, moitié basse de ce fichier
+   + grc-risk-treatment-panel.js) était DÉJÀ bâti sur le kit depuis
+   spec/grc-registry-upgrades/70-risk-treatment.md -- inchangé ici.
+
+   PAS de `schema:` grkEnsure pour le risque lui-même (contrairement aux
+   autres domaines kit) : risk.treatmentPlan est un sous-objet OPTIONNEL
+   dont l'ABSENCE fait foi (grcRiskHasTreatment() teste juste sa
+   présence) -- un schéma grkEnsure matérialiserait toujours un objet
+   pour un champ déclaré de type "object", cassant cette distinction
+   "jamais traité" vs "traité avec les valeurs par défaut". Les risques
+   passent donc tels quels (comme avant cette migration), échappage
+   grkEscapeHtml au rendu (comme avant : grcEscapeHtml -> grkEscapeHtml,
+   même garantie).
 
    Chaque risque référence un ou plusieurs actifs du registre
-   grc-assets.js (assetIds), sur le même principe que la sélection
-   parent/liens de Topology (project/settings.html,
-   populateParentSelect() / topocfgLinkA/B) : on reconstruit les options
-   du <select> à partir de l'autre registre à chaque ouverture du
-   formulaire. Pas de contrainte d'intégrité forte -- si un actif
-   référencé est supprimé entre-temps, il est simplement filtré à
-   l'affichage (voir getRiskAssetNames), pas de blocage.
+   grc-assets.js (assetIds) -- déplacé du formulaire principal (un
+   <select multiple> n'a pas d'équivalent dans le form déclaratif de
+   grkRegistry, cf 00-shared-kit.md §2.3) vers le panneau déplié, même
+   schéma "ajouter un lien à la fois + ✕" que linkedControls du plan de
+   traitement (grcRiskAddAsset/RemoveAsset, nouveau). Pas de contrainte
+   d'intégrité forte -- si un actif référencé est supprimé entre-temps,
+   il est simplement filtré à l'affichage (voir getRiskAssetNames), pas
+   de blocage.
 
-   Tout le texte affiché passe par grcT() (assets/script/grc-i18n.js) --
-   STATUSES/STRATEGIES restent des clés internes stables, la traduction
-   vient de grc.risques.status.* et grc.risques.strategy.* à l'affichage. */
+   Tout le texte affiché passe par grcT() (assets/script/grc-i18n.js,
+   déjà le cas avant cette migration) -- STATUSES/STRATEGIES restent des
+   clés internes stables, la traduction vient de grc.risques.status.* et
+   grc.risques.strategy.* à l'affichage.
+
+   Compat externe -- NE PAS renommer sans mettre à jour ces appelants :
+     - assets/script/inline/dashboard-upcoming-reviews.js : getGrcRisks()
+       -> lit .name / .reviewDate directement.
+     - assets/script/grc-controls.js : getGrcRisks() (datalist croisée).
+     - assets/script/grc-registry-kit.js (_GRK_REGISTRIES.risks).
+     - assets/script/inline/settings.js : getGrcRisks/saveGrcRisks/
+       resetGrcRisks (Sauvegarde complète / Reset). */
 
 const GRC_RISKS_KEY = "/grc/analyse-risques/registry";
 
@@ -27,22 +50,40 @@ function grcRiskStrategyI18nKey(value) {
   return value ? "grc.risques.strategy." + value : "grc.risques.strategy.none";
 }
 
+// Normalise UNIQUEMENT les valeurs soumises par le formulaire (jamais le
+// risque stocké en entier -- voir la note d'en-tête) : enums + nombres.
+// Champs absents du descripteur (id, assetIds, treatmentPlan...) restent
+// hors de portée de grkEnsure() par construction, jamais touchés ici.
+const GRC_RISK_FORM_SCHEMA = {
+  name: { type: "string" },
+  threat: { type: "string" },
+  vulnerability: { type: "string" },
+  probability: { type: "number", default: 1 },
+  impact: { type: "number", default: 1 },
+  treatmentStrategy: { type: "string", enum: GRC_RISK_TREATMENT_STRATEGIES, default: "" },
+  treatment: { type: "string" },
+  owner: { type: "string" },
+  reviewDate: { type: "string" },
+  status: { type: "string", enum: GRC_RISK_STATUSES, default: GRC_RISK_STATUSES[0] },
+};
+
+const _grcRiskStore = grkStore(GRC_RISKS_KEY);
+
 function getGrcRisks() {
-  try {
-    const raw = vaultGetItem(GRC_RISKS_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch (e) {
-    return [];
-  }
+  return _grcRiskStore.get();
 }
 
 function saveGrcRisks(risks) {
-  vaultSetItem(GRC_RISKS_KEY, JSON.stringify(risks));
+  _grcRiskStore.save(risks);
+}
+
+function resetGrcRisks() {
+  _grcRiskStore.remove();
 }
 
 function addGrcRisk(risk) {
   const risks = getGrcRisks();
-  const id = "risk-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  const id = grkId("risk");
   risks.push(Object.assign({ id }, risk));
   saveGrcRisks(risks);
   return id;
@@ -58,6 +99,32 @@ function updateGrcRisk(id, changes) {
 
 function removeGrcRisk(id) {
   saveGrcRisks(getGrcRisks().filter((r) => r.id !== id));
+}
+
+// Liens vers grc-assets.js -- un ajout/retrait à la fois depuis le
+// panneau déplié (voir renderRiskDetailPanel), même schéma que
+// grcSupAddLinkedIncident (grc-suppliers.js) / linkedControls du plan
+// de traitement ci-dessous.
+function grcRiskAddAsset(id, assetId) {
+  const risks = getGrcRisks();
+  const idx = risks.findIndex((r) => r.id === id);
+  if (idx === -1) return false;
+  const ids = Array.isArray(risks[idx].assetIds) ? risks[idx].assetIds.slice() : [];
+  if (!assetId || ids.indexOf(assetId) !== -1) return false;
+  ids.push(assetId);
+  risks[idx] = Object.assign({}, risks[idx], { assetIds: ids });
+  saveGrcRisks(risks);
+  return true;
+}
+
+function grcRiskRemoveAsset(id, assetId) {
+  const risks = getGrcRisks();
+  const idx = risks.findIndex((r) => r.id === id);
+  if (idx === -1) return false;
+  const ids = (Array.isArray(risks[idx].assetIds) ? risks[idx].assetIds : []).filter((a) => a !== assetId);
+  risks[idx] = Object.assign({}, risks[idx], { assetIds: ids });
+  saveGrcRisks(risks);
+  return true;
 }
 
 function grcRiskCriticality(risk) {
@@ -88,9 +155,8 @@ function getRiskAssetNames(risk) {
     .map((a) => a.name);
 }
 
-async function exportGrcRisksAsJson() {
-  const data = await vaultMaybeEncryptForExport(getGrcRisks());
-  exportJsonFile(data, "grc-risques.json");
+function exportGrcRisksAsJson() {
+  return grkExportJson(getGrcRisks(), "grc-risques-" + grkDateStamp() + ".json");
 }
 
 async function importGrcRisksFromJson(file) {
@@ -100,17 +166,13 @@ async function importGrcRisksFromJson(file) {
   saveGrcRisks(risks);
 }
 
-function resetGrcRisks() {
-  vaultRemoveItem(GRC_RISKS_KEY);
-}
-
 /* Rapport HTML du registre des risques seul -- même mécanique que
    exportGrcAssetsAsPdf (grc-assets.js) : aucune librairie tierce, une
    page HTML autonome imprimée via window.print() dans un nouvel onglet. */
 function grcRisksReportBody() {
   const risks = getGrcRisks();
   const generated = new Date().toLocaleString("fr-CA");
-  let html = "<h1>" + grcT("grc.risques.pdf.title") + "</h1><p>" + grcT("grc.common.generatedOn") + " " + grcEscapeHtml(generated) + "</p>";
+  let html = "<h1>" + grcT("grc.risques.pdf.title") + "</h1><p>" + grcT("grc.common.generatedOn") + " " + grkEscapeHtml(generated) + "</p>";
 
   if (risks.length === 0) {
     html += "<p>" + grcT("grc.risques.pdf.empty") + "</p>";
@@ -128,325 +190,277 @@ function grcRisksReportBody() {
   risks.forEach((risk) => {
     const crit = grcRiskCriticalityLabel(grcRiskCriticality(risk));
     html += "<tr>" +
-      "<td>" + grcEscapeHtml(risk.name) + "</td>" +
-      "<td>" + grcEscapeHtml(risk.threat || "") + "</td>" +
-      "<td>" + grcEscapeHtml(risk.vulnerability || "") + "</td>" +
-      "<td>" + grcEscapeHtml(getRiskAssetNames(risk).join(", ")) + "</td>" +
-      "<td>" + grcEscapeHtml(risk.probability) + "</td><td>" + grcEscapeHtml(risk.impact) + "</td>" +
-      "<td>" + grcEscapeHtml(crit.text) + "</td>" +
-      "<td>" + grcEscapeHtml(grcRiskStatusLabel(risk.status)) + "</td>" +
-      "<td>" + grcEscapeHtml(risk.owner || "") + "</td>" +
-      "<td>" + grcEscapeHtml(risk.reviewDate || "") + "</td>" +
-      "<td>" + grcEscapeHtml(grcRiskTreatmentStrategyLabel(risk.treatmentStrategy || "")) + "</td>" +
-      "<td>" + grcEscapeHtml(risk.treatment || "") + "</td>" +
+      "<td>" + grkEscapeHtml(risk.name) + "</td>" +
+      "<td>" + grkEscapeHtml(risk.threat || "") + "</td>" +
+      "<td>" + grkEscapeHtml(risk.vulnerability || "") + "</td>" +
+      "<td>" + grkEscapeHtml(getRiskAssetNames(risk).join(", ")) + "</td>" +
+      "<td>" + grkEscapeHtml(risk.probability) + "</td><td>" + grkEscapeHtml(risk.impact) + "</td>" +
+      "<td>" + grkEscapeHtml(crit.text) + "</td>" +
+      "<td>" + grkEscapeHtml(grcRiskStatusLabel(risk.status)) + "</td>" +
+      "<td>" + grkEscapeHtml(risk.owner || "") + "</td>" +
+      "<td>" + grkEscapeHtml(risk.reviewDate || "") + "</td>" +
+      "<td>" + grkEscapeHtml(grcRiskTreatmentStrategyLabel(risk.treatmentStrategy || "")) + "</td>" +
+      "<td>" + grkEscapeHtml(risk.treatment || "") + "</td>" +
       "</tr>";
   });
   html += "</tbody></table>";
   return html;
 }
 
+// Gate coffre ajoutée avec cette migration (absente avant -- un export
+// coffre verrouillé produisait silencieusement un rapport vide plutôt
+// que l'alerte standard, cf grkExportGated()). Passe par grkPrintWindow
+// (même rendu table -- couleurs génériques du kit plutôt que sur-mesure).
 function exportGrcRisksAsPdf() {
-  const body = grcRisksReportBody();
-  const html =
-    "<!doctype html><html><head><meta charset='utf-8'><title>" + grcT("grc.risques.pdf.title") + "</title><style>" +
-    "body{font-family:system-ui,Arial,sans-serif;color:#111;max-width:1100px;margin:2rem auto;line-height:1.5;}" +
-    "h1{margin-bottom:0;}" +
-    "table{border-collapse:collapse;width:100%;font-size:0.85em;}" +
-    "th,td{border:1px solid #ccc;padding:0.4em 0.6em;text-align:left;vertical-align:top;}" +
-    "th{background:#f0f0f0;}" +
-    "@media print{body{margin:0;}}" +
-    "</style></head><body>" + body +
-    "<script>window.onload=()=>setTimeout(()=>window.print(),200);<\/script>" +
-    "</body></html>";
-  const win = window.open("", "_blank");
-  if (!win) {
-    alert(grcT("grc.common.popupBlocked"));
-    return;
-  }
-  win.document.open();
-  win.document.write(html);
-  win.document.close();
+  grkPrintWindow(grcRisksReportBody(), grcT("grc.risques.pdf.title"));
 }
 
 /* Construit et branche la section "Registre des risques" de
    grc/analyse-risques.html : matrice 3x3 (probabilité x impact) +
    bouton/formulaire (add/edit) + liste accordéon (add/edit/delete),
    même mécanique que initGrcAssetRegistry(). Respecte le coffre-fort. */
-function initGrcRiskRegistry() {
-  const container = document.getElementById("grcRiskRegistry");
-  if (!container) return;
-  if (vaultGateOr(container, initGrcRiskRegistry)) return;
+// Matrice 3x3 probabilité x impact -- <div id="riskMatrix"> est un sibling
+// STATIQUE de #grcRiskRegistry dans grc/analyse-risques.html (comme
+// #grcRisksTreatmentSummary l'était déjà) : grkRegistry possède son
+// conteneur en entier (toolbar/form/liste), donc plus de place pour un
+// widget maison À L'INTÉRIEUR comme avant cette migration. Rafraîchie en
+// side-effect de `summarise` ci-dessous (appelée à chaque renderList()
+// interne du kit -- add/edit/delete/import -- donc toujours à jour sans
+// écouteur séparé).
+function _grcRiskRenderMatrix(risks) {
+  const el = document.getElementById("riskMatrix");
+  if (!el) return;
+  const counts = {}; // "p-i" -> count
+  risks.forEach((r) => {
+    const key = (r.probability || 1) + "-" + (r.impact || 1);
+    counts[key] = (counts[key] || 0) + 1;
+  });
 
-  let editingId = null;
-  let expandedId = null;
+  let html = '<div class="grc-risk-matrix-grid">';
+  html += '<div class="grc-risk-matrix-corner"></div>';
+  for (let impact = 1; impact <= 3; impact++) {
+    html += `<div class="grc-risk-matrix-axis">${grcT("grc.risques.matrix.impact").replace("{n}", impact)}</div>`;
+  }
+  for (let prob = 3; prob >= 1; prob--) {
+    html += `<div class="grc-risk-matrix-axis">${grcT("grc.risques.matrix.probability").replace("{n}", prob)}</div>`;
+    for (let impact = 1; impact <= 3; impact++) {
+      const score = prob * impact;
+      const cls = grcRiskCriticalityLabel(score).cls;
+      const count = counts[prob + "-" + impact] || 0;
+      html += `<div class="grc-risk-matrix-cell ${cls}">${count}</div>`;
+    }
+  }
+  html += "</div>";
+  el.innerHTML = html;
+}
 
-  container.innerHTML = `
-    <div class="grc-risk-matrix" id="riskMatrix"></div>
-    <div class="grc-registry-toolbar">
-      <button type="button" class="grc-registry-add-btn" id="riskAddBtn">${grcT("grc.risques.form.addBtn")}</button>
-      <button type="button" class="grc-registry-io-btn" id="riskExportBtn">${grcT("grc.common.btnExport")}</button>
-      <button type="button" class="grc-registry-io-btn" id="riskExportPdfBtn">${grcT("grc.common.btnExportPdf")}</button>
-      <button type="button" class="grc-registry-io-btn" id="riskImportBtn">${grcT("grc.common.btnImport")}</button>
-      <input type="file" accept="application/json" id="riskImportFile" style="display:none">
-    </div>
-    <form class="grc-registry-form" id="riskForm" style="display:none">
-      <h3 id="riskFormTitle">${grcT("grc.risques.form.title")}</h3>
-      <label>${grcT("grc.risques.form.name")} <input type="text" id="riskName" required></label>
-      <label>${grcT("grc.risques.form.threat")} <input type="text" id="riskThreat"></label>
-      <label>${grcT("grc.risques.form.vulnerability")} <input type="text" id="riskVulnerability"></label>
-      <label>${grcT("grc.risques.form.assets")}
-        <select id="riskAssetIds" multiple size="4"></select>
-      </label>
-      <div class="grc-registry-form-row">
-        <label>${grcT("grc.risques.form.probability")} <input type="number" id="riskProbability" min="1" max="3" value="1" required></label>
-        <label>${grcT("grc.risques.form.impact")} <input type="number" id="riskImpact" min="1" max="3" value="1" required></label>
-      </div>
-      <label>${grcT("grc.risques.form.treatmentStrategy")}
-        <select id="riskTreatmentStrategy">
-          ${GRC_RISK_TREATMENT_STRATEGIES.map((s) => `<option value="${s}">${grcT(grcRiskStrategyI18nKey(s))}</option>`).join("")}
-        </select>
-      </label>
-      <label>${grcT("grc.risques.form.treatment")} <textarea id="riskTreatment" rows="2" placeholder="${grcT("grc.risques.form.treatmentPlaceholder")}"></textarea></label>
-      <label>${grcT("grc.risques.form.owner")} <input type="text" id="riskOwner"></label>
-      <label>${grcT("grc.risques.form.reviewDate")} <input type="date" id="riskReviewDate"></label>
-      <label>${grcT("grc.risques.form.status")}
-        <select id="riskStatus">
-          ${GRC_RISK_STATUSES.map((s) => `<option value="${s}">${grcT("grc.risques.status." + s)}</option>`).join("")}
-        </select>
-      </label>
-      <div class="grc-registry-form-actions">
-        <button type="submit" class="grc-registry-add-btn">${grcT("grc.common.btnSave")}</button>
-        <button type="button" class="grc-registry-io-btn" id="riskCancelBtn">${grcT("grc.common.btnCancel")}</button>
-      </div>
-    </form>
-    <ul class="grc-registry-list" id="riskList"></ul>
-  `;
+/* Panneau déplié d'un risque -- PAS grkPanel/onglets (comme
+   grc-pentest.js avant lui) : contenu cohérent unique (détail + actifs
+   liés), rien à séparer en facettes. Liens vers grc-assets.js déplacés
+   ici depuis le formulaire principal (voir note d'en-tête) -- ajout un
+   à la fois + ✕, même schéma que linkedControls du plan de traitement
+   juste après (grkList/grkRow/grkAddForm/grkDelBtn). Le plan de
+   traitement lui-même (renderRiskTreatmentPanel, déjà kit) est appelé
+   tel quel à la fin, inchangé. */
+function renderRiskDetailPanel(body, risk) {
+  const assetNames = getRiskAssetNames(risk);
+  const controllingControls = typeof getControlsForRisk === "function"
+    ? getControlsForRisk(risk.id).map((c) => c.name)
+    : [];
 
-  function populateAssetIds(selected) {
-    const select = container.querySelector("#riskAssetIds");
-    select.innerHTML = "";
-    const assets = typeof getGrcAssets === "function" ? getGrcAssets() : [];
-    assets.forEach((a) => {
-      const opt = document.createElement("option");
-      opt.value = a.id;
-      opt.textContent = a.name;
-      opt.selected = (selected || []).includes(a.id);
-      select.appendChild(opt);
+  const info = document.createElement("div");
+  info.innerHTML =
+    (risk.threat ? `<p>${grcT("grc.risques.detail.threat").replace("{value}", grkEscapeHtml(risk.threat))}</p>` : "") +
+    (risk.vulnerability ? `<p>${grcT("grc.risques.detail.vulnerability").replace("{value}", grkEscapeHtml(risk.vulnerability))}</p>` : "") +
+    `<p>${grcT("grc.risques.detail.probImpact").replace("{p}", grkEscapeHtml(risk.probability)).replace("{i}", grkEscapeHtml(risk.impact)).replace("{status}", grkEscapeHtml(grcRiskStatusLabel(risk.status)))}</p>` +
+    (risk.owner ? `<p>${grcT("grc.risques.detail.owner").replace("{owner}", grkEscapeHtml(risk.owner))}</p>` : "") +
+    (risk.reviewDate ? `<p>${grcT("grc.risques.detail.reviewDate").replace("{date}", grkEscapeHtml(risk.reviewDate))}</p>` : "") +
+    (risk.treatmentStrategy ? `<p>${grcT("grc.risques.detail.strategy").replace("{value}", grkEscapeHtml(grcRiskTreatmentStrategyLabel(risk.treatmentStrategy)))}</p>` : "") +
+    (risk.treatment ? `<p>${grcT("grc.risques.detail.treatment").replace("{value}", grkEscapeHtml(risk.treatment))}</p>` : "") +
+    (controllingControls.length ? `<p>${grcT("grc.risques.detail.treatedBy").replace("{names}", grkEscapeHtml(controllingControls.join(", ")))}</p>` : "");
+  body.appendChild(info);
+
+  const assetList = grkList(body, "grc.risques.form.assets");
+  assetNames.forEach((name, i) => {
+    const assetId = risk.assetIds[i];
+    const row = grkRow();
+    const span = document.createElement("span");
+    span.className = "grk-inv-grow";
+    span.textContent = name;
+    row.appendChild(span);
+    row.appendChild(grkDelBtn(() => { grcRiskRemoveAsset(risk.id, assetId); renderGrcRiskRegistry(); }));
+    assetList.appendChild(row);
+  });
+  if (!assetNames.length) assetList.appendChild(grkEmptyLine("grc.risques.detail.noAsset"));
+
+  const allAssets = typeof getGrcAssets === "function" ? getGrcAssets() : [];
+  const linkable = allAssets.filter((a) => (risk.assetIds || []).indexOf(a.id) === -1);
+  if (linkable.length) {
+    const sel = grkSelect(linkable.map((a) => a.id), linkable[0].id, (id) => {
+      const a = linkable.find((x) => x.id === id);
+      return a ? a.name : id;
     });
+    const addForm = grkAddForm([sel], (form) => {
+      grcRiskAddAsset(risk.id, sel.value);
+      renderGrcRiskRegistry();
+    });
+    const addBtn = document.createElement("button");
+    addBtn.type = "submit";
+    addBtn.className = "grc-registry-add-btn";
+    addBtn.textContent = grcT("grc.risques.detail.addAsset");
+    addForm.appendChild(addBtn);
+    body.appendChild(addForm);
   }
 
-  function showForm(risk) {
-    editingId = risk ? risk.id : null;
-    container.querySelector("#riskFormTitle").textContent = risk ? grcT("grc.risques.form.titleEdit") : grcT("grc.risques.form.title");
-    container.querySelector("#riskName").value = risk ? risk.name : "";
-    container.querySelector("#riskThreat").value = risk ? (risk.threat || "") : "";
-    container.querySelector("#riskVulnerability").value = risk ? (risk.vulnerability || "") : "";
-    container.querySelector("#riskProbability").value = risk ? risk.probability : 1;
-    container.querySelector("#riskImpact").value = risk ? risk.impact : 1;
-    container.querySelector("#riskTreatmentStrategy").value = risk ? (risk.treatmentStrategy || "") : "";
-    container.querySelector("#riskTreatment").value = risk ? (risk.treatment || "") : "";
-    container.querySelector("#riskOwner").value = risk ? (risk.owner || "") : "";
-    container.querySelector("#riskReviewDate").value = risk ? (risk.reviewDate || "") : "";
-    container.querySelector("#riskStatus").value = risk ? risk.status : GRC_RISK_STATUSES[0];
-    populateAssetIds(risk ? risk.assetIds : []);
-    container.querySelector("#riskForm").style.display = "";
-    container.querySelector("#riskAddBtn").style.display = "none";
-    container.querySelector("#riskFormTitle").scrollIntoView({ behavior: "smooth", block: "center" });
-  }
-
-  function hideForm() {
-    editingId = null;
-    container.querySelector("#riskForm").reset();
-    container.querySelector("#riskForm").style.display = "none";
-    container.querySelector("#riskAddBtn").style.display = "";
-  }
-
-  container.querySelector("#riskAddBtn").addEventListener("click", () => showForm(null));
-  container.querySelector("#riskCancelBtn").addEventListener("click", hideForm);
-  container.querySelector("#riskExportBtn").addEventListener("click", exportGrcRisksAsJson);
-  container.querySelector("#riskExportPdfBtn").addEventListener("click", exportGrcRisksAsPdf);
-  container.querySelector("#riskImportBtn").addEventListener("click", () => container.querySelector("#riskImportFile").click());
-  container.querySelector("#riskImportFile").addEventListener("change", (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    importGrcRisksFromJson(file)
-      .then(renderGrcRiskRegistry)
-      .catch((err) => alert(err.message || grcT("grc.common.invalidJsonFile")))
-      .finally(() => { e.target.value = ""; });
-  });
-
-  container.querySelector("#riskForm").addEventListener("submit", (e) => {
-    e.preventDefault();
-    const name = container.querySelector("#riskName").value.trim();
-    if (!name) return;
-    const assetIds = Array.from(container.querySelector("#riskAssetIds").selectedOptions).map((o) => o.value);
-    const data = {
-      name,
-      threat: container.querySelector("#riskThreat").value.trim(),
-      vulnerability: container.querySelector("#riskVulnerability").value.trim(),
-      assetIds,
-      probability: Number(container.querySelector("#riskProbability").value) || 1,
-      impact: Number(container.querySelector("#riskImpact").value) || 1,
-      treatmentStrategy: container.querySelector("#riskTreatmentStrategy").value,
-      treatment: container.querySelector("#riskTreatment").value.trim(),
-      owner: container.querySelector("#riskOwner").value.trim(),
-      reviewDate: container.querySelector("#riskReviewDate").value,
-      status: container.querySelector("#riskStatus").value,
-    };
-    if (editingId) updateGrcRisk(editingId, data);
-    else addGrcRisk(data);
-    hideForm();
-    renderGrcRiskRegistry();
-  });
-
-  function buildRiskItem(risk) {
-    const crit = grcRiskCriticalityLabel(grcRiskCriticality(risk));
-    const li = document.createElement("li");
-    li.className = "grc-registry-item" + (risk.id === expandedId ? " open" : "");
-
-    const treated = grcRiskHasTreatment(risk);
-    const header = document.createElement("div");
-    header.className = "grc-registry-header";
-    header.innerHTML =
-      `<span>${grkEscapeHtml(risk.name)}</span>` +
-      `<span class="grc-crit-badge ${crit.cls}">${crit.text}</span>` +
-      (treated ? `<span class="grc-rt-badge">${grcT("grc.risques.rt.badge")}</span>` : "") +
-      (treated && grcRiskTreatmentOverdueActions(risk)
-        ? `<span class="grc-sup-mini-badge grc-sup-badge-expired">${grcT("grc.risques.rt.actionsOverdue")}</span>` : "") +
-      `<span class="chevron">▸</span>`;
-    header.onclick = () => {
-      expandedId = expandedId === risk.id ? null : risk.id;
+  const treated = grcRiskHasTreatment(risk);
+  if (treated && typeof renderRiskTreatmentPanel === "function") {
+    renderRiskTreatmentPanel(body, risk);
+    const dropBtn = document.createElement("button");
+    dropBtn.type = "button";
+    dropBtn.className = "grc-registry-io-btn grc-rt-drop";
+    dropBtn.textContent = grcT("grc.risques.rt.drop");
+    dropBtn.onclick = () => {
+      if (!confirm(grcT("grc.risques.rt.dropConfirm"))) return;
+      grcRiskDropTreatment(risk.id);
       renderGrcRiskRegistry();
     };
-    li.appendChild(header);
+    body.appendChild(dropBtn);
+  } else if (!treated) {
+    const startBtn = document.createElement("button");
+    startBtn.type = "button";
+    startBtn.className = "grc-registry-add-btn grc-rt-start";
+    startBtn.textContent = grcT("grc.risques.rt.start");
+    startBtn.onclick = () => { grcRiskStartTreatment(risk.id); renderGrcRiskRegistry(); };
+    body.appendChild(startBtn);
+  }
+}
 
-    if (risk.id === expandedId) {
-      const body = document.createElement("div");
-      body.className = "grc-registry-body";
+function _grcRiskEnumOptions(values, i18nOf) {
+  return values.map((v) => ({ value: v, label: i18nOf(v) }));
+}
 
-      const assetNames = getRiskAssetNames(risk);
-      const controllingControls = typeof getControlsForRisk === "function"
-        ? getControlsForRisk(risk.id).map((c) => c.name)
-        : [];
-
-      body.innerHTML =
-        (risk.threat ? `<p>${grcT("grc.risques.detail.threat").replace("{value}", grkEscapeHtml(risk.threat))}</p>` : "") +
-        (risk.vulnerability ? `<p>${grcT("grc.risques.detail.vulnerability").replace("{value}", grkEscapeHtml(risk.vulnerability))}</p>` : "") +
-        (assetNames.length ? `<p>${grcT("grc.risques.detail.assets").replace("{names}", grkEscapeHtml(assetNames.join(", ")))}</p>` : "") +
-        `<p>${grcT("grc.risques.detail.probImpact").replace("{p}", grkEscapeHtml(risk.probability)).replace("{i}", grkEscapeHtml(risk.impact)).replace("{status}", grcRiskStatusLabel(risk.status))}</p>` +
-        (risk.owner ? `<p>${grcT("grc.risques.detail.owner").replace("{owner}", grkEscapeHtml(risk.owner))}</p>` : "") +
-        (risk.reviewDate ? `<p>${grcT("grc.risques.detail.reviewDate").replace("{date}", grkEscapeHtml(risk.reviewDate))}</p>` : "") +
-        (risk.treatmentStrategy ? `<p>${grcT("grc.risques.detail.strategy").replace("{value}", grcRiskTreatmentStrategyLabel(risk.treatmentStrategy))}</p>` : "") +
-        (risk.treatment ? `<p>${grcT("grc.risques.detail.treatment").replace("{value}", grkEscapeHtml(risk.treatment))}</p>` : "") +
-        (controllingControls.length ? `<p>${grcT("grc.risques.detail.treatedBy").replace("{names}", grkEscapeHtml(controllingControls.join(", ")))}</p>` : "");
-
-      const editBtn = document.createElement("button");
-      editBtn.type = "button";
-      editBtn.className = "grc-registry-add-btn";
-      editBtn.textContent = grcT("grc.common.btnEdit");
-      editBtn.onclick = () => showForm(risk);
-      body.appendChild(editBtn);
-
-      const deleteBtn = document.createElement("button");
-      deleteBtn.type = "button";
-      deleteBtn.className = "grc-registry-io-btn";
-      deleteBtn.textContent = grcT("grc.common.btnDelete");
-      deleteBtn.onclick = () => {
-        if (!confirm(grcT("grc.common.confirmDelete").replace("{name}", risk.name))) return;
-        removeGrcRisk(risk.id);
-        if (expandedId === risk.id) expandedId = null;
-        renderGrcRiskRegistry();
+function initGrcRiskRegistry() {
+  const init = grkRegistry({
+    mount: "#grcRiskRegistry",
+    summary: "#grcRisksTreatmentSummary",
+    store: _grcRiskStore,
+    idAttr: "data-risk-id",
+    listGlobal: "renderGrcRiskRegistry",
+    deepLink: true,
+    i18n: {
+      add: "grc.risques.form.addBtn",
+      titleAdd: "grc.risques.form.title",
+      titleEdit: "grc.risques.form.titleEdit",
+      export: "grc.common.btnExport",
+      import: "grc.common.btnImport",
+    },
+    form: [
+      { id: "name", label: "grc.risques.form.name", type: "text", required: true },
+      { id: "threat", label: "grc.risques.form.threat", type: "text" },
+      { id: "vulnerability", label: "grc.risques.form.vulnerability", type: "text" },
+      { id: "probability", label: "grc.risques.form.probability", type: "text" },
+      { id: "impact", label: "grc.risques.form.impact", type: "text" },
+      { id: "treatmentStrategy", label: "grc.risques.form.treatmentStrategy", type: "select",
+        options: GRC_RISK_TREATMENT_STRATEGIES.map((s) => ({ value: s, label: grcRiskStrategyI18nKey(s) })) },
+      { id: "treatment", label: "grc.risques.form.treatment", type: "textarea" },
+      { id: "owner", label: "grc.risques.form.owner", type: "text" },
+      { id: "reviewDate", label: "grc.risques.form.reviewDate", type: "text" },
+      { id: "status", label: "grc.risques.form.status", type: "select",
+        options: _grcRiskEnumOptions(GRC_RISK_STATUSES, (v) => "grc.risques.status." + v) },
+    ],
+    readForm: (r) => ({
+      name: r.name, threat: r.threat, vulnerability: r.vulnerability,
+      probability: r.probability, impact: r.impact,
+      treatmentStrategy: r.treatmentStrategy || "", treatment: r.treatment,
+      owner: r.owner, reviewDate: r.reviewDate, status: r.status,
+    }),
+    // grkEnsure() ici (juste sur les champs SOUMIS, jamais sur le risque
+    // stocké en entier -- voir la note d'en-tête sur treatmentPlan) :
+    // un <select> fraîchement affiché par grkRegistry.showForm(null) a
+    // selectedIndex=-1/value="" tant que l'utilisateur ne l'a pas
+    // touché (défaut du kit lui-même -- reproduit à l'identique sur un
+    // module déjà "kit", grc-suppliers.js ; invisible là-bas seulement
+    // parce que addGrcSupplier() route tout par grkEnsure). Sans ce
+    // garde, créer un risque sans toucher aux listes déroulantes
+    // Stratégie/Statut enregistrait des chaînes vides plutôt que les
+    // valeurs par défaut voulues.
+    submit: (v, editingId) => {
+      const fields = grkEnsure(v, GRC_RISK_FORM_SCHEMA);
+      fields.name = fields.name.trim();
+      fields.threat = fields.threat.trim();
+      fields.vulnerability = fields.vulnerability.trim();
+      fields.treatment = fields.treatment.trim();
+      fields.owner = fields.owner.trim();
+      fields.reviewDate = fields.reviewDate.trim();
+      if (editingId) updateGrcRisk(editingId, fields);
+      else addGrcRisk(fields);
+    },
+    header: (r) => {
+      const crit = grcRiskCriticalityLabel(grcRiskCriticality(r));
+      const treated = grcRiskHasTreatment(r);
+      const cells = [
+        { text: r.name || "" },
+        { badge: { cls: crit.cls, text: crit.text } },
+      ];
+      // Nodes directs (pas {text:...}, un <span> nu sans classe) pour
+      // garder EXACTEMENT les classes CSS/hooks de test d'avant cette
+      // migration (.grc-rt-badge, .grc-sup-mini-badge.grc-sup-badge-expired
+      // -- voir grc.css + ProjetTest/tests/test_risk_treatment.py RT.a).
+      if (treated) {
+        const b = document.createElement("span");
+        b.className = "grc-rt-badge";
+        b.textContent = grcT("grc.risques.rt.badge");
+        cells.push(b);
+      }
+      if (treated && grcRiskTreatmentOverdueActions(r)) {
+        const b = document.createElement("span");
+        b.className = "grc-sup-mini-badge grc-sup-badge-expired";
+        b.textContent = grcT("grc.risques.rt.actionsOverdue");
+        cells.push(b);
+      }
+      return cells;
+    },
+    panel: renderRiskDetailPanel,
+    exportFn: exportGrcRisksAsJson,
+    importFn: importGrcRisksFromJson,
+    summarise: (list) => {
+      _grcRiskRenderMatrix(list);
+      const s = grcRisksTreatmentSummary(list);
+      if (!s.total) return null;
+      return {
+        chips: [
+          grcT("grc.risques.rt.summary.untreated").replace("{n}", s.untreated),
+          grcT("grc.risques.rt.summary.overdueActions").replace("{n}", s.overdueActions),
+          grcT("grc.risques.rt.summary.acceptanceReview").replace("{n}", s.acceptanceReview),
+          grcT("grc.risques.rt.summary.avgReduction").replace("{v}", s.avgReductionPct == null ? "—" : s.avgReductionPct),
+        ],
       };
-      body.appendChild(deleteBtn);
+    },
+    confirmName: (r) => r.name || "",
+  });
 
-      /* --- Plan de traitement (spec/grc-registry-upgrades/70-risk-treatment.md) --- */
-      if (treated && typeof renderRiskTreatmentPanel === "function") {
-        renderRiskTreatmentPanel(body, risk);
-        const dropBtn = document.createElement("button");
-        dropBtn.type = "button";
-        dropBtn.className = "grc-registry-io-btn grc-rt-drop";
-        dropBtn.textContent = grcT("grc.risques.rt.drop");
-        dropBtn.onclick = () => {
-          if (!confirm(grcT("grc.risques.rt.dropConfirm"))) return;
-          grcRiskDropTreatment(risk.id);
-          renderGrcRiskRegistry();
-        };
-        body.appendChild(dropBtn);
-      } else if (!treated) {
-        const startBtn = document.createElement("button");
-        startBtn.type = "button";
-        startBtn.className = "grc-registry-add-btn grc-rt-start";
-        startBtn.textContent = grcT("grc.risques.rt.start");
-        startBtn.onclick = () => { grcRiskStartTreatment(risk.id); renderGrcRiskRegistry(); };
-        body.appendChild(startBtn);
-      }
+  init();
 
-      li.appendChild(body);
-    }
-
-    return li;
+  // grkRegistry ne prévoit qu'UN bouton "Export" dans sa barre d'outils
+  // (JSON) -- le rapport PDF du REGISTRE ENTIER (pas d'un risque) n'a
+  // pas d'équivalent dans le kit (chaque domaine kit expose ses formats
+  // multiples via un onglet "Export" PAR ENTITÉ, cf _rtRenderExport,
+  // pas via la barre du haut). Ajouté à la main -- même bouton qu'avant
+  // cette migration, juste réinséré après coup.
+  const toolbar = document.querySelector("#grcRiskRegistry .grc-registry-toolbar");
+  if (toolbar) {
+    const pdfBtn = document.createElement("button");
+    pdfBtn.type = "button";
+    pdfBtn.className = "grc-registry-io-btn";
+    pdfBtn.textContent = grcT("grc.common.btnExportPdf");
+    pdfBtn.addEventListener("click", exportGrcRisksAsPdf);
+    toolbar.appendChild(pdfBtn);
   }
 
-  function renderMatrix() {
-    const risks = getGrcRisks();
-    const counts = {}; // "p-i" -> count
-    risks.forEach((r) => {
-      const key = (r.probability || 1) + "-" + (r.impact || 1);
-      counts[key] = (counts[key] || 0) + 1;
-    });
-
-    let html = '<div class="grc-risk-matrix-grid">';
-    html += '<div class="grc-risk-matrix-corner"></div>';
-    for (let impact = 1; impact <= 3; impact++) {
-      html += `<div class="grc-risk-matrix-axis">${grcT("grc.risques.matrix.impact").replace("{n}", impact)}</div>`;
-    }
-    for (let prob = 3; prob >= 1; prob--) {
-      html += `<div class="grc-risk-matrix-axis">${grcT("grc.risques.matrix.probability").replace("{n}", prob)}</div>`;
-      for (let impact = 1; impact <= 3; impact++) {
-        const score = prob * impact;
-        const cls = grcRiskCriticalityLabel(score).cls;
-        const count = counts[prob + "-" + impact] || 0;
-        html += `<div class="grc-risk-matrix-cell ${cls}">${count}</div>`;
-      }
-    }
-    html += "</div>";
-    container.querySelector("#riskMatrix").innerHTML = html;
-  }
-
-  function renderRiskTreatmentSummary() {
-    const el = document.getElementById("grcRisksTreatmentSummary");
-    if (!el) return;
-    const s = grcRisksTreatmentSummary(getGrcRisks());
-    el.innerHTML = "";
-    if (!s.total) return;
-    const wrap = document.createElement("div");
-    wrap.className = "grc-cont-summary";
-    const chips = document.createElement("div");
-    chips.className = "grc-cont-summary-chips";
-    [
-      grcT("grc.risques.rt.summary.untreated").replace("{n}", s.untreated),
-      grcT("grc.risques.rt.summary.overdueActions").replace("{n}", s.overdueActions),
-      grcT("grc.risques.rt.summary.acceptanceReview").replace("{n}", s.acceptanceReview),
-      grcT("grc.risques.rt.summary.avgReduction").replace("{v}", s.avgReductionPct == null ? "—" : s.avgReductionPct),
-    ].forEach((tx) => {
-      const c = document.createElement("span");
-      c.className = "grc-cont-chip";
-      c.textContent = tx;
-      chips.appendChild(c);
-    });
-    wrap.appendChild(chips);
-    el.appendChild(wrap);
-  }
-
-  window.renderGrcRiskRegistry = function () {
-    renderMatrix();
-    const list = container.querySelector("#riskList");
-    list.innerHTML = "";
-    getGrcRisks().forEach((risk) => list.appendChild(buildRiskItem(risk)));
-    renderRiskTreatmentSummary();
-  };
-
-  renderGrcRiskRegistry();
+  // id conservé pour compat -- ProjetTest/tests/test_risk_treatment.py
+  // (déjà "kit" avant cette migration) cible #riskList directement.
+  const list = document.querySelector("#grcRiskRegistry .grc-registry-list");
+  if (list) list.id = "riskList";
 }
 
 /* ================================================================== *

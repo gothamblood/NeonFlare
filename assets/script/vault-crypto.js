@@ -15,10 +15,13 @@
    which would mean a WASM dependency this project deliberately
    doesn't have). VAULT_LEVELS.standard matches OWASP's current
    Password Storage Cheat Sheet baseline for PBKDF2-HMAC-SHA256. */
+// i18nKey is only ever read by project/settings.html's own Chiffrement
+// card -- label stays the French fallback for every other page that
+// loads this file just for the crypto helpers.
 const VAULT_LEVELS = {
-  light: { label: "Léger", iterations: 210000 },
-  standard: { label: "Standard", iterations: 600000 },
-  strong: { label: "Renforcé", iterations: 1500000 },
+  light: { label: "Léger", i18nKey: "settings.vault.levelLight", iterations: 210000 },
+  standard: { label: "Standard", i18nKey: "settings.vault.levelStandard", iterations: 600000 },
+  strong: { label: "Renforcé", i18nKey: "settings.vault.levelStrong", iterations: 1500000 },
 };
 
 const VAULT_ALGORITHM = "AES-GCM";

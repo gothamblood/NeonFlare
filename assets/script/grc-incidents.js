@@ -1,14 +1,52 @@
-/* Journal d'incidents -- CRUD + localStorage, même pattern que
-   assets/script/grc-risks.js et assets/script/grc-assets.js (TodoGRC.txt
-   #3). Remplace/complète la checklist d'auto-évaluation de
-   grc/incidents.html (inchangée, voir assets/script/grc-checklist.js)
-   par un vrai journal : sévérité, timeline détection/réponse/résolution,
-   statut, post-mortem.
+/* Journal d'incidents -- migré sur grc-registry-kit.js (grk*) pour le
+   CRUD/registre/liste, PlanDurcissement-Securite.txt P2 (module 3/5).
+   Le Mode « Incident Response » (incident.ir, grc-incidents-ir.js) est
+   INCHANGÉ par cette migration -- il utilisait déjà les helpers grk*
+   partagés (irFmtDateTime = grkFmtDateTime, irEscapeHtml = grkEscapeHtml,
+   etc., voir son en-tête) et gère son propre panneau à onglets, comme
+   grc-continuity-panel.js avant lui (même style : pas grkPanel, une
+   barre d'onglets maison -- un incident IR porte trop de facettes
+   interdépendantes -- timeline SVG, kanban, notes autosave -- pour le
+   patron liste/formulaire de grkList).
 
-   Tout le texte affiché passe par grcT() (assets/script/grc-i18n.js) --
-   SEVERITIES/STATUSES restent des clés internes stables, la traduction
-   vient de grc.incidents.severity.* et grc.incidents.status.* à
-   l'affichage. */
+   PAS de `schema:` grkEnsure pour l'incident lui-même (même choix que
+   grc-risks.js pour treatmentPlan) : `incident.ir` est un sous-objet
+   OPTIONNEL dont la forme/présence est gérée par grcIncidentEnsureIr()
+   (déjà idempotent, déjà appelé à chaque lecture côté Mode IR) -- un
+   schéma grkEnsure matérialiserait un `ir` pour CHAQUE incident, cassant
+   la distinction "jamais passé en Mode IR" vs "actif avec ses valeurs
+   par défaut". Les incidents passent donc tels quels dans la liste ;
+   seuls les champs SOUMIS par le formulaire d'ajout/édition sont
+   normalisés (enums sévérité/statut, dates -> ISO) via un schéma dédié
+   plus restreint (GRC_INCIDENT_FORM_SCHEMA).
+
+   Badge de sévérité en <span class="grc-crit-badge ...">, PAS via le
+   cell-shape {badge:...} du kit (qui pose "grc-cont-crit", une classe
+   propre à grc-continuity-panel.js sans style pour high/medium/low) --
+   nœud DOM direct, même raison que grc-risks.js pour son badge "traité".
+
+   detectedAt/respondedAt/resolvedAt : <input type="text"> au formulaire
+   (le kit ne connaît que text/textarea/select/dur, cf grc-pentest.js
+   pour startDate/endDate) plutôt que le natif type="datetime-local"
+   d'avant cette migration -- normalisées en ISO complet au submit
+   (grkToIso, schéma ci-dessous) puis affichées via grkFmtDateTime.
+   Plus permissif à la saisie que le picker natif, mais désormais
+   VALIDÉES (une saisie non parsable devient null, gérée comme "date
+   absente" partout en aval) là où le picker natif garantissait juste un
+   format, sans empêcher un import/programmatique de stocker n'importe
+   quoi avant cette migration.
+
+   Compat externe -- NE PAS renommer sans mettre à jour ces appelants :
+     - assets/script/inline/incidents.js : initGrcIncidentRegistry().
+     - assets/script/inline/settings.js (Sauvegarde complète / Reset) :
+       getGrcIncidents, saveGrcIncidents, resetGrcIncidents.
+     - assets/script/grc-continuity.js (datalist « Incident IR lié ») et
+       assets/script/grc-suppliers-panel.js (onglet Incidents & suivi) :
+       getGrcIncidents() -> [{ title, ... }].
+     - assets/script/grc-registry-kit.js (_GRK_REGISTRIES.incidents).
+     - assets/script/grc-incidents-ir.js (même domaine, chargé après) :
+       getGrcIncidents/updateGrcIncident + tous les grcIncidentEnsureIr /
+       grcIr... / GRC_IR_... ci-dessous, inchangés. */
 
 const GRC_INCIDENTS_KEY = "/grc/incidents/registry";
 
@@ -39,22 +77,25 @@ const GRC_IR_HYP_STATUSES = ["open", "confirmed", "rejected"];
 const GRC_IR_TASK_STATUSES = ["todo", "doing", "done"];
 const GRC_IR_NIST_PHASES = ["detection", "containment", "eradication", "recovery", "lessons"];
 
+/* ---------- store (kit) ---------------------------------------------- */
+
+const _incidentStore = grkStore(GRC_INCIDENTS_KEY);
+
 function getGrcIncidents() {
-  try {
-    const raw = vaultGetItem(GRC_INCIDENTS_KEY);
-    return raw ? JSON.parse(raw) : [];
-  } catch (e) {
-    return [];
-  }
+  return _incidentStore.get();
 }
 
 function saveGrcIncidents(incidents) {
-  vaultSetItem(GRC_INCIDENTS_KEY, JSON.stringify(incidents));
+  _incidentStore.save(incidents);
+}
+
+function resetGrcIncidents() {
+  _incidentStore.remove();
 }
 
 function addGrcIncident(incident) {
   const incidents = getGrcIncidents();
-  const id = "incident-" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  const id = grkId("incident");
   incidents.push(Object.assign({ id }, incident));
   saveGrcIncidents(incidents);
   return id;
@@ -86,23 +127,17 @@ function grcIncidentStatusLabel(value) {
   return grcT("grc.incidents.status." + (found ? found.i18nKey : "ouvert"));
 }
 
-// Temps de résolution lisible (détection -> résolution), ou null si l'une
-// des deux dates manque -- pas de contrainte, un incident encore ouvert
-// n'a simplement pas cette info.
+// Temps de résolution lisible (détection -> résolution) -- délègue à
+// grkSpanLabel (même formule 48h qu'avant cette migration, factorisée
+// dans le kit) ; null si l'une des deux dates manque, invalide, ou si
+// resolvedAt < detectedAt -- pas de contrainte, un incident encore
+// ouvert n'a simplement pas cette info.
 function grcIncidentResolutionDuration(incident) {
-  if (!incident.detectedAt || !incident.resolvedAt) return null;
-  const start = new Date(incident.detectedAt).getTime();
-  const end = new Date(incident.resolvedAt).getTime();
-  if (isNaN(start) || isNaN(end) || end < start) return null;
-  const hours = Math.round((end - start) / 36000) / 100;
-  return hours < 48
-    ? grcT("grc.incidents.detail.durationHours").replace("{value}", hours)
-    : grcT("grc.incidents.detail.durationDays").replace("{value}", Math.round(hours / 24));
+  return grkSpanLabel(incident.detectedAt, incident.resolvedAt);
 }
 
-async function exportGrcIncidentsAsJson() {
-  const data = await vaultMaybeEncryptForExport(getGrcIncidents());
-  exportJsonFile(data, "grc-incidents.json");
+function exportGrcIncidentsAsJson() {
+  return grkExportJson(getGrcIncidents(), "grc-incidents-" + grkDateStamp() + ".json");
 }
 
 async function importGrcIncidentsFromJson(file) {
@@ -128,10 +163,6 @@ async function importGrcIncidentsFromJson(file) {
   if (idx === -1) incidents.push(decoded);
   else incidents[idx] = decoded;
   saveGrcIncidents(incidents);
-}
-
-function resetGrcIncidents() {
-  vaultRemoveItem(GRC_INCIDENTS_KEY);
 }
 
 /* ================================================================== *
@@ -498,223 +529,152 @@ function grcIrSetMeta(id, changes) {
   });
 }
 
-/* Construit et branche la section "Journal des incidents" de
-   grc/incidents.html : bouton/formulaire (add/edit) + liste accordéon
-   (add/edit/delete), même mécanique que initGrcAssetRegistry() /
-   initGrcRiskRegistry(). Respecte le coffre-fort via vaultGateOr(). */
-function initGrcIncidentRegistry() {
-  const container = document.getElementById("grcIncidentRegistry");
-  if (!container) return;
-  if (vaultGateOr(container, initGrcIncidentRegistry)) return;
+/* ================================================================== *
+ *  Registre -- liste + formulaire (grkRegistry). Panneau : détail
+ *  legacy OU Mode IR (grc-incidents-ir.js, renderIrPanel), selon
+ *  incident.ir.mode. Monté par grc/incidents.html (#grcIncidentRegistry).
+ * ================================================================== */
 
-  let editingId = null;
-  let expandedId = null;
+// Champs SOUMIS par le formulaire seulement (jamais l'incident stocké en
+// entier -- voir la note d'en-tête sur `ir`). "iso" normalise les 3
+// champs date (text libre -> ISO complet, ou null si non parsable).
+const GRC_INCIDENT_FORM_SCHEMA = {
+  title: { type: "string" },
+  description: { type: "string" },
+  severity: { type: "string", enum: GRC_INCIDENT_SEVERITIES, default: GRC_INCIDENT_SEVERITIES[0] },
+  status: { type: "string", enum: GRC_INCIDENT_STATUSES.map((s) => s.value), default: GRC_INCIDENT_STATUSES[0].value },
+  detectedAt: { type: "iso" },
+  respondedAt: { type: "iso" },
+  resolvedAt: { type: "iso" },
+  owner: { type: "string" },
+  postmortem: { type: "string" },
+};
 
-  container.innerHTML = `
-    <div class="grc-registry-toolbar">
-      <button type="button" class="grc-registry-add-btn" id="incidentAddBtn">${grcT("grc.incidents.form.addBtn")}</button>
-      <button type="button" class="grc-registry-io-btn" id="incidentExportBtn">${grcT("grc.common.btnExport")}</button>
-      <button type="button" class="grc-registry-io-btn" id="incidentImportBtn">${grcT("grc.common.btnImport")}</button>
-      <input type="file" accept="application/json" id="incidentImportFile" style="display:none">
-    </div>
-    <form class="grc-registry-form" id="incidentForm" style="display:none">
-      <h3 id="incidentFormTitle">${grcT("grc.incidents.form.title")}</h3>
-      <label>${grcT("grc.incidents.form.title2")} <input type="text" id="incidentTitle" required></label>
-      <label>${grcT("grc.incidents.form.description")} <textarea id="incidentDescription" rows="2"></textarea></label>
-      <div class="grc-registry-form-row">
-        <label>${grcT("grc.incidents.form.severity")}
-          <select id="incidentSeverity">
-            ${GRC_INCIDENT_SEVERITIES.map((s) => `<option value="${s}">${grcT("grc.incidents.severity." + s)}</option>`).join("")}
-          </select>
-        </label>
-        <label>${grcT("grc.incidents.form.status")}
-          <select id="incidentStatus">
-            ${GRC_INCIDENT_STATUSES.map((s) => `<option value="${s.value}">${grcT("grc.incidents.status." + s.i18nKey)}</option>`).join("")}
-          </select>
-        </label>
-      </div>
-      <div class="grc-registry-form-row">
-        <label>${grcT("grc.incidents.form.detectedAt")} <input type="datetime-local" id="incidentDetectedAt"></label>
-        <label>${grcT("grc.incidents.form.respondedAt")} <input type="datetime-local" id="incidentRespondedAt"></label>
-        <label>${grcT("grc.incidents.form.resolvedAt")} <input type="datetime-local" id="incidentResolvedAt"></label>
-      </div>
-      <label>${grcT("grc.incidents.form.owner")} <input type="text" id="incidentOwner"></label>
-      <label>${grcT("grc.incidents.form.postmortem")} <textarea id="incidentPostmortem" rows="3"></textarea></label>
-      <div class="grc-registry-form-actions">
-        <button type="submit" class="grc-registry-add-btn">${grcT("grc.common.btnSave")}</button>
-        <button type="button" class="grc-registry-io-btn" id="incidentCancelBtn">${grcT("grc.common.btnCancel")}</button>
-      </div>
-    </form>
-    <ul class="grc-registry-list" id="incidentList"></ul>
-  `;
+// Panneau déplié : Mode IR actif (renderIrPanel, grc-incidents-ir.js) OU
+// détail legacy (description + dates + durée + propriétaire + post-mortem
+// + bouton "Passer en Mode IR"). Edit/Delete viennent de grkRegistry lui-
+// même (ajoutés après cfg.panel, cf grc-registry-kit.js buildItem) --
+// donc jamais dupliqués ici, contrairement à l'implémentation avant
+// cette migration.
+function renderIncidentDetailPanel(body, incident) {
+  const irActive = incident.ir && incident.ir.mode === "active";
 
-  function showForm(incident) {
-    editingId = incident ? incident.id : null;
-    container.querySelector("#incidentFormTitle").textContent = incident ? grcT("grc.incidents.form.titleEdit") : grcT("grc.incidents.form.title");
-    container.querySelector("#incidentTitle").value = incident ? incident.title : "";
-    container.querySelector("#incidentDescription").value = incident ? (incident.description || "") : "";
-    container.querySelector("#incidentSeverity").value = incident ? incident.severity : GRC_INCIDENT_SEVERITIES[0];
-    container.querySelector("#incidentStatus").value = incident ? incident.status : GRC_INCIDENT_STATUSES[0].value;
-    container.querySelector("#incidentDetectedAt").value = incident ? (incident.detectedAt || "") : "";
-    container.querySelector("#incidentRespondedAt").value = incident ? (incident.respondedAt || "") : "";
-    container.querySelector("#incidentResolvedAt").value = incident ? (incident.resolvedAt || "") : "";
-    container.querySelector("#incidentOwner").value = incident ? (incident.owner || "") : "";
-    container.querySelector("#incidentPostmortem").value = incident ? (incident.postmortem || "") : "";
-    container.querySelector("#incidentForm").style.display = "";
-    container.querySelector("#incidentAddBtn").style.display = "none";
-    container.querySelector("#incidentFormTitle").scrollIntoView({ behavior: "smooth", block: "center" });
+  if (irActive && typeof renderIrPanel === "function") {
+    renderIrPanel(body, incident);
+
+    // Le panneau IR ne duplique pas le formulaire d'édition -- l'onglet
+    // Synthèse y renvoie déjà ; seul "Revenir au journal" est propre à
+    // cet emplacement (ressort du Mode IR, données conservées).
+    const irActions = document.createElement("div");
+    irActions.className = "grc-ir-actions";
+    const exitBtn = document.createElement("button");
+    exitBtn.type = "button";
+    exitBtn.className = "grc-registry-io-btn grc-ir-toggle";
+    exitBtn.textContent = grcT("grc.incidents.ir.exitMode");
+    exitBtn.addEventListener("click", () => {
+      grcIncidentExitIrMode(incident.id);
+      renderGrcIncidentList();
+    });
+    irActions.appendChild(exitBtn);
+    body.appendChild(irActions);
+    return;
   }
 
-  function hideForm() {
-    editingId = null;
-    container.querySelector("#incidentForm").reset();
-    container.querySelector("#incidentForm").style.display = "none";
-    container.querySelector("#incidentAddBtn").style.display = "";
-  }
+  const duration = grcIncidentResolutionDuration(incident);
+  const info = document.createElement("div");
+  info.innerHTML =
+    (incident.description ? `<p>${grkEscapeHtml(incident.description)}</p>` : "") +
+    (incident.detectedAt ? `<p>${grcT("grc.incidents.detail.detectedAt").replace("{value}", grkEscapeHtml(grkFmtDateTime(incident.detectedAt)))}</p>` : "") +
+    (incident.respondedAt ? `<p>${grcT("grc.incidents.detail.respondedAt").replace("{value}", grkEscapeHtml(grkFmtDateTime(incident.respondedAt)))}</p>` : "") +
+    (incident.resolvedAt ? `<p>${grcT("grc.incidents.detail.resolvedAt").replace("{value}", grkEscapeHtml(grkFmtDateTime(incident.resolvedAt)))}</p>` : "") +
+    (duration ? `<p>${grcT("grc.incidents.detail.duration").replace("{value}", duration)}</p>` : "") +
+    (incident.owner ? `<p>${grcT("grc.incidents.detail.owner").replace("{value}", grkEscapeHtml(incident.owner))}</p>` : "") +
+    (incident.postmortem ? `<p>${grcT("grc.incidents.detail.postmortem").replace("{value}", grkEscapeHtml(incident.postmortem))}</p>` : "");
+  body.appendChild(info);
 
-  container.querySelector("#incidentAddBtn").addEventListener("click", () => showForm(null));
-  container.querySelector("#incidentCancelBtn").addEventListener("click", hideForm);
-  container.querySelector("#incidentExportBtn").addEventListener("click", exportGrcIncidentsAsJson);
-  container.querySelector("#incidentImportBtn").addEventListener("click", () => container.querySelector("#incidentImportFile").click());
-  container.querySelector("#incidentImportFile").addEventListener("change", (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    importGrcIncidentsFromJson(file)
-      .then(renderGrcIncidentList)
-      .catch((err) => alert(err.message || grcT("grc.common.invalidJsonFile")))
-      .finally(() => { e.target.value = ""; });
-  });
-
-  container.querySelector("#incidentForm").addEventListener("submit", (e) => {
-    e.preventDefault();
-    const title = container.querySelector("#incidentTitle").value.trim();
-    if (!title) return;
-    const data = {
-      title,
-      description: container.querySelector("#incidentDescription").value.trim(),
-      severity: container.querySelector("#incidentSeverity").value,
-      status: container.querySelector("#incidentStatus").value,
-      detectedAt: container.querySelector("#incidentDetectedAt").value,
-      respondedAt: container.querySelector("#incidentRespondedAt").value,
-      resolvedAt: container.querySelector("#incidentResolvedAt").value,
-      owner: container.querySelector("#incidentOwner").value.trim(),
-      postmortem: container.querySelector("#incidentPostmortem").value.trim(),
-    };
-    if (editingId) updateGrcIncident(editingId, data);
-    else addGrcIncident(data);
-    hideForm();
+  const irBtn = document.createElement("button");
+  irBtn.type = "button";
+  irBtn.className = "grc-registry-add-btn grc-ir-toggle";
+  irBtn.textContent = grcT("grc.incidents.ir.enterMode");
+  irBtn.addEventListener("click", () => {
+    grcIncidentEnterIrMode(incident.id);
     renderGrcIncidentList();
   });
+  body.appendChild(irBtn);
+}
 
-  function buildIncidentItem(incident) {
-    const sev = grcIncidentSeverityBadge(incident.severity);
-    const li = document.createElement("li");
-    li.className = "grc-registry-item" + (incident.id === expandedId ? " open" : "");
+function _incidentEnumOptions(values, i18nPrefix) {
+  return values.map((v) => ({ value: v, label: i18nPrefix + v }));
+}
 
-    const irActive = incident.ir && incident.ir.mode === "active";
-
-    const header = document.createElement("div");
-    header.className = "grc-registry-header";
-    header.innerHTML =
-      `<span>${grkEscapeHtml(incident.title)} — ${grcIncidentStatusLabel(incident.status)}</span>` +
-      (irActive ? `<span class="grc-ir-badge">${grcT("grc.incidents.ir.badge")}</span>` : "") +
-      `<span class="grc-crit-badge ${sev.cls}">${sev.text}</span>` +
-      `<span class="chevron">▸</span>`;
-    header.onclick = () => {
-      expandedId = expandedId === incident.id ? null : incident.id;
-      renderGrcIncidentList();
-    };
-    li.appendChild(header);
-
-    if (incident.id === expandedId) {
-      const body = document.createElement("div");
-      body.className = "grc-registry-body";
-
-      // Mode IR actif : le panneau IR remplace le corps legacy (D1 :
-      // toggle "Revenir au journal" dans le corps, badge dans l'en-tête).
-      if (irActive && typeof renderIrPanel === "function") {
-        renderIrPanel(body, incident);
-
-        // Le panneau IR ne duplique pas le formulaire d'édition -- il y
-        // renvoie (spec §4.2). "Modifier" ouvre le form existant ;
-        // "Revenir au journal" ressort du Mode IR (données conservées).
-        const irActions = document.createElement("div");
-        irActions.className = "grc-ir-actions";
-
-        const editBtn = document.createElement("button");
-        editBtn.type = "button";
-        editBtn.className = "grc-registry-add-btn grc-ir-toggle";
-        editBtn.textContent = grcT("grc.common.btnEdit");
-        editBtn.onclick = () => showForm(incident);
-        irActions.appendChild(editBtn);
-
-        const exitBtn = document.createElement("button");
-        exitBtn.type = "button";
-        exitBtn.className = "grc-registry-io-btn grc-ir-toggle";
-        exitBtn.textContent = grcT("grc.incidents.ir.exitMode");
-        exitBtn.onclick = () => {
-          grcIncidentExitIrMode(incident.id);
-          renderGrcIncidentList();
-        };
-        irActions.appendChild(exitBtn);
-
-        body.appendChild(irActions);
-        li.appendChild(body);
-        return li;
+function initGrcIncidentRegistry() {
+  const init = grkRegistry({
+    mount: "#grcIncidentRegistry",
+    store: _incidentStore,
+    idAttr: "data-incident-id",
+    listGlobal: "renderGrcIncidentList",
+    deepLink: true,
+    i18n: {
+      add: "grc.incidents.form.addBtn",
+      titleAdd: "grc.incidents.form.title",
+      titleEdit: "grc.incidents.form.titleEdit",
+    },
+    form: [
+      { id: "title", label: "grc.incidents.form.title2", type: "text", required: true },
+      { id: "description", label: "grc.incidents.form.description", type: "textarea" },
+      { id: "severity", label: "grc.incidents.form.severity", type: "select",
+        options: _incidentEnumOptions(GRC_INCIDENT_SEVERITIES, "grc.incidents.severity.") },
+      { id: "status", label: "grc.incidents.form.status", type: "select",
+        options: GRC_INCIDENT_STATUSES.map((s) => ({ value: s.value, label: "grc.incidents.status." + s.i18nKey })) },
+      { id: "detectedAt", label: "grc.incidents.form.detectedAt", type: "text" },
+      { id: "respondedAt", label: "grc.incidents.form.respondedAt", type: "text" },
+      { id: "resolvedAt", label: "grc.incidents.form.resolvedAt", type: "text" },
+      { id: "owner", label: "grc.incidents.form.owner", type: "text" },
+      { id: "postmortem", label: "grc.incidents.form.postmortem", type: "textarea" },
+    ],
+    readForm: (i) => ({
+      title: i.title, description: i.description,
+      severity: i.severity, status: i.status,
+      detectedAt: grkIsoToLocalInput(i.detectedAt),
+      respondedAt: grkIsoToLocalInput(i.respondedAt),
+      resolvedAt: grkIsoToLocalInput(i.resolvedAt),
+      owner: i.owner, postmortem: i.postmortem,
+    }),
+    submit: (v, editingId) => {
+      const fields = grkEnsure(v, GRC_INCIDENT_FORM_SCHEMA);
+      fields.title = fields.title.trim();
+      fields.description = fields.description.trim();
+      fields.owner = fields.owner.trim();
+      fields.postmortem = fields.postmortem.trim();
+      if (editingId) updateGrcIncident(editingId, fields);
+      else addGrcIncident(fields);
+    },
+    header: (i) => {
+      const cells = [
+        { text: (i.title || "") + " — " + grcIncidentStatusLabel(i.status) },
+      ];
+      if (i.ir && i.ir.mode === "active") {
+        const b = document.createElement("span");
+        b.className = "grc-ir-badge";
+        b.textContent = grcT("grc.incidents.ir.badge");
+        cells.push(b);
       }
+      const sev = grcIncidentSeverityBadge(i.severity);
+      const sevBadge = document.createElement("span");
+      sevBadge.className = "grc-crit-badge " + sev.cls;
+      sevBadge.textContent = sev.text;
+      cells.push(sevBadge);
+      return cells;
+    },
+    panel: renderIncidentDetailPanel,
+    exportFn: exportGrcIncidentsAsJson,
+    importFn: importGrcIncidentsFromJson,
+    confirmName: (i) => i.title || "",
+  });
+  init();
 
-      const duration = grcIncidentResolutionDuration(incident);
-
-      body.innerHTML =
-        (incident.description ? `<p>${grkEscapeHtml(incident.description)}</p>` : "") +
-        (incident.detectedAt ? `<p>${grcT("grc.incidents.detail.detectedAt").replace("{value}", grkEscapeHtml(incident.detectedAt.replace("T", " ")))}</p>` : "") +
-        (incident.respondedAt ? `<p>${grcT("grc.incidents.detail.respondedAt").replace("{value}", grkEscapeHtml(incident.respondedAt.replace("T", " ")))}</p>` : "") +
-        (incident.resolvedAt ? `<p>${grcT("grc.incidents.detail.resolvedAt").replace("{value}", grkEscapeHtml(incident.resolvedAt.replace("T", " ")))}</p>` : "") +
-        (duration ? `<p>${grcT("grc.incidents.detail.duration").replace("{value}", duration)}</p>` : "") +
-        (incident.owner ? `<p>${grcT("grc.incidents.detail.owner").replace("{value}", grkEscapeHtml(incident.owner))}</p>` : "") +
-        (incident.postmortem ? `<p>${grcT("grc.incidents.detail.postmortem").replace("{value}", grkEscapeHtml(incident.postmortem))}</p>` : "");
-
-      const editBtn = document.createElement("button");
-      editBtn.type = "button";
-      editBtn.className = "grc-registry-add-btn";
-      editBtn.textContent = grcT("grc.common.btnEdit");
-      editBtn.onclick = () => showForm(incident);
-      body.appendChild(editBtn);
-
-      const deleteBtn = document.createElement("button");
-      deleteBtn.type = "button";
-      deleteBtn.className = "grc-registry-io-btn";
-      deleteBtn.textContent = grcT("grc.common.btnDelete");
-      deleteBtn.onclick = () => {
-        if (!confirm(grcT("grc.common.confirmDelete").replace("{name}", incident.title))) return;
-        removeGrcIncident(incident.id);
-        if (expandedId === incident.id) expandedId = null;
-        renderGrcIncidentList();
-      };
-      body.appendChild(deleteBtn);
-
-      // Bascule vers le Mode IR (D1 : dans le corps déplié).
-      const irBtn = document.createElement("button");
-      irBtn.type = "button";
-      irBtn.className = "grc-registry-add-btn grc-ir-toggle";
-      irBtn.textContent = grcT("grc.incidents.ir.enterMode");
-      irBtn.onclick = () => {
-        grcIncidentEnterIrMode(incident.id);
-        renderGrcIncidentList();
-      };
-      body.appendChild(irBtn);
-
-      li.appendChild(body);
-    }
-
-    return li;
-  }
-
-  window.renderGrcIncidentList = function () {
-    const list = container.querySelector("#incidentList");
-    list.innerHTML = "";
-    getGrcIncidents().forEach((incident) => list.appendChild(buildIncidentItem(incident)));
-  };
-
-  renderGrcIncidentList();
+  // id conservé pour compat -- ProjetTest/tests/test_ir_mode.py cible
+  // #incidentList directement (IR.f, gate coffre).
+  const list = document.querySelector("#grcIncidentRegistry .grc-registry-list");
+  if (list) list.id = "incidentList";
 }

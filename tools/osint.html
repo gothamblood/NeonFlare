@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="script-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'">
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="icon" type="image/svg+xml" href="../assets/images/dragon-logo.svg">
 <link rel="icon" type="image/png" href="../assets/images/dragon-favicon.png">
@@ -22,7 +23,7 @@
     <table>
       <tr><th>Tool</th><th>Description</th></tr>
 
-      <tr class="tool-row" onclick="toggleCmd('cmd-exiftool')">
+      <tr class="tool-row" data-toggle="cmd-exiftool">
         <td>Exiftool</td><td>Extract metadata from files and images</td>
       </tr>
 <tr id="cmd-exiftool" class="command-row">
@@ -69,7 +70,7 @@
   </td>
 </tr>
 
-      <tr class="tool-row" onclick="toggleCmd('cmd-theharvester')">
+      <tr class="tool-row" data-toggle="cmd-theharvester">
         <td>theHarvester</td><td>Gather emails, hosts, and names from OSINT</td>
       </tr>
 <tr id="cmd-theharvester" class="command-row">
@@ -113,7 +114,7 @@
   </td>
 </tr>
 
-      <tr class="tool-row" onclick="toggleCmd('cmd-maltego')">
+      <tr class="tool-row" data-toggle="cmd-maltego">
         <td>Maltego</td><td>Graph-based OSINT visualization</td>
       </tr>
       <tr id="cmd-maltego" class="command-row">
@@ -134,7 +135,7 @@
   </td>
 </tr>
 
-      <tr class="tool-row" onclick="toggleCmd('cmd-sherlock')">
+      <tr class="tool-row" data-toggle="cmd-sherlock">
         <td>Sherlock</td><td>Find usernames across social platforms</td>
       </tr>
       <tr id="cmd-sherlock" class="command-row">
@@ -153,7 +154,7 @@
   </td>
 </tr>
 
-      <tr class="tool-row" onclick="toggleCmd('cmd-dorking')">
+      <tr class="tool-row" data-toggle="cmd-dorking">
         <td>Google Dorking</td><td>Use advanced search operators for OSINT</td>
       </tr>
       <tr id="cmd-dorking" class="command-row">
@@ -180,36 +181,7 @@
   </div>
 </div>
 
-<script>
-  const embedded = window.self !== window.top;
-
-  // Tell the hub's modal our real content height. Called synchronously on
-  // the one interaction that changes it (toggling a command row) so there's
-  // no dependency on observer/timer scheduling; ResizeObserver below is
-  // just a fallback for anything else (initial layout, font swaps, etc).
-  function reportHeight() {
-    if (embedded) {
-      window.parent.postMessage({ type: "tool-frame-height", height: document.body.scrollHeight }, "*");
-    }
-  }
-
-  function toggleCmd(id) {
-    const row = document.getElementById(id);
-    row.style.display = (row.style.display === "table-row") ? "none" : "table-row";
-    reportHeight();
-  }
-
-  (function() {
-    const savedTheme = localStorage.getItem("/settings.html") || "standard";
-    document.body.classList.add("theme-" + savedTheme);
-    if (embedded) document.body.classList.add("embedded");
-  })();
-
-  if (embedded) {
-    new ResizeObserver(reportHeight).observe(document.body);
-    window.addEventListener("load", reportHeight);
-  }
-</script>
+<script src="../assets/script/tools-page-boot.js"></script>
 
 <script src="../config/tools/osint.js"></script>
 <script src="../assets/script/wallpaper-loader.js"></script>
@@ -217,9 +189,7 @@
 <script src="../assets/script/copy-commands.js"></script>
 <script src="../assets/script/page-effects.js"></script>
 <script src="../assets/script/page-effects-loader.js"></script>
-<script>
-  applyWallpaper(toolsOsintConfig.background, "tools-osint");
-</script>
+<script src="../assets/script/inline/tools-osint.js"></script>
 
 </body>
 </html>

@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="script-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'">
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="icon" type="image/svg+xml" href="../assets/images/dragon-logo.svg">
 <link rel="icon" type="image/png" href="../assets/images/dragon-favicon.png">
@@ -22,7 +23,7 @@
     <table>
       <tr><th>Tool</th><th>Description</th></tr>
 
-      <tr class="tool-row" onclick="toggleCmd('cmd-impacket')">
+      <tr class="tool-row" data-toggle="cmd-impacket">
         <td>Impacket</td><td>Python tools for AD and protocol abuse</td>
       </tr>
       <tr id="cmd-impacket" class="command-row">
@@ -49,7 +50,7 @@
   </td>
 </tr>
 
-      <tr class="tool-row" onclick="toggleCmd('cmd-cme')">
+      <tr class="tool-row" data-toggle="cmd-cme">
         <td>CrackMapExec</td><td>Spray creds, move laterally, enumerate AD</td>
       </tr>
       <tr id="cmd-cme" class="command-row">
@@ -79,7 +80,7 @@
   </td>
 </tr>
 
-      <tr class="tool-row" onclick="toggleCmd('cmd-responder')">
+      <tr class="tool-row" data-toggle="cmd-responder">
         <td>Responder</td><td>Poison LLMNR/NBT-NS to capture hashes</td>
       </tr>
       <tr id="cmd-responder" class="command-row">
@@ -101,7 +102,7 @@
   </td>
 </tr>
 
-      <tr class="tool-row" onclick="toggleCmd('cmd-rubeus')">
+      <tr class="tool-row" data-toggle="cmd-rubeus">
         <td>Rubeus</td><td>Kerberos ticket attacks (roasting, etc.)</td>
       </tr>
       <tr id="cmd-rubeus" class="command-row">
@@ -123,7 +124,7 @@
   </td>
 </tr>
 
-      <tr class="tool-row" onclick="toggleCmd('cmd-sharphound')">
+      <tr class="tool-row" data-toggle="cmd-sharphound">
         <td>SharpHound</td><td>Collect AD data for BloodHound</td>
       </tr>
       <tr id="cmd-sharphound" class="command-row">
@@ -149,36 +150,7 @@
   </div>
 </div>
 
-<script>
-  const embedded = window.self !== window.top;
-
-  // Tell the hub's modal our real content height. Called synchronously on
-  // the one interaction that changes it (toggling a command row) so there's
-  // no dependency on observer/timer scheduling; ResizeObserver below is
-  // just a fallback for anything else (initial layout, font swaps, etc).
-  function reportHeight() {
-    if (embedded) {
-      window.parent.postMessage({ type: "tool-frame-height", height: document.body.scrollHeight }, "*");
-    }
-  }
-
-  function toggleCmd(id) {
-    const row = document.getElementById(id);
-    row.style.display = (row.style.display === "table-row") ? "none" : "table-row";
-    reportHeight();
-  }
-
-  (function() {
-    const savedTheme = localStorage.getItem("/settings.html") || "standard";
-    document.body.classList.add("theme-" + savedTheme);
-    if (embedded) document.body.classList.add("embedded");
-  })();
-
-  if (embedded) {
-    new ResizeObserver(reportHeight).observe(document.body);
-    window.addEventListener("load", reportHeight);
-  }
-</script>
+<script src="../assets/script/tools-page-boot.js"></script>
 
 <script src="../config/tools/ad.js"></script>
 <script src="../assets/script/wallpaper-loader.js"></script>
@@ -186,9 +158,7 @@
 <script src="../assets/script/copy-commands.js"></script>
 <script src="../assets/script/page-effects.js"></script>
 <script src="../assets/script/page-effects-loader.js"></script>
-<script>
-  applyWallpaper(toolsAdConfig.background, "tools-ad");
-</script>
+<script src="../assets/script/inline/tools-ad.js"></script>
 
 </body>
 </html>

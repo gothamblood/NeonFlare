@@ -27,6 +27,20 @@ pipeline {
   }
 
   stages {
+    stage('CSP lint') {
+      // PlanDurcissement-Securite.txt P1.4 -- fails the build if a bare
+      // <script> (no src) or an on[a-z]+="" handler reappears in a
+      // delivered .html page, so the site can't silently drift off
+      // script-src 'self' again. Runs in its own throwaway python
+      // container rather than assuming python3 is on the docker image
+      // this pipeline otherwise only uses for build/push/deploy.
+      steps {
+        container('docker') {
+          sh 'docker run --rm -v "$WORKSPACE":/repo -w /repo python:3-alpine python3 scripts/check-csp-inline.py'
+        }
+      }
+    }
+
     stage('Build image') {
       steps {
         container('docker') {

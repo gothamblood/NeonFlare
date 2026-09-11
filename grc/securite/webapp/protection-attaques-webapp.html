@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8" />
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'">
     <link rel="icon" type="image/svg+xml" href="../../../assets/images/dragon-logo.svg">
     <link rel="icon" type="image/png" href="../../../assets/images/dragon-favicon.png">
     <title>Protection contre les attaques WebApp – Sécurité WebApp</title>
@@ -44,24 +45,7 @@
 </main>
 
 
-<script>
-  const savedTheme = localStorage.getItem("/settings.html") || "standard";
-  document.body.classList.add("theme-" + savedTheme);
-
-  const embedded = window.self !== window.top;
-
-  function reportHeight() {
-    if (embedded) {
-      window.parent.postMessage({ type: "hub-frame-height", height: document.documentElement.scrollHeight }, "*");
-    }
-  }
-
-  if (embedded) {
-    document.body.classList.add("embedded");
-    new ResizeObserver(reportHeight).observe(document.body);
-    window.addEventListener("load", reportHeight);
-  }
-</script>
+<script src="../../../assets/script/page-boot.js"></script>
 
 <script src="../../../assets/script/i18n.js"></script>
 <script src="../../../assets/script/grc-i18n.js"></script>
@@ -77,10 +61,10 @@
 <script src="../../../assets/script/vault.js"></script>
 <script src="../../../assets/script/vault-ui.js"></script>
 
-<script>applyI18n(getSavedLang());</script>
+<script src="../../../assets/script/inline/apply-i18n.js"></script>
 
 <script src="../../../assets/script/grc-checklist.js"></script>
-<script>initGrcChecklist();</script>
+<script src="../../../assets/script/inline/init-grc-checklist.js"></script>
 
 </body>
 </html>

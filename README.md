@@ -181,18 +181,28 @@ Dockerfile  nginx.conf  web.config  Jenkinsfile   deployment
 
 ## Notes
 
-- No CSP is set — the app leans on inline `<script>` blocks on nearly every
-  page (theme/language boot code). See the comment in `nginx.conf`.
+- All 83 pages now ship a strict CSP —
+  `script-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'`
+  (duplicated as a real header in `nginx.conf` since `frame-ancestors` has no
+  effect in a `<meta>`) — after externalizing every inline `<script>` block
+  and `on*=""` handler into `assets/script/inline/`. `project/settings.html`
+  (2800+ lines, 54 handlers — the biggest single page on the site) was the
+  last holdout and is now converted too. A CI guard
+  (`scripts/check-csp-inline.py`, wired into the Jenkinsfile) now fails the
+  build if a bare `<script>` or an `on*=""` handler reappears in any
+  delivered page. See the comment in `nginx.conf`.
 - The shell backend gives whoever can reach the dashboard a real terminal on
-  the host, and the filesystem explorer will issue commands into it. Keep the
-  site itself access-controlled whenever the ttyd helper is running, even
-  though ttyd only listens on loopback. Loopback is not a boundary against
-  other software on the same machine: `ttyd` runs writable with no
-  credential and no origin check, so **any page open in the same browser
-  can reach `127.0.0.1:768x` and drive a shell** while one is running. Until
-  that is fixed at the root, run the shells only during hands-on-keyboard
-  work (`scripts/ttyd-shells.sh stop` as soon as you're done) and ideally
-  from a browser profile dedicated to this tool.
+  the host, and the filesystem explorer will issue commands into it. `ttyd`
+  itself listens on a private UNIX socket, unreachable from the browser;
+  `scripts/shell-proxy.py` is the only thing exposed on `127.0.0.1:768x` and
+  it 403s anything without the session token minted at `start`. Still, the
+  token gate only stops *other origins* from driving the shell — any script
+  running on the dashboard's *own* origin (a missed XSS sink) can. So run
+  the shells only during hands-on-keyboard work, ideally from a browser
+  profile dedicated to this tool, and stop them when done
+  (`scripts/ttyd-shells.sh stop`). The proxy also auto-stops everything on
+  its own after `IDLE_TIMEOUT_SECONDS` (default 1800 = 30 min, `0` disables)
+  with no traffic relayed on any route.
 - The explorer's "amber" actions (chmod, privesc, target change) are the only
   ones that modify the target; they run only after an explicit one-time
   in-app authorisation and are always echoed to the Journal.

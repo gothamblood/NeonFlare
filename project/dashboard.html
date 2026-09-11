@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="script-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'">
   <link rel="icon" type="image/svg+xml" href="../assets/images/dragon-logo.svg">
   <link rel="icon" type="image/png" href="../assets/images/dragon-favicon.png">
   <title>Dashboard</title>
@@ -28,20 +29,20 @@
     <div class="network-header-left">
       <h1 class="category-title">Dashboard</h1>
       <div class="hud-legend" id="hudLegend">
-        <span class="hud-legend-item"><span class="hud-legend-dot online"></span>En ligne</span>
-        <span class="hud-legend-item"><span class="hud-legend-dot offline"></span>Injoignable</span>
-        <span class="hud-legend-item"><span class="hud-legend-dot checking"></span>Vérification</span>
+        <span class="hud-legend-item"><span class="hud-legend-dot online"></span><span data-i18n="dash.legend.online">En ligne</span></span>
+        <span class="hud-legend-item"><span class="hud-legend-dot offline"></span><span data-i18n="dash.legend.offline">Injoignable</span></span>
+        <span class="hud-legend-item"><span class="hud-legend-dot checking"></span><span data-i18n="dash.legend.checking">Vérification</span></span>
       </div>
     </div>
 
     <div class="dash-topbar-actions">
       <div class="dash-shell-picker" id="dashboardPicker">
-        <button id="btnDashboardMenu" class="dash-btn" type="button">☰ Dashboards</button>
+        <button id="btnDashboardMenu" class="dash-btn" type="button" data-i18n="dash.btn.dashboards">☰ Dashboards</button>
         <div class="dash-shell-menu" id="dashboardMenu"></div>
       </div>
 
       <div class="dash-shell-picker" id="shellPicker">
-        <button id="btnAddShell" class="dash-btn" type="button">+ Shell</button>
+        <button id="btnAddShell" class="dash-btn" type="button" data-i18n="dash.btn.addShell">+ Shell</button>
         <div class="dash-shell-menu" id="shellMenu">
           <button type="button" class="dash-shell-menu-item" data-shell="bash">Bash</button>
           <button type="button" class="dash-shell-menu-item" data-shell="zsh">Zsh</button>
@@ -50,23 +51,23 @@
       </div>
 
       <div class="dash-shell-picker" id="panelsPicker">
-        <button id="btnPanelsMenu" class="dash-btn" type="button">☰ Panneaux</button>
+        <button id="btnPanelsMenu" class="dash-btn" type="button" data-i18n="dash.btn.panels">☰ Panneaux</button>
         <div class="dash-shell-menu dash-panels-menu" id="panelsMenu"></div>
       </div>
 
-      <button id="btnResetLayout" class="dash-btn" type="button" title="Remet chaque panneau à sa position et taille d'origine" onclick="if (window.dashLayoutReset) window.dashLayoutReset();">⟲ Disposition</button>
+      <button id="btnResetLayout" class="dash-btn" type="button" data-i18n="dash.btn.resetLayout" data-i18n-title="dash.btn.resetLayoutTitle" title="Remet chaque panneau à sa position et taille d'origine">⟲ Disposition</button>
 
       <div class="dash-shell-picker" id="tabLinkPicker">
-        <button id="btnTabLink" class="dash-btn" type="button" title="Link -- renvoyer les commandes « Shell » de cet onglet vers un autre onglet ouvert">🔗 Link</button>
+        <button id="btnTabLink" class="dash-btn" type="button" data-i18n="dash.btn.link" data-i18n-title="dash.btn.linkTitle" title="Link -- renvoyer les commandes « Shell » de cet onglet vers un autre onglet ouvert">🔗 Link</button>
         <div class="dash-shell-menu dash-panels-menu" id="tabLinkMenu"></div>
       </div>
 
-      <button id="btnQuickFinding" class="dash-btn" type="button" title="Ajouter un finding à une mission pentest existante, sans quitter le dashboard" onclick="openQuickFindingModal()">+ Finding</button>
+      <button id="btnQuickFinding" class="dash-btn" type="button" data-i18n="dash.btn.quickFinding" data-i18n-title="dash.btn.quickFindingTitle" title="Ajouter un finding à une mission pentest existante, sans quitter le dashboard">+ Finding</button>
     </div>
 
     <div class="hud-status grc-header-status" id="grcHeaderStatus">
       <div class="hud-status-text">
-        <div class="hud-status-title">Couverture GRC</div>
+        <div class="hud-status-title" data-i18n="dash.grcCoverage">Couverture GRC</div>
         <div class="grc-progress-track"><div class="grc-progress-fill"></div></div>
         <div class="hud-status-count" id="grcHeaderCount">0 / 0 — 0%</div>
       </div>
@@ -101,7 +102,7 @@
   <div class="dash-row-top">
     <div class="dash-panel dash-panel-shells hidden" id="panelShells">
       <div class="dash-panel-header">
-        <span class="dash-panel-title">Shells</span>
+        <span class="dash-panel-title" data-i18n="dash.panel.shells">Shells</span>
         <button class="dash-collapse-btn" type="button" data-target="panelShells">–</button>
       </div>
       <div class="dash-panel-body dash-shells-body" id="shellArea"></div>
@@ -110,7 +111,7 @@
 
     <div class="dash-panel dash-panel-network" id="panelNetwork">
       <div class="dash-panel-header">
-        <span class="dash-panel-title">Réseau</span>
+        <span class="dash-panel-title" data-i18n="dash.panel.network">Réseau</span>
         <button class="dash-collapse-btn" type="button" data-target="panelNetwork">–</button>
       </div>
       <div class="dash-panel-body">
@@ -127,7 +128,7 @@
        spec/fs-explorer/. -->
   <div class="dash-panel dash-panel-fs" id="panelFs">
     <div class="dash-panel-header">
-      <span class="dash-panel-title">Explorateur</span>
+      <span class="dash-panel-title" data-i18n="dash.panel.explorer">Explorateur</span>
       <button class="dash-collapse-btn" type="button" data-target="panelFs">–</button>
     </div>
     <div class="dash-panel-body">
@@ -138,7 +139,7 @@
 
   <div class="dash-panel dash-panel-tools" id="panelTools">
     <div class="dash-panel-header">
-      <span class="dash-panel-title">Outils</span>
+      <span class="dash-panel-title" data-i18n="dash.panel.tools">Outils</span>
       <button class="dash-collapse-btn" type="button" data-target="panelTools">–</button>
     </div>
     <div class="dash-panel-body">
@@ -152,7 +153,7 @@
 
   <div class="dash-panel dash-panel-devsecops" id="panelDevSecOps">
     <div class="dash-panel-header">
-      <span class="dash-panel-title">DevSecOps</span>
+      <span class="dash-panel-title" data-i18n="dash.panel.devsecops">DevSecOps</span>
       <button class="dash-collapse-btn" type="button" data-target="panelDevSecOps">–</button>
     </div>
     <div class="dash-panel-body">
@@ -167,7 +168,7 @@
 
   <div class="dash-panel dash-panel-website" id="panelWebsite">
     <div class="dash-panel-header">
-      <span class="dash-panel-title">Website</span>
+      <span class="dash-panel-title" data-i18n="dash.panel.website">Website</span>
       <button class="dash-collapse-btn" type="button" data-target="panelWebsite">–</button>
     </div>
     <div class="dash-panel-body">
@@ -181,7 +182,7 @@
 
   <div class="dash-panel dash-panel-grc" id="panelGrc">
     <div class="dash-panel-header">
-      <span class="dash-panel-title">Couverture GRC</span>
+      <span class="dash-panel-title" data-i18n="dash.grcCoverage">Couverture GRC</span>
       <button class="dash-collapse-btn" type="button" data-target="panelGrc">–</button>
     </div>
     <div class="dash-panel-body">
@@ -192,7 +193,7 @@
 
   <div class="dash-panel dash-panel-reviews" id="panelUpcomingReviews">
     <div class="dash-panel-header">
-      <span class="dash-panel-title">Prochaines revues</span>
+      <span class="dash-panel-title" data-i18n="dash.panel.upcomingReviews">Prochaines revues</span>
       <button class="dash-collapse-btn" type="button" data-target="panelUpcomingReviews">–</button>
     </div>
     <div class="dash-panel-body">
@@ -203,7 +204,7 @@
 
   <div class="dash-panel dash-panel-log" id="panelLog">
     <div class="dash-panel-header">
-      <span class="dash-panel-title">System log</span>
+      <span class="dash-panel-title" data-i18n="dash.panel.systemLog">System log</span>
       <button class="dash-collapse-btn" type="button" data-target="panelLog">–</button>
     </div>
     <div class="dash-panel-body">
@@ -214,12 +215,12 @@
 </div>
 
 
-<div id="overlay" onclick="closeToolModal(); closeWebsiteModal(); closeQuickFindingModal();"></div>
+<div id="overlay"></div>
 
 <!-- Shared tool modal (same pattern as tools.html): loads the picked
      section's standalone page in an iframe. -->
-<div id="modal-tool" class="modal-overlay" onclick="closeToolModal()">
-  <div class="modal" onclick="event.stopPropagation()">
+<div id="modal-tool" class="modal-overlay">
+  <div class="modal">
     <div class="modal-title" id="modal-tool-title"></div>
     <iframe id="modal-tool-frame" src="about:blank" title="Tool section"></iframe>
   </div>
@@ -227,8 +228,8 @@
 
 <!-- Website resource modal (same pattern as website.html's OSINT modal),
      shares #overlay with the Tools modal above. -->
-<div id="modal-website" class="modal-overlay" onclick="closeWebsiteModal()">
-  <div class="modal" onclick="event.stopPropagation()">
+<div id="modal-website" class="modal-overlay">
+  <div class="modal">
     <div class="modal-title" id="website-title"></div>
     <div id="website-content"></div>
   </div>
@@ -238,8 +239,8 @@
      same inline-content pattern as #modal-website above, not an
      iframe: adds a finding to an EXISTING pentest engagement without
      leaving the dashboard. -->
-<div id="modal-quick-finding" class="modal-overlay" onclick="closeQuickFindingModal()">
-  <div class="modal" onclick="event.stopPropagation()">
+<div id="modal-quick-finding" class="modal-overlay">
+  <div class="modal">
     <div class="modal-title">Finding rapide</div>
     <div id="quick-finding-content"></div>
   </div>
@@ -247,6 +248,7 @@
 
 
 <!-- CONFIG-DRIVEN DASHBOARD -->
+<script src="../assets/script/i18n.js"></script>
 <script src="../config/encryption.js"></script>
 <script src="../assets/script/vault-crypto.js"></script>
 <script src="../assets/script/theme-accent.js"></script>
@@ -267,34 +269,7 @@
 <script src="../config/shell-session.js"></script>
 <script src="../assets/script/fs-explorer.js"></script>
 <script src="../assets/script/onboarding-target.js"></script>
-<script>
-  // Duplicated from the currentDashboardId computed further down (near
-  // the dashboard picker) -- that one also validates the id against
-  // getDashboards() and defaults dashboardId itself when missing, but
-  // needs DOM that isn't ready yet this early. A background lookup on
-  // an id that turns out to not exist just misses (falls through to
-  // the page's own default) either way, so the extra validation isn't
-  // needed here.
-  const wallpaperDashboardId = new URLSearchParams(window.location.search).get("id") || "default";
-  applyWallpaper(reseauConfig.background, "dashboard:" + wallpaperDashboardId);
-  loadDragons("#dragonSlot");
-  // Nodes come from the live registry (Config Network, see
-  // assets/script/network-config.js) -- config/reseau.js is only the
-  // seed for a fresh install now, never read directly here.
-  function initNetworkSection() {
-    const grid = document.querySelector("#reseau-grid");
-    if (vaultGateOr(grid, initNetworkSection)) return;
-    initNetworkDashboard({ cards: getNetworkNodes() }, {
-      gridSelector: "#reseau-grid",
-      gaugeSelector: ".hud-gauge",
-      logSelector: "#hudLogBody",
-      clockSelector: "#hudClock",
-      intervalMs: 45000
-    });
-  }
-  initNetworkSection();
-  initDashboardPanels();
-</script>
+<script src="../assets/script/inline/dashboard-network.js"></script>
 
 
 <!-- GRC COVERAGE PANEL -->
@@ -307,289 +282,58 @@
      above for the network section -- const/let bindings there would
      throw "already declared" on a second <script> load. -->
 <script src="../assets/script/grc-checklist.js"></script>
-<script>
-  const grcDashboardSections = [
-    { title: "GRC", domains: grcIndexConfig.domains, basePath: "../grc/" },
-    { title: "Sécurité réseau", domains: securiteReseauIndexConfig.domains, basePath: "../grc/securite/reseau/" },
-    { title: "Sécurité API", domains: securiteApiIndexConfig.domains, basePath: "../grc/securite/api/" },
-    { title: "Sécurité WebApp", domains: securiteWebappIndexConfig.domains, basePath: "../grc/securite/webapp/" },
-    { title: "Sécurité base de données", domains: securiteDatabaseIndexConfig.domains, basePath: "../grc/securite/database/" },
-  ];
-  renderGrcDashboardCoverage(grcDashboardSections, "#grc-dashboard-coverage");
-  renderGrcHeaderCoverage(grcDashboardSections, "#grcHeaderStatus .grc-progress-fill", "#grcHeaderCount");
-</script>
+<script src="../assets/script/inline/dashboard-grc-coverage.js"></script>
 
 
 <!-- UPCOMING REVIEWS PANEL (TodoGRC.txt #6) -- dérivé des dates déjà
      présentes dans les registres actifs/risques, aucun stockage propre.
      Juste les getters : pas d'appel à initGrc*Registry() ici. -->
 <script src="../assets/script/config-io.js"></script>
+<!-- grc-risks.js (comme grc-pentest.js plus bas) est bâti sur
+     grc-registry-kit.js depuis PlanDurcissement-Securite.txt P2 --
+     chargé ici, réutilisé par grc-pentest.js plus bas. -->
+<script src="../assets/script/grc-registry-kit.js"></script>
 <script src="../assets/script/grc-assets.js"></script>
 <script src="../assets/script/grc-risks.js"></script>
-<script>
-  function renderUpcomingReviews() {
-    const container = document.getElementById("upcomingReviewsList");
-    const items = [];
-    getGrcAssets().forEach((a) => {
-      if (a.nextReviewDate) items.push({ label: a.name, date: a.nextReviewDate, kind: "Actif" });
-    });
-    getGrcRisks().forEach((r) => {
-      if (r.reviewDate) items.push({ label: r.name, date: r.reviewDate, kind: "Risque" });
-    });
-    items.sort((a, b) => a.date.localeCompare(b.date));
-
-    if (items.length === 0) {
-      container.innerHTML = '<p class="netcfg-desc">Aucune date de revue enregistrée sur les registres Actifs/Risques.</p>';
-      return;
-    }
-
-    const today = new Date().toISOString().slice(0, 10);
-    container.innerHTML = items.slice(0, 5).map((it) => {
-      const overdue = it.date < today;
-      return '<div class="upcoming-review-row' + (overdue ? " overdue" : "") + '">' +
-        '<span>' + it.kind + ' — ' + it.label + '</span>' +
-        '<span class="upcoming-review-date">' + it.date + (overdue ? " (en retard)" : "") + '</span>' +
-        '</div>';
-    }).join("");
-  }
-  renderUpcomingReviews();
-</script>
+<script src="../assets/script/inline/dashboard-upcoming-reviews.js"></script>
 
 
 <!-- "+ Finding rapide" (Couverture GRC panel) -- vault/vault-ui/config-io
-     already loaded above. -->
+     already loaded above. grc-pentest.js is built on grc-registry-kit.js
+     since PlanDurcissement-Securite.txt P2 (grkStore/grkEnsure/grkId/
+     grkEscapeHtml at module scope -- would throw without this first);
+     grc-registry-kit.js already loaded above (for grc-risks.js).
+     dashboard.html has no grc-i18n.js, so its grcT()-dependent bits
+     degrade to plain French, see grc-pentest.js's own typeof guards. -->
 <script src="../assets/script/grc-pentest.js"></script>
 <script src="../assets/script/pentest-quick-add.js"></script>
 
 
 <!-- TOOLS MODAL -->
 <script src="../assets/script/tools-config.js"></script>
-<script>
-  // One tile per entry in the Tools category registry (see
-  // assets/script/tools-config.js, managed from Settings > Config Tools)
-  // -- the 10 built-ins point at their existing static tools/*.html page,
-  // anything added via the builder points at tools/custom.html?catId=...
-  function renderToolsPanel() {
-    const grid = document.getElementById("toolsPanelGrid");
-    grid.innerHTML = "";
-    getToolsCategories().forEach((cat) => {
-      const tile = document.createElement("div");
-      tile.className = "tool-tile";
-      tile.onclick = () => openToolModal(cat.id);
-      const title = document.createElement("div");
-      title.className = "tool-tile-title";
-      title.textContent = cat.title;
-      tile.appendChild(title);
-      const sub = document.createElement("div");
-      sub.className = "tool-tile-sub";
-      sub.textContent = cat.sub || "";
-      tile.appendChild(sub);
-      grid.appendChild(tile);
-    });
-  }
-  renderToolsPanel();
-
-  // getCategoryFn defaults to the Tools registry -- the DevSecOps panel
-  // below passes getDevSecOpsCategory instead, reusing the same modal
-  // (only one of these panels' modals is ever open at a time) since the
-  // two registries are otherwise identical in shape (id/title/page).
-  function openToolModal(catId, getCategoryFn) {
-    const cat = (getCategoryFn || getToolsCategory)(catId);
-    if (!cat) return;
-    const frame = document.getElementById("modal-tool-frame");
-    frame.style.height = "100px";
-    document.getElementById("modal-tool-title").textContent = cat.title;
-    frame.src = "../tools/" + cat.page;
-    document.getElementById("overlay").style.display = "block";
-    document.getElementById("modal-tool").style.display = "flex";
-    // Lets index.html drop the persistent shells overlay behind #frame
-    // while this is open -- see the "tool-modal-state" handler in
-    // assets/script/shells-host.js.
-    window.top.postMessage({ type: "tool-modal-state", open: true }, "*");
-  }
-
-  function closeToolModal() {
-    document.getElementById("overlay").style.display = "none";
-    document.getElementById("modal-tool").style.display = "none";
-    document.getElementById("modal-tool-frame").src = "about:blank";
-    window.top.postMessage({ type: "tool-modal-state", open: false }, "*");
-  }
-
-  // Embedded tools/*.html pages report their real content height so the
-  // iframe can be sized exactly to it -- no dead space, no inner scrollbar.
-  window.addEventListener("message", (e) => {
-    if (e.data && e.data.type === "tool-frame-height") {
-      const frame = document.getElementById("modal-tool-frame");
-      if (frame.contentWindow === e.source) {
-        frame.style.height = e.data.height + "px";
-      }
-    }
-  });
-</script>
+<script src="../assets/script/inline/dashboard-tools-tiles.js"></script>
 
 
 <!-- DEVSECOPS MODAL (same pattern as the Tools panel/modal above, its own
      registry/localStorage key -- see assets/script/devsecops-config.js) -->
 <script src="../assets/script/devsecops-config.js"></script>
-<script>
-  // One tile per entry in the DevSecOps category registry (see
-  // assets/script/devsecops-config.js, managed from Settings > Config
-  // DevSecOps) -- the 5 built-ins point at their own static tools/*.html
-  // page, anything added via the builder points at
-  // tools/devsecops-custom.html?catId=...
-  function renderDevSecOpsPanel() {
-    const grid = document.getElementById("devsecopsPanelGrid");
-    grid.innerHTML = "";
-    getDevSecOpsCategories().forEach((cat) => {
-      const tile = document.createElement("div");
-      tile.className = "tool-tile";
-      tile.onclick = () => openToolModal(cat.id, getDevSecOpsCategory);
-      const title = document.createElement("div");
-      title.className = "tool-tile-title";
-      title.textContent = cat.title;
-      tile.appendChild(title);
-      const sub = document.createElement("div");
-      sub.className = "tool-tile-sub";
-      sub.textContent = cat.sub || "";
-      tile.appendChild(sub);
-      grid.appendChild(tile);
-    });
-  }
-  renderDevSecOpsPanel();
-</script>
+<script src="../assets/script/inline/dashboard-devsecops-tiles.js"></script>
 
 
 <!-- WEBSITE MODAL (same pattern as website.html's openOsintModal) -->
 <script src="../assets/script/website-config.js"></script>
-<script>
-  // One tile per entry in the Website category registry (see
-  // assets/script/website-config.js, managed from Settings > Config
-  // Website).
-  function renderWebsitePanel() {
-    const grid = document.getElementById("websitePanelGrid");
-    grid.innerHTML = "";
-    getWebsiteCategories().forEach((cat) => {
-      const tile = document.createElement("div");
-      tile.className = "tool-tile";
-      tile.onclick = () => openWebsiteModal(cat.title, cat.links || []);
-      const title = document.createElement("div");
-      title.className = "tool-tile-title";
-      title.textContent = cat.title;
-      tile.appendChild(title);
-      const sub = document.createElement("div");
-      sub.className = "tool-tile-sub";
-      sub.textContent = cat.sub || "";
-      tile.appendChild(sub);
-      grid.appendChild(tile);
-    });
-  }
-  renderWebsitePanel();
-
-  function openWebsiteModal(title, links) {
-    document.getElementById("website-title").textContent = title;
-
-    // Name alone (no visible URL) made it impossible to tell where a
-    // link actually goes without hovering or clicking it -- the URL is
-    // now shown as its own line under the name, not just left in the
-    // href attribute.
-    let html = '<ul class="website-link-list">';
-    links.forEach(link => {
-      html += `<li class="website-link-row"><a href="${link.url}" target="_blank" rel="noopener">` +
-        `<span class="website-link-name">${link.name}</span>` +
-        `<span class="website-link-url">${link.url}</span>` +
-        `</a></li>`;
-    });
-    html += "</ul>";
-
-    document.getElementById("website-content").innerHTML = html;
-    document.getElementById("overlay").style.display = "block";
-    document.getElementById("modal-website").style.display = "flex";
-    window.top.postMessage({ type: "tool-modal-state", open: true }, "*");
-  }
-
-  function closeWebsiteModal() {
-    document.getElementById("overlay").style.display = "none";
-    document.getElementById("modal-website").style.display = "none";
-    window.top.postMessage({ type: "tool-modal-state", open: false }, "*");
-  }
-</script>
+<script src="../assets/script/inline/dashboard-website-tiles.js"></script>
 
 
 <!-- THEME LOADER -->
-<script>
-  const theme = localStorage.getItem("/settings.html") || "standard";
-  document.body.classList.add("theme-" + theme);
-
-  // Let the parent shell (encapsulation.html) sync its sidebar theme --
-  // the parent doesn't read storage directly, see settings.html.
-  if (window.self !== window.top) {
-    window.top.postMessage({ type: "theme-change", theme: theme }, "*");
-  }
-</script>
+<script src="../assets/script/inline/theme-change-notify.js"></script>
 
 
 <!-- DASHBOARD SWITCHER -- which dashboard this load of the page is (see
      assets/script/dashboards.js): read from ?id=, default when absent or
      unknown (eg. a dashboard deleted from another tab). Settings has one
      "Sections du Dashboard" card per entry in the same registry. -->
-<script>
-  const requestedDashboardId = new URLSearchParams(window.location.search).get("id") || "default";
-  const currentDashboardId = getDashboards().some((d) => d.id === requestedDashboardId) ? requestedDashboardId : "default";
-
-  document.querySelector(".category-title").textContent = getDashboard(currentDashboardId).name;
-
-  function goToDashboard(id) {
-    window.location.href = "dashboard.html" + (id === "default" ? "" : "?id=" + encodeURIComponent(id));
-  }
-
-  function renderDashboardMenu() {
-    const menu = document.getElementById("dashboardMenu");
-    menu.innerHTML = "";
-    getDashboards().forEach((d) => {
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "dash-shell-menu-item";
-      btn.textContent = (d.id === currentDashboardId ? "● " : "") + d.name;
-      btn.onclick = () => goToDashboard(d.id);
-      menu.appendChild(btn);
-    });
-
-    const addBtn = document.createElement("button");
-    addBtn.type = "button";
-    addBtn.className = "dash-shell-menu-item";
-    addBtn.textContent = "+ Add Dashboard";
-    addBtn.onclick = () => {
-      const name = prompt("Nom du nouveau dashboard :");
-      if (!name || !name.trim()) return;
-      goToDashboard(addDashboard(name.trim()));
-    };
-    menu.appendChild(addBtn);
-  }
-
-  renderDashboardMenu();
-
-  (function initDashboardPicker() {
-    const picker = document.getElementById("dashboardPicker");
-    const btn = document.getElementById("btnDashboardMenu");
-    const menu = document.getElementById("dashboardMenu");
-    btn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      // Close any other open picker menu (eg. the "+ Shell" one) first --
-      // see the matching comment in dashboard-shells.js's initShellPicker.
-      document.querySelectorAll(".dash-shell-menu.open").forEach((m) => {
-        if (m !== menu) m.classList.remove("open");
-      });
-      menu.classList.toggle("open");
-      notifyShellMenuState();
-    });
-    document.addEventListener("click", (e) => {
-      if (!picker.contains(e.target)) {
-        menu.classList.remove("open");
-        notifyShellMenuState();
-      }
-    });
-  })();
-</script>
+<script src="../assets/script/inline/dashboard-picker.js"></script>
 
 
 <!-- "☰ Panneaux" picker -- same toggles as Settings > Sections du
@@ -600,51 +344,7 @@
      persists via the same setDashboardSectionVisible() Settings uses --
      the two stay in sync automatically since they share one storage key
      per dashboard, not because either one pushes state to the other. -->
-<script>
-  function renderPanelsMenu() {
-    const menu = document.getElementById("panelsMenu");
-    menu.innerHTML = "";
-    const hidden = getHiddenDashboardSections(currentDashboardId);
-    DASHBOARD_SECTIONS.forEach(({ key, label }) => {
-      const row = document.createElement("label");
-      row.className = "dash-panels-menu-item";
-      const cb = document.createElement("input");
-      cb.type = "checkbox";
-      cb.checked = !hidden.includes(key);
-      cb.addEventListener("click", (e) => e.stopPropagation());
-      cb.addEventListener("change", () => {
-        setDashboardSectionVisible(currentDashboardId, key, cb.checked);
-        const el = document.getElementById(key);
-        if (el) el.classList.toggle("dash-section-off", !cb.checked);
-      });
-      row.appendChild(cb);
-      row.appendChild(document.createTextNode(label));
-      menu.appendChild(row);
-    });
-  }
-
-  renderPanelsMenu();
-
-  (function initPanelsPicker() {
-    const picker = document.getElementById("panelsPicker");
-    const btn = document.getElementById("btnPanelsMenu");
-    const menu = document.getElementById("panelsMenu");
-    btn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      document.querySelectorAll(".dash-shell-menu.open").forEach((m) => {
-        if (m !== menu) m.classList.remove("open");
-      });
-      menu.classList.toggle("open");
-      notifyShellMenuState();
-    });
-    document.addEventListener("click", (e) => {
-      if (!picker.contains(e.target)) {
-        menu.classList.remove("open");
-        notifyShellMenuState();
-      }
-    });
-  })();
-</script>
+<script src="../assets/script/inline/dashboard-panels-menu.js"></script>
 
 
 <!-- "🔗 Link" picker (next to "⟲ Disposition") -- routes this tab's
@@ -653,106 +353,7 @@
      only the control, kept in sync over postMessage and re-queried on a
      2s poll so the tab list updates on its own, same cadence as
      tab-link.js's own presence heartbeat. -->
-<script>
-  (function initTabLink() {
-    const picker = document.getElementById("tabLinkPicker");
-    const btn = document.getElementById("btnTabLink");
-    const menu = document.getElementById("tabLinkMenu");
-    if (!picker || !btn || !menu) return;
-
-    const embedded = window.self !== window.top;
-    let state = { peers: [], enabled: false, targetId: null };
-
-    function query() {
-      if (embedded) window.top.postMessage({ type: "tablink-query" }, "*");
-    }
-    function setState(enabled, targetId) {
-      if (embedded) window.top.postMessage({ type: "tablink-set", enabled, targetId }, "*");
-    }
-
-    function targetLabel() {
-      const p = state.peers.find((x) => x.tabId === state.targetId);
-      return p ? p.label : null;
-    }
-
-    function render() {
-      const name = targetLabel();
-      const active = state.enabled && !!name;
-      btn.textContent = active ? "🔗 → " + name : "🔗 Link";
-      btn.classList.toggle("tl-on", active);
-
-      menu.innerHTML = "";
-
-      const toggle = document.createElement("label");
-      toggle.className = "dash-panels-menu-item";
-      const cb = document.createElement("input");
-      cb.type = "checkbox";
-      cb.checked = state.enabled;
-      cb.addEventListener("click", (e) => e.stopPropagation());
-      cb.addEventListener("change", () => {
-        const t = state.targetId || (state.peers[0] && state.peers[0].tabId) || null;
-        setState(cb.checked, t);
-      });
-      toggle.appendChild(cb);
-      toggle.appendChild(document.createTextNode("Actif"));
-      menu.appendChild(toggle);
-
-      if (state.peers.length === 0) {
-        const empty = document.createElement("div");
-        empty.className = "dash-shell-menu-item";
-        empty.style.opacity = "0.6";
-        empty.style.cursor = "default";
-        empty.textContent = "Aucun autre onglet ouvert";
-        menu.appendChild(empty);
-      } else {
-        state.peers.forEach((p) => {
-          const item = document.createElement("button");
-          item.type = "button";
-          item.className = "dash-shell-menu-item";
-          item.textContent = (p.tabId === state.targetId ? "● " : "") + p.label;
-          item.addEventListener("click", () => setState(true, p.tabId));
-          menu.appendChild(item);
-        });
-      }
-    }
-
-    window.addEventListener("message", (e) => {
-      if (!e.data) return;
-      if (e.data.type === "tablink-state") {
-        state = {
-          peers: Array.isArray(e.data.peers) ? e.data.peers : [],
-          enabled: !!e.data.enabled,
-          targetId: e.data.targetId || null,
-        };
-        render();
-      } else if (e.data.type === "tablink-activity") {
-        btn.classList.add("tl-pulse");
-        clearTimeout(btn._tlPulseTimer);
-        btn._tlPulseTimer = setTimeout(() => btn.classList.remove("tl-pulse"), 300);
-      }
-    });
-
-    btn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      document.querySelectorAll(".dash-shell-menu.open").forEach((m) => {
-        if (m !== menu) m.classList.remove("open");
-      });
-      menu.classList.toggle("open");
-      notifyShellMenuState();
-      query();
-    });
-    document.addEventListener("click", (e) => {
-      if (!picker.contains(e.target)) {
-        menu.classList.remove("open");
-        notifyShellMenuState();
-      }
-    });
-
-    render();
-    query();
-    setInterval(query, 2000);
-  })();
-</script>
+<script src="../assets/script/inline/dashboard-tab-link.js"></script>
 
 
 <!-- DASHBOARD SECTIONS VISIBILITY (Settings > Sections du Dashboard) --
@@ -760,23 +361,15 @@
      the collapse button's .collapsed toggling or shells-host.js's .hidden
      toggling on #panelShells, which are both separate, session-only
      mechanisms that never touch this one. -->
-<script>
-  (function () {
-    getHiddenDashboardSections(currentDashboardId).forEach((id) => {
-      const el = document.getElementById(id);
-      if (el) el.classList.add("dash-section-off");
-    });
-  })();
-</script>
+<script src="../assets/script/inline/dashboard-hidden-sections.js"></script>
 
 
 <!-- FREEFORM PANEL LAYOUT (assets/script/dashboard-layout.js) -- runs
      last so it measures panels' default positions only after the
      sections-visibility pass above has finished hiding whatever's off
      for this dashboard. -->
-<script>
-  initDashboardLayout(currentDashboardId);
-</script>
+<script src="../assets/script/inline/dashboard-layout-init.js"></script>
+<script src="../assets/script/inline/apply-i18n.js"></script>
 
 
 

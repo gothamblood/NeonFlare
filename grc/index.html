@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8" />
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'">
     <link rel="icon" type="image/svg+xml" href="../assets/images/dragon-logo.svg">
     <link rel="icon" type="image/png" href="../assets/images/dragon-favicon.png">
     <title>GRC Cybersecurity – Gouvernance, Risques et Conformité</title>
@@ -29,24 +30,24 @@
     <div class="grc-progress" id="grc-coverage-summary"></div>
 
     <div class="grc-toolbar">
-      <button type="button" class="grc-toolbar-btn" data-i18n="grc.hub.exportJson" onclick="exportGrcAsJson(grcAllSections)">Exporter JSON</button>
-      <button type="button" class="grc-toolbar-btn" data-i18n="grc.hub.saveAs" onclick="saveGrcAsJson(grcAllSections)">Enregistrer sous…</button>
-      <button type="button" class="grc-toolbar-btn" data-i18n="grc.hub.exportWord" onclick="exportGrcAsWord(grcAllSections)">Exporter Word</button>
-      <button type="button" class="grc-toolbar-btn" data-i18n="grc.hub.exportPdf" onclick="exportGrcAsPdf(grcAllSections)">Exporter PDF</button>
-      <button type="button" class="grc-toolbar-btn" data-i18n="grc.hub.importJson" onclick="document.getElementById('grcImportInput').click()">Importer JSON</button>
-      <input type="file" id="grcImportInput" accept=".json,application/json" style="display:none" onchange="handleGrcImport(this.files[0])">
-      <button type="button" class="grc-toolbar-btn grc-toolbar-btn-danger" data-i18n="grc.hub.reset" onclick="confirmResetGrc()">Réinitialiser</button>
+      <button type="button" id="btnExportJson" class="grc-toolbar-btn" data-i18n="grc.hub.exportJson">Exporter JSON</button>
+      <button type="button" id="btnSaveAs" class="grc-toolbar-btn" data-i18n="grc.hub.saveAs">Enregistrer sous…</button>
+      <button type="button" id="btnExportWord" class="grc-toolbar-btn" data-i18n="grc.hub.exportWord">Exporter Word</button>
+      <button type="button" id="btnExportPdf" class="grc-toolbar-btn" data-i18n="grc.hub.exportPdf">Exporter PDF</button>
+      <button type="button" id="btnImportTrigger" class="grc-toolbar-btn" data-i18n="grc.hub.importJson">Importer JSON</button>
+      <input type="file" id="grcImportInput" accept=".json,application/json" style="display:none">
+      <button type="button" id="btnReset" class="grc-toolbar-btn grc-toolbar-btn-danger" data-i18n="grc.hub.reset">Réinitialiser</button>
     </div>
 
     <div class="grid-3" id="grc-grid"></div>
 </main>
 
 
-<div id="overlay" onclick="closeModal()"></div>
+<div id="overlay"></div>
 
 <!-- Shared modal: loads the picked domain's standalone page in an iframe -->
-<div id="modal-grc" class="modal-overlay" onclick="closeModal()">
-  <div class="modal-box" onclick="event.stopPropagation()">
+<div id="modal-grc" class="modal-overlay">
+  <div class="modal-box">
     <div class="modal-box-title" id="modal-grc-title"></div>
     <iframe id="modal-grc-frame" src="about:blank" title="Domaine GRC"></iframe>
   </div>
@@ -75,56 +76,8 @@
 <script src="../assets/script/grc-checklist.js"></script>
 <script src="../assets/script/hub-modal.js"></script>
 <script src="../assets/script/onboarding-target.js"></script>
-<script>
-  const savedTheme = localStorage.getItem("/settings.html") || "standard";
-  document.body.classList.add("theme-" + savedTheme);
-
-  // Let the parent shell (encapsulation.html) sync its sidebar theme --
-  // the parent doesn't read storage directly, see settings.html.
-  if (window.self !== window.top) {
-    window.top.postMessage({ type: "theme-change", theme: savedTheme }, "*");
-  }
-
-  applyI18n(getSavedLang());
-  renderGrcDomains(grcIndexConfig.domains, "#grc-grid");
-  renderGrcCoverage(grcIndexConfig.domains, "#grc-grid", "#grc-coverage-summary");
-
-  // Export/Reset act on every section at once (this hub + the 4 security
-  // sub-hubs), not just the 20 domains shown on this page -- same scope
-  // as the dashboard's "Couverture GRC" panel.
-  const grcAllSections = [
-    { title: grcT("nav.grc"), domains: grcIndexConfig.domains, basePath: "./", keyPrefix: "grc" },
-    { title: grcT("nav.networkSecurity"), domains: securiteReseauIndexConfig.domains, basePath: "securite/reseau/", keyPrefix: "grc.securite.reseau" },
-    { title: grcT("nav.apiSecurity"), domains: securiteApiIndexConfig.domains, basePath: "securite/api/", keyPrefix: "grc.securite.api" },
-    { title: grcT("nav.webappSecurity"), domains: securiteWebappIndexConfig.domains, basePath: "securite/webapp/", keyPrefix: "grc.securite.webapp" },
-    { title: grcT("nav.databaseSecurity"), domains: securiteDatabaseIndexConfig.domains, basePath: "securite/database/", keyPrefix: "grc.securite.database" },
-  ];
-
-  function confirmResetGrc() {
-    if (!confirm(grcT("grc.hub.confirmReset"))) return;
-    resetGrcData(grcAllSections, () => location.reload());
-  }
-
-  function handleGrcImport(file) {
-    if (!file) return;
-    if (!confirm(grcT("grc.hub.confirmImport"))) {
-      document.getElementById("grcImportInput").value = "";
-      return;
-    }
-    importGrcData(
-      file,
-      grcAllSections,
-      (count) => {
-        alert(grcT("grc.hub.importRestoredCount").replace("{count}", count));
-        location.reload();
-      },
-      (message) => {
-        alert(grcT("grc.hub.importFailed").replace("{message}", message));
-        document.getElementById("grcImportInput").value = "";
-      }
-    );
-  }
-</script>
+<script src="../assets/script/inline/grc-index.js"></script>
+<script src="../assets/script/inline/grc-hub-modal-wiring.js"></script>
 
 </body>
 </html>

@@ -35,17 +35,22 @@ const WALLPAPER_LOADER_BASE = (function () {
 // meant to be stretched full-bleed behind a page. Filenames only
 // (resolved against WALLPAPER_LOADER_BASE + "assets/images/" above) so
 // the same stored value works unchanged from every page depth.
+// i18nKey is only ever read by project/settings.html (the one page that
+// renders this list as a <select>) -- label stays as the French
+// fallback for the many other pages that load this file just for
+// getWallpaperOverride()/applyWallpaper() and never touch the array's
+// display text at all.
 const WALLPAPER_OVERRIDE_OPTIONS = [
-  { file: "kali_xl_forest_sharp.png", label: "Kali -- Forêt (par défaut)" },
-  { file: "kali_xl_city.png", label: "Kali -- Ville" },
-  { file: "kali_xl.png", label: "Kali" },
-  { file: "kali_xl_sharp.png", label: "Kali (nette)" },
-  { file: "atlantis.png", label: "Atlantis" },
-  { file: "atlantis_sharp.png", label: "Atlantis (nette)" },
-  { file: "atlantis2_sharp.png", label: "Atlantis 2 (nette)" },
-  { file: "hacker.jpg", label: "Hacker" },
-  { file: "Internet-cyberpunk.png", label: "Internet cyberpunk" },
-  { file: "neon-network-architecture-stockcake4k.jpg", label: "Architecture réseau néon" },
+  { file: "kali_xl_forest_sharp.png", label: "Kali -- Forêt (par défaut)", i18nKey: "settings.wallpaper.forestDefault" },
+  { file: "kali_xl_city.png", label: "Kali -- Ville", i18nKey: "settings.wallpaper.city" },
+  { file: "kali_xl.png", label: "Kali", i18nKey: "settings.wallpaper.kali" },
+  { file: "kali_xl_sharp.png", label: "Kali (nette)", i18nKey: "settings.wallpaper.kaliSharp" },
+  { file: "atlantis.png", label: "Atlantis", i18nKey: "settings.wallpaper.atlantis" },
+  { file: "atlantis_sharp.png", label: "Atlantis (nette)", i18nKey: "settings.wallpaper.atlantisSharp" },
+  { file: "atlantis2_sharp.png", label: "Atlantis 2 (nette)", i18nKey: "settings.wallpaper.atlantis2Sharp" },
+  { file: "hacker.jpg", label: "Hacker", i18nKey: "settings.wallpaper.hacker" },
+  { file: "Internet-cyberpunk.png", label: "Internet cyberpunk", i18nKey: "settings.wallpaper.cyberpunk" },
+  { file: "neon-network-architecture-stockcake4k.jpg", label: "Architecture réseau néon", i18nKey: "settings.wallpaper.neonNetwork" },
 ];
 
 function getWallpaperOverride() {

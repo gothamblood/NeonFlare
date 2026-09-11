@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="script-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'">
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="icon" type="image/svg+xml" href="../assets/images/dragon-logo.svg">
 <link rel="icon" type="image/png" href="../assets/images/dragon-favicon.png">
@@ -23,7 +24,7 @@
       <tr><th>Tool</th><th>Description</th></tr>
 
     <!-- NMAP -->
-    <tr class="tool-row" onclick="toggleCmd('cmd-nmap')">
+    <tr class="tool-row" data-toggle="cmd-nmap">
       <td>nmap</td>
       <td>Full scan + service detection</td>
     </tr>
@@ -67,7 +68,7 @@
 </tr>
 
       <!-- GOBUSTER -->
-      <tr class="tool-row" onclick="toggleCmd('cmd-gobuster')">
+      <tr class="tool-row" data-toggle="cmd-gobuster">
         <td>Gobuster</td><td>Brute-force directories, DNS, vhosts</td>
       </tr>
       <tr id="cmd-gobuster" class="command-row">
@@ -102,7 +103,7 @@
   </td>
 </tr>
 
-      <tr class="tool-row" onclick="toggleCmd('cmd-nikto')">
+      <tr class="tool-row" data-toggle="cmd-nikto">
         <td>Nikto</td><td>Basic web vulnerability scanning</td>
       </tr>
      <tr id="cmd-nikto" class="command-row">
@@ -152,7 +153,7 @@
   </td>
 </tr>
 
-      <tr class="tool-row" onclick="toggleCmd('cmd-whatweb')">
+      <tr class="tool-row" data-toggle="cmd-whatweb">
         <td>WhatWeb</td><td>Identify web technologies and frameworks</td>
       </tr>
 <tr id="cmd-whatweb" class="command-row">
@@ -194,7 +195,7 @@
   </td>
 </tr>
 
-      <tr class="tool-row" onclick="toggleCmd('cmd-wappalyzer')">
+      <tr class="tool-row" data-toggle="cmd-wappalyzer">
         <td>Wappalyzer</td><td>Browser extension for tech fingerprinting</td>
       </tr>
       <tr id="cmd-wappalyzer" class="command-row">
@@ -211,7 +212,7 @@
   </td>
 </tr>
 
-      <tr class="tool-row" onclick="toggleCmd('cmd-netcat')">
+      <tr class="tool-row" data-toggle="cmd-netcat">
         <td>Netcat</td><td>Banner grabbing and raw TCP/UDP connections</td>
       </tr>
 <tr id="cmd-netcat" class="command-row">
@@ -258,7 +259,7 @@
   </td>
 </tr>
 
-      <tr class="tool-row" onclick="toggleCmd('cmd-tcpdump')">
+      <tr class="tool-row" data-toggle="cmd-tcpdump">
         <td>tcpdump</td><td>CLI packet capture on interfaces</td>
       </tr>
 <tr id="cmd-tcpdump" class="command-row">
@@ -309,7 +310,7 @@
 </tr>
 
 
-      <tr class="tool-row" onclick="toggleCmd('cmd-dirb')">
+      <tr class="tool-row" data-toggle="cmd-dirb">
         <td>Dirb</td><td>Dirb enumeration</td>
       </tr>
       <tr id="cmd-dirb" class="command-row">
@@ -330,7 +331,7 @@
 
 
       <!-- GOTHAMBLOOD CRAWLER -->
-      <tr class="tool-row" onclick="toggleCmd('cmd-gbc')">
+      <tr class="tool-row" data-toggle="cmd-gbc">
         <td>Gothamblood Crawler</td><td>Custom recursive web content-discovery crawler</td>
       </tr>
       <tr id="cmd-gbc" class="command-row">
@@ -359,7 +360,7 @@
   </td>
 </tr>
 
-      <tr class="tool-row" onclick="toggleCmd('cmd-wireshark')">
+      <tr class="tool-row" data-toggle="cmd-wireshark">
         <td>Wireshark</td><td>GUI packet analysis and filtering</td>
       </tr>
       <tr id="cmd-wireshark" class="command-row">
@@ -381,7 +382,7 @@
   </td>
 </tr>
 
-      <tr class="tool-row" onclick="toggleCmd('cmd-enum4linux')">
+      <tr class="tool-row" data-toggle="cmd-enum4linux">
         <td>enum4linux</td><td>Enumerate SMB shares and Windows info</td>
       </tr>
       <tr id="cmd-enum4linux" class="command-row">
@@ -404,7 +405,7 @@
   </td>
 </tr>
 
-      <tr class="tool-row" onclick="toggleCmd('cmd-smbclient')">
+      <tr class="tool-row" data-toggle="cmd-smbclient">
         <td>smbclient</td><td>Access SMB shares from Linux</td>
       </tr>
 <tr id="cmd-smbclient" class="command-row">
@@ -449,7 +450,7 @@
   </td>
 </tr>
 
-      <tr class="tool-row" onclick="toggleCmd('cmd-ldapsearch')">
+      <tr class="tool-row" data-toggle="cmd-ldapsearch">
         <td>ldapsearch</td><td>Query LDAP/AD for users and objects</td>
       </tr>
       <tr id="cmd-ldapsearch" class="command-row">
@@ -470,7 +471,7 @@
   </td>
 </tr>
 
-      <tr class="tool-row" onclick="toggleCmd('cmd-kerbrute')">
+      <tr class="tool-row" data-toggle="cmd-kerbrute">
         <td>Kerbrute</td><td>Enumerate AD users via Kerberos</td>
       </tr>
       <tr id="cmd-kerbrute" class="command-row">
@@ -488,7 +489,7 @@
 </tr>
 
 
-      <tr class="tool-row" onclick="toggleCmd('cmd-passivecmd')">
+      <tr class="tool-row" data-toggle="cmd-passivecmd">
         <td>Passive recon</td><td>Passive reconnaissance</td>
       </tr>
       <tr id="cmd-passivecmd" class="command-row">
@@ -507,7 +508,7 @@
         </td>
       </tr>
 
-        <tr class="tool-row" onclick="toggleCmd('cmd-common-misconfig')">
+        <tr class="tool-row" data-toggle="cmd-common-misconfig">
       <td style="color:red">Misconfiguration</td><td>Common misconfig</td>
     </tr>
 
@@ -531,36 +532,7 @@ Strict-Transport-Security   Forces HTTPS for future requests (HTTPS only)       
   </div>
 </div>
 
-<script>
-  const embedded = window.self !== window.top;
-
-  // Tell the hub's modal our real content height. Called synchronously on
-  // the one interaction that changes it (toggling a command row) so there's
-  // no dependency on observer/timer scheduling; ResizeObserver below is
-  // just a fallback for anything else (initial layout, font swaps, etc).
-  function reportHeight() {
-    if (embedded) {
-      window.parent.postMessage({ type: "tool-frame-height", height: document.body.scrollHeight }, "*");
-    }
-  }
-
-  function toggleCmd(id) {
-    const row = document.getElementById(id);
-    row.style.display = (row.style.display === "table-row") ? "none" : "table-row";
-    reportHeight();
-  }
-
-  (function() {
-    const savedTheme = localStorage.getItem("/settings.html") || "standard";
-    document.body.classList.add("theme-" + savedTheme);
-    if (embedded) document.body.classList.add("embedded");
-  })();
-
-  if (embedded) {
-    new ResizeObserver(reportHeight).observe(document.body);
-    window.addEventListener("load", reportHeight);
-  }
-</script>
+<script src="../assets/script/tools-page-boot.js"></script>
 
 <script src="../config/tools/recon.js"></script>
 <script src="../assets/script/wallpaper-loader.js"></script>
@@ -568,9 +540,7 @@ Strict-Transport-Security   Forces HTTPS for future requests (HTTPS only)       
 <script src="../assets/script/copy-commands.js"></script>
 <script src="../assets/script/page-effects.js"></script>
 <script src="../assets/script/page-effects-loader.js"></script>
-<script>
-  applyWallpaper(toolsReconConfig.background, "tools-recon");
-</script>
+<script src="../assets/script/inline/tools-recon.js"></script>
 
 </body>
 </html>

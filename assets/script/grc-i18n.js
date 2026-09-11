@@ -15,15 +15,11 @@
      libellés de formulaire, options, en-têtes de tableau PDF). <slug>
      est le nom de fichier sans .html (ex. "actifs").
 
-   grcT(key) mirrors onbT() dans onboarding-wizard.js -- lit I18N_DICT
-   directement, pour tout le HTML généré dynamiquement par les registres
-   (boutons, badges, en-têtes de rapport PDF) que le scan DOM
-   d'applyI18n() n'atteint jamais. */
-
-function grcT(key) {
-  const entry = I18N_DICT[key];
-  return (entry && entry[getSavedLang()]) || (entry && entry.fr) || key;
-}
+   grcT() elle-même vit maintenant dans i18n.js (2026-09-11) -- déplacée
+   pour que project/settings.html (qui charge i18n.js mais pas ce
+   fichier) puisse aussi l'utiliser pour ses cartes Config Network/Tools/
+   Website/DevSecOps/Topology/About générées en JS. Ici : uniquement les
+   ~1100 clés grc.* fusionnées dans le même I18N_DICT partagé. */
 
 Object.assign(I18N_DICT, {
   // -- Navigation / retour --------------------------------------------
@@ -190,6 +186,8 @@ Object.assign(I18N_DICT, {
   "grc.actifs.detail.owner": { fr: "Propriétaire : {owner}", en: "Owner: {owner}" },
   "grc.actifs.detail.nextReview": { fr: "Prochaine revue : {date}", en: "Next review: {date}" },
   "grc.actifs.detail.dependsOn": { fr: "Dépend de : {names}", en: "Depends on: {names}" },
+  "grc.actifs.detail.addDependency": { fr: "+ Dépendance", en: "+ Dependency" },
+  "grc.actifs.detail.noDependency": { fr: "Aucune dépendance.", en: "No dependency." },
 
   "grc.actifs.pdf.title": { fr: "Registre des actifs", en: "Asset registry" },
   "grc.actifs.pdf.empty": { fr: "Aucun actif enregistré.", en: "No assets recorded." },
@@ -261,6 +259,8 @@ Object.assign(I18N_DICT, {
   "grc.risques.detail.strategy": { fr: "Stratégie : {value}", en: "Strategy: {value}" },
   "grc.risques.detail.treatment": { fr: "Traitement : {value}", en: "Treatment: {value}" },
   "grc.risques.detail.treatedBy": { fr: "Traité par : {names}", en: "Treated by: {names}" },
+  "grc.risques.detail.addAsset": { fr: "+ Actif", en: "+ Asset" },
+  "grc.risques.detail.noAsset": { fr: "Aucun actif lié.", en: "No linked asset." },
 
   "grc.risques.pdf.title": { fr: "Registre des risques", en: "Risk registry" },
   "grc.risques.pdf.empty": { fr: "Aucun risque enregistré.", en: "No risks recorded." },
@@ -322,6 +322,8 @@ Object.assign(I18N_DICT, {
   "grc.controles.detail.type": { fr: "Type : {value}", en: "Type: {value}" },
   "grc.controles.detail.refs": { fr: "Référentiels : {value}", en: "Frameworks: {value}" },
   "grc.controles.detail.risks": { fr: "Risques traités : {names}", en: "Risks addressed: {names}" },
+  "grc.controles.detail.addRisk": { fr: "+ Risque", en: "+ Risk" },
+  "grc.controles.detail.noRisk": { fr: "Aucun risque traité.", en: "No risk addressed." },
   "grc.controles.detail.owner": { fr: "Propriétaire : {owner}", en: "Owner: {owner}" },
   "grc.controles.detail.evidence": { fr: "Preuve / évidence : {value}", en: "Evidence: {value}" },
 
@@ -1533,5 +1535,100 @@ Object.assign(I18N_DICT, {
   "grc.documents.authority.colApprover": { fr: "Approbateur", en: "Approver" },
   "grc.documents.authority.colVersion": { fr: "Version", en: "Version" },
   "grc.documents.authority.colApprovedAt": { fr: "Approuvé le", en: "Approved on" },
-  "grc.documents.authority.empty": { fr: "Aucun approbateur renseigné.", en: "No approver recorded." }
+  "grc.documents.authority.empty": { fr: "Aucun approbateur renseigné.", en: "No approver recorded." },
+
+  /* ================================================================ *
+   *  Tracker de findings pentest -- migré sur le kit (grk*)
+   *  PlanDurcissement-Securite.txt P2. Store /pentest/engagements,
+   *  un engagement = une mission, findings imbriqués (pas un registre
+   *  séparé -- un finding n'a de sens que rattaché à une mission).
+   * ================================================================ */
+  "grc.pentest.invalidImport": { fr: "Format invalide : un tableau d'engagements est attendu.", en: "Invalid format: an array of engagements is expected." },
+  "grc.pentest.pageTitle": { fr: "Findings", en: "Findings" },
+  "grc.pentest.pageDesc": { fr: "Scope de l'engagement, findings avec score CVSS et statut, preuves en texte libre, générateur de rapport. Séparé du panneau \"Outils\" du Dashboard (aide-mémoire de commandes), et distinct du rapport GRC.", en: "Engagement scope, findings with CVSS score and status, free-text evidence, report generator. Separate from the Dashboard's \"Tools\" panel (command cheat-sheet), and distinct from the GRC report." },
+
+  "grc.pentest.form.addBtn": { fr: "+ Nouvel engagement", en: "+ New engagement" },
+  "grc.pentest.form.title": { fr: "Nouvel engagement", en: "New engagement" },
+  "grc.pentest.form.titleEdit": { fr: "Modifier l'engagement", en: "Edit engagement" },
+  "grc.pentest.form.name": { fr: "Nom", en: "Name" },
+  "grc.pentest.form.client": { fr: "Client", en: "Client" },
+  "grc.pentest.form.scope": { fr: "Scope", en: "Scope" },
+  "grc.pentest.form.startDate": { fr: "Début", en: "Start" },
+  "grc.pentest.form.endDate": { fr: "Fin", en: "End" },
+  "grc.pentest.form.status": { fr: "Statut", en: "Status" },
+
+  "grc.pentest.engStatus.actif": { fr: "Actif", en: "Active" },
+  "grc.pentest.engStatus.termine": { fr: "Terminé", en: "Completed" },
+
+  "grc.pentest.findStatus.ouvert": { fr: "Ouvert", en: "Open" },
+  "grc.pentest.findStatus.corrige": { fr: "Corrigé", en: "Fixed" },
+  "grc.pentest.findStatus.accepte": { fr: "Accepté", en: "Accepted" },
+
+  "grc.pentest.severity.unscored": { fr: "Non évalué", en: "Unscored" },
+  "grc.pentest.severity.low": { fr: "Faible", en: "Low" },
+  "grc.pentest.severity.medium": { fr: "Moyenne", en: "Medium" },
+  "grc.pentest.severity.high": { fr: "Élevée", en: "High" },
+  "grc.pentest.severity.critical": { fr: "Critique", en: "Critical" },
+
+  "grc.pentest.detail.period": { fr: "{start} → {end}", en: "{start} → {end}" },
+  "grc.pentest.detail.scope": { fr: "Scope : {value}", en: "Scope: {value}" },
+  "grc.pentest.detail.status": { fr: "Statut : {value}", en: "Status: {value}" },
+  "grc.pentest.detail.findingsCount": { fr: "{n} findings", en: "{n} findings" },
+
+  "grc.pentest.toolbar.editEngagement": { fr: "Modifier l'engagement", en: "Edit engagement" },
+  "grc.pentest.toolbar.deleteEngagement": { fr: "Supprimer l'engagement", en: "Delete engagement" },
+  "grc.pentest.toolbar.addFinding": { fr: "+ Ajouter un finding", en: "+ Add finding" },
+  "grc.pentest.toolbar.reportWord": { fr: "⬇ Rapport Word", en: "⬇ Word report" },
+  "grc.pentest.toolbar.reportPdf": { fr: "⬇ Rapport PDF", en: "⬇ PDF report" },
+  "grc.pentest.toolbar.exportCsv": { fr: "⬇ Findings CSV", en: "⬇ Findings CSV" },
+
+  "grc.pentest.finding.formTitleAdd": { fr: "Ajouter un finding", en: "Add finding" },
+  "grc.pentest.finding.formTitleEdit": { fr: "Modifier le finding", en: "Edit finding" },
+  "grc.pentest.finding.title": { fr: "Titre", en: "Title" },
+  "grc.pentest.finding.description": { fr: "Description", en: "Description" },
+  "grc.pentest.finding.cvss": { fr: "Score CVSS (0.0-10.0)", en: "CVSS score (0.0-10.0)" },
+  "grc.pentest.finding.evidence": { fr: "Preuves / reproduction", en: "Evidence / reproduction" },
+  "grc.pentest.finding.imagePath": { fr: "Image (référence -- chemin ou nom de fichier, non enregistrée directement)", en: "Image (reference -- path or filename, not stored directly)" },
+  "grc.pentest.finding.imagePathPlaceholder": { fr: "/chemin/vers/capture.png", en: "/path/to/screenshot.png" },
+  "grc.pentest.finding.loadImageBtn": { fr: "🔎 Charger l'aperçu depuis ce chemin", en: "🔎 Load preview from this path" },
+  "grc.pentest.finding.pickImageBtn": { fr: "📎 Choisir un fichier", en: "📎 Choose a file" },
+  "grc.pentest.finding.owner": { fr: "Responsable", en: "Owner" },
+  "grc.pentest.finding.status": { fr: "Statut", en: "Status" },
+  "grc.pentest.finding.confirmDelete": { fr: "Supprimer le finding \"{title}\" ?", en: "Delete finding \"{title}\"?" },
+  "grc.pentest.finding.emptyNoPath": { fr: "Entre d'abord un chemin.", en: "Enter a path first." },
+  "grc.pentest.finding.loading": { fr: "Chargement…", en: "Loading…" },
+  "grc.pentest.finding.loaded": { fr: "Aperçu chargé (en mémoire pour cette session seulement).", en: "Preview loaded (in memory for this session only)." },
+  "grc.pentest.finding.loadFailed": { fr: "Impossible de charger depuis ce chemin -- si le site est servi en http(s), un chemin local absolu ne passera pas (restriction du navigateur) : utilise \"Choisir un fichier\" à la place.", en: "Couldn't load from this path -- if the site is served over http(s), a local absolute path won't work (browser restriction): use \"Choose a file\" instead." },
+  "grc.pentest.finding.fileReadFailed": { fr: "Impossible de lire ce fichier.", en: "Couldn't read this file." },
+  "grc.pentest.finding.imageMissing": { fr: "🖼 Référence : {path} (non chargée -- cliquer pour essayer)", en: "🖼 Reference: {path} (not loaded -- click to try)" },
+  "grc.pentest.finding.imageMissingRetryFailed": { fr: "Impossible de charger depuis ce chemin -- si le site est servi en http(s), un chemin local absolu ne passera pas ; modifie le finding et utilise \"Choisir un fichier\" à la place.", en: "Couldn't load from this path -- if the site is served over http(s), a local absolute path won't work; edit the finding and use \"Choose a file\" instead." },
+
+  "grc.pentest.findings.filterAll": { fr: "Tous les statuts", en: "All statuses" },
+  "grc.pentest.findings.emptyFilter": { fr: "Aucun finding pour ce filtre.", en: "No finding for this filter." },
+  "grc.pentest.findings.count.critical": { fr: "{n} critique(s)", en: "{n} critical" },
+  "grc.pentest.findings.count.high": { fr: "{n} élevée(s)", en: "{n} high" },
+  "grc.pentest.findings.count.medium": { fr: "{n} moyenne(s)", en: "{n} medium" },
+  "grc.pentest.findings.count.low": { fr: "{n} faible(s)", en: "{n} low" },
+  "grc.pentest.findings.count.unscored": { fr: "{n} non évalué(s)", en: "{n} unscored" },
+
+  "grc.pentest.report.title": { fr: "Rapport de test d'intrusion", en: "Penetration test report" },
+  "grc.pentest.report.generatedOn": { fr: "Généré le", en: "Generated on" },
+  "grc.pentest.report.by": { fr: "Par", en: "By" },
+  "grc.pentest.report.client": { fr: "Client", en: "Client" },
+  "grc.pentest.report.scope": { fr: "Scope", en: "Scope" },
+  "grc.pentest.report.period": { fr: "Période", en: "Period" },
+  "grc.pentest.report.status": { fr: "Statut", en: "Status" },
+  "grc.pentest.report.findingsTitle": { fr: "Findings ({n})", en: "Findings ({n})" },
+  "grc.pentest.report.noFindings": { fr: "Aucun finding enregistré.", en: "No finding recorded." },
+  "grc.pentest.report.legend": { fr: "Légende :", en: "Legend:" },
+  "grc.pentest.report.findingStatus": { fr: "Statut", en: "Status" },
+  "grc.pentest.report.owner": { fr: "Responsable", en: "Owner" },
+  "grc.pentest.report.evidence": { fr: "Preuves / reproduction :", en: "Evidence / reproduction:" },
+  "grc.pentest.report.imageMissing": { fr: "Image référencée : {path} (introuvable à ce chemin -- vérifie qu'il est correct, ou attache-la via « Choisir un fichier » pour un export portable)", en: "Referenced image: {path} (not found at this path -- check it's correct, or attach it via \"Choose a file\" for a portable export)" },
+
+  "grc.pentest.csv.title": { fr: "titre", en: "title" },
+  "grc.pentest.csv.cvss": { fr: "score_cvss", en: "cvss_score" },
+  "grc.pentest.csv.severity": { fr: "severite", en: "severity" },
+  "grc.pentest.csv.status": { fr: "statut", en: "status" },
+  "grc.pentest.csv.owner": { fr: "responsable", en: "owner" }
 });

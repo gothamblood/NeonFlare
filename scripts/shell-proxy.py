@@ -35,12 +35,24 @@ gate on the browser side.
 Loopback only, no TLS. Usage:
 
   shell-proxy.py --token-file <path> --route 7681=<sock> [--route 7691=<sock> ...]
+                 [--idle-timeout SECONDS --idle-stop-cmd CMD]
+
+--idle-timeout/--idle-stop-cmd close the gap between "the token proxy is
+technically the root fix" and "shells left running for hours are still a
+bigger attack surface than shells running for minutes" (PlanDurcissement-
+Securite.txt P4.2): if no byte gets relayed for SECONDS seconds -- no
+websocket frame in or out of any route -- the proxy runs CMD (normally
+`ttyd-shells.sh stop`, which also blanks the token in config/shell-
+session.js) and shuts itself down. Idle time is tracked per-process across
+all routes, not per-connection, so one active pane keeps every pane alive.
 """
 
 import argparse
 import asyncio
 import hmac
+import subprocess
 import sys
+import time
 from urllib.parse import urlsplit, urlunsplit, parse_qsl, urlencode
 
 HEAD_LIMIT = 64 * 1024
@@ -235,12 +247,14 @@ async def read_all(reader, initial):
     return b"".join(chunks)
 
 
-async def pipe(reader, writer):
+async def pipe(reader, writer, touch=None):
     try:
         while True:
             chunk = await reader.read(PIPE_CHUNK)
             if not chunk:
                 break
+            if touch:
+                touch()
             writer.write(chunk)
             await writer.drain()
     except (ConnectionError, asyncio.CancelledError):
@@ -262,7 +276,7 @@ async def deny(writer):
     writer.close()
 
 
-async def handle_client(reader, writer, sock_path, token):
+async def handle_client(reader, writer, sock_path, token, state):
     peer = writer.get_extra_info("peername")
     try:
         head_bytes, leftover = await read_head(reader)
@@ -278,6 +292,7 @@ async def handle_client(reader, writer, sock_path, token):
                                        parsed["target"].split("?")[0], peer))
             await deny(writer)
             return
+        state["last_activity"] = time.monotonic()
 
         try:
             up_reader, up_writer = await asyncio.open_unix_connection(sock_path)
@@ -316,8 +331,9 @@ async def handle_client(reader, writer, sock_path, token):
                 writer.write(resp_leftover)
             await writer.drain()
 
-        t1 = asyncio.ensure_future(pipe(up_reader, writer))
-        t2 = asyncio.ensure_future(pipe(reader, up_writer))
+        touch = lambda: state.__setitem__("last_activity", time.monotonic())
+        t1 = asyncio.ensure_future(pipe(up_reader, writer, touch))
+        t2 = asyncio.ensure_future(pipe(reader, up_writer, touch))
         done, pending = await asyncio.wait(
             {t1, t2}, return_when=asyncio.FIRST_COMPLETED)
         for t in pending:
@@ -328,6 +344,37 @@ async def handle_client(reader, writer, sock_path, token):
         writer.close()
 
 
+async def watchdog(state, serve_tasks, servers, idle_timeout, idle_stop_cmd):
+    """Cancel `serve_tasks` (and run `idle_stop_cmd`) after idle_timeout
+    seconds with no byte relayed through any route.
+
+    Polls rather than sleeping for the full timeout so a fresh connection's
+    `touch()` reliably pushes the deadline back instead of racing a single
+    long sleep that was already committed to firing.
+    """
+    check_interval = max(5, min(30, idle_timeout // 10))
+    while True:
+        await asyncio.sleep(check_interval)
+        idle_for = time.monotonic() - state["last_activity"]
+        if idle_for < idle_timeout:
+            continue
+        log("idle for %.0fs (>= %ds) -- stopping" % (idle_for, idle_timeout))
+        if idle_stop_cmd:
+            try:
+                subprocess.Popen(idle_stop_cmd, shell=True,
+                                 stdin=subprocess.DEVNULL,
+                                 stdout=subprocess.DEVNULL,
+                                 stderr=subprocess.DEVNULL,
+                                 start_new_session=True)
+            except OSError as exc:
+                log("idle-stop-cmd failed: %s" % exc)
+        for s in servers:
+            s.close()
+        for t in serve_tasks:
+            t.cancel()
+        return
+
+
 async def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -335,6 +382,12 @@ async def main():
                     help="file holding the session token (not passed on argv)")
     ap.add_argument("--route", action="append", default=[], metavar="PORT=SOCK",
                     help="listen on 127.0.0.1:PORT, forward to UNIX socket SOCK")
+    ap.add_argument("--idle-timeout", type=int, default=0, metavar="SECONDS",
+                    help="run --idle-stop-cmd and shut down after this many "
+                         "seconds with no traffic relayed (0 = disabled)")
+    ap.add_argument("--idle-stop-cmd", default=None, metavar="CMD",
+                    help="shell command run (via 'sh -c') when the idle "
+                         "timeout fires")
     args = ap.parse_args()
 
     try:
@@ -358,17 +411,29 @@ async def main():
         log("no --route given")
         return 1
 
+    state = {"last_activity": time.monotonic()}
     servers = []
     for port, sock in routes:
         srv = await asyncio.start_server(
-            lambda r, w, s=sock, t=token: handle_client(r, w, s, t),
+            lambda r, w, s=sock, t=token, st=state: handle_client(r, w, s, t, st),
             host="127.0.0.1", port=port)
         servers.append(srv)
     log("listening on %s" % ", ".join("127.0.0.1:%d" % p for p, _ in routes))
 
+    serve_tasks = [asyncio.ensure_future(s.serve_forever()) for s in servers]
+    watch_task = None
+    if args.idle_timeout > 0:
+        log("idle-timeout %ds (stop-cmd: %s)" %
+            (args.idle_timeout, args.idle_stop_cmd or "none"))
+        watch_task = asyncio.ensure_future(
+            watchdog(state, serve_tasks, servers,
+                    args.idle_timeout, args.idle_stop_cmd))
+
     try:
-        await asyncio.gather(*(s.serve_forever() for s in servers))
+        await asyncio.gather(*serve_tasks, return_exceptions=True)
     finally:
+        if watch_task:
+            watch_task.cancel()
         for s in servers:
             s.close()
     return 0
