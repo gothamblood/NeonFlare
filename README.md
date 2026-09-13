@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/images/dragon4_logo.png" width="200" alt="NeonFlare">
+</p>
+
 # NeonFlare
 
 **A self-hostable operations dashboard for security work** — GRC checklists,
