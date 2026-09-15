@@ -113,7 +113,14 @@
     renderDashboardNavItems();
 
     window.addEventListener("message", (e) => {
-      if (e.data && e.data.type === "theme-change") {
+      // Every sender of the 7 types below addresses window.top explicitly
+      // (grep-checked), so a message that actually reaches this listener
+      // can only come from a frame nested somewhere in our own page --
+      // an unrelated page/tab has a different .top. Found while closing
+      // out PlanDeTestSecurite-ShellBridge 1.5 (not in its original
+      // 6-file table -- this listener was missed by that sweep).
+      if (!e.data || !e.source || e.source.top !== window) return;
+      if (e.data.type === "theme-change") {
         applyTheme(e.data.theme);
       }
       if (e.data && e.data.type === "lang-change") {

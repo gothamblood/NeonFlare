@@ -325,6 +325,12 @@ function initDashboardLayout(dashboardId) {
   // progress.
   window.addEventListener("message", (e) => {
     if (!e.data) return;
+    // Only the real top shell (index.html, the only sender of these two
+    // types) may drive this -- an unrelated page/tab that grabbed a
+    // handle to this iframe should not be able to feed fake mouse
+    // coordinates into the drag/resize state (PlanDeTestSecurite-ShellBridge
+    // 1.5).
+    if (!e.source || e.source !== window.top) return;
     if (e.data.type === "top-mousemove") handleMouseMove(e.data.clientX, e.data.clientY);
     if (e.data.type === "top-mouseup") handleMouseUp();
   });

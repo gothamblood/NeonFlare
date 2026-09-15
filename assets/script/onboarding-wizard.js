@@ -346,6 +346,10 @@ function onbRequestPanelRect(panelId, page, scrollAlign) {
 
 window.addEventListener("message", (e) => {
   if (!e.data || e.data.type !== "onb-rect" || e.data.token !== onbRequestToken || !onbActive) return;
+  // onbRequestToken is just an incrementing counter, not a real secret --
+  // require the reply to also come from the exact iframe we asked
+  // (PlanDeTestSecurite-ShellBridge 1.5).
+  if (!e.source || e.source !== document.getElementById("frame").contentWindow) return;
   if (e.data.rect) {
     const frame = document.getElementById("frame");
     const frameRect = frame.getBoundingClientRect();

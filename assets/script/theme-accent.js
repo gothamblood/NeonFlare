@@ -76,6 +76,11 @@
   window.addEventListener("message", function (e) {
     var d = e && e.data;
     if (!d || d.type !== "theme-change") return;
+    // Every sender addresses window.top explicitly, so a message that
+    // actually reaches this listener can only come from a frame nested
+    // somewhere in our own page (e.source.top === us) -- an unrelated
+    // page/tab has a different .top (PlanDeTestSecurite-ShellBridge 1.5).
+    if (!e.source || e.source.top !== window) return;
     if (typeof d.accent === "string") {
       try { localStorage.setItem(ACCENT_KEY, d.accent); } catch (err) {}
     }

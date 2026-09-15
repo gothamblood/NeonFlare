@@ -203,6 +203,11 @@
 
   window.addEventListener("message", (e) => {
     if (!e.data || e.data.type !== "shell-list-response") return;
+    // requestShellList() below always posts its request to window.top, so
+    // the reply can only legitimately come from there -- reject anything
+    // else instead of relying solely on an unguessable-ish requestId
+    // (PlanDeTestSecurite-ShellBridge 1.5).
+    if (!e.source || e.source !== window.top) return;
     const resolve = pendingShellListRequests.get(e.data.requestId);
     if (!resolve) return;
     pendingShellListRequests.delete(e.data.requestId);

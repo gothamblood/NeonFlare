@@ -8,6 +8,11 @@
    (project/dashboard.html, project/settings.html). */
 window.addEventListener("message", (e) => {
   if (!e.data || e.data.type !== "onb-request-rect") return;
+  // onboarding-wizard.js (the only sender) always runs on the real top
+  // shell and posts via frame.contentWindow -- an unrelated page/tab
+  // should not be able to ask this frame for element rects
+  // (PlanDeTestSecurite-ShellBridge 1.5).
+  if (!e.source || e.source !== window.top) return;
 
   const target = document.getElementById(e.data.panelId);
   const respond = (rect) => {
