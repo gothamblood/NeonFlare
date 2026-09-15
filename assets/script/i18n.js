@@ -12,6 +12,7 @@ const I18N_DICT = {
   "nav.apiSecurity": { fr: "Sécurité API", en: "API Security" },
   "nav.webappSecurity": { fr: "Sécurité WebApp", en: "WebApp Security" },
   "nav.databaseSecurity": { fr: "Sécurité base de données", en: "Database Security" },
+  "nav.grcResources": { fr: "Ressources externes", en: "External resources" },
   "nav.more": { fr: "Plus", en: "More" },
   "nav.topology": { fr: "Topologie", en: "Topology" },
   "nav.settings": { fr: "Paramètres", en: "Settings" },
@@ -119,7 +120,8 @@ const I18N_DICT = {
   "settings.nav.langue": { fr: "Langue", en: "Language" },
   "settings.nav.assistant": { fr: "Assistant & réinitialisation", en: "Assistant & reset" },
   "settings.nav.interface": { fr: "Interface", en: "Interface" },
-  "settings.nav.grc": { fr: "GRC & Shells", en: "GRC & Shells" },
+  "settings.nav.grc": { fr: "GRC", en: "GRC" },
+  "settings.nav.shells": { fr: "Shells", en: "Shells" },
   "settings.nav.registres": { fr: "Registres", en: "Registries" },
   "settings.nav.generique": { fr: "Générique", en: "Generic" },
   "settings.nav.autres": { fr: "Autres", en: "Other" },
@@ -148,6 +150,20 @@ const I18N_DICT = {
   "settings.grcAuthorDesc": {
     fr: "Attaché à chaque case cochée et note GRC (horodatage + ce nom) -- un texte libre, pas un compte vérifié : utile pour un journal de modifications entre toi et une petite équipe qui s'échange des exports, pas une piste d'audit inviolable. Vide par défaut ici ? Renseigne config/grc-author.js pour que ton nom soit déjà rempli sur un nouveau navigateur, sans repasser par Settings.",
     en: "Attached to every checked GRC item and note (timestamp + this name) -- free text, not a verified account: useful as a change-log between you and a small team exchanging exports, not a tamper-proof audit trail. Empty here by default? Fill in config/grc-author.js so your name is already set on a fresh browser, without going through Settings first."
+  },
+  "settings.rprpTitle": { fr: "Responsable de la protection des renseignements personnels (RPRP)", en: "Privacy officer" },
+  "settings.rprpDesc": {
+    fr: "Loi 25 impose la désignation d'un responsable de la protection des renseignements personnels. Texte libre, persisté localement -- pas un annuaire vérifié.",
+    en: "Quebec's Bill 25 requires a designated privacy officer. Free text, stored locally -- not a verified directory."
+  },
+  "settings.rprpNameLabel": { fr: "Nom", en: "Name" },
+  "settings.rprpContactLabel": { fr: "Coordonnées", en: "Contact details" },
+  "settings.rprpDelegateLabel": { fr: "Délégué", en: "Delegate" },
+  "settings.rprpAppointedAtLabel": { fr: "Date de nomination", en: "Appointment date" },
+  "settings.grcSectionsTitle": { fr: "Sections visibles (menu GRC)", en: "Visible sections (GRC menu)" },
+  "settings.grcSectionsDesc": {
+    fr: "Contrôle l'affichage de chaque section du sous-menu GRC (barre latérale), indépendamment du bouton « GRC » ci-dessus dans Interface > Pages visibles. Cache seulement le lien -- n'empêche pas l'accès direct à la page.",
+    en: "Controls whether each GRC submenu section shows up in the sidebar, independently of the \"GRC\" toggle above in Interface > Visible pages. Hides the link only -- it doesn't block direct access to the page."
   },
   "settings.langTitle": { fr: "Langue", en: "Language" },
   "settings.currentLang": { fr: "Langue actuelle :", en: "Current Language:" },
@@ -489,6 +505,7 @@ const I18N_DICT = {
   "settings.registryName.grcChecklist": { fr: "Checklist GRC (les 53 pages)", en: "GRC Checklist (all 53 pages)" },
   "settings.registryName.assets": { fr: "Registre d'actifs", en: "Asset registry" },
   "settings.registryName.risks": { fr: "Registre de risques", en: "Risk registry" },
+  "settings.registryName.treatmentPlans": { fr: "Registre des plans de traitement", en: "Treatment plan registry" },
   "settings.registryName.controls": { fr: "Registre de contrôles", en: "Control registry" },
   "settings.registryName.incidents": { fr: "Journal d'incidents", en: "Incident log" },
   "settings.registryName.continuity": { fr: "Registre PCA/PRA", en: "BCP/DRP registry" },

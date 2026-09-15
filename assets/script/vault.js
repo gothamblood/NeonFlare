@@ -26,6 +26,7 @@ const VAULT_PROTECTED_EXACT_KEYS = [
   "/settings.html/topologyTitleOverrides",
   "/grc/actifs/registry",
   "/grc/analyse-risques/registry",
+  "/grc/traitement-risques/registry",
   "/grc/incidents/registry",
   "/grc/controles/registry",
   "/grc/continuity/registry",

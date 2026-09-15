@@ -1,11 +1,22 @@
-/* Panneau de plan de traitement d'un risque -- rendu dans le corps de
+/* Panneau de plan(s) de traitement d'un risque -- rendu dans le corps de
    l'accordéon du registre des risques (grc/analyse-risques.html) par
-   grc-risks.js quand `risk.treatmentPlan` existe. Voir
-   spec/grc-registry-upgrades/70-risk-treatment.md.
+   grc-risks.js quand grcRiskTreatmentPlans(risk).length > 0. Voir
+   spec/grc-registry-upgrades/70-risk-treatment.md et la note d'en-tête
+   de grc-risks.js sur le passage à un registre PARTAGÉ, many-to-many :
+   un risque peut cumuler PLUSIEURS plans (ex. MFA + segmentation réseau
+   sur le même risque), un plan peut aussi être lié à plusieurs risques.
 
-   AUCUNE logique de store ici : lectures/écritures via les helpers
-   grcRisk*Treatment* de grc-risks.js. Chargé APRÈS grc-risks.js.
-   Utilise grkPanel / grk* du kit (grc-registry-kit.js). */
+   Onglet "Plans" : une carte par plan lié (nom, "partagé avec N autre(s)
+   risque(s)", stratégie/rationale/transferTo -- mutent le PLAN PARTAGÉ
+   via grcTp*(planId, ...), donc modifier depuis un risque modifie bien
+   le même plan pour tout autre risque qui y est lié -- actions
+   ordonnées, contrôles liés, bouton délier CE plan) + le formulaire
+   créer/lier un plan DE PLUS en bas (réutilise _grcRiskRenderTreatmentLinkUi
+   de grc-risks.js, même UI que l'état "aucun plan").
+   Résiduel et Acceptation restent UN SEUL couple propre à CE risque
+   (grcRisk*, comme avant), pas par plan. AUCUNE logique de store ici.
+   Chargé APRÈS grc-risks.js ET grc-treatment-plans.js. Utilise grkPanel /
+   grk* du kit (grc-registry-kit.js). */
 
 /* ---------- helpers d'affichage --------------------------- */
 
@@ -13,8 +24,12 @@ function _rtStore() {
   return { get: () => (typeof getGrcRisks === "function" ? getGrcRisks() : []) };
 }
 
+// Vue pour les onglets : risque + treatmentPlans (tableau de plans
+// résolus, [] si aucun ou tous supprimés -- filet de sécurité, ne
+// devrait pas arriver ici puisque grc-risks.js ne monte ce panneau que
+// si grcRiskTreatmentPlans(risk).length > 0).
 function _rtEnsure(risk) {
-  return Object.assign({}, risk, { treatmentPlan: grcRiskEnsureTreatment(risk) });
+  return Object.assign({}, risk, { treatmentPlans: grcRiskTreatmentPlans(risk) });
 }
 
 function _rtTextArea(labelKey, value, onCommit) {
@@ -33,53 +48,18 @@ function _rtDate(value, onCommit) {
   return inp;
 }
 
-/* ---------- onglet Stratégie ---------------------------- */
+/* ---------- onglet Plans (un ou plusieurs) -------------- */
 
-function _rtRenderStrategie(root, risk) {
-  const id = risk.id;
-  const t = risk.treatmentPlan;
-
-  const grid = document.createElement("div");
-  grid.className = "grk-formgrid";
-  const sel = grkSelect(GRC_RT_STRATEGIES, t.strategy, (s) => grcT("grc.risques.rt.strat." + s));
-  sel.addEventListener("change", () => { grcRiskSetStrategy(id, { strategy: sel.value }); grkRefresh(grid); });
-  grid.appendChild(grkField(grcT("grc.risques.rt.strategy"), sel));
-  root.appendChild(grid);
-
-  root.appendChild(_rtTextArea("grc.risques.rt.rationale", t.rationale,
-    (v) => grcRiskSetStrategy(id, { rationale: v })));
-
-  if (t.strategy === "transfer") {
-    const inp = document.createElement("input");
-    inp.type = "text";
-    inp.value = t.transferTo || "";
-    inp.addEventListener("change", () => grcRiskSetStrategy(id, { transferTo: inp.value }));
-    root.appendChild(grkField(grcT("grc.risques.rt.transferTo"), inp));
-  }
-
-  const inh = document.createElement("p");
-  inh.className = "grk-hint";
-  inh.textContent = grcT("grc.risques.rt.inherentReminder")
-    .replace("{p}", risk.probability).replace("{i}", risk.impact)
-    .replace("{score}", grcRiskInherentScore(risk));
-  root.appendChild(inh);
-}
-
-/* ---------- onglet Plan d'action ----------------------- */
-
-function _rtRenderActions(root, risk) {
-  const id = risk.id;
-  const t = risk.treatmentPlan;
-
+function _rtRenderPlanActions(root, planId, actions) {
   const byStatus = { todo: 0, doing: 0, done: 0 };
-  t.actions.forEach((a) => { byStatus[a.status] = (byStatus[a.status] || 0) + 1; });
+  actions.forEach((a) => { byStatus[a.status] = (byStatus[a.status] || 0) + 1; });
   const prog = document.createElement("p");
   prog.className = "grk-hint";
   prog.textContent = grcT("grc.risques.rt.actionProgress")
     .replace("{todo}", byStatus.todo).replace("{doing}", byStatus.doing).replace("{done}", byStatus.done);
   root.appendChild(prog);
 
-  const overdue = t.actions.filter(grcRiskActionOverdue).length;
+  const overdue = actions.filter(grcRiskActionOverdue).length;
   if (overdue) {
     const warn = document.createElement("p");
     warn.className = "grc-sup-warn";
@@ -88,10 +68,10 @@ function _rtRenderActions(root, risk) {
   }
 
   const list = grkList(root, "grc.risques.rt.actionsTitle");
-  grkOrderedList(list, t.actions, {
+  grkOrderedList(list, actions, {
     emptyKey: "grc.risques.rt.noAction",
-    onMove: (aid, dir) => grcRiskMoveAction(id, aid, dir),
-    onRemove: (aid) => grcRiskRemoveAction(id, aid),
+    onMove: (aid, dir) => grcTpMoveAction(planId, aid, dir),
+    onRemove: (aid) => grcTpRemoveAction(planId, aid),
     render: (a) => {
       const row = grkRow();
       row.classList.add("grc-rt-action");
@@ -100,21 +80,21 @@ function _rtRenderActions(root, risk) {
       txt.className = "grk-inv-grow";
       txt.placeholder = grcT("grc.risques.rt.actionText");
       txt.value = a.text || "";
-      txt.addEventListener("change", () => grcRiskUpdateAction(id, a.id, { text: txt.value }));
+      txt.addEventListener("change", () => grcTpUpdateAction(planId, a.id, { text: txt.value }));
       row.appendChild(txt);
       const owner = document.createElement("input");
       owner.type = "text";
       owner.placeholder = grcT("grc.risques.rt.actionOwner");
       owner.value = a.owner || "";
-      owner.addEventListener("change", () => grcRiskUpdateAction(id, a.id, { owner: owner.value }));
+      owner.addEventListener("change", () => grcTpUpdateAction(planId, a.id, { owner: owner.value }));
       row.appendChild(owner);
       const due = document.createElement("input");
       due.type = "date";
       due.value = a.dueAt ? a.dueAt.slice(0, 10) : "";
-      due.addEventListener("change", () => { grcRiskUpdateAction(id, a.id, { dueAt: due.value || null }); grkRefresh(row); });
+      due.addEventListener("change", () => { grcTpUpdateAction(planId, a.id, { dueAt: due.value || null }); grkRefresh(row); });
       row.appendChild(due);
       const st = grkSelect(GRC_RT_ACTION_STATUSES, a.status, (s) => grcT("grc.risques.rt.as." + s));
-      st.addEventListener("change", () => { grcRiskUpdateAction(id, a.id, { status: st.value }); grkRefresh(row); });
+      st.addEventListener("change", () => { grcTpUpdateAction(planId, a.id, { status: st.value }); grkRefresh(row); });
       row.appendChild(st);
       return row;
     },
@@ -129,7 +109,7 @@ function _rtRenderActions(root, risk) {
   nOwn.placeholder = grcT("grc.risques.rt.actionOwner");
   const addForm = grkAddForm([nTxt, nOwn], (form) => {
     if (!nTxt.value.trim()) return;
-    grcRiskAddAction(id, { text: nTxt.value.trim(), owner: nOwn.value.trim() });
+    grcTpAddAction(planId, { text: nTxt.value.trim(), owner: nOwn.value.trim() });
     grkRefresh(form);
   });
   const addBtn = document.createElement("button");
@@ -140,11 +120,127 @@ function _rtRenderActions(root, risk) {
   root.appendChild(addForm);
 }
 
-/* ---------- onglet Résiduel --------------------------- */
+function _rtRenderPlanLinkedControls(root, planId, linkedControls) {
+  const list = grkList(root, "grc.risques.rt.linkedControls");
+  const names = grkLinkNames({ controls: true });
+  let dlId = null;
+  if (names.length) {
+    const dl = document.createElement("datalist");
+    dlId = "grc-rt-ctrl-" + planId;
+    dl.id = dlId;
+    names.forEach((nm) => {
+      const o = document.createElement("option");
+      o.value = nm;
+      o.textContent = grcTpControlDisplayLabel(nm);
+      dl.appendChild(o);
+    });
+    root.appendChild(dl);
+  }
+  linkedControls.forEach((c) => {
+    const row = grkRow();
+    const span = document.createElement("span");
+    span.className = "grk-inv-grow grc-sup-linked-id";
+    span.textContent = grcTpControlDisplayLabel(c);
+    row.appendChild(span);
+    row.appendChild(grkDelBtn(() => { grcTpRemoveLinkedControl(planId, c); grkRefresh(row); }));
+    list.appendChild(row);
+  });
+  if (!linkedControls.length) list.appendChild(grkEmptyLine("grc.risques.rt.noControl"));
+  const inp = document.createElement("input");
+  inp.type = "text";
+  inp.className = "grk-inv-grow";
+  inp.setAttribute("autocomplete", "off");
+  if (dlId) inp.setAttribute("list", dlId);
+  const addForm = grkAddForm([inp], (form) => {
+    if (!inp.value.trim()) return;
+    grcTpAddLinkedControl(planId, inp.value.trim());
+    grkRefresh(form);
+  });
+  const addBtn = document.createElement("button");
+  addBtn.type = "submit";
+  addBtn.className = "grc-registry-add-btn";
+  addBtn.textContent = grcT("grc.risques.rt.addControl");
+  addForm.appendChild(addBtn);
+  root.appendChild(addForm);
+}
+
+function _rtRenderPlanCard(root, risk, t) {
+  const card = document.createElement("section");
+  card.className = "grk-sec grc-rt-plan-card";
+
+  const head = document.createElement("h4");
+  head.textContent = t.name || t.id;
+  card.appendChild(head);
+
+  const shared = grcTpLinkedRiskCount(t.id);
+  if (shared > 1) {
+    const note = document.createElement("p");
+    note.className = "grk-hint";
+    note.textContent = grcT("grc.risques.rt.sharedWith").replace("{n}", shared - 1);
+    card.appendChild(note);
+  }
+
+  const grid = document.createElement("div");
+  grid.className = "grk-formgrid";
+  const sel = grkSelect(GRC_RT_STRATEGIES, t.strategy, (s) => grcT("grc.risques.rt.strat." + s));
+  sel.addEventListener("change", () => { grcTpSetStrategy(t.id, { strategy: sel.value }); grkRefresh(grid); });
+  grid.appendChild(grkField(grcT("grc.risques.rt.strategy"), sel));
+  card.appendChild(grid);
+
+  card.appendChild(_rtTextArea("grc.risques.rt.rationale", t.rationale,
+    (v) => grcTpSetStrategy(t.id, { rationale: v })));
+
+  if (t.strategy === "transfer") {
+    const inp = document.createElement("input");
+    inp.type = "text";
+    inp.value = t.transferTo || "";
+    inp.addEventListener("change", () => grcTpSetStrategy(t.id, { transferTo: inp.value }));
+    card.appendChild(grkField(grcT("grc.risques.rt.transferTo"), inp));
+  }
+
+  _rtRenderPlanActions(card, t.id, t.actions);
+  _rtRenderPlanLinkedControls(card, t.id, t.linkedControls);
+
+  const unlinkBtn = document.createElement("button");
+  unlinkBtn.type = "button";
+  unlinkBtn.className = "grc-registry-io-btn grc-rt-drop";
+  unlinkBtn.textContent = grcT("grc.risques.rt.unlinkPlan");
+  unlinkBtn.onclick = () => { grcRiskUnlinkTreatmentPlan(risk.id, t.id); renderGrcRiskRegistry(); };
+  card.appendChild(unlinkBtn);
+
+  root.appendChild(card);
+}
+
+function _rtRenderPlans(root, risk) {
+  const plans = risk.treatmentPlans;
+
+  if (!plans.length) {
+    const hint = document.createElement("p");
+    hint.className = "grk-hint";
+    hint.textContent = grcT("grc.risques.rt.planMissing");
+    root.appendChild(hint);
+  } else {
+    plans.forEach((t) => _rtRenderPlanCard(root, risk, t));
+  }
+
+  const inh = document.createElement("p");
+  inh.className = "grk-hint";
+  inh.textContent = grcT("grc.risques.rt.inherentReminder")
+    .replace("{p}", risk.probability).replace("{i}", risk.impact)
+    .replace("{score}", grcRiskInherentScore(risk));
+  root.appendChild(inh);
+
+  const addTitle = document.createElement("h4");
+  addTitle.textContent = grcT("grc.risques.rt.addAnotherPlan");
+  root.appendChild(addTitle);
+  _grcRiskRenderTreatmentLinkUi(root, risk);
+}
+
+/* ---------- onglet Résiduel (propre au risque) --------- */
 
 function _rtRenderResiduel(root, risk) {
   const id = risk.id;
-  const t = risk.treatmentPlan;
+  const t = grcRiskEnsureTreatment(risk);
   const scale = ["", "1", "2", "3", "4", "5"];
 
   const grid = document.createElement("div");
@@ -179,51 +275,13 @@ function _rtRenderResiduel(root, risk) {
     line.appendChild(gain);
   }
   root.appendChild(line);
-
-  // contrôles liés (datalist getGrcControls dégradé)
-  const list = grkList(root, "grc.risques.rt.linkedControls");
-  const names = grkLinkNames({ controls: true });
-  let dlId = null;
-  if (names.length) {
-    const dl = document.createElement("datalist");
-    dlId = "grc-rt-ctrl-" + id;
-    dl.id = dlId;
-    names.forEach((nm) => { const o = document.createElement("option"); o.value = nm; dl.appendChild(o); });
-    root.appendChild(dl);
-  }
-  t.linkedControls.forEach((c) => {
-    const row = grkRow();
-    const span = document.createElement("span");
-    span.className = "grk-inv-grow grc-sup-linked-id";
-    span.textContent = c;
-    row.appendChild(span);
-    row.appendChild(grkDelBtn(() => { grcRiskRemoveTreatmentControl(id, c); grkRefresh(row); }));
-    list.appendChild(row);
-  });
-  if (!t.linkedControls.length) list.appendChild(grkEmptyLine("grc.risques.rt.noControl"));
-  const inp = document.createElement("input");
-  inp.type = "text";
-  inp.className = "grk-inv-grow";
-  inp.setAttribute("autocomplete", "off");
-  if (dlId) inp.setAttribute("list", dlId);
-  const addForm = grkAddForm([inp], (form) => {
-    if (!inp.value.trim()) return;
-    grcRiskAddTreatmentControl(id, inp.value.trim());
-    grkRefresh(form);
-  });
-  const addBtn = document.createElement("button");
-  addBtn.type = "submit";
-  addBtn.className = "grc-registry-add-btn";
-  addBtn.textContent = grcT("grc.risques.rt.addControl");
-  addForm.appendChild(addBtn);
-  root.appendChild(addForm);
 }
 
-/* ---------- onglet Acceptation ------------------------ */
+/* ---------- onglet Acceptation (propre au risque) ------ */
 
 function _rtRenderAcceptation(root, risk) {
   const id = risk.id;
-  const t = risk.treatmentPlan;
+  const t = grcRiskEnsureTreatment(risk);
 
   if (!grcRiskAcceptanceRequired(risk)) {
     const hint = document.createElement("p");
@@ -269,8 +327,7 @@ function _rtRenderExport(root) {
 /* ---------- montage --------------------------------- */
 
 const GRC_RT_TABS = [
-  { key: "strategie", i18n: "grc.risques.rt.tab.strategie", render: _rtRenderStrategie },
-  { key: "actions", i18n: "grc.risques.rt.tab.actions", render: _rtRenderActions },
+  { key: "plans", i18n: "grc.risques.rt.tab.plans", render: _rtRenderPlans },
   { key: "residuel", i18n: "grc.risques.rt.tab.residuel", render: _rtRenderResiduel },
   { key: "acceptation", i18n: "grc.risques.rt.tab.acceptation", render: _rtRenderAcceptation },
   { key: "export", i18n: "grc.risques.rt.tab.export", render: _rtRenderExport },

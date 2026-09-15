@@ -216,6 +216,39 @@ const GRC_ASSET_FORM_SCHEMA = {
   notes: { type: "string" },
 };
 
+// Lien vie privée (90-privacy-loi25-plus.md §2.3) : un actif peut porter
+// des renseignements personnels et référencer le(s) traitement(s)
+// (grc-privacy.js) qui en dépendent. dependsOn n'est PAS soumis par ce
+// form (même raison que pour GRC_ASSET_FORM_SCHEMA) -- géré à part comme
+// dependsOn (ajout/retrait un à la fois depuis le panneau déplié).
+function grcAssetSetPersonalData(id, on) {
+  updateGrcAsset(id, { personalData: !!on });
+}
+
+function grcAssetAddLinkedProcessing(id, processingId) {
+  const assets = getGrcAssets();
+  const idx = assets.findIndex((a) => a.id === id);
+  if (idx === -1) return false;
+  const v = String(processingId || "").trim();
+  const links = Array.isArray(assets[idx].linkedProcessingIds) ? assets[idx].linkedProcessingIds.slice() : [];
+  if (!v || links.indexOf(v) !== -1) return false;
+  links.push(v);
+  assets[idx] = Object.assign({}, assets[idx], { linkedProcessingIds: links });
+  saveGrcAssets(assets);
+  return true;
+}
+
+function grcAssetRemoveLinkedProcessing(id, processingId) {
+  const assets = getGrcAssets();
+  const idx = assets.findIndex((a) => a.id === id);
+  if (idx === -1) return false;
+  const links = (Array.isArray(assets[idx].linkedProcessingIds) ? assets[idx].linkedProcessingIds : [])
+    .filter((x) => x !== processingId);
+  assets[idx] = Object.assign({}, assets[idx], { linkedProcessingIds: links });
+  saveGrcAssets(assets);
+  return true;
+}
+
 // Panneau déplié : détail CIA/rôle/propriétaire/prochaine revue/notes
 // (innerHTML + grkEscapeHtml par champ, même patron que
 // renderRiskDetailPanel) + dépendances (grkList/grkRow/grkAddForm/
@@ -267,6 +300,53 @@ function renderAssetDetailPanel(body, ent) {
     addForm.appendChild(addBtn);
     body.appendChild(addForm);
   }
+
+  /* -- lien vie privée (90-privacy-loi25-plus.md §2.3/§3.4) -- */
+  const pdWrap = document.createElement("label");
+  pdWrap.className = "grc-sup-check";
+  const pdCb = document.createElement("input");
+  pdCb.type = "checkbox";
+  pdCb.checked = !!ent.personalData;
+  pdCb.addEventListener("change", () => { grcAssetSetPersonalData(ent.id, pdCb.checked); renderGrcAssetList(); });
+  pdWrap.appendChild(pdCb);
+  pdWrap.appendChild(document.createTextNode(" " + grcT("grc.actifs.detail.personalData")));
+  body.appendChild(pdWrap);
+
+  const linkedIds = Array.isArray(ent.linkedProcessingIds) ? ent.linkedProcessingIds : [];
+  const procNames = {};
+  if (typeof getGrcProcessings === "function") {
+    try { getGrcProcessings().forEach((p) => { procNames[p.id] = p.name || p.id; }); } catch (err) { /* dégradé */ }
+  }
+  const procList = grkList(body, "grc.actifs.detail.linkedProcessings");
+  linkedIds.forEach((pid) => {
+    const row = grkRow();
+    const span = document.createElement("span");
+    span.className = "grk-inv-grow";
+    span.textContent = procNames[pid] || pid;
+    row.appendChild(span);
+    row.appendChild(grkDelBtn(() => { grcAssetRemoveLinkedProcessing(ent.id, pid); renderGrcAssetList(); }));
+    procList.appendChild(row);
+  });
+  if (!linkedIds.length) procList.appendChild(grkEmptyLine("grc.actifs.detail.noLinkedProcessing"));
+
+  const allProcs = (typeof getGrcProcessings === "function") ? getGrcProcessings() : [];
+  const linkableProcs = allProcs.filter((p) => linkedIds.indexOf(p.id) === -1);
+  if (linkableProcs.length) {
+    const procSel = grkSelect(linkableProcs.map((p) => p.id), linkableProcs[0].id, (id) => {
+      const p = linkableProcs.find((x) => x.id === id);
+      return p ? (p.name || p.id) : id;
+    });
+    const procAddForm = grkAddForm([procSel], () => {
+      grcAssetAddLinkedProcessing(ent.id, procSel.value);
+      renderGrcAssetList();
+    });
+    const procAddBtn = document.createElement("button");
+    procAddBtn.type = "submit";
+    procAddBtn.className = "grc-registry-add-btn";
+    procAddBtn.textContent = grcT("grc.actifs.detail.addLinkedProcessing");
+    procAddForm.appendChild(procAddBtn);
+    body.appendChild(procAddForm);
+  }
 }
 
 function initGrcAssetRegistry() {
@@ -315,10 +395,17 @@ function initGrcAssetRegistry() {
       const badge = document.createElement("span");
       badge.className = "grc-crit-badge " + crit.cls;
       badge.textContent = crit.text;
-      return [
+      const cells = [
         { text: (ent.name || "") + " — " + grcAssetTypeLabel(ent.type) },
         badge,
       ];
+      if (ent.personalData) {
+        const pd = document.createElement("span");
+        pd.className = "grc-sup-mini-badge grc-sup-badge-review";
+        pd.textContent = grcT("grc.actifs.detail.personalDataBadge");
+        cells.push(pd);
+      }
+      return cells;
     },
     panel: renderAssetDetailPanel,
     exportFn: exportGrcAssetsAsJson,

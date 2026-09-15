@@ -1,8 +1,14 @@
 /* Registre de risques -- migré sur grc-registry-kit.js (grk*) pour le
    CRUD/registre/liste (PlanDurcissement-Securite.txt P2, module 2/5).
    Le plan de traitement (risk.treatmentPlan, moitié basse de ce fichier
-   + grc-risk-treatment-panel.js) était DÉJÀ bâti sur le kit depuis
-   spec/grc-registry-upgrades/70-risk-treatment.md -- inchangé ici.
+   + grc-risk-treatment-panel.js) était bâti sur le kit depuis
+   spec/grc-registry-upgrades/70-risk-treatment.md -- devenu un registre
+   PARTAGÉ (grc-treatment-plans.js, many-to-many : un plan peut être lié
+   à plusieurs risques, un risque peut cumuler plusieurs plans) : un
+   risque ne garde plus qu'une LIAISON (planIds[] + résiduel/acceptation
+   PROPRES à lui, un seul couple par risque même avec plusieurs plans)
+   vers ses plans, voir la note dédiée plus bas et grcRiskTreatmentPlans().
+   Nécessite grc-treatment-plans.js chargé AVANT ce fichier (GRC_RT_*, grcTp*).
 
    PAS de `schema:` grkEnsure pour le risque lui-même (contrairement aux
    autres domaines kit) : risk.treatmentPlan est un sous-objet OPTIONNEL
@@ -40,6 +46,12 @@
 const GRC_RISKS_KEY = "/grc/analyse-risques/registry";
 
 const GRC_RISK_STATUSES = ["ouvert", "traite", "accepte"];
+
+// Échelle qualitative 1-5 de la matrice (voir grc-i18n.js
+// grc.risques.scale.probability/impact.*) -- même liste utilisée pour
+// peupler les <select> du formulaire et les sous-titres d'axe de la
+// matrice (_grcRiskRenderMatrix).
+const GRC_RISK_LEVELS = [1, 2, 3, 4, 5];
 
 // Les 4 stratégies ISO 27005 / NIST GV.RM (voir grc/traitement-risques.html).
 // "" (Non défini) reste sélectionnable : la stratégie peut ne pas encore
@@ -131,9 +143,13 @@ function grcRiskCriticality(risk) {
   return (risk.probability || 1) * (risk.impact || 1);
 }
 
+// Seuils pour une échelle 1-5 x 1-5 (score max 25) -- répartition
+// approximative en tiers (bas ~32%, moyen ~28%, élevé ~40%, ce dernier
+// délibérément plus large pour qu'un score élevé sur UN seul axe avec
+// l'autre à 4-5 tombe déjà en "élevé", pas seulement les deux à 5).
 function grcRiskCriticalityLabel(score) {
-  if (score >= 6) return { cls: "high", text: grcT("grc.risques.crit.high") };
-  if (score >= 3) return { cls: "medium", text: grcT("grc.risques.crit.medium") };
+  if (score >= 16) return { cls: "high", text: grcT("grc.risques.crit.high") };
+  if (score >= 9) return { cls: "medium", text: grcT("grc.risques.crit.medium") };
   return { cls: "low", text: grcT("grc.risques.crit.low") };
 }
 
@@ -204,6 +220,22 @@ function grcRisksReportBody() {
       "</tr>";
   });
   html += "</tbody></table>";
+
+  // Plans de traitement STRUCTURÉS (registre partagé, grc-treatment-plans.js)
+  // -- distincts des colonnes Stratégie/Traitement ci-dessus, qui ne
+  // portent que les champs LEGACY en texte libre. riskTreatmentReportSection()
+  // existait déjà (spec 70-risk-treatment.md, T6) mais n'était appelée par
+  // aucun rapport réel -- ajoutée ici pour que le PDF/rapport du registre
+  // montre effectivement le plan (stratégie/actions/résiduel/acceptation)
+  // d'un risque qui en a un lié.
+  const treated = risks.filter((r) => grcRiskTreatmentPlans(r).length);
+  if (treated.length) {
+    html += "<h2>" + grcT("grc.risques.pdf.treatmentSectionTitle") + "</h2>";
+    treated.forEach((risk) => {
+      html += "<h3>" + grkEscapeHtml(risk.name) + "</h3>" + riskTreatmentReportSection(risk);
+    });
+  }
+
   return html;
 }
 
@@ -216,10 +248,10 @@ function exportGrcRisksAsPdf() {
 }
 
 /* Construit et branche la section "Registre des risques" de
-   grc/analyse-risques.html : matrice 3x3 (probabilité x impact) +
+   grc/analyse-risques.html : matrice 5x5 (probabilité x impact) +
    bouton/formulaire (add/edit) + liste accordéon (add/edit/delete),
    même mécanique que initGrcAssetRegistry(). Respecte le coffre-fort. */
-// Matrice 3x3 probabilité x impact -- <div id="riskMatrix"> est un sibling
+// Matrice 5x5 probabilité x impact -- <div id="riskMatrix"> est un sibling
 // STATIQUE de #grcRiskRegistry dans grc/analyse-risques.html (comme
 // #grcRisksTreatmentSummary l'était déjà) : grkRegistry possède son
 // conteneur en entier (toolbar/form/liste), donc plus de place pour un
@@ -238,12 +270,14 @@ function _grcRiskRenderMatrix(risks) {
 
   let html = '<div class="grc-risk-matrix-grid">';
   html += '<div class="grc-risk-matrix-corner"></div>';
-  for (let impact = 1; impact <= 3; impact++) {
-    html += `<div class="grc-risk-matrix-axis">${grcT("grc.risques.matrix.impact").replace("{n}", impact)}</div>`;
+  for (let impact = 1; impact <= 5; impact++) {
+    html += `<div class="grc-risk-matrix-axis">${grcT("grc.risques.matrix.impact").replace("{n}", impact)}`
+      + `<br><span class="grc-risk-matrix-axis-desc">${grcT("grc.risques.scale.impact." + impact)}</span></div>`;
   }
-  for (let prob = 3; prob >= 1; prob--) {
-    html += `<div class="grc-risk-matrix-axis">${grcT("grc.risques.matrix.probability").replace("{n}", prob)}</div>`;
-    for (let impact = 1; impact <= 3; impact++) {
+  for (let prob = 5; prob >= 1; prob--) {
+    html += `<div class="grc-risk-matrix-axis">${grcT("grc.risques.matrix.probability").replace("{n}", prob)}`
+      + `<br><span class="grc-risk-matrix-axis-desc">${grcT("grc.risques.scale.probability." + prob)}</span></div>`;
+    for (let impact = 1; impact <= 5; impact++) {
       const score = prob * impact;
       const cls = grcRiskCriticalityLabel(score).cls;
       const count = counts[prob + "-" + impact] || 0;
@@ -312,8 +346,8 @@ function renderRiskDetailPanel(body, risk) {
     body.appendChild(addForm);
   }
 
-  const treated = grcRiskHasTreatment(risk);
-  if (treated && typeof renderRiskTreatmentPanel === "function") {
+  const hasPlans = grcRiskTreatmentPlans(risk).length > 0;
+  if (hasPlans && typeof renderRiskTreatmentPanel === "function") {
     renderRiskTreatmentPanel(body, risk);
     const dropBtn = document.createElement("button");
     dropBtn.type = "button";
@@ -325,13 +359,57 @@ function renderRiskDetailPanel(body, risk) {
       renderGrcRiskRegistry();
     };
     body.appendChild(dropBtn);
-  } else if (!treated) {
-    const startBtn = document.createElement("button");
-    startBtn.type = "button";
-    startBtn.className = "grc-registry-add-btn grc-rt-start";
-    startBtn.textContent = grcT("grc.risques.rt.start");
-    startBtn.onclick = () => { grcRiskStartTreatment(risk.id); renderGrcRiskRegistry(); };
-    body.appendChild(startBtn);
+  } else {
+    // Ni traité, ni plan lié valide (jamais traité, OU le plan lié a été
+    // supprimé du registre partagé depuis -- même deux affordances dans
+    // les deux cas : créer un nouveau plan, ou en lier un existant.
+    if (grcRiskHasTreatment(risk)) {
+      const warn = document.createElement("p");
+      warn.className = "grc-sup-warn";
+      warn.textContent = grcT("grc.risques.rt.planMissing");
+      body.appendChild(warn);
+    }
+    _grcRiskRenderTreatmentLinkUi(body, risk);
+  }
+}
+
+// Deux affordances "ajouter un lien à la fois" (même schéma que
+// assetIds plus haut) : créer un nouveau plan (nom prérempli avec celui
+// du risque) OU lier un plan déjà existant du registre partagé.
+function _grcRiskRenderTreatmentLinkUi(body, risk) {
+  const nameInp = document.createElement("input");
+  nameInp.type = "text";
+  nameInp.className = "grk-inv-grow";
+  nameInp.value = risk.name || "";
+  const createForm = grkAddForm([nameInp], (form) => {
+    grcRiskCreateAndLinkPlan(risk.id, nameInp.value);
+    renderGrcRiskRegistry();
+  });
+  const createBtn = document.createElement("button");
+  createBtn.type = "submit";
+  createBtn.className = "grc-registry-add-btn grc-rt-start";
+  createBtn.textContent = grcT("grc.risques.rt.createPlan");
+  createForm.appendChild(createBtn);
+  body.appendChild(createForm);
+
+  const bind = grcRiskEnsureTreatment(risk);
+  const allPlans = typeof getGrcTreatmentPlans === "function" ? getGrcTreatmentPlans() : [];
+  const plans = allPlans.filter((p) => bind.planIds.indexOf(p.id) === -1);
+  if (plans.length) {
+    const sel = grkSelect(plans.map((p) => p.id), plans[0].id, (id) => {
+      const p = plans.find((x) => x.id === id);
+      return p ? p.name : id;
+    });
+    const linkForm = grkAddForm([sel], (form) => {
+      grcRiskLinkTreatmentPlan(risk.id, sel.value);
+      renderGrcRiskRegistry();
+    });
+    const linkBtn = document.createElement("button");
+    linkBtn.type = "submit";
+    linkBtn.className = "grc-registry-add-btn grc-rt-start";
+    linkBtn.textContent = grcT("grc.risques.rt.linkPlan");
+    linkForm.appendChild(linkBtn);
+    body.appendChild(linkForm);
   }
 }
 
@@ -340,6 +418,8 @@ function _grcRiskEnumOptions(values, i18nOf) {
 }
 
 function initGrcRiskRegistry() {
+  _grcMigrateLegacyTreatmentPlans();
+
   const init = grkRegistry({
     mount: "#grcRiskRegistry",
     summary: "#grcRisksTreatmentSummary",
@@ -358,8 +438,10 @@ function initGrcRiskRegistry() {
       { id: "name", label: "grc.risques.form.name", type: "text", required: true },
       { id: "threat", label: "grc.risques.form.threat", type: "text" },
       { id: "vulnerability", label: "grc.risques.form.vulnerability", type: "text" },
-      { id: "probability", label: "grc.risques.form.probability", type: "text" },
-      { id: "impact", label: "grc.risques.form.impact", type: "text" },
+      { id: "probability", label: "grc.risques.form.probability", type: "select",
+        options: GRC_RISK_LEVELS.map((n) => ({ value: n, label: "grc.risques.scale.probability." + n })) },
+      { id: "impact", label: "grc.risques.form.impact", type: "select",
+        options: GRC_RISK_LEVELS.map((n) => ({ value: n, label: "grc.risques.scale.impact." + n })) },
       { id: "treatmentStrategy", label: "grc.risques.form.treatmentStrategy", type: "select",
         options: GRC_RISK_TREATMENT_STRATEGIES.map((s) => ({ value: s, label: grcRiskStrategyI18nKey(s) })) },
       { id: "treatment", label: "grc.risques.form.treatment", type: "textarea" },
@@ -464,49 +546,37 @@ function initGrcRiskRegistry() {
 }
 
 /* ================================================================== *
- *  Plan de traitement des risques -- EXTENSION de l'objet risque
- *  (sous-objet OPTIONNEL `risk.treatmentPlan`), exactement comme le
- *  Mode IR a étendu l'objet incident (`incident.ir`). Rétro-compat :
- *  un risque sans `treatmentPlan` s'affiche / s'exporte comme avant.
- *  Voir spec/grc-registry-upgrades/70-risk-treatment.md.
+ *  Plan de traitement des risques -- LIAISON vers un ou plusieurs plans
+ *  PARTAGÉS, autonomes (grc-treatment-plans.js, grc/traitement-risques.html).
+ *  Un risque garde un sous-objet OPTIONNEL `risk.treatmentPlan` (même
+ *  esprit qu'avant -- absence = jamais traité, cf grcRiskHasTreatment),
+ *  mais il ne contient plus QUE ce qui reste propre à CE risque : les
+ *  liens (`planIds`, un risque peut cumuler plusieurs plans -- ex.
+ *  MFA + segmentation réseau sur le même risque) et le résiduel/
+ *  acceptation. Many-to-many au global : un plan peut aussi être lié à
+ *  plusieurs risques (grcTpLinkedRiskCount). Résiduel/acceptation
+ *  restent UN SEUL couple par risque (pas par plan) -- reflète l'effet
+ *  combiné de tous ses plans, pas un score par plan.
+ *  Stratégie/rationale/transferTo/actions/linkedControls VIVENT dans le
+ *  registre des plans (grc-treatment-plans.js, grcTp*) -- lus ici via
+ *  grcRiskTreatmentPlans().
  *
  *  NB : `risk.treatment` (string) et `risk.treatmentStrategy` (string)
- *  sont des champs LEGACY du formulaire -- le nouveau plan structuré
- *  utilise donc la clé `treatmentPlan` (objet) pour éviter la collision.
+ *  sont des champs LEGACY du formulaire -- le plan structuré utilise
+ *  donc la clé `treatmentPlan` (objet) pour éviter la collision.
  *
- *  Nécessite grc-registry-kit.js (grk*) chargé avant ce fichier.
- * ================================================================== */
-
-const GRC_RT_STRATEGIES = ["avoid", "mitigate", "transfer", "accept"];
-const GRC_RT_ACTION_STATUSES = ["todo", "doing", "done"];
-
-// Map depuis l'ancienne stratégie texte (grc-risks form) si présente.
-const _GRC_RT_LEGACY_STRATEGY = {
-  evitement: "avoid", mitigation: "mitigate", transfert: "transfer", acceptation: "accept",
-};
-
-const GRC_RT_ACTION_SCHEMA = {
-  id: { type: "string" },
-  order: { type: "number", default: 0 },
-  text: { type: "string" },
-  owner: { type: "string" },
-  dueAt: { type: "iso" },
-  status: { type: "string", enum: GRC_RT_ACTION_STATUSES, default: "todo" },
-  doneAt: { type: "iso" },
-};
+ *  Nécessite grc-registry-kit.js (grk*) ET grc-treatment-plans.js
+ *  (GRC_RT_*, grcTp*) chargés avant ce fichier. */
 
 const GRC_RT_SCHEMA = {
   schema: { type: "number", default: 1 },
-  strategy: { type: "string", enum: GRC_RT_STRATEGIES, default: "mitigate" },
-  rationale: { type: "string" },
-  actions: { type: "array", sortBy: "order", of: GRC_RT_ACTION_SCHEMA },
+  planIds: { type: "array" },
   residual: {
     type: "object", of: {
       likelihood: { type: "number", default: null },
       impact: { type: "number", default: null },
     },
   },
-  transferTo: { type: "string" },
   acceptance: {
     type: "object", of: {
       by: { type: "string" },
@@ -515,33 +585,98 @@ const GRC_RT_SCHEMA = {
       reviewAt: { type: "iso" },
     },
   },
-  linkedControls: { type: "array" },
 };
 
 function grcRiskHasTreatment(risk) {
   return !!(risk && risk.treatmentPlan && typeof risk.treatmentPlan === "object");
 }
 
-// Renvoie une COPIE du plan bien formé (ne sauve pas).
+// Renvoie une COPIE de la LIAISON bien formée (planIds + résiduel/
+// acceptation propres au risque -- ne sauve pas). Tolère l'ancienne
+// forme à liaison UNIQUE (`planId` string, la toute première version de
+// ce chantier, déjà potentiellement en localStorage) en la convertissant
+// à la volée en `planIds: [planId]`.
 function grcRiskEnsureTreatment(risk) {
   const src = risk && risk.treatmentPlan && typeof risk.treatmentPlan === "object" ? risk.treatmentPlan : {};
-  const t = grkEnsure(src, GRC_RT_SCHEMA);
-  t.actions.forEach((a, i) => { a.order = i + 1; });
-  return t;
+  const patched = (!Array.isArray(src.planIds) && typeof src.planId === "string" && src.planId)
+    ? Object.assign({}, src, { planIds: [src.planId] })
+    : src;
+  return grkEnsure(patched, GRC_RT_SCHEMA);
 }
 
-// Crée le plan s'il n'existe pas (seed stratégie depuis le legacy).
-function grcRiskStartTreatment(id) {
+// Résout planIds en plans réels (registre partagé), dans l'ordre --
+// filtre silencieusement les plans supprimés depuis (pas de FK forte,
+// même philosophie que risk.assetIds). [] si aucun (jamais traité, ou
+// tous les plans liés ont été supprimés -- l'appelant doit alors
+// traiter le risque comme "plan manquant", pas planter).
+function grcRiskTreatmentPlans(risk) {
+  if (!grcRiskHasTreatment(risk)) return [];
+  if (typeof getGrcTreatmentPlans !== "function") return [];
+  const bind = grcRiskEnsureTreatment(risk);
+  const all = getGrcTreatmentPlans();
+  return bind.planIds
+    .map((id) => all.find((p) => p && p.id === id))
+    .filter(Boolean)
+    .map(grcTpEnsureShape);
+}
+
+// Ajoute planId à la liste des liens de ce risque (no-op si déjà lié).
+function _grcRiskAddPlanId(id, planId) {
   const risks = getGrcRisks();
   const idx = risks.findIndex((r) => r && r.id === id);
-  if (idx === -1 || grcRiskHasTreatment(risks[idx])) return false;
-  const seed = _GRC_RT_LEGACY_STRATEGY[risks[idx].treatmentStrategy] || "mitigate";
-  const t = grkEnsure({ strategy: seed }, GRC_RT_SCHEMA);
+  if (idx === -1) return false;
+  const t = grcRiskEnsureTreatment(risks[idx]);
+  if (t.planIds.indexOf(planId) !== -1) return false;
+  t.planIds = t.planIds.concat([planId]);
   risks[idx] = Object.assign({}, risks[idx], { treatmentPlan: t });
   saveGrcRisks(risks);
   return true;
 }
 
+// Crée un NOUVEAU plan partagé (seed stratégie depuis le legacy
+// risk.treatmentStrategy la toute première fois, comme avant cette
+// migration) puis l'AJOUTE aux plans liés de ce risque -- un risque peut
+// cumuler plusieurs plans (ex. MFA + segmentation réseau sur le même
+// risque), donc jamais de garde "déjà traité" ici : sert aussi bien à
+// lier un premier plan qu'à en ajouter un de plus, ou à la récupération
+// d'un risque dont tous les plans liés ont été supprimés depuis
+// (grcRiskTreatmentPlans renvoie []) -- l'UI ne propose ces actions que
+// quand c'est pertinent, rien d'autre à garder ici.
+function grcRiskCreateAndLinkPlan(id, name) {
+  const risks = getGrcRisks();
+  const idx = risks.findIndex((r) => r && r.id === id);
+  if (idx === -1) return false;
+  const seed = _GRC_RT_LEGACY_STRATEGY[risks[idx].treatmentStrategy] || "mitigate";
+  const planId = addGrcTreatmentPlan({ name: (name || risks[idx].name || "").trim(), strategy: seed });
+  return _grcRiskAddPlanId(id, planId);
+}
+
+// Lie ce risque à un plan EXISTANT du registre partagé (en plus des
+// plans déjà liés, le cas échéant).
+function grcRiskLinkTreatmentPlan(id, planId) {
+  if (!planId) return false;
+  return _grcRiskAddPlanId(id, planId);
+}
+
+// Délie UN plan précis -- garde le résiduel/acceptation et les autres
+// plans liés intacts. Ne supprime JAMAIS le plan partagé lui-même
+// (d'autres risques peuvent encore s'y référer ; le supprimer est une
+// action du registre des plans, pas de celui-ci).
+function grcRiskUnlinkTreatmentPlan(id, planId) {
+  const risks = getGrcRisks();
+  const idx = risks.findIndex((r) => r && r.id === id);
+  if (idx === -1) return false;
+  const t = grcRiskEnsureTreatment(risks[idx]);
+  const before = t.planIds.length;
+  t.planIds = t.planIds.filter((x) => x !== planId);
+  risks[idx] = Object.assign({}, risks[idx], { treatmentPlan: t });
+  saveGrcRisks(risks);
+  return t.planIds.length < before;
+}
+
+// Retire TOUT le traitement de ce risque (tous les plans liés + le
+// résiduel + l'acceptation) -- remise à zéro complète, contrairement à
+// grcRiskUnlinkTreatmentPlan qui ne délie qu'un plan à la fois.
 function grcRiskDropTreatment(id) {
   const risks = getGrcRisks();
   const idx = risks.findIndex((r) => r && r.id === id);
@@ -553,7 +688,8 @@ function grcRiskDropTreatment(id) {
   return true;
 }
 
-// Mutation atomique du plan (le crée si absent).
+// Mutation atomique de la LIAISON (résiduel/acceptation -- jamais du
+// plan partagé, qui se mute via grcTpMutate dans grc-treatment-plans.js).
 function grcRiskTreatmentMutate(id, fn) {
   const risks = getGrcRisks();
   const idx = risks.findIndex((r) => r && r.id === id);
@@ -565,69 +701,38 @@ function grcRiskTreatmentMutate(id, fn) {
   return out === undefined ? null : out;
 }
 
-function grcRiskSetStrategy(id, changes) {
-  return grcRiskTreatmentMutate(id, (t) => {
-    if ("strategy" in changes && GRC_RT_STRATEGIES.indexOf(changes.strategy) !== -1) t.strategy = changes.strategy;
-    if ("rationale" in changes && typeof changes.rationale === "string") t.rationale = changes.rationale;
-    if ("transferTo" in changes && typeof changes.transferTo === "string") t.transferTo = changes.transferTo.trim();
-    return true;
+/* ---------- migration : ancien plan embarqué -> registre partagé --- */
+
+// Idempotent : un risque déjà migré n'a plus la forme legacy
+// ("strategy" dans treatmentPlan, pas de planId), donc ignoré aux
+// passages suivants. Appelée une fois au boot de initGrcRiskRegistry()
+// (donc dès qu'on visite grc/analyse-risques.html, où grc-treatment-
+// plans.js est garanti chargé). Ne sauve que s'il y a effectivement
+// quelque chose à migrer.
+function _grcMigrateLegacyTreatmentPlans() {
+  if (typeof addGrcTreatmentPlan !== "function") return;
+  const risks = getGrcRisks();
+  let changed = false;
+  const migrated = risks.map((r) => {
+    if (!r || !r.treatmentPlan || typeof r.treatmentPlan !== "object" || !("strategy" in r.treatmentPlan)) return r;
+    const legacy = r.treatmentPlan;
+    const planId = addGrcTreatmentPlan({
+      name: "Plan — " + (r.name || r.id),
+      strategy: legacy.strategy,
+      rationale: legacy.rationale,
+      transferTo: legacy.transferTo,
+      actions: legacy.actions,
+      linkedControls: legacy.linkedControls,
+    });
+    changed = true;
+    return Object.assign({}, r, {
+      treatmentPlan: grkEnsure({ planIds: [planId], residual: legacy.residual, acceptance: legacy.acceptance }, GRC_RT_SCHEMA),
+    });
   });
+  if (changed) saveGrcRisks(migrated);
 }
 
-/* ---------- plan d'action (liste ordonnée) --------------- */
-
-function _grcRtReindex(t) { t.actions.forEach((a, i) => { a.order = i + 1; }); }
-
-function grcRiskAddAction(id, action) {
-  return grcRiskTreatmentMutate(id, (t) => {
-    const a = grkEnsure(action || {}, GRC_RT_ACTION_SCHEMA);
-    a.id = grkId("rta");
-    a.order = t.actions.length + 1;
-    t.actions.push(a);
-    _grcRtReindex(t);
-    return a.id;
-  });
-}
-
-function grcRiskUpdateAction(id, actionId, changes) {
-  return grcRiskTreatmentMutate(id, (t) => {
-    const a = t.actions.find((x) => x.id === actionId);
-    if (!a) return false;
-    const n = Object.assign({}, changes);
-    delete n.order;
-    if ("status" in n) {
-      if (GRC_RT_ACTION_STATUSES.indexOf(n.status) === -1) delete n.status;
-      else if (n.status === "done" && !a.doneAt) a.doneAt = new Date().toISOString();
-      else if (n.status !== "done") a.doneAt = null;
-    }
-    if ("dueAt" in n) n.dueAt = grkToIso(n.dueAt);
-    Object.assign(a, n);
-    return true;
-  });
-}
-
-function grcRiskRemoveAction(id, actionId) {
-  return grcRiskTreatmentMutate(id, (t) => {
-    const before = t.actions.length;
-    t.actions = t.actions.filter((x) => x.id !== actionId);
-    _grcRtReindex(t);
-    return t.actions.length < before;
-  });
-}
-
-function grcRiskMoveAction(id, actionId, dir) {
-  return grcRiskTreatmentMutate(id, (t) => {
-    const i = t.actions.findIndex((x) => x.id === actionId);
-    if (i === -1) return false;
-    const j = dir < 0 ? i - 1 : i + 1;
-    if (j < 0 || j >= t.actions.length) return false;
-    const tmp = t.actions[i]; t.actions[i] = t.actions[j]; t.actions[j] = tmp;
-    _grcRtReindex(t);
-    return true;
-  });
-}
-
-/* ---------- résiduel / acceptation / contrôles --------- */
+/* ---------- résiduel / acceptation --------------------- */
 
 function grcRiskSetResidual(id, patch) {
   return grcRiskTreatmentMutate(id, (t) => {
@@ -651,23 +756,6 @@ function grcRiskSetAcceptance(id, patch) {
     if ("at" in p) a.at = grkToIso(p.at);
     if ("reviewAt" in p) a.reviewAt = grkToIso(p.reviewAt);
     return true;
-  });
-}
-
-function grcRiskAddTreatmentControl(id, ref) {
-  return grcRiskTreatmentMutate(id, (t) => {
-    const v = String(ref || "").trim();
-    if (!v || t.linkedControls.indexOf(v) !== -1) return false;
-    t.linkedControls.push(v);
-    return true;
-  });
-}
-
-function grcRiskRemoveTreatmentControl(id, ref) {
-  return grcRiskTreatmentMutate(id, (t) => {
-    const before = t.linkedControls.length;
-    t.linkedControls = t.linkedControls.filter((x) => x !== ref);
-    return t.linkedControls.length < before;
   });
 }
 
@@ -699,16 +787,17 @@ function grcRiskActionOverdue(action) {
   return !isNaN(t) && t < Date.now();
 }
 
+// Somme des actions en retard sur TOUS les plans liés à ce risque.
 function grcRiskTreatmentOverdueActions(risk) {
-  if (!grcRiskHasTreatment(risk)) return 0;
-  return grcRiskEnsureTreatment(risk).actions.filter(grcRiskActionOverdue).length;
+  return grcRiskTreatmentPlans(risk).reduce(
+    (acc, p) => acc + p.actions.filter(grcRiskActionOverdue).length, 0);
 }
 
-// Acceptation requise ? (stratégie accept OU résiduel non nul)
+// Acceptation requise ? (au moins un plan lié en stratégie "accept", OU
+// résiduel non nul)
 function grcRiskAcceptanceRequired(risk) {
   if (!grcRiskHasTreatment(risk)) return false;
-  const t = grcRiskEnsureTreatment(risk);
-  if (t.strategy === "accept") return true;
+  if (grcRiskTreatmentPlans(risk).some((p) => p.strategy === "accept")) return true;
   const rs = grcRiskResidualScore(risk);
   return rs != null && rs > 0;
 }
@@ -743,52 +832,65 @@ function grcRisksTreatmentSummary(list) {
  *  section HTML réutilisable par le rapport GRC du hub.
  * ================================================================== */
 
+// Un risque peut cumuler plusieurs plans -- une sous-section par plan
+// (stratégie/rationale/transferTo/actions), puis le résiduel/acceptation
+// UNE SEULE FOIS à la fin (propres au risque, pas à un plan en particulier).
 function riskTreatmentReportSection(risk) {
-  if (!grcRiskHasTreatment(risk)) return "";
-  const t = grcRiskEnsureTreatment(risk);
+  const plans = grcRiskTreatmentPlans(risk);
+  if (!plans.length) return "";
   const L = (k) => grcT(k);
   const esc = (typeof grkEscapeHtml === "function") ? grkEscapeHtml : (s) => String(s == null ? "" : s);
   const red = grcRiskReduction(risk);
+  const acceptance = grcRiskEnsureTreatment(risk).acceptance;
   let h = "<h4>" + L("grc.risques.rt.reportTitle") + "</h4>";
-  h += "<table><tbody>" +
-    "<tr><th>" + L("grc.risques.rt.strategy") + "</th><td>" + esc(L("grc.risques.rt.strat." + t.strategy)) + "</td></tr>" +
-    "<tr><th>" + L("grc.risques.rt.rationale") + "</th><td>" + esc(t.rationale) + "</td></tr>" +
-    (t.strategy === "transfer" ? "<tr><th>" + L("grc.risques.rt.transferTo") + "</th><td>" + esc(t.transferTo) + "</td></tr>" : "") +
-    "<tr><th>" + L("grc.risques.rt.reduction") + "</th><td>" +
-      (red ? esc(red.from + " → " + red.to + " (−" + red.pct + " %)") : "—") + "</td></tr>" +
-    "</tbody></table>";
-  if (t.actions.length) {
-    h += "<ol>" + t.actions.map((a) =>
-      "<li>" + (a.status === "done" ? "<s>" : "") + esc(a.text) + (a.status === "done" ? "</s>" : "") +
-      (a.owner ? " — " + esc(a.owner) : "") +
-      (a.dueAt ? " (" + esc(a.dueAt.slice(0, 10)) + (grcRiskActionOverdue(a) ? " ⚠" : "") + ")" : "") +
-      "</li>").join("") + "</ol>";
-  }
+  plans.forEach((t) => {
+    h += "<h5>" + esc(t.name) + "</h5>";
+    h += "<table><tbody>" +
+      "<tr><th>" + L("grc.risques.rt.strategy") + "</th><td>" + esc(L("grc.risques.rt.strat." + t.strategy)) + "</td></tr>" +
+      "<tr><th>" + L("grc.risques.rt.rationale") + "</th><td>" + esc(t.rationale) + "</td></tr>" +
+      (t.strategy === "transfer" ? "<tr><th>" + L("grc.risques.rt.transferTo") + "</th><td>" + esc(t.transferTo) + "</td></tr>" : "") +
+      "</tbody></table>";
+    if (t.actions.length) {
+      h += "<ol>" + t.actions.map((a) =>
+        "<li>" + (a.status === "done" ? "<s>" : "") + esc(a.text) + (a.status === "done" ? "</s>" : "") +
+        (a.owner ? " — " + esc(a.owner) : "") +
+        (a.dueAt ? " (" + esc(a.dueAt.slice(0, 10)) + (grcRiskActionOverdue(a) ? " ⚠" : "") + ")" : "") +
+        "</li>").join("") + "</ol>";
+    }
+  });
+  h += "<p><strong>" + L("grc.risques.rt.reduction") + " :</strong> " +
+    (red ? esc(red.from + " → " + red.to + " (−" + red.pct + " %)") : "—") + "</p>";
   if (grcRiskAcceptanceRequired(risk)) {
     h += "<p><strong>" + L("grc.risques.rt.acceptance") + " :</strong> " +
-      esc((t.acceptance.by || "—") + " — " + (t.acceptance.reason || "") +
-      (t.acceptance.reviewAt ? " (" + L("grc.risques.rt.reviewAt") + " " + t.acceptance.reviewAt.slice(0, 10) +
+      esc((acceptance.by || "—") + " — " + (acceptance.reason || "") +
+      (acceptance.reviewAt ? " (" + L("grc.risques.rt.reviewAt") + " " + acceptance.reviewAt.slice(0, 10) +
         (grcRiskAcceptanceDueForReview(risk) ? " ⚠" : "") + ")" : "")) + "</p>";
   }
   return h;
 }
 
+// Une ligne par (risque, plan) -- le résiduel/réduction/revue
+// d'acceptation (propres au risque) sont répétés sur chaque ligne d'un
+// même risque, la stratégie/actions varient par plan.
 function exportRiskTreatmentCsv(risks) {
   if (typeof grkExportGated === "function" && grkExportGated()) return;
   const arr = Array.isArray(risks) ? risks : [risks];
-  const rows = [["risk", "strategy", "inherent", "residual", "reduction_pct",
+  const rows = [["risk", "plan", "strategy", "inherent", "residual", "reduction_pct",
     "open_actions", "acceptance_review"]];
-  arr.filter(grcRiskHasTreatment).forEach((r) => {
-    const t = grcRiskEnsureTreatment(r);
+  arr.forEach((r) => {
+    const plans = grcRiskTreatmentPlans(r);
+    if (!plans.length) return;
     const red = grcRiskReduction(r);
-    rows.push([
-      r.name, t.strategy,
-      grcRiskInherentScore(r),
-      grcRiskResidualScore(r) == null ? "" : grcRiskResidualScore(r),
-      red ? red.pct : "",
-      t.actions.filter((a) => a.status !== "done").length,
-      grcRiskAcceptanceDueForReview(r) ? "1" : "0",
-    ]);
+    plans.forEach((t) => {
+      rows.push([
+        r.name, t.name, t.strategy,
+        grcRiskInherentScore(r),
+        grcRiskResidualScore(r) == null ? "" : grcRiskResidualScore(r),
+        red ? red.pct : "",
+        t.actions.filter((a) => a.status !== "done").length,
+        grcRiskAcceptanceDueForReview(r) ? "1" : "0",
+      ]);
+    });
   });
   const stamp = (typeof grkDateStamp === "function") ? grkDateStamp() : new Date().toISOString().slice(0, 10);
   if (typeof grkExportCsv === "function") {

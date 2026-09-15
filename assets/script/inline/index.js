@@ -221,6 +221,7 @@
       "securite-api": "grc/securite/api/index",
       "securite-webapp": "grc/securite/webapp/index",
       "securite-database": "grc/securite/database/index",
+      "grc-ressources": "grc/ressources",
     };
 
     function resolvePage(page) {

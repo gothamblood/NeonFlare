@@ -22,7 +22,8 @@
       <li class="settings-nav-item" data-section="langue" data-i18n="settings.nav.langue">Langue</li>
       <li class="settings-nav-item" data-section="assistant" data-i18n="settings.nav.assistant">Assistant &amp; réinitialisation</li>
       <li class="settings-nav-item" data-section="interface" data-i18n="settings.nav.interface">Interface</li>
-      <li class="settings-nav-item" data-section="grc" data-i18n="settings.nav.grc">GRC &amp; Shells</li>
+      <li class="settings-nav-item" data-section="grc" data-i18n="settings.nav.grc">GRC</li>
+      <li class="settings-nav-item" data-section="shells" data-i18n="settings.nav.shells">Shells</li>
       <li class="settings-nav-item" data-section="registres" data-i18n="settings.nav.registres">Registres</li>
       <li class="settings-nav-item settings-nav-subitem" data-section="registres" data-registry-group="Générique" data-i18n="settings.nav.generique">Générique</li>
       <li class="settings-nav-item settings-nav-subitem" data-section="registres" data-registry-group="Autres" data-i18n="settings.nav.autres">Autres</li>
@@ -206,6 +207,10 @@
       <button type="button" class="dash-btn" id="resetGrcRisksBtn" data-i18n="settings.assistant.resetBtn">Réinitialiser</button>
     </div>
     <div class="toggle-row">
+      <span data-i18n="settings.registryName.treatmentPlans">Registre des plans de traitement</span>
+      <button type="button" class="dash-btn" id="resetGrcTreatmentPlansBtn" data-i18n="settings.assistant.resetBtn">Réinitialiser</button>
+    </div>
+    <div class="toggle-row">
       <span data-i18n="settings.registryName.controls">Registre de contrôles</span>
       <button type="button" class="dash-btn" id="resetGrcControlsBtn" data-i18n="settings.assistant.resetBtn">Réinitialiser</button>
     </div>
@@ -350,6 +355,91 @@
 
     <hr>
 
+    <h1 data-i18n="settings.rprpTitle">Responsable de la protection des renseignements personnels (RPRP)</h1>
+    <p style="font-size: 0.8rem; color: #a7b0c7; margin-bottom: 1rem; line-height: 1.5;" data-i18n="settings.rprpDesc">
+      Loi 25 impose la désignation d'un responsable de la protection des
+      renseignements personnels. Texte libre, persisté localement -- pas
+      un annuaire vérifié.
+    </p>
+    <label style="display:block; margin-top: 0.6rem;">
+      <span style="font-size: 0.85rem;" data-i18n="settings.rprpNameLabel">Nom</span>
+      <input type="text" id="rprpNameInput" placeholder="Optionnel"
+             style="width: 100%; margin-top: 0.4rem; background: #1e1e1e; border: 1px solid #444; border-radius: 8px; color: #f5f5f5; font-family: inherit; font-size: 0.85rem; padding: 0.5rem 0.7rem; box-sizing: border-box;">
+    </label>
+    <label style="display:block; margin-top: 0.6rem;">
+      <span style="font-size: 0.85rem;" data-i18n="settings.rprpContactLabel">Coordonnées</span>
+      <input type="text" id="rprpContactInput" placeholder="Optionnel"
+             style="width: 100%; margin-top: 0.4rem; background: #1e1e1e; border: 1px solid #444; border-radius: 8px; color: #f5f5f5; font-family: inherit; font-size: 0.85rem; padding: 0.5rem 0.7rem; box-sizing: border-box;">
+    </label>
+    <label style="display:block; margin-top: 0.6rem;">
+      <span style="font-size: 0.85rem;" data-i18n="settings.rprpDelegateLabel">Délégué</span>
+      <input type="text" id="rprpDelegateInput" placeholder="Optionnel"
+             style="width: 100%; margin-top: 0.4rem; background: #1e1e1e; border: 1px solid #444; border-radius: 8px; color: #f5f5f5; font-family: inherit; font-size: 0.85rem; padding: 0.5rem 0.7rem; box-sizing: border-box;">
+    </label>
+    <label style="display:block; margin-top: 0.6rem;">
+      <span style="font-size: 0.85rem;" data-i18n="settings.rprpAppointedAtLabel">Date de nomination</span>
+      <input type="date" id="rprpAppointedAtInput"
+             style="width: 100%; margin-top: 0.4rem; background: #1e1e1e; border: 1px solid #444; border-radius: 8px; color: #f5f5f5; font-family: inherit; font-size: 0.85rem; padding: 0.5rem 0.7rem; box-sizing: border-box;">
+    </label>
+
+    <hr>
+
+    <h1 data-i18n="settings.grcSectionsTitle">Sections visibles (menu GRC)</h1>
+    <p style="font-size: 0.8rem; color: #a7b0c7; margin-bottom: 1rem; line-height: 1.5;" data-i18n="settings.grcSectionsDesc">
+      Contrôle l'affichage de chaque section du sous-menu GRC (barre latérale), indépendamment
+      du bouton « GRC » ci-dessus dans Interface &gt; Pages visibles. Cache seulement le lien --
+      n'empêche pas l'accès direct à la page.
+    </p>
+
+    <div class="toggle-row">
+      <span class="toggle-row-label" data-i18n="nav.grcFull">Governance, Risk and Compliance</span>
+      <label class="toggle-switch">
+        <input type="checkbox" data-page="grc-full">
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="toggle-row">
+      <span class="toggle-row-label" data-i18n="nav.networkSecurity">Network Security</span>
+      <label class="toggle-switch">
+        <input type="checkbox" data-page="securite-reseau">
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="toggle-row">
+      <span class="toggle-row-label" data-i18n="nav.apiSecurity">API Security</span>
+      <label class="toggle-switch">
+        <input type="checkbox" data-page="securite-api">
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="toggle-row">
+      <span class="toggle-row-label" data-i18n="nav.webappSecurity">WebApp Security</span>
+      <label class="toggle-switch">
+        <input type="checkbox" data-page="securite-webapp">
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="toggle-row">
+      <span class="toggle-row-label" data-i18n="nav.databaseSecurity">Database Security</span>
+      <label class="toggle-switch">
+        <input type="checkbox" data-page="securite-database">
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="toggle-row">
+      <span class="toggle-row-label" data-i18n="nav.grcResources">External resources</span>
+      <label class="toggle-switch">
+        <input type="checkbox" data-page="grc-ressources">
+        <span class="slider"></span>
+      </label>
+    </div>
+  </div>
+
+  </div>
+
+  <div class="settings-section" data-section="shells" style="display:none">
+
+  <div class="mat-card">
     <h1 data-i18n="settings.shellsTitle">Shells</h1>
 
     <div class="current-theme">
@@ -454,6 +544,7 @@
 <script src="../assets/script/grc-checklist.js"></script>
 <script src="../assets/script/grc-registry-kit.js"></script>
 <script src="../assets/script/grc-assets.js"></script>
+<script src="../assets/script/grc-treatment-plans.js"></script>
 <script src="../assets/script/grc-risks.js"></script>
 <script src="../assets/script/grc-controls.js"></script>
 <script src="../assets/script/grc-incidents.js"></script>

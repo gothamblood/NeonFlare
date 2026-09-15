@@ -87,6 +87,7 @@
     resetGrcData(null, () => {});
     resetGrcAssets();
     resetGrcRisks();
+    resetGrcTreatmentPlans();
     resetGrcControls();
     resetGrcIncidents();
     resetGrcContinuity();
@@ -151,6 +152,7 @@
       grcChecklist,
       grcAssets: getGrcAssets(),
       grcRisks: getGrcRisks(),
+      grcTreatmentPlans: getGrcTreatmentPlans(),
       grcControls: getGrcControls(),
       grcIncidents: getGrcIncidents(),
       grcContinuity: getGrcContinuity(),
@@ -163,6 +165,12 @@
       grcDocuments: getGrcDocuments(),
       pentest: getPentestEngagements(),
       grcAuthor: localStorage.getItem(GRC_AUTHOR_KEY),
+      privacyOfficer: {
+        name: localStorage.getItem(RPRP_NAME_KEY) || "",
+        contact: localStorage.getItem(RPRP_CONTACT_KEY) || "",
+        delegate: localStorage.getItem(RPRP_DELEGATE_KEY) || "",
+        appointedAt: localStorage.getItem(RPRP_APPOINTED_KEY) || "",
+      },
       dashboards,
     };
   }
@@ -216,6 +224,7 @@
     }
     if (Array.isArray(data.grcAssets)) saveGrcAssets(data.grcAssets);
     if (Array.isArray(data.grcRisks)) saveGrcRisks(data.grcRisks);
+    if (Array.isArray(data.grcTreatmentPlans)) saveGrcTreatmentPlans(data.grcTreatmentPlans);
     if (Array.isArray(data.grcControls)) saveGrcControls(data.grcControls);
     if (Array.isArray(data.grcIncidents)) saveGrcIncidents(data.grcIncidents);
     if (Array.isArray(data.grcContinuity)) saveGrcContinuity(data.grcContinuity);
@@ -230,6 +239,13 @@
     // Change-log name: an empty string is a legitimate saved value
     // ("cleared on purpose"), so restore any string, not just truthy.
     if (typeof data.grcAuthor === "string") localStorage.setItem(GRC_AUTHOR_KEY, data.grcAuthor);
+    if (data.privacyOfficer && typeof data.privacyOfficer === "object") {
+      const po = data.privacyOfficer;
+      if (typeof po.name === "string") localStorage.setItem(RPRP_NAME_KEY, po.name);
+      if (typeof po.contact === "string") localStorage.setItem(RPRP_CONTACT_KEY, po.contact);
+      if (typeof po.delegate === "string") localStorage.setItem(RPRP_DELEGATE_KEY, po.delegate);
+      if (typeof po.appointedAt === "string") localStorage.setItem(RPRP_APPOINTED_KEY, po.appointedAt);
+    }
     // Dashboards registry + one hidden-sections key per dashboard, keyed
     // by their real localStorage names -- guarded to those two shapes so
     // a hand-edited file can't write arbitrary keys. notifyDashboardsChanged()
@@ -2419,6 +2435,32 @@
     localStorage.setItem(GRC_AUTHOR_KEY, name);
   }
 
+  // RPRP (90-privacy-loi25-plus.md §2.4/§3.5) -- 4 champs libres, un
+  // localStorage key chacun (même patron que GRC_AUTHOR_KEY), lus par
+  // aucune autre page pour l'instant (persistance + sauvegarde globale
+  // seulement, comme grcAuthor avant que grc-checklist.js le consomme).
+  const RPRP_NAME_KEY = "/settings.html/rprpName";
+  const RPRP_CONTACT_KEY = "/settings.html/rprpContact";
+  const RPRP_DELEGATE_KEY = "/settings.html/rprpDelegate";
+  const RPRP_APPOINTED_KEY = "/settings.html/rprpAppointedAt";
+
+  (function initRprpInputs() {
+    const fields = [
+      ["rprpNameInput", RPRP_NAME_KEY],
+      ["rprpContactInput", RPRP_CONTACT_KEY],
+      ["rprpDelegateInput", RPRP_DELEGATE_KEY],
+      ["rprpAppointedAtInput", RPRP_APPOINTED_KEY],
+    ];
+    fields.forEach(([elId, key]) => {
+      const saved = localStorage.getItem(key);
+      if (saved !== null) document.getElementById(elId).value = saved;
+    });
+  })();
+
+  function setRprpField(key, value) {
+    localStorage.setItem(key, value);
+  }
+
 
   // ============================================================
   // EVENT WIRING -- converted from inline on*="" attributes for CSP
@@ -2472,6 +2514,7 @@
   document.getElementById("resetGrcChecklistBtn").addEventListener("click", () => settingsConfirmReset(grcT("settings.registryName.grcChecklist"), () => resetGrcData(null, () => {})));
   document.getElementById("resetGrcAssetsBtn").addEventListener("click", () => settingsConfirmReset(grcT("settings.registryName.assets"), resetGrcAssets));
   document.getElementById("resetGrcRisksBtn").addEventListener("click", () => settingsConfirmReset(grcT("settings.registryName.risks"), resetGrcRisks));
+  document.getElementById("resetGrcTreatmentPlansBtn").addEventListener("click", () => settingsConfirmReset(grcT("settings.registryName.treatmentPlans"), resetGrcTreatmentPlans));
   document.getElementById("resetGrcControlsBtn").addEventListener("click", () => settingsConfirmReset(grcT("settings.registryName.controls"), resetGrcControls));
   document.getElementById("resetGrcIncidentsBtn").addEventListener("click", () => settingsConfirmReset(grcT("settings.registryName.incidents"), resetGrcIncidents));
   document.getElementById("resetGrcContinuityBtn").addEventListener("click", () => settingsConfirmReset(grcT("settings.registryName.continuity"), resetGrcContinuity));
@@ -2493,6 +2536,10 @@
   // GRC & Shells tab.
   document.getElementById("grcShowPercentageToggle").addEventListener("change", (e) => setGrcShowPercentage(e.target.checked));
   document.getElementById("grcAuthorInput").addEventListener("input", (e) => setGrcAuthor(e.target.value));
+  document.getElementById("rprpNameInput").addEventListener("input", (e) => setRprpField(RPRP_NAME_KEY, e.target.value));
+  document.getElementById("rprpContactInput").addEventListener("input", (e) => setRprpField(RPRP_CONTACT_KEY, e.target.value));
+  document.getElementById("rprpDelegateInput").addEventListener("input", (e) => setRprpField(RPRP_DELEGATE_KEY, e.target.value));
+  document.getElementById("rprpAppointedAtInput").addEventListener("input", (e) => setRprpField(RPRP_APPOINTED_KEY, e.target.value));
   document.getElementById("shellOpacitySlider").addEventListener("input", (e) => setShellOpacity(e.target.value));
 
   // Langue: 2 .theme-option[data-lang] cards.

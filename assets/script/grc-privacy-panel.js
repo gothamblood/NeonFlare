@@ -1,16 +1,18 @@
-/* Panneaux vie privée -- Traitement (ROPA) et Demande (DSR), rendus
-   dans le corps de l'accordéon du registre (grc/vie-privee.html) par
-   grc-privacy.js via grkPanel du kit. Voir spec/grc-registry-upgrades/
-   50-privacy-loi25.md.
+/* Panneaux vie privée -- Traitement (ROPA), Demande (DSR), Bris de
+   confidentialité, rendus dans le corps de l'accordéon du registre
+   (grc/vie-privee.html) par grc-privacy.js via grkPanel du kit. Voir
+   spec/grc-registry-upgrades/50-privacy-loi25.md et
+   90-privacy-loi25-plus.md.
 
    AUCUNE logique de store ici : lectures/écritures via les helpers
    grcPriv* de grc-privacy.js. Chargé APRÈS grc-privacy.js et AVANT
    initGrcPrivacyRegistry().
 
-   État (50-privacy-loi25.md §6) :
-   - T3 : Traitement Fiche + Transferts & conservation.   <-- ICI
-   - T4 : Traitement DPIA + Sécurité & revue.
-   - T5 : Panneau DSR.  T6 : Export. */
+   État :
+   - 50-privacy-loi25.md T3-T6 : Traitement (Fiche/Transferts&conservation/
+     DPIA/Sécurité&revue) + DSR + exports.  FAIT.
+   - 90-privacy-loi25-plus.md T3-T5 : onglets Catégories + Consentements,
+     enrichissement Destinataires/Conservation/DPIA, panneau Bris.  <-- ICI */
 
 /* ---------- petits helpers d'affichage ---------------------- */
 
@@ -62,6 +64,50 @@ function _privAddBtn(form, i18nKey) {
   form.appendChild(b);
 }
 
+// Datalist + liste id -> nom, pour un champ de référence croisée N-à-N
+// (id réel stocké, nom affiché) -- même patron que processingIds (DSR).
+// `rows` = tableau d'entités { id, [nameField] }, dégradé silencieux si
+// vide (registre voisin absent, ex. file:// mono-page).
+function _privRefList(root, titleKey, currentIds, rows, nameField, addBtnKey, onAdd, onRemove) {
+  const names = {};
+  (rows || []).forEach((r) => { names[r.id] = r[nameField] || r.id; });
+  const list = grkList(root, titleKey);
+  (currentIds || []).forEach((refId) => {
+    const row = grkRow();
+    const span = document.createElement("span");
+    span.className = "grk-inv-grow";
+    span.textContent = names[refId] || refId;
+    row.appendChild(span);
+    row.appendChild(grkDelBtn(() => { onRemove(refId); grkRefresh(row); }));
+    list.appendChild(row);
+  });
+  if (!(currentIds || []).length) list.appendChild(grkEmptyLine("grc.vie-privee.empty"));
+
+  if ((rows || []).length) {
+    const inp = document.createElement("input");
+    inp.type = "text";
+    inp.className = "grk-inv-grow";
+    inp.setAttribute("autocomplete", "off");
+    const dl = document.createElement("datalist");
+    dl.id = "grc-priv-ref-" + Math.random().toString(36).slice(2);
+    rows.forEach((r) => {
+      const o = document.createElement("option");
+      o.value = r.id;
+      o.textContent = r[nameField] || r.id;
+      dl.appendChild(o);
+    });
+    root.appendChild(dl);
+    inp.setAttribute("list", dl.id);
+    const addForm = grkAddForm([inp], (form) => {
+      if (!inp.value.trim()) return;
+      onAdd(inp.value.trim());
+      grkRefresh(form);
+    });
+    _privAddBtn(addForm, addBtnKey);
+    root.appendChild(addForm);
+  }
+}
+
 /* ================================================================== *
  *  Panneau TRAITEMENT
  * ================================================================== */
@@ -86,6 +132,129 @@ function _procRenderFiche(root, e) {
     (v) => grcPrivSetProcessingCore(id, { dataSubjects: v })));
   root.appendChild(_privTextArea("grc.vie-privee.proc.recipients", e.recipients,
     (v) => grcPrivSetProcessingCore(id, { recipients: v })));
+
+  const suppliers = (typeof getGrcSuppliers === "function") ? getGrcSuppliers() : [];
+  _privRefList(root, "grc.vie-privee.proc.recipientSuppliers", e.recipientSupplierIds, suppliers, "name",
+    "grc.vie-privee.proc.addRecipientSupplier",
+    (sid) => grcPrivAddRecipientSupplier(id, sid),
+    (sid) => grcPrivRemoveRecipientSupplier(id, sid));
+}
+
+/* ---------- onglet Catégories de données (structurées) ------ */
+
+function _procRenderCategories(root, e) {
+  const id = e.id;
+  const hint = document.createElement("p");
+  hint.className = "grk-hint";
+  hint.textContent = grcT("grc.vie-privee.cat.legacyHint");
+  root.appendChild(hint);
+
+  grkOrderedList(root, e.dataCategoryList, {
+    render: (cat) => {
+      const row = grkRow();
+      const label = document.createElement("input");
+      label.type = "text";
+      label.className = "grk-inv-grow";
+      label.placeholder = grcT("grc.vie-privee.cat.label");
+      label.value = cat.label || "";
+      label.addEventListener("change", () => grcPrivUpdateDataCategory(id, cat.id, { label: label.value }));
+      row.appendChild(label);
+
+      const sens = grkSelect(["", "1", "2", "3", "4", "5"],
+        cat.sensitivity == null ? "" : String(cat.sensitivity), (v) => v || "—");
+      sens.addEventListener("change", () => grcPrivUpdateDataCategory(id, cat.id, { sensitivity: sens.value }));
+      row.appendChild(sens);
+
+      const vol = document.createElement("input");
+      vol.type = "text";
+      vol.placeholder = grcT("grc.vie-privee.cat.volume");
+      vol.value = cat.volumeApprox || "";
+      vol.addEventListener("change", () => grcPrivUpdateDataCategory(id, cat.id, { volumeApprox: vol.value }));
+      row.appendChild(vol);
+
+      const src = document.createElement("input");
+      src.type = "text";
+      src.placeholder = grcT("grc.vie-privee.cat.source");
+      src.value = cat.source || "";
+      src.addEventListener("change", () => grcPrivUpdateDataCategory(id, cat.id, { source: src.value }));
+      row.appendChild(src);
+
+      return row;
+    },
+    onMove: (catId, dir) => grcPrivMoveDataCategory(id, catId, dir),
+    onRemove: (catId) => grcPrivRemoveDataCategory(id, catId),
+    emptyKey: "grc.vie-privee.empty",
+  });
+
+  const nLabel = document.createElement("input");
+  nLabel.type = "text";
+  nLabel.className = "grk-inv-grow";
+  nLabel.placeholder = grcT("grc.vie-privee.cat.label");
+  const nSens = grkSelect(["", "1", "2", "3", "4", "5"], "", (v) => v || "—");
+  const nVol = document.createElement("input");
+  nVol.type = "text";
+  nVol.placeholder = grcT("grc.vie-privee.cat.volume");
+  const nSrc = document.createElement("input");
+  nSrc.type = "text";
+  nSrc.placeholder = grcT("grc.vie-privee.cat.source");
+  const addForm = grkAddForm([nLabel, nSens, nVol, nSrc], (form) => {
+    if (!nLabel.value.trim()) return;
+    grcPrivAddDataCategory(id, {
+      label: nLabel.value.trim(), sensitivity: nSens.value,
+      volumeApprox: nVol.value, source: nSrc.value,
+    });
+    grkRefresh(form);
+  });
+  _privAddBtn(addForm, "grc.vie-privee.cat.add");
+  root.appendChild(addForm);
+}
+
+/* ---------- onglet Consentements ----------------------------- */
+
+function _procRenderConsentements(root, e) {
+  const id = e.id;
+  if (e.legalBasis !== "consent") {
+    const hint = document.createElement("p");
+    hint.className = "grk-hint";
+    hint.textContent = grcT("grc.vie-privee.consent.notConsentHint");
+    root.appendChild(hint);
+  }
+
+  grkOrderedList(root, e.consents, {
+    render: (c) => {
+      const row = grkRow();
+      const type = grkSelect(GRC_PRIV_CONSENT_TYPES, c.type, (t) => grcT("grc.vie-privee.consentType." + t));
+      type.addEventListener("change", () => grcPrivUpdateConsent(id, c.id, { type: type.value }));
+      row.appendChild(type);
+      row.appendChild(_privDate(c.obtainedAt, (v) => grcPrivUpdateConsent(id, c.id, { obtainedAt: v })));
+      row.appendChild(_privDate(c.expiresAt, (v) => grcPrivUpdateConsent(id, c.id, { expiresAt: v })));
+      row.appendChild(_privDate(c.withdrawnAt, (v) => grcPrivUpdateConsent(id, c.id, { withdrawnAt: v })));
+      const proof = document.createElement("input");
+      proof.type = "text";
+      proof.className = "grk-inv-grow";
+      proof.placeholder = grcT("grc.vie-privee.consent.proof");
+      proof.value = c.proof || "";
+      proof.addEventListener("change", () => grcPrivUpdateConsent(id, c.id, { proof: proof.value }));
+      row.appendChild(proof);
+      return row;
+    },
+    onMove: (cid, dir) => grcPrivMoveConsent(id, cid, dir),
+    onRemove: (cid) => grcPrivRemoveConsent(id, cid),
+    emptyKey: "grc.vie-privee.empty",
+  });
+
+  const nType = grkSelect(GRC_PRIV_CONSENT_TYPES, "explicit", (t) => grcT("grc.vie-privee.consentType." + t));
+  const nObt = _privDate(null, () => {});
+  const nProof = document.createElement("input");
+  nProof.type = "text";
+  nProof.className = "grk-inv-grow";
+  nProof.placeholder = grcT("grc.vie-privee.consent.proof");
+  const addForm = grkAddForm([nType, nObt, nProof], (form) => {
+    grcPrivAddConsent(id, { type: nType.value, obtainedAt: nObt.value, proof: nProof.value });
+    grkRefresh(form);
+  });
+  _privAddBtn(addForm, "grc.vie-privee.consent.add");
+  root.appendChild(addForm);
 }
 
 function _procRenderTransferts(root, e) {
@@ -160,6 +329,16 @@ function _procRenderTransferts(root, e) {
     warn.textContent = grcT("grc.vie-privee.ret.expiredAlert");
     sec.appendChild(warn);
   }
+
+  /* -- destruction (90-privacy-loi25-plus.md §2.1/§3.1) -- */
+  const dGrid = document.createElement("div");
+  dGrid.className = "grk-formgrid";
+  dGrid.appendChild(_privField("grc.vie-privee.ret.plannedDeletionAt",
+    _privDate(e.retention.plannedDeletionAt, (v) => grcPrivSetRetention(id, { plannedDeletionAt: v }))));
+  sec.appendChild(dGrid);
+  sec.appendChild(_privTextArea("grc.vie-privee.ret.destructionMethod", e.retention.destructionMethod,
+    (v) => grcPrivSetRetention(id, { destructionMethod: v })));
+
   root.appendChild(sec);
 }
 
@@ -207,6 +386,28 @@ function _procRenderDpia(root, e) {
     _privDate(e.dpia.doneAt, (v) => { grcPrivSetDpia(id, { doneAt: v }); grkRefresh(root); })));
   root.appendChild(_privTextArea("grc.vie-privee.dpia.conclusion", e.dpia.conclusion,
     (v) => grcPrivSetDpia(id, { conclusion: v })));
+
+  /* -- workflow d'approbation (90-privacy-loi25-plus.md §2.1/§3.1) -- */
+  const statusSel = grkSelect(GRC_PRIV_DPIA_STATUSES, e.dpia.status, (s) => grcT("grc.vie-privee.dpiaSt." + s));
+  statusSel.addEventListener("change", () => { grcPrivSetDpia(id, { status: statusSel.value }); grkRefresh(root); });
+  root.appendChild(_privField("grc.vie-privee.dpia.status", statusSel));
+
+  if (e.dpia.status === "approved") {
+    const appGrid = document.createElement("div");
+    appGrid.className = "grk-formgrid";
+    appGrid.appendChild(_privField("grc.vie-privee.dpia.approvedAt",
+      _privDate(e.dpia.approvedAt, (v) => grcPrivSetDpia(id, { approvedAt: v }))));
+    appGrid.appendChild(_privField("grc.vie-privee.dpia.approvedBy",
+      _privInput(e.dpia.approvedBy, (v) => grcPrivSetDpia(id, { approvedBy: v }))));
+    root.appendChild(appGrid);
+  }
+
+  if (grcPrivDpiaApprovalPending(e)) {
+    const warn = document.createElement("p");
+    warn.className = "grc-sup-warn";
+    warn.textContent = grcT("grc.vie-privee.dpia.pendingApprovalAlert");
+    root.appendChild(warn);
+  }
 }
 
 function _procRenderSecurite(root, e) {
@@ -335,6 +536,89 @@ function _dsrRenderReponse(root, e) {
     (v) => grcPrivSetDsrResponse(id, { refusalReason: v })));
 }
 
+/* ================================================================== *
+ *  Panneau BRIS DE CONFIDENTIALITÉ (90-privacy-loi25-plus.md §3.2)
+ * ================================================================== */
+
+function _breachRenderFiche(root, e) {
+  const id = e.id;
+  const grid = document.createElement("div");
+  grid.className = "grk-formgrid";
+  grid.appendChild(_privField("grc.vie-privee.breach.occurredAt",
+    _privDate(e.occurredAt, (v) => grcPrivSetBreachCore(id, { occurredAt: v }))));
+  grid.appendChild(_privField("grc.vie-privee.breach.discoveredAt",
+    _privDate(e.discoveredAt, (v) => grcPrivSetBreachCore(id, { discoveredAt: v }))));
+  grid.appendChild(_privField("grc.vie-privee.breach.affectedCount",
+    _privInput(e.affectedCount, (v) => grcPrivSetBreachCore(id, { affectedCount: v }), "number")));
+  const sev = grkSelect(GRC_PRIV_BREACH_SEVERITIES, e.severity, (s) => grcT("grc.vie-privee.breachSev." + s));
+  sev.addEventListener("change", () => { grcPrivSetBreachCore(id, { severity: sev.value }); grkRefresh(root); });
+  grid.appendChild(_privField("grc.vie-privee.breach.severity", sev));
+  root.appendChild(grid);
+
+  root.appendChild(_privTextArea("grc.vie-privee.breach.description", e.description,
+    (v) => grcPrivSetBreachCore(id, { description: v })));
+
+  if (grcPrivBreachCaiRequired(e)) {
+    const warn = document.createElement("p");
+    warn.className = "grc-sup-warn";
+    warn.textContent = grcT("grc.vie-privee.breach.caiPendingAlert");
+    root.appendChild(warn);
+  }
+}
+
+function _breachRenderNotifications(root, e) {
+  const id = e.id;
+  root.appendChild(_privCheckbox("grc.vie-privee.breach.caiNotified", e.caiNotified, (on) => {
+    grcPrivSetBreachNotifications(id, { caiNotified: on });
+    grkRefresh(root);
+  }));
+  if (e.caiNotified) {
+    root.appendChild(_privField("grc.vie-privee.breach.caiNotifiedAt",
+      _privDate(e.caiNotifiedAt, (v) => grcPrivSetBreachNotifications(id, { caiNotifiedAt: v }))));
+  }
+  root.appendChild(_privCheckbox("grc.vie-privee.breach.individualsNotified", e.individualsNotified, (on) => {
+    grcPrivSetBreachNotifications(id, { individualsNotified: on });
+    grkRefresh(root);
+  }));
+  if (e.individualsNotified) {
+    root.appendChild(_privField("grc.vie-privee.breach.individualsNotifiedAt",
+      _privDate(e.individualsNotifiedAt, (v) => grcPrivSetBreachNotifications(id, { individualsNotifiedAt: v }))));
+  }
+  if (grcPrivBreachCaiRequired(e)) {
+    const warn = document.createElement("p");
+    warn.className = "grc-sup-warn";
+    warn.textContent = grcT("grc.vie-privee.breach.caiPendingAlert");
+    root.appendChild(warn);
+  }
+}
+
+function _breachRenderSuivi(root, e) {
+  const id = e.id;
+  const statusSel = grkSelect(GRC_PRIV_BREACH_STATUSES, e.status, (s) => grcT("grc.vie-privee.breachSt." + s));
+  statusSel.addEventListener("change", () => grcPrivSetBreachCore(id, { status: statusSel.value }));
+  root.appendChild(_privField("grc.vie-privee.breach.status", statusSel));
+
+  root.appendChild(_privTextArea("grc.vie-privee.breach.correctiveMeasures", e.correctiveMeasures,
+    (v) => grcPrivSetBreachFollowup(id, { correctiveMeasures: v })));
+
+  root.appendChild(_privField("grc.vie-privee.breach.linkedIncidentId",
+    _privInput(e.linkedIncidentId, (v) => grcPrivSetBreachFollowup(id, { linkedIncidentId: v }))));
+
+  const procList = (typeof getGrcProcessings === "function") ? getGrcProcessings() : [];
+  _privRefList(root, "grc.vie-privee.dsr.processingIds", e.linkedProcessingIds, procList, "name",
+    "grc.vie-privee.dsr.addProcessing",
+    (pid) => grcPrivAddBreachProcessing(id, pid),
+    (pid) => grcPrivRemoveBreachProcessing(id, pid));
+}
+
+function _breachRenderExport(root, e) {
+  grkExportButtons(root, "grc.vie-privee.export.hint", [
+    { i18n: "grc.vie-privee.export.json", fn: () => exportPrivacyAsJson(e) },
+    { i18n: "grc.vie-privee.export.breachWord", fn: () => exportBreachAsWord(e) },
+    { i18n: "grc.vie-privee.export.breachCsv", fn: () => exportBreachCsv(getGrcBreaches()) },
+  ]);
+}
+
 /* ---------- onglet Export --------------------------------- */
 
 function _procRenderExport(root, e) {
@@ -357,8 +641,10 @@ function _dsrRenderExport(root, e) {
 
 const GRC_PROC_TABS = [
   { key: "fiche", i18n: "grc.vie-privee.tab.fiche", render: _procRenderFiche },
+  { key: "categories", i18n: "grc.vie-privee.tab.categories", render: _procRenderCategories },
   { key: "transferts", i18n: "grc.vie-privee.tab.transferts", render: _procRenderTransferts },
   { key: "dpia", i18n: "grc.vie-privee.tab.dpia", render: _procRenderDpia },
+  { key: "consentements", i18n: "grc.vie-privee.tab.consentements", render: _procRenderConsentements },
   { key: "securite", i18n: "grc.vie-privee.tab.securite", render: _procRenderSecurite },
   { key: "export", i18n: "grc.vie-privee.tab.export", render: _procRenderExport },
 ];
@@ -367,6 +653,13 @@ const GRC_DSR_TABS = [
   { key: "fiche", i18n: "grc.vie-privee.tab.fiche", render: _dsrRenderFiche },
   { key: "reponse", i18n: "grc.vie-privee.tab.reponse", render: _dsrRenderReponse },
   { key: "export", i18n: "grc.vie-privee.tab.export", render: _dsrRenderExport },
+];
+
+const GRC_BREACH_TABS = [
+  { key: "fiche", i18n: "grc.vie-privee.tab.fiche", render: _breachRenderFiche },
+  { key: "notifications", i18n: "grc.vie-privee.tab.notifications", render: _breachRenderNotifications },
+  { key: "suivi", i18n: "grc.vie-privee.tab.suivi", render: _breachRenderSuivi },
+  { key: "export", i18n: "grc.vie-privee.tab.export", render: _breachRenderExport },
 ];
 
 function renderProcessingPanel(container, entry) {
@@ -379,6 +672,13 @@ function renderProcessingPanel(container, entry) {
 function renderDsrPanel(container, entry) {
   grkPanel(container, entry, {
     idAttr: "data-priv-id", tabs: GRC_DSR_TABS,
+    ensure: grcPrivacyEnsureShape, store: _grcPrivacyStore,
+  });
+}
+
+function renderBreachPanel(container, entry) {
+  grkPanel(container, entry, {
+    idAttr: "data-priv-id", tabs: GRC_BREACH_TABS,
     ensure: grcPrivacyEnsureShape, store: _grcPrivacyStore,
   });
 }

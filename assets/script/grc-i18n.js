@@ -188,6 +188,11 @@ Object.assign(I18N_DICT, {
   "grc.actifs.detail.dependsOn": { fr: "Dépend de : {names}", en: "Depends on: {names}" },
   "grc.actifs.detail.addDependency": { fr: "+ Dépendance", en: "+ Dependency" },
   "grc.actifs.detail.noDependency": { fr: "Aucune dépendance.", en: "No dependency." },
+  "grc.actifs.detail.personalData": { fr: "Contient des renseignements personnels", en: "Contains personal data" },
+  "grc.actifs.detail.personalDataBadge": { fr: "RP", en: "PII" },
+  "grc.actifs.detail.linkedProcessings": { fr: "Traitements liés (vie privée)", en: "Linked processing activities (privacy)" },
+  "grc.actifs.detail.noLinkedProcessing": { fr: "Aucun traitement lié.", en: "No linked processing activity." },
+  "grc.actifs.detail.addLinkedProcessing": { fr: "+ Traitement", en: "+ Processing" },
 
   "grc.actifs.pdf.title": { fr: "Registre des actifs", en: "Asset registry" },
   "grc.actifs.pdf.empty": { fr: "Aucun actif enregistré.", en: "No assets recorded." },
@@ -224,8 +229,8 @@ Object.assign(I18N_DICT, {
   "grc.risques.form.threat": { fr: "Menace", en: "Threat" },
   "grc.risques.form.vulnerability": { fr: "Vulnérabilité", en: "Vulnerability" },
   "grc.risques.form.assets": { fr: "Actifs concernés", en: "Affected assets" },
-  "grc.risques.form.probability": { fr: "Probabilité (1-3)", en: "Probability (1-3)" },
-  "grc.risques.form.impact": { fr: "Impact (1-3)", en: "Impact (1-3)" },
+  "grc.risques.form.probability": { fr: "Probabilité (1-5)", en: "Probability (1-5)" },
+  "grc.risques.form.impact": { fr: "Impact (1-5)", en: "Impact (1-5)" },
   "grc.risques.form.treatmentStrategy": { fr: "Stratégie de traitement", en: "Treatment strategy" },
   "grc.risques.form.treatment": { fr: "Plan de traitement", en: "Treatment plan" },
   "grc.risques.form.treatmentPlaceholder": {
@@ -277,8 +282,23 @@ Object.assign(I18N_DICT, {
   "grc.risques.pdf.colStrategy": { fr: "Stratégie", en: "Strategy" },
   "grc.risques.pdf.colTreatment": { fr: "Traitement", en: "Treatment" },
   "grc.risques.pdf.invalidImport": { fr: "Format invalide : un tableau de risques est attendu.", en: "Invalid format: an array of risks is expected." },
+  "grc.risques.pdf.treatmentSectionTitle": { fr: "Plans de traitement", en: "Treatment plans" },
   "grc.risques.matrix.impact": { fr: "Impact {n}", en: "Impact {n}" },
   "grc.risques.matrix.probability": { fr: "Probabilité {n}", en: "Probability {n}" },
+  // Échelle qualitative 1-5, utilisée à la fois comme options du <select>
+  // du formulaire (probabilité/impact) et comme sous-titre des axes de la
+  // matrice (grc-risks.js : _grcRiskRenderMatrix, GRC_RISK_PROBABILITY_LEVELS
+  // / GRC_RISK_IMPACT_LEVELS).
+  "grc.risques.scale.probability.1": { fr: "Très faible", en: "Very low" },
+  "grc.risques.scale.probability.2": { fr: "Faible", en: "Low" },
+  "grc.risques.scale.probability.3": { fr: "Moyen", en: "Medium" },
+  "grc.risques.scale.probability.4": { fr: "Élevé", en: "High" },
+  "grc.risques.scale.probability.5": { fr: "Très élevé", en: "Very high" },
+  "grc.risques.scale.impact.1": { fr: "Négligeable", en: "Negligible" },
+  "grc.risques.scale.impact.2": { fr: "Mineure", en: "Minor" },
+  "grc.risques.scale.impact.3": { fr: "Modéré", en: "Moderate" },
+  "grc.risques.scale.impact.4": { fr: "Grave", en: "Severe" },
+  "grc.risques.scale.impact.5": { fr: "Critique", en: "Critical" },
 
   // ===================== Contrôles (controles.html) ===================
   "grc.controles.title": { fr: "Sélection des contrôles", en: "Control selection" },
@@ -1089,6 +1109,80 @@ Object.assign(I18N_DICT, {
   "grc.vie-privee.report.yes": { fr: "Oui", en: "Yes" },
   "grc.vie-privee.report.no": { fr: "Non", en: "No" },
 
+  /* ---- 90-privacy-loi25-plus.md : bris, EFVP, consentements, etc. ---- */
+  "grc.vie-privee.filter.breach": { fr: "Bris de confidentialité", en: "Confidentiality breaches" },
+
+  "grc.vie-privee.tab.categories": { fr: "Catégories de données", en: "Data categories" },
+  "grc.vie-privee.tab.consentements": { fr: "Consentements", en: "Consents" },
+  "grc.vie-privee.tab.notifications": { fr: "Notifications", en: "Notifications" },
+  "grc.vie-privee.tab.suivi": { fr: "Mesures & suivi", en: "Follow-up" },
+
+  "grc.vie-privee.cat.title": { fr: "Catégories de données", en: "Data categories" },
+  "grc.vie-privee.cat.label": { fr: "Catégorie", en: "Category" },
+  "grc.vie-privee.cat.sensitivity": { fr: "Sensibilité (1-5)", en: "Sensitivity (1-5)" },
+  "grc.vie-privee.cat.volume": { fr: "Volume approximatif", en: "Approximate volume" },
+  "grc.vie-privee.cat.source": { fr: "Source de collecte", en: "Collection source" },
+  "grc.vie-privee.cat.add": { fr: "+ Catégorie", en: "+ Category" },
+  "grc.vie-privee.cat.legacyHint": { fr: "Complète le champ « Catégories de données » de la fiche -- les deux coexistent.", en: "Complements the profile's \"Data categories\" field -- both coexist." },
+
+  "grc.vie-privee.consent.title": { fr: "Consentements", en: "Consents" },
+  "grc.vie-privee.consent.type": { fr: "Type", en: "Type" },
+  "grc.vie-privee.consent.obtainedAt": { fr: "Obtenu le", en: "Obtained on" },
+  "grc.vie-privee.consent.expiresAt": { fr: "Expire le", en: "Expires on" },
+  "grc.vie-privee.consent.withdrawnAt": { fr: "Retiré le", en: "Withdrawn on" },
+  "grc.vie-privee.consent.proof": { fr: "Preuve", en: "Proof" },
+  "grc.vie-privee.consent.add": { fr: "+ Consentement", en: "+ Consent" },
+  "grc.vie-privee.consent.notConsentHint": { fr: "Base légale ≠ consentement -- section optionnelle ici.", en: "Legal basis ≠ consent -- this section is optional here." },
+  "grc.vie-privee.consentType.explicit": { fr: "Explicite", en: "Explicit" },
+  "grc.vie-privee.consentType.implicit": { fr: "Implicite", en: "Implicit" },
+  "grc.vie-privee.consentType.opt-in": { fr: "Opt-in", en: "Opt-in" },
+  "grc.vie-privee.consentType.opt-out": { fr: "Opt-out", en: "Opt-out" },
+
+  "grc.vie-privee.ret.destructionMethod": { fr: "Méthode de destruction", en: "Destruction method" },
+  "grc.vie-privee.ret.plannedDeletionAt": { fr: "Date de suppression prévue", en: "Planned deletion date" },
+
+  "grc.vie-privee.dpia.status": { fr: "Statut EFVP", en: "PIA status" },
+  "grc.vie-privee.dpia.approvedAt": { fr: "Approuvée le", en: "Approved on" },
+  "grc.vie-privee.dpia.approvedBy": { fr: "Approuvée par", en: "Approved by" },
+  "grc.vie-privee.dpia.pendingApprovalAlert": { fr: "EFVP réalisée mais pas encore approuvée formellement.", en: "PIA completed but not yet formally approved." },
+  "grc.vie-privee.dpiaSt.draft": { fr: "Brouillon", en: "Draft" },
+  "grc.vie-privee.dpiaSt.in-progress": { fr: "En cours", en: "In progress" },
+  "grc.vie-privee.dpiaSt.approved": { fr: "Approuvée", en: "Approved" },
+
+  "grc.vie-privee.proc.recipientSuppliers": { fr: "Fournisseurs destinataires", en: "Recipient suppliers" },
+  "grc.vie-privee.proc.addRecipientSupplier": { fr: "+ Fournisseur", en: "+ Supplier" },
+
+  "grc.vie-privee.breach.addBtn": { fr: "+ Bris", en: "+ Breach" },
+  "grc.vie-privee.breach.title": { fr: "Nouveau bris de confidentialité", en: "New confidentiality breach" },
+  "grc.vie-privee.breach.titleEdit": { fr: "Modifier le bris", en: "Edit breach" },
+  "grc.vie-privee.breach.description": { fr: "Description", en: "Description" },
+  "grc.vie-privee.breach.occurredAt": { fr: "Survenu le", en: "Occurred on" },
+  "grc.vie-privee.breach.discoveredAt": { fr: "Découvert le", en: "Discovered on" },
+  "grc.vie-privee.breach.affectedCount": { fr: "Personnes touchées", en: "Affected individuals" },
+  "grc.vie-privee.breach.severity": { fr: "Gravité", en: "Severity" },
+  "grc.vie-privee.breach.status": { fr: "Statut", en: "Status" },
+  "grc.vie-privee.breach.caiNotified": { fr: "CAI notifiée", en: "Notified to the CAI" },
+  "grc.vie-privee.breach.caiNotifiedAt": { fr: "Notifiée le", en: "Notified on" },
+  "grc.vie-privee.breach.individualsNotified": { fr: "Personnes avisées", en: "Individuals notified" },
+  "grc.vie-privee.breach.individualsNotifiedAt": { fr: "Avisées le", en: "Notified on" },
+  "grc.vie-privee.breach.correctiveMeasures": { fr: "Mesures correctives", en: "Corrective measures" },
+  "grc.vie-privee.breach.linkedIncidentId": { fr: "Incident sécurité lié (id)", en: "Linked security incident (id)" },
+  "grc.vie-privee.breach.caiPendingAlert": { fr: "Gravité élevée sans notification à la CAI.", en: "High severity without CAI notification." },
+  "grc.vie-privee.breachSev.low": { fr: "Faible", en: "Low" },
+  "grc.vie-privee.breachSev.medium": { fr: "Moyenne", en: "Medium" },
+  "grc.vie-privee.breachSev.high": { fr: "Élevée", en: "High" },
+  "grc.vie-privee.breachSt.open": { fr: "Ouvert", en: "Open" },
+  "grc.vie-privee.breachSt.contained": { fr: "Contenu", en: "Contained" },
+  "grc.vie-privee.breachSt.closed": { fr: "Clos", en: "Closed" },
+
+  "grc.vie-privee.summary.dpiaPendingApproval": { fr: "{n} EFVP en attente d'approbation", en: "{n} PIA pending approval" },
+  "grc.vie-privee.summary.breachesOpen": { fr: "{n} bris ouvert(s)", en: "{n} open breach(es)" },
+  "grc.vie-privee.summary.breachCaiPending": { fr: "{n} bris à notifier à la CAI", en: "{n} breach(es) to notify to the CAI" },
+
+  "grc.vie-privee.export.breachWord": { fr: "⬇ Bris Word", en: "⬇ Breach Word" },
+  "grc.vie-privee.export.breachCsv": { fr: "⬇ Registre des bris CSV", en: "⬇ Breach register CSV" },
+  "grc.vie-privee.report.breachTitle": { fr: "Registre des bris de confidentialité", en: "Confidentiality breach register" },
+
   /* ================================================================ *
    *  Conformité -- obligations + audits + non-conformités.
    *  spec/grc-registry-upgrades/30-conformite.md. ISO A.5.31/.35/.36.
@@ -1379,8 +1473,7 @@ Object.assign(I18N_DICT, {
   "grc.risques.rt.drop": { fr: "Retirer le traitement", en: "Remove treatment" },
   "grc.risques.rt.dropConfirm": { fr: "Retirer le plan de traitement de ce risque ?", en: "Remove this risk's treatment plan?" },
 
-  "grc.risques.rt.tab.strategie": { fr: "Stratégie", en: "Strategy" },
-  "grc.risques.rt.tab.actions": { fr: "Plan d'action", en: "Action plan" },
+  "grc.risques.rt.tab.plans": { fr: "Plans", en: "Plans" },
   "grc.risques.rt.tab.residuel": { fr: "Résiduel", en: "Residual" },
   "grc.risques.rt.tab.acceptation": { fr: "Acceptation", en: "Acceptance" },
   "grc.risques.rt.tab.export": { fr: "Export", en: "Export" },
@@ -1431,6 +1524,32 @@ Object.assign(I18N_DICT, {
   "grc.risques.rt.summary.overdueActions": { fr: "{n} action(s) en retard", en: "{n} action(s) overdue" },
   "grc.risques.rt.summary.acceptanceReview": { fr: "{n} acceptation(s) à re-valider", en: "{n} acceptance(s) to reassess" },
   "grc.risques.rt.summary.avgReduction": { fr: "réduction moyenne {v} %", en: "avg reduction {v}%" },
+
+  // Plan de traitement -- lien vers le registre partagé (grc-treatment-plans.js).
+  "grc.risques.rt.linkedPlan": { fr: "Plan lié : {name}", en: "Linked plan: {name}" },
+  "grc.risques.rt.sharedWith": { fr: "Partagé avec {n} autre(s) risque(s) -- modifier la stratégie ou les actions ici les affecte aussi.", en: "Shared with {n} other risk(s) -- editing the strategy or actions here affects them too." },
+  "grc.risques.rt.planMissing": { fr: "Le plan lié a été supprimé du registre. Crée-en un nouveau ou lie-en un autre.", en: "The linked plan was deleted from the register. Create a new one or link a different one." },
+  "grc.risques.rt.createPlan": { fr: "Créer et lier un nouveau plan", en: "Create and link a new plan" },
+  "grc.risques.rt.linkPlan": { fr: "Lier un plan existant", en: "Link an existing plan" },
+  "grc.risques.rt.addAnotherPlan": { fr: "Ajouter un autre plan", en: "Add another plan" },
+  "grc.risques.rt.unlinkPlan": { fr: "Délier ce plan", en: "Unlink this plan" },
+
+  /* ================================================================ *
+   *  Registre des plans de traitement (partagé, many-to-one) --
+   *  grc-treatment-plans.js. grc/traitement-risques.html.
+   * ================================================================ */
+  "grc.traitement-risques.reg.title": { fr: "Registre des plans de traitement", en: "Treatment plan register" },
+  "grc.traitement-risques.invalidImport": { fr: "Import invalide -- ni un tableau de plans, ni une fiche plan.", en: "Invalid import -- neither a plan array nor a single plan record." },
+  "grc.traitement-risques.form.addBtn": { fr: "+ Plan", en: "+ Plan" },
+  "grc.traitement-risques.form.title": { fr: "Nouveau plan de traitement", en: "New treatment plan" },
+  "grc.traitement-risques.form.titleEdit": { fr: "Modifier le plan de traitement", en: "Edit treatment plan" },
+  "grc.traitement-risques.form.name": { fr: "Nom", en: "Name" },
+  "grc.traitement-risques.form.strategy": { fr: "Stratégie", en: "Strategy" },
+  "grc.traitement-risques.form.rationale": { fr: "Justification", en: "Rationale" },
+  "grc.traitement-risques.form.transferTo": { fr: "Transféré à (assureur / prestataire)", en: "Transferred to (insurer / provider)" },
+  "grc.traitement-risques.linkedCount": { fr: "{n} risque(s) lié(s)", en: "{n} linked risk(s)" },
+  "grc.traitement-risques.linkedRisks": { fr: "Risques couverts : {n}", en: "Risks covered: {n}" },
+  "grc.traitement-risques.summary.count": { fr: "{n} plan(s) de traitement", en: "{n} treatment plan(s)" },
 
   /* ================================================================ *
    *  Registre documentaire partagé -- grc-documents.js.
@@ -1630,5 +1749,49 @@ Object.assign(I18N_DICT, {
   "grc.pentest.csv.cvss": { fr: "score_cvss", en: "cvss_score" },
   "grc.pentest.csv.severity": { fr: "severite", en: "severity" },
   "grc.pentest.csv.status": { fr: "statut", en: "status" },
-  "grc.pentest.csv.owner": { fr: "responsable", en: "owner" }
+  "grc.pentest.csv.owner": { fr: "responsable", en: "owner" },
+
+  /* ================================================================ *
+   *  Ressources externes -- modèles/clauses tiers (conformité, Loi 25,
+   *  fournisseurs, réponse aux incidents). Page grc/ressources.html,
+   *  accessible depuis la barre latérale (menu GRC).
+   * ================================================================ */
+  "grc.ressources.title": { fr: "Ressources externes – conformité & normes", en: "External resources – compliance & standards" },
+  "grc.ressources.subtitle": {
+    fr: "Une sélection de modèles et de références externes, gratuits ou reconnus, pour appuyer vos politiques, vos contrats fournisseurs et votre réponse aux incidents.",
+    en: "A curated selection of free or well-known external templates and references to support your policies, vendor contracts and incident response."
+  },
+  "grc.ressources.disclaimer": {
+    fr: "Ces liens pointent vers des sites tiers non affiliés à NeonFlare. Ce ne sont pas des conseils juridiques : faites réviser tout contrat ou politique par un professionnel avant utilisation.",
+    en: "These links point to third-party sites not affiliated with NeonFlare. This is not legal advice: have any contract or policy reviewed by a professional before use."
+  },
+  "grc.ressources.loi25.title": { fr: "Loi 25 (Québec) — sources officielles", en: "Quebec Law 25 — official sources" },
+  "grc.ressources.loi25.item1.desc": { fr: "texte officiel et à jour de la loi.", en: "official, up-to-date text of the law." },
+  "grc.ressources.loi25.item2.desc": { fr: "résumé officiel des nouvelles obligations pour les entreprises.", en: "official summary of the new obligations for businesses." },
+  "grc.ressources.loi25.item3.desc": { fr: "obligations de notification et de sécurité applicables aux entreprises.", en: "notification and security obligations applicable to businesses." },
+  "grc.ressources.loi25.item4.desc": { fr: "le formulaire à utiliser pour notifier la CAI, référence directe pour le registre des bris.", en: "the form used to notify the CAI, a direct reference for the breach register." },
+  "grc.ressources.loi25.item5.desc": { fr: "guide explicatif pour les entreprises.", en: "explanatory guide for businesses." },
+  "grc.ressources.loi25.item6.desc": { fr: "tous les guides pratiques de la Commission (EFVP, consentement, RPRP, etc.).", en: "all of the Commission's practical guides (PIA, consent, privacy officer, etc.)." },
+  "grc.ressources.badge.official": { fr: "Source officielle", en: "Official source" },
+  "grc.ressources.policies.title": { fr: "Politiques et modèles de sécurité", en: "Security policies and templates" },
+  "grc.ressources.policies.item1.desc": { fr: "modèles de politiques (sécurité de l'information, gestion des incidents, fournisseurs, continuité des activités).", en: "policy templates (information security, incident management, vendors, business continuity)." },
+  "grc.ressources.policies.item2.desc": { fr: "documents et guides de sécurité complémentaires.", en: "additional security documents and guides." },
+  "grc.ressources.vendor.title": { fr: "Clauses et contrats fournisseurs", en: "Vendor clauses and contracts" },
+  "grc.ressources.vendor.item1.desc": { fr: "langage contractuel type : exigences cybersécurité, signalement des incidents, sauvegardes, plan de reprise.", en: "sample contract language: cybersecurity requirements, incident reporting, backups, recovery plan." },
+  "grc.ressources.vendor.item2.desc": { fr: "banque de clauses réelles extraites de contrats publics (cybersécurité, confidentialité, fournisseurs).", en: "database of real clauses drawn from public contracts (cybersecurity, confidentiality, vendors)." },
+  "grc.ressources.ir.title": { fr: "Réponse aux incidents & retainer", en: "Incident response & retainer" },
+  "grc.ressources.ir.item1.desc": { fr: "exemples réels de contrats de rétention pour la réponse aux incidents.", en: "real-world incident response retainer contract examples." },
+  "grc.ressources.ir.item2.desc": { fr: "fiche descriptive d'un service de rétention IR (délais de mobilisation, forensic, gestion de crise).", en: "datasheet for an IR retainer service (mobilization times, forensics, crisis management)." },
+  "grc.ressources.ir.item3.desc": { fr: "conditions type d'un contrat de rétention DFIR.", en: "sample terms for a DFIR retainer contract." },
+  "grc.ressources.badge.free": { fr: "Gratuit", en: "Free" },
+  "grc.ressources.badge.reference": { fr: "Référence — compte gratuit requis pour le texte complet", en: "Reference — free account required for full text" },
+  "grc.ressources.badge.vendor": { fr: "Document fournisseur", en: "Vendor document" },
+  "grc.ressources.standards.title": { fr: "Normes et référentiels de cybersécurité", en: "Cybersecurity standards & frameworks" },
+  "grc.ressources.standards.item1.desc": { fr: "portail sectoriel ISO pour les normes IT et sécurité de l'information (dont ISO/IEC 27001).", en: "ISO's IT sector portal for information technology and security standards (including ISO/IEC 27001)." },
+  "grc.ressources.standards.item2.desc": { fr: "cadre de référence du NIST pour gérer et réduire les risques de cybersécurité.", en: "NIST's reference framework for managing and reducing cybersecurity risk." },
+  "grc.ressources.standards.item3.desc": { fr: "liste priorisée de contrôles de sécurité reconnus pour se défendre contre les cyberattaques courantes.", en: "a prioritized set of recognized security controls for defending against common cyberattacks." },
+  "grc.ressources.role": {
+    fr: "Ces références aident à rédiger des politiques et des clauses contractuelles alignées sur les pratiques reconnues du marché, en complément des registres de traitements, fournisseurs et continuité déjà tenus dans le hub GRC.",
+    en: "These references help draft policies and contract clauses aligned with recognized market practices, complementing the processing, vendor and continuity registers already kept in the GRC hub."
+  }
 });
