@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="Content-Security-Policy" content="script-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'">
-  <link rel="icon" type="image/png" href="./assets/images/dragon4_logo.png">
+  <link rel="icon" type="image/png" href="./assets/images/dragon4_logo.png" data-brand-logo="./">
   <link rel="stylesheet" type="text/css" href="./assets/css/shells-overlay.css">
-  <title>NeonFlare: Rise of GothamBlood</title>
+  <title data-brand="pageTitle">NeonFlare: Rise of GothamBlood</title>
 
   <style>
     :root {
@@ -308,7 +308,7 @@
         </div>
         <ul class="submenu" id="moreMenu">
           <li class="menu-item" data-nav="topology" data-i18n="nav.topology" data-load-page="topology">Topology</li>
-          <li class="menu-item" data-nav="neonflare-technology" data-load-page="GothamBlood-tech">GothamBlood Tech</li>
+          <li class="menu-item" data-nav="neonflare-technology" data-load-page="GothamBlood-tech" data-brand="techMenuLabel">GothamBlood Tech</li>
           <li class="menu-item" data-i18n="nav.settings" data-load-page="settings">Settings</li>
           <li class="menu-item" data-nav="about" data-i18n="nav.about" data-load-page="about">About</li>
         </ul>
@@ -322,8 +322,8 @@
       <div class="signature-footer">
         <div class="sig-line"></div>
         <div class="sig-content">
-          <span class="sig-icon">🐉</span>
-          <span class="sig-text">GothamBlood</span>
+          <span class="sig-icon" data-brand="icon">🐉</span>
+          <span class="sig-text" data-brand="name">GothamBlood</span>
         </div>
       </div>
     </main>
@@ -337,6 +337,8 @@
   <script src="./assets/script/shells-host.js"></script>
   <script src="./assets/script/tab-link.js"></script>
   <script src="./assets/script/onboarding-wizard.js"></script>
+  <script src="./config/branding.js"></script>
+  <script src="./assets/script/branding.js"></script>
   <script src="./assets/script/inline/index.js"></script>
 
 

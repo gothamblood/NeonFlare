@@ -147,7 +147,7 @@
 
     <p style="font-size: 0.8rem; color: #a7b0c7; margin-bottom: 1rem; line-height: 1.5;" data-i18n="settings.assistant.fullBackupDesc">
       Un seul fichier JSON avec tous les registres (Réseau, Outils,
-      DevSecOps, Website, Topologie, About, Checklist GRC, Actifs, Risques,
+      DevSecOps, Website, Topologie, About, Branding, Checklist GRC, Actifs, Risques,
       Contrôles, Incidents, Pentest), les Dashboards que tu as créés et
       leurs sections, plus ton nom de traçabilité GRC -- pratique pour
       migrer vers un autre navigateur ou faire une sauvegarde avant un
@@ -194,6 +194,10 @@
     <div class="toggle-row">
       <span data-i18n="settings.registryName.about">About</span>
       <button type="button" class="dash-btn" id="resetAboutBtn" data-i18n="settings.assistant.resetBtn">Réinitialiser</button>
+    </div>
+    <div class="toggle-row">
+      <span data-i18n="settings.registryName.branding">Branding</span>
+      <button type="button" class="dash-btn" id="resetBrandingBtn" data-i18n="settings.assistant.resetBtn">Réinitialiser</button>
     </div>
     <div class="toggle-row">
       <span data-i18n="settings.registryName.grcChecklist">Checklist GRC (les 53 pages)</span>
@@ -460,10 +464,10 @@
 
     <div class="current-theme">
       <strong data-i18n="settings.shellOpacity">Opacité :</strong>
-      <span id="shellOpacityValue">100%</span>
+      <span id="shellOpacityValue">75%</span>
     </div>
 
-    <input type="range" id="shellOpacitySlider" min="30" max="100" step="5" value="100"
+    <input type="range" id="shellOpacitySlider" min="30" max="100" step="5" value="75"
            style="width: 100%; accent-color: var(--accent);">
 
     <p style="font-size: 0.8rem; color: #a7b0c7; margin-top: 1rem; line-height: 1.5;" data-i18n="settings.shellOpacityDesc">
@@ -526,6 +530,8 @@
 
   <div class="mat-card netcfg-form-card" id="aboutConfigCard"></div>
 
+  <div class="mat-card netcfg-form-card" id="brandingConfigCard"></div>
+
   </div>
 
   <div class="settings-section" data-section="securite" style="display:none">
@@ -581,6 +587,8 @@
 <script src="../assets/script/topology-config.js"></script>
 <script src="../config/about.js"></script>
 <script src="../assets/script/about-config.js"></script>
+<script src="../config/branding.js"></script>
+<script src="../assets/script/branding.js"></script>
 <script src="../assets/script/wallpaper-loader.js"></script>
 <script src="../assets/script/page-effects.js"></script>
 <script src="../assets/script/page-effects-loader.js"></script>

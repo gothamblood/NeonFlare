@@ -84,6 +84,7 @@
     resetWebsiteConfig();
     resetTopologyConfig();
     resetAboutConfig();
+    resetBrandingConfig();
     resetGrcData(null, () => {});
     resetGrcAssets();
     resetGrcRisks();
@@ -171,6 +172,7 @@
       devsecops: { categories: getDevSecOpsCategories(), commands: devsecopsCommands },
       website: getWebsiteCategories(),
       about: getRawAboutConfigOverride(),
+      branding: getRawBrandingOverride(),
       topology: {
         customNodes: getTopologyCustomNodes(),
         customLinks: getTopologyCustomLinks(),
@@ -232,6 +234,8 @@
     }
     if (Array.isArray(data.website)) saveWebsiteCategories(data.website);
     if (data.about && typeof data.about === "object") saveAboutConfig(data.about);
+    // Surcharge de marque : un objet vide ou absent = on garde l'existant.
+    if (data.branding && typeof data.branding === "object") saveBrandingConfig(Object.assign(getBrandingConfig(), data.branding));
     if (data.topology) {
       // Only overwrite a sub-key that is actually present in the file. A
       // partial or older backup (one predating layout / titleOverrides)
@@ -652,7 +656,7 @@
   // Shell opacity: stored in localStorage (not sessionStorage) so it
   // persists across tabs/sessions -- dashboard.html reads it directly
   // when opening each new shell window.
-  const savedShellOpacity = localStorage.getItem("/settings.html/shellOpacity") || "100";
+  const savedShellOpacity = localStorage.getItem("/settings.html/shellOpacity") || "75"; // = DEFAULT_SHELL_OPACITY (shells-host.js)
   document.getElementById("shellOpacitySlider").value = savedShellOpacity;
   document.getElementById("shellOpacityValue").textContent = savedShellOpacity + "%";
 
@@ -2264,6 +2268,75 @@
   })();
 
   // ============================================================
+  // CONFIG BRANDING -- identité affichée (signature, titre et icône de
+  // l'onglet, en-tête réseau, sous-titre Topologie, titre des liens
+  // About, menu « … Tech ») -- assets/script/branding.js. Contrairement
+  // aux cartes ci-dessus, la surcharge est champ par champ : un champ
+  // vidé retombe sur config/branding.js (affiché en placeholder).
+  // ============================================================
+  (function () {
+    const card = document.getElementById("brandingConfigCard");
+    const FIELDS = [
+      ["name", "settings.cfgBranding.fieldName", "Nom (signature en bas à droite)"],
+      ["icon", "settings.cfgBranding.fieldIcon", "Symbole devant la signature (emoji ou 1-2 caractères)"],
+      ["logo", "settings.cfgBranding.fieldLogo", "Icône de l'onglet (chemin relatif, ex. assets/images/logo.png)"],
+      ["pageTitle", "settings.cfgBranding.fieldPageTitle", "Titre de l'onglet du navigateur"],
+      ["networkStatusTitle", "settings.cfgBranding.fieldNetworkStatus", "En-tête du statut réseau (Dashboard)"],
+      ["topologySubtitle", "settings.cfgBranding.fieldTopology", "Sous-titre de la page Topologie"],
+      ["linksTitle", "settings.cfgBranding.fieldLinks", "Titre des liens (About)"],
+      ["techMenuLabel", "settings.cfgBranding.fieldTechMenu", "Libellé du menu « … Tech »"],
+    ];
+
+    card.innerHTML = `
+      <h1>Config Branding</h1>
+      <p class="netcfg-desc" data-i18n="settings.cfgBranding.desc">
+        Personnalise l'identité affichée par l'interface. Un champ vide
+        reprend la valeur de config/branding.js (affichée en gris).
+      </p>
+      <form id="brandcfgForm">
+        ${FIELDS.map(([k, key, fr]) => `<label data-i18n="${key}">${fr} <input type="text" id="brandcfg-${k}" maxlength="120"></label>`).join("")}
+        <div class="netcfg-form-actions">
+          <button type="submit" class="dash-btn" data-i18n="grc.common.btnSave">Enregistrer</button>
+        </div>
+      </form>
+      ${configIoControlsHtml()}
+    `;
+
+    wireConfigIoControls(card, {
+      exportFn: exportBrandingConfigAsJson,
+      importFn: importBrandingConfigFromJson,
+      resetFn: resetBrandingConfig,
+      onDone: () => renderBrandingConfigCard(),
+      resetConfirm: grcT("settings.cfgBranding.resetConfirm"),
+    });
+
+    card.querySelector("#brandcfgForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const values = {};
+      FIELDS.forEach(([k]) => { values[k] = card.querySelector("#brandcfg-" + k).value; });
+      if (values.logo.trim() && !brandingLogoIsSafe(values.logo.trim())) {
+        alert(grcT("settings.cfgBranding.badLogo"));
+        return;
+      }
+      saveBrandingConfig(values);
+      renderBrandingConfigCard();
+      alert(grcT("settings.cfgBranding.savedAlert"));
+    });
+
+    window.renderBrandingConfigCard = function () {
+      const defaults = getBrandingDefaults();
+      const override = getRawBrandingOverride() || {};
+      FIELDS.forEach(([k]) => {
+        const input = card.querySelector("#brandcfg-" + k);
+        input.placeholder = defaults[k] || "";
+        input.value = override[k] || "";
+      });
+    };
+
+    renderBrandingConfigCard();
+  })();
+
+  // ============================================================
   // CHIFFREMENT -- optional at-rest encryption for Network/Topology/GRC
   // data (TODOSecurityStandpoint.txt #3). config/encryption.js's
   // "enabled" flag only decides whether this card offers to set one up;
@@ -2555,6 +2628,7 @@
   document.getElementById("resetWebsiteBtn").addEventListener("click", () => settingsConfirmReset(grcT("settings.registryName.website"), resetWebsiteConfig));
   document.getElementById("resetTopologyBtn").addEventListener("click", () => settingsConfirmReset(grcT("settings.registryName.topology"), resetTopologyConfig));
   document.getElementById("resetAboutBtn").addEventListener("click", () => settingsConfirmReset(grcT("settings.registryName.about"), resetAboutConfig));
+  document.getElementById("resetBrandingBtn").addEventListener("click", () => settingsConfirmReset(grcT("settings.registryName.branding"), () => { resetBrandingConfig(); renderBrandingConfigCard(); }));
   document.getElementById("resetGrcChecklistBtn").addEventListener("click", () => settingsConfirmReset(grcT("settings.registryName.grcChecklist"), () => resetGrcData(null, () => {})));
   document.getElementById("resetGrcAssetsBtn").addEventListener("click", () => settingsConfirmReset(grcT("settings.registryName.assets"), resetGrcAssets));
   document.getElementById("resetGrcRisksBtn").addEventListener("click", () => settingsConfirmReset(grcT("settings.registryName.risks"), resetGrcRisks));

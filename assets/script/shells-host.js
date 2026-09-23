@@ -87,9 +87,13 @@ function waitForStableLayout(el, callback) {
   }
 }
 
+// 75 % par défaut (2026-09-23) : le fond du dashboard transparaît derrière
+// les terminaux ; une valeur déjà réglée dans Paramètres → Shells est gardée.
+const DEFAULT_SHELL_OPACITY = 75;
+
 function getShellOpacity() {
   const raw = parseInt(localStorage.getItem("/settings.html/shellOpacity"), 10);
-  return (isNaN(raw) ? 100 : raw) / 100;
+  return (isNaN(raw) ? DEFAULT_SHELL_OPACITY : raw) / 100;
 }
 
 function applyShellOpacity() {

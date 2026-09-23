@@ -349,6 +349,28 @@ const I18N_DICT = {
   "settings.cfgAbout.fieldVisible": { fr: "Visible", en: "Visible" },
   "settings.cfgAbout.savedAlert": { fr: "Contenu About enregistré.", en: "About content saved." },
 
+  "settings.cfgBranding.desc": {
+    fr: "Personnalise l'identité affichée par l'interface. Un champ vide reprend la valeur de config/branding.js (affichée en gris).",
+    en: "Customize the identity shown by the interface. An empty field falls back to the value from config/branding.js (shown greyed out)."
+  },
+  "settings.cfgBranding.fieldName": { fr: "Nom (signature en bas à droite)", en: "Name (bottom-right signature)" },
+  "settings.cfgBranding.fieldIcon": { fr: "Symbole devant la signature (emoji ou 1-2 caractères)", en: "Symbol before the signature (emoji or 1-2 characters)" },
+  "settings.cfgBranding.fieldLogo": { fr: "Icône de l'onglet (chemin relatif, ex. assets/images/logo.png)", en: "Browser-tab icon (relative path, e.g. assets/images/logo.png)" },
+  "settings.cfgBranding.fieldPageTitle": { fr: "Titre de l'onglet du navigateur", en: "Browser-tab title" },
+  "settings.cfgBranding.fieldNetworkStatus": { fr: "En-tête du statut réseau (Dashboard)", en: "Network status header (Dashboard)" },
+  "settings.cfgBranding.fieldTopology": { fr: "Sous-titre de la page Topologie", en: "Topology page subtitle" },
+  "settings.cfgBranding.fieldLinks": { fr: "Titre des liens (About)", en: "Links title (About)" },
+  "settings.cfgBranding.fieldTechMenu": { fr: "Libellé du menu « … Tech »", en: "“… Tech” menu label" },
+  "settings.cfgBranding.savedAlert": { fr: "Branding enregistré -- appliqué à tous les onglets ouverts.", en: "Branding saved -- applied to every open tab." },
+  "settings.cfgBranding.badLogo": {
+    fr: "Icône refusée : indique un chemin relatif dans le site (ex. assets/images/logo.png), pas une URL.",
+    en: "Icon rejected: give a relative path inside the site (e.g. assets/images/logo.png), not a URL."
+  },
+  "settings.cfgBranding.resetConfirm": {
+    fr: "Rétablir le branding par défaut (config/branding.js) ? Tes personnalisations seront perdues.",
+    en: "Restore the default branding (config/branding.js)? Your customizations will be lost."
+  },
+
   "settings.cfgVersion.title": { fr: "Version", en: "Version" },
   "settings.cfgVersion.desc": {
     fr: "Numéro de version courant de cette copie de NeonFlare, lu depuis config/version.js.",
@@ -485,8 +507,8 @@ const I18N_DICT = {
      see its own function comment). */
   "settings.assistant.fullBackupTitle": { fr: "Sauvegarde complète", en: "Full backup" },
   "settings.assistant.fullBackupDesc": {
-    fr: "Un seul fichier JSON avec tous les registres (Réseau, Outils, DevSecOps, Website, Topologie, About, Checklist GRC, Actifs, Risques, Contrôles, Incidents, Pentest), les Dashboards que tu as créés et leurs sections, plus ton nom de traçabilité GRC -- pratique pour migrer vers un autre navigateur ou faire une sauvegarde avant un \"Tout réinitialiser\". Le coffre-fort n'est pas concerné : si actif, déverrouille-le d'abord (onglet Sécurité) pour que l'export inclue les registres protégés.",
-    en: "A single JSON file with every registry (Network, Tools, DevSecOps, Website, Topology, About, GRC Checklist, Assets, Risks, Controls, Incidents, Pentest), the Dashboards you've created and their sections, plus your GRC traceability name -- handy for moving to another browser or backing up before a \"Reset everything\". The vault isn't included: if active, unlock it first (Security tab) so the export includes the protected registries."
+    fr: "Un seul fichier JSON avec tous les registres (Réseau, Outils, DevSecOps, Website, Topologie, About, Branding, Checklist GRC, Actifs, Risques, Contrôles, Incidents, Pentest), les Dashboards que tu as créés et leurs sections, plus ton nom de traçabilité GRC -- pratique pour migrer vers un autre navigateur ou faire une sauvegarde avant un \"Tout réinitialiser\". Le coffre-fort n'est pas concerné : si actif, déverrouille-le d'abord (onglet Sécurité) pour que l'export inclue les registres protégés.",
+    en: "A single JSON file with every registry (Network, Tools, DevSecOps, Website, Topology, About, Branding, GRC Checklist, Assets, Risks, Controls, Incidents, Pentest), the Dashboards you've created and their sections, plus your GRC traceability name -- handy for moving to another browser or backing up before a \"Reset everything\". The vault isn't included: if active, unlock it first (Security tab) so the export includes the protected registries."
   },
   "settings.assistant.exportAllBtn": { fr: "⬇ Exporter toute la configuration", en: "⬇ Export the whole configuration" },
   "settings.assistant.importAllBtn": { fr: "⬆ Importer toute la configuration", en: "⬆ Import the whole configuration" },
@@ -510,6 +532,7 @@ const I18N_DICT = {
   "settings.registryName.website": { fr: "Website", en: "Website" },
   "settings.registryName.topology": { fr: "Topologie", en: "Topology" },
   "settings.registryName.about": { fr: "About", en: "About" },
+  "settings.registryName.branding": { fr: "Branding", en: "Branding" },
   "settings.registryName.grcChecklist": { fr: "Checklist GRC (les 53 pages)", en: "GRC Checklist (all 53 pages)" },
   "settings.registryName.assets": { fr: "Registre d'actifs", en: "Asset registry" },
   "settings.registryName.risks": { fr: "Registre de risques", en: "Risk registry" },
@@ -560,8 +583,8 @@ const I18N_DICT = {
   },
   "settings.assistant.resetOneDoneAlert": { fr: "{name} réinitialisé.", en: "{name} reset." },
   "settings.assistant.confirmResetEverything": {
-    fr: "Tout réinitialiser (Réseau, Outils, DevSecOps, Website, Topologie, About, Checklist GRC, Actifs, Risques, Contrôles, Incidents, Pentest) ? Cette action est irréversible et supprime toutes tes personnalisations. Le coffre-fort n'est pas touché.",
-    en: "Reset everything (Network, Tools, DevSecOps, Website, Topology, About, GRC Checklist, Assets, Risks, Controls, Incidents, Pentest)? This action is irreversible and removes all your customizations. The vault isn't touched."
+    fr: "Tout réinitialiser (Réseau, Outils, DevSecOps, Website, Topologie, About, Branding, Checklist GRC, Actifs, Risques, Contrôles, Incidents, Pentest) ? Cette action est irréversible et supprime toutes tes personnalisations. Le coffre-fort n'est pas touché.",
+    en: "Reset everything (Network, Tools, DevSecOps, Website, Topology, About, Branding, GRC Checklist, Assets, Risks, Controls, Incidents, Pentest)? This action is irreversible and removes all your customizations. The vault isn't touched."
   },
 
   // DASHBOARD_SECTIONS (assets/script/dashboards.js) -- the 2 GRC widget

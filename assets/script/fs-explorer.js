@@ -1065,7 +1065,19 @@
     });
   }
 
+  // Visible = the dashboard's Explorer panel is on (no .dash-section-off)
+  // and not collapsed. Until it is, the module never talks to a shell:
+  // selecting a pane runs probes (uname / hostname / pwd) INSIDE the
+  // user's terminal, which was intrusive on dashboards where the Explorer
+  // isn't even shown (2026-09-23). Outside dashboard.html (no #panelFs)
+  // it's always considered visible.
+  function panelVisible() {
+    var p = document.getElementById("panelFs");
+    return !p || (!p.classList.contains("dash-section-off") && !p.classList.contains("collapsed"));
+  }
+
   function refreshPanes() {
+    if (!panelVisible()) return Promise.resolve();
     return requestPaneList().then(function (list) {
       state.panes = list || [];
       renderPaneSelect();
@@ -2498,7 +2510,16 @@
 
     refreshPanes();
 
-    // A pane could be opened/closed after we mounted -- cheap re-poll.
+    // Shown later (☰ Panneaux, or expanded after a collapse): start then.
+    var panel = document.getElementById("panelFs");
+    if (panel && window.MutationObserver) {
+      new MutationObserver(function () {
+        if (panelVisible() && !running) refreshPanes();
+      }).observe(panel, { attributes: true, attributeFilter: ["class"] });
+    }
+
+    // A pane could be opened/closed after we mounted -- cheap re-poll
+    // (a no-op while the panel is hidden, see panelVisible).
     setInterval(function () {
       if (!running) refreshPanes();
     }, 5000);
