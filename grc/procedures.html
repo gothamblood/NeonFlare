@@ -5,11 +5,11 @@
     <meta http-equiv="Content-Security-Policy" content="script-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'">
     <link rel="icon" type="image/svg+xml" href="../assets/images/dragon-logo.svg">
     <link rel="icon" type="image/png" href="../assets/images/dragon-favicon.png">
-    <title>Procédures de sécurité – GRC Cybersecurity</title>
+    <title>Procédures opérationnelles – GRC Cybersecurity</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" type="text/css" href="../assets/css/grc.css">
 </head>
-<body>
+<body data-fiche-page="procedures">
 <header>
     <nav class="nav">
         <div class="logo">
@@ -23,11 +23,13 @@
 </header>
 
 <main>
-    <h1 class="page-title" data-i18n="grc.procedures.title">Procédures de sécurité</h1>
+    <h1 class="page-title" data-i18n="grc.procedures.title">Procédures opérationnelles</h1>
     <p class="page-subtitle" data-i18n="grc.procedures.subtitle">
         Les procédures sont les étapes concrètes pour exécuter les directives.
     </p>
 
+
+    <section class="grc-fiche-root" id="grcFichesRoot"></section>
 
     <section class="grc-registry-block">
         <h2 data-i18n="grc.documents.reg.title">Registre documentaire</h2>
@@ -37,12 +39,17 @@
     <section class="content-block">
         <h2 data-i18n="grc.common.contentInclude">Contenu à inclure</h2>
         <ul>
-            <li><strong data-i18n="grc.procedures.item1.label">Gestion des accès</strong> : <span data-i18n="grc.procedures.item1.desc">création, modification, révocation.</span> <span class="grc-control-tags">ISO A.5.18 · NIST PR.AA · CIS 5</span></li>
-            <li><strong data-i18n="grc.procedures.item2.label">Sauvegarde / restauration</strong> : <span data-i18n="grc.procedures.item2.desc">planification, test, validation.</span> <span class="grc-control-tags">ISO A.8.13 · NIST PR.DS · CIS 11</span></li>
-            <li><strong data-i18n="grc.procedures.item3.label">Gestion des incidents</strong> : <span data-i18n="grc.procedures.item3.desc">détection, réponse, reprise.</span> <span class="grc-control-tags">ISO A.5.26 · NIST RS.MA · CIS 17</span></li>
-            <li><strong data-i18n="grc.procedures.item4.label">Gestion des changements</strong> : <span data-i18n="grc.procedures.item4.desc">approbation, documentation.</span> <span class="grc-control-tags">ISO A.8.32 · NIST PR.PS · CIS 4</span></li>
-            <li><strong data-i18n="grc.procedures.item5.label">Journalisation</strong> : <span data-i18n="grc.procedures.item5.desc">collecte, stockage, analyse.</span> <span class="grc-control-tags">ISO A.8.15 · NIST DE.CM · CIS 8</span></li>
+            <li data-item-id="acces" data-legacy="0"><strong data-i18n="grc.procedures.c.acces.label">Gestion des accès</strong> : <span data-i18n="grc.procedures.c.acces.desc">création, modification, révocation des comptes et des droits.</span> <span class="grc-control-tags">ISO A.5.18 · NIST PR.AA · CIS 6</span></li>
+            <li data-item-id="changements" data-legacy="3"><strong data-i18n="grc.procedures.c.changements.label">Gestion des changements</strong> : <span data-i18n="grc.procedures.c.changements.desc">demande, évaluation, approbation, mise en œuvre, retour arrière.</span> <span class="grc-control-tags">ISO A.8.32 · NIST PR.PS</span></li>
+            <li data-item-id="sauvegarde" data-legacy="1"><strong data-i18n="grc.procedures.c.sauvegarde.label">Sauvegarde</strong> : <span data-i18n="grc.procedures.c.sauvegarde.desc">planification, exécution, surveillance des sauvegardes.</span> <span class="grc-control-tags">ISO A.8.13 · NIST PR.DS · CIS 11</span></li>
+            <li data-item-id="restauration"><strong data-i18n="grc.procedures.c.restauration.label">Restauration</strong> : <span data-i18n="grc.procedures.c.restauration.desc">procédure de restauration, tests périodiques, validation.</span> <span class="grc-control-tags">ISO A.8.13 · NIST RC.RP · CIS 11</span></li>
+            <li data-item-id="incidents" data-legacy="2"><strong data-i18n="grc.procedures.c.incidents.label">Gestion des incidents</strong> : <span data-i18n="grc.procedures.c.incidents.desc">détection, réponse, reprise (détail : Incidents).</span> <span class="grc-control-tags">ISO A.5.26 · NIST RS.MA · CIS 17</span></li>
+            <li data-item-id="actifs"><strong data-i18n="grc.procedures.c.actifs.label">Gestion des actifs</strong> : <span data-i18n="grc.procedures.c.actifs.desc">entrée, mise à jour, sortie et restitution des actifs.</span> <span class="grc-control-tags">ISO A.5.9 · A.5.11 · NIST ID.AM · CIS 1</span></li>
+            <li data-item-id="vulnerabilites"><strong data-i18n="grc.procedures.c.vulnerabilites.label">Gestion des vulnérabilités</strong> : <span data-i18n="grc.procedures.c.vulnerabilites.desc">renvoi : procédure détaillée dans Sécurité opérationnelle › Vulnérabilités.</span> <span class="grc-control-tags">ISO A.8.8 · NIST ID.RA · CIS 7</span></li>
+            <li data-item-id="escalade"><strong data-i18n="grc.procedures.c.escalade.label">Escalade opérationnelle</strong> : <span data-i18n="grc.procedures.c.escalade.desc">niveaux, délais, SPOC et contacts d’astreinte.</span> <span class="grc-control-tags">ISO A.5.24 · A.6.8 · NIST RS.MA</span></li>
+            <li data-item-id="mco" data-legacy="4"><strong data-i18n="grc.procedures.c.mco.label">MCO</strong> : <span data-i18n="grc.procedures.c.mco.desc">maintien en condition opérationnelle : journalisation, supervision, mises à jour, capacité.</span> <span class="grc-control-tags">ISO A.8.6 · A.8.15 · A.8.16 · NIST DE.CM · CIS 8</span></li>
         </ul>
+        <p class="grc-see-also"><span data-i18n="grc.common.seeAlso">Voir aussi :</span> <a href="securite/operationnelle/vulnerabilites.html" data-i18n="grc.procedures.see1">Gestion des vulnérabilités</a> · <a href="incidents.html" data-i18n="grc.procedures.see2">Incidents</a></p>
 
         <h2 data-i18n="grc.common.roleTitle">Rôle en GRC</h2>
         <p data-i18n="grc.procedures.role">Les procédures garantissent que les actions sont exécutées de manière cohérente et contrôlée.</p>
@@ -55,6 +62,7 @@
 <script src="../assets/script/i18n.js"></script>
 <script src="../assets/script/grc-i18n.js"></script>
 <script src="../assets/script/grc-i18n-domains.js"></script>
+<script src="../assets/script/grc-i18n-components.js"></script>
 
 <script src="../config/grc-author.js"></script>
 
@@ -68,15 +76,26 @@
 
 <script src="../assets/script/inline/apply-i18n.js"></script>
 
+<script src="../assets/script/grc-checklist-migrate.js"></script>
 <script src="../assets/script/grc-checklist.js"></script>
 <script src="../assets/script/inline/init-grc-checklist.js"></script>
 
 
 <script src="../assets/script/config-io.js"></script>
+<!-- Chaîne GRC : catalogue Annexe A + liens entre sections (spec/grc-fiches/chaine.md) -->
+<script src="../assets/script/grc-annexe-a.js"></script>
+<script src="../assets/script/grc-links.js"></script>
 <script src="../assets/script/grc-registry-kit.js"></script>
 <script src="../assets/script/grc-documents.js"></script>
 <script src="../assets/script/grc-documents-panel.js"></script>
 <script src="../assets/script/inline/procedures.js"></script>
+
+
+<!-- Documentation de l'organisation par élément (spec/grc-fiches/) -->
+<script src="../assets/script/grc-vocab.js"></script>
+<script src="../assets/script/grc-fiches.js"></script>
+<script src="../assets/script/grc-fiches-procedures.js"></script>
+<script src="../assets/script/inline/init-grc-fiches.js"></script>
 
 </body>
 </html>

@@ -488,6 +488,146 @@ function handleShellCopyRequest(data, fromRelay) {
   }
 }
 
+/* ---------- Avertissement « ttyd non lancé » (2026-09-23) -------------
+   Un terminal ouvert (ex. le Bash préouvert d'un nouvel utilisateur,
+   dashboards.js) sans `scripts/ttyd-shells.sh start` n'afficherait
+   qu'une page d'erreur du navigateur. Quand la zone des terminaux
+   devient visible, ou qu'un shell est ouvert, on vérifie : pas de jeton
+   de session (start jamais lancé / stop) OU port injoignable (machine
+   redémarrée depuis, jeton resté sur disque) -> message temporaire qui
+   se ferme tout seul. Au plus un message par minute. */
+const TTYD_TOAST_MS = 9000;
+const TTYD_WARN_EVERY_MS = 60000;
+let _ttydWarnedAt = 0;
+let _ttydToastTimer = null;
+
+function _shellsT(key) {
+  const lang = typeof getSavedLang === "function" ? getSavedLang() : "fr";
+  const e = typeof I18N_DICT !== "undefined" ? I18N_DICT[key] : null;
+  return (e && (e[lang] || e.fr)) || key;
+}
+
+function showTtydToast() {
+  let t = document.getElementById("ttydToast");
+  if (!t) {
+    t = document.createElement("div");
+    t.id = "ttydToast";
+    t.className = "ttyd-toast";
+    t.setAttribute("role", "status");
+    t.setAttribute("aria-live", "polite");
+    const msg = document.createElement("span");
+    msg.className = "ttyd-toast-msg";
+    const close = document.createElement("button");
+    close.type = "button";
+    close.className = "ttyd-toast-close";
+    close.textContent = "×";
+    close.addEventListener("click", hideTtydToast);
+    t.appendChild(msg);
+    t.appendChild(close);
+    document.body.appendChild(t);
+  }
+  t.querySelector(".ttyd-toast-msg").textContent = _shellsT("shells.ttydDown");
+  t.querySelector(".ttyd-toast-close").setAttribute("aria-label", _shellsT("shells.toastClose"));
+  t.classList.add("visible");
+  clearTimeout(_ttydToastTimer);
+  _ttydToastTimer = setTimeout(hideTtydToast, TTYD_TOAST_MS);
+}
+
+function hideTtydToast() {
+  clearTimeout(_ttydToastTimer);
+  const t = document.getElementById("ttydToast");
+  if (t) t.classList.remove("visible");
+}
+
+// Port du premier shell ouvert (bash 7681 par défaut).
+function _firstOpenShellPort() {
+  for (const type of Object.keys(SHELL_TYPES)) {
+    const slot = firstOpenShellOfType(type);
+    if (slot) return SHELL_TYPES[type].basePort + slot - 1;
+  }
+  return SHELL_TYPES.bash.basePort;
+}
+
+// Le proxy répond (même 403 sans jeton) = ttyd lancé ; refus/délai = non.
+function _probeTtyd(port, cb) {
+  let url = "http://127.0.0.1:" + port + "/";
+  try {
+    if (window.shellSession && typeof window.shellSession.iframeSrc === "function") {
+      url = new URL(window.shellSession.iframeSrc(port)).origin + "/";
+    }
+  } catch (e) { /* URL par défaut */ }
+  const controller = typeof AbortController === "function" ? new AbortController() : null;
+  const timer = setTimeout(() => { if (controller) controller.abort(); }, 2500);
+  fetch(url, { mode: "no-cors", cache: "no-store", signal: controller ? controller.signal : undefined })
+    .then(() => { clearTimeout(timer); cb(true); })
+    .catch(() => { clearTimeout(timer); cb(false); });
+}
+
+/* Terminaux ouverts AVANT `ttyd-shells.sh start` (ou avant un
+   redémarrage, qui change le jeton) : leur iframe est restée sur un refus
+   (403) ou une page d'erreur. Dès que ttyd répond, chaque terminal est
+   repointé vers son URL courante (jeton à jour) -- rien n'est rechargé si
+   l'URL est déjà la bonne. */
+function reconnectShellFrames() {
+  const ss = window.shellSession;
+  if (!overlayHost || !ss || typeof ss.iframeSrc !== "function") return 0;
+  let n = 0;
+  overlayHost.querySelectorAll(".shell-window").forEach((win) => {
+    const spec = SHELL_TYPES[win.dataset.type];
+    const frame = win.querySelector(".shell-iframe");
+    if (!spec || !frame) return;
+    const want = ss.iframeSrc(spec.basePort + Number(win.dataset.slot) - 1);
+    if (want && frame.src !== want) { frame.src = want; n++; }
+  });
+  return n;
+}
+
+// Tant que ttyd est injoignable et que des terminaux sont affichés :
+// revérifie en silence toutes les 5 s, reconnecte et retire le message
+// dès que ttyd répond (plus besoin de recharger la page).
+const TTYD_POLL_MS = 5000;
+let _ttydPollTimer = null;
+
+function _ttydState(cb) {
+  refreshShellSession(() => {
+    const ss = window.shellSession;
+    if (!ss || typeof ss.active !== "function" || !ss.active()) { cb(false); return; }
+    _probeTtyd(_firstOpenShellPort(), cb);
+  });
+}
+
+function _ttydUp() {
+  clearTimeout(_ttydPollTimer);
+  _ttydPollTimer = null;
+  hideTtydToast();
+  reconnectShellFrames();
+}
+
+function _ttydPoll() {
+  clearTimeout(_ttydPollTimer);
+  _ttydPollTimer = setTimeout(() => {
+    _ttydPollTimer = null;
+    if (!anyShellActive()) return;
+    _ttydState((up) => { if (up) _ttydUp(); else if (lastVisible) _ttydPoll(); });
+  }, TTYD_POLL_MS);
+}
+
+function checkTtydAndWarn(force) {
+  if (!anyShellActive()) return;
+  if (!force && performance.now() - _ttydWarnedAt < TTYD_WARN_EVERY_MS && _ttydWarnedAt) {
+    // Message déjà montré récemment : pas de nouveau message, mais on
+    // continue de guetter le démarrage de ttyd.
+    if (!_ttydPollTimer) _ttydState((up) => { if (up) _ttydUp(); else _ttydPoll(); });
+    return;
+  }
+  _ttydWarnedAt = performance.now();
+  _ttydState((up) => {
+    if (up) { _ttydUp(); return; }
+    showTtydToast();
+    _ttydPoll();
+  });
+}
+
 function positionOverlay(rect) {
   overlayHost.style.left = rect.left + "px";
   overlayHost.style.top = rect.top + "px";
@@ -611,6 +751,7 @@ function initShellsHost() {
 
     if (e.data.type === "shell-request-add") {
       addShell(e.data.shellType);
+      checkTtydAndWarn(true);
       return;
     }
 
@@ -642,6 +783,12 @@ function initShellsHost() {
 
     if (e.data.type === "shells-rect") {
       lastRectAt = performance.now();
+      // Zone des terminaux qui devient visible (ex. arrivée sur « Système
+      // d'attaque ») : vérifier que ttyd tourne.
+      if (e.data.visible && !lastVisible) {
+        // Encore visible un instant plus tard (pas un simple passage) ?
+        setTimeout(() => { if (lastVisible) checkTtydAndWarn(false); }, 800);
+      }
       lastVisible = e.data.visible;
       lastRect = e.data.rect;
       updateOverlayFromFrame(frame);

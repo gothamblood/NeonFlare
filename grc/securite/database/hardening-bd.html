@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" type="text/css" href="../../../assets/css/grc.css">
 </head>
-<body>
+<body data-fiche-page="tech-database--hardening-bd">
 <header>
     <nav class="nav">
         <div class="logo">
@@ -27,6 +27,8 @@
     <p class="page-subtitle" data-i18n="grc.securite.database.hardening-bd.subtitle">
         Décrire les mesures de durcissement appliquées à la base de données.
     </p>
+
+    <section class="grc-fiche-root" id="grcFichesRoot"></section>
 
     <section class="content-block">
         <h2 data-i18n="grc.common.contentInclude">Éléments à inclure</h2>
@@ -60,8 +62,18 @@
 
 <script src="../../../assets/script/inline/apply-i18n.js"></script>
 
+<script src="../../../assets/script/grc-checklist-migrate.js"></script>
 <script src="../../../assets/script/grc-checklist.js"></script>
+<script src="../../../assets/script/config-io.js"></script>
+<!-- Documentation légère du hub technique (grc-normes N11) + chaîne GRC -->
+<script src="../../../assets/script/grc-annexe-a.js"></script>
+<script src="../../../assets/script/grc-links.js"></script>
+<script src="../../../assets/script/grc-registry-kit.js"></script>
+<script src="../../../assets/script/grc-vocab.js"></script>
+<script src="../../../assets/script/grc-fiches.js"></script>
+<script src="../../../assets/script/grc-fiches-technique.js"></script>
 <script src="../../../assets/script/inline/init-grc-checklist.js"></script>
+<script src="../../../assets/script/inline/init-grc-fiches.js"></script>
 
 </body>
 </html>

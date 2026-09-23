@@ -5,11 +5,11 @@
     <meta http-equiv="Content-Security-Policy" content="script-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'">
     <link rel="icon" type="image/svg+xml" href="../assets/images/dragon-logo.svg">
     <link rel="icon" type="image/png" href="../assets/images/dragon-favicon.png">
-    <title>Plan de continuité (PCA/PRA) – GRC Cybersecurity</title>
+    <title>Continuité des activités – GRC Cybersecurity</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" type="text/css" href="../assets/css/grc.css">
 </head>
-<body>
+<body data-fiche-page="continuite">
 <header>
     <nav class="nav">
         <div class="logo">
@@ -23,10 +23,12 @@
 </header>
 
 <main>
-    <h1 class="page-title" data-i18n="grc.continuite.title">Plan de continuité (PCA/PRA)</h1>
+    <h1 class="page-title" data-i18n="grc.continuite.title">Continuité des activités</h1>
     <p class="page-subtitle" data-i18n="grc.continuite.subtitle">
         Cette section assure la résilience de l’organisation.
     </p>
+
+    <section class="grc-fiche-root" id="grcFichesRoot"></section>
 
     <section class="grc-registry-block">
         <h2 data-i18n="grc.continuite.pca.registryTitle">Registre PCA/PRA</h2>
@@ -34,17 +36,28 @@
         <div id="grcContinuityRegistry"></div>
     </section>
 
+    <section class="grc-subsections" id="continuite-sous-sections">
+        <h2 data-i18n="grc.continuite.subsTitle">Sous-sections : les plans de continuité</h2>
+        <div class="grid-3" id="continuite-sub-grid"></div>
+    </section>
+
     <section class="content-block">
         <h2 data-i18n="grc.common.contentInclude">Contenu à inclure</h2>
         <ul>
-            <li><strong data-i18n="grc.continuite.item1.label">Objectifs</strong> : <span data-i18n="grc.continuite.item1.desc">maintenir les services essentiels.</span></li>
-            <li><strong data-i18n="grc.continuite.item2.label">Sinistres couverts</strong> : <span data-i18n="grc.continuite.item2.desc">panne, cyberattaque, incendie, etc.</span></li>
-            <li><strong data-i18n="grc.continuite.item3.label">Sauvegardes</strong> : <span data-i18n="grc.continuite.item3.desc">RPO, RTO.</span> <span class="grc-control-tags">ISO A.5.30 · NIST RC.RP</span></li>
-            <li><strong data-i18n="grc.continuite.item4.label">Redondance</strong> : <span data-i18n="grc.continuite.item4.desc">systèmes, réseaux, sites.</span> <span class="grc-control-tags">ISO A.8.14 · NIST PR.IR</span></li>
-            <li><strong data-i18n="grc.continuite.item5.label">Reprise</strong> : <span data-i18n="grc.continuite.item5.desc">procédures PRA.</span> <span class="grc-control-tags">ISO A.5.30 · NIST RC.RP</span></li>
-            <li><strong data-i18n="grc.continuite.item6.label">Tests</strong> : <span data-i18n="grc.continuite.item6.desc">fréquence, résultats.</span> <span class="grc-control-tags">ISO A.5.30 · NIST RC.RP</span></li>
-            <li><strong data-i18n="grc.continuite.item7.label">Mise à jour</strong> : <span data-i18n="grc.continuite.item7.desc">révision annuelle.</span></li>
+            <li data-item-id="analyse-risques-pca" data-legacy="1"><strong data-i18n="grc.continuite.c.analyse-risques-pca.label">Analyse de risques PCA</strong> : <span data-i18n="grc.continuite.c.analyse-risques-pca.desc">sinistres couverts : panne, cyberattaque, incendie, pandémie, défaillance fournisseur.</span> <span class="grc-control-tags">ISO 22301 cl. 8.2.3 · NIST ID.RA</span></li>
+            <li data-item-id="strategies" data-legacy="3"><strong data-i18n="grc.continuite.c.strategies.label">Stratégies de continuité</strong> : <span data-i18n="grc.continuite.c.strategies.desc">redondance (systèmes, réseaux, sites), solutions de contournement, sites de repli.</span> <span class="grc-control-tags">ISO 22301 cl. 8.3 · ISO A.8.14 · NIST RC.RP</span></li>
+            <li data-item-id="formation"><strong data-i18n="grc.continuite.c.formation.label">Formation et sensibilisation</strong> : <span data-i18n="grc.continuite.c.formation.desc">rôles de crise formés, sensibilisation du personnel aux plans.</span> <span class="grc-control-tags">ISO 22301 cl. 7.2 · 7.3 · ISO A.6.3 · NIST PR.AT</span></li>
+            <li data-item-id="amelioration" data-legacy="6"><strong data-i18n="grc.continuite.c.amelioration.label">Amélioration continue</strong> : <span data-i18n="grc.continuite.c.amelioration.desc">révision au moins annuelle, après chaque exercice et chaque incident réel.</span> <span class="grc-control-tags">ISO 22301 cl. 10 · NIST ID.IM</span></li>
         </ul>
+        <h3 data-i18n="grc.continuite.g2">Ressources critiques</h3>
+        <ul>
+            <li data-item-id="res-humaines"><strong data-i18n="grc.continuite.c.res-humaines.label">Humaines</strong> : <span data-i18n="grc.continuite.c.res-humaines.desc">personnes et compétences clés, suppléants.</span> <span class="grc-control-tags">ISO 22301 cl. 8.3.2 · NIST GV.RR</span></li>
+            <li data-item-id="res-infrastructures"><strong data-i18n="grc.continuite.c.res-infrastructures.label">Infrastructures</strong> : <span data-i18n="grc.continuite.c.res-infrastructures.desc">sites, énergie, télécoms, équipements.</span> <span class="grc-control-tags">ISO 22301 cl. 8.3.2 · ISO A.7.11</span></li>
+            <li data-item-id="res-si"><strong data-i18n="grc.continuite.c.res-si.label">Systèmes d’information</strong> : <span data-i18n="grc.continuite.c.res-si.desc">applications et données nécessaires aux processus critiques.</span> <span class="grc-control-tags">ISO 22301 cl. 8.3.2 · ISO A.5.30</span></li>
+            <li data-item-id="res-intellectuelles"><strong data-i18n="grc.continuite.c.res-intellectuelles.label">Ressources intellectuelles</strong> : <span data-i18n="grc.continuite.c.res-intellectuelles.desc">savoir-faire, procédures, documentation hors ligne.</span> <span class="grc-control-tags">ISO 22301 cl. 8.3.2</span></li>
+            <li data-item-id="res-fournisseurs"><strong data-i18n="grc.continuite.c.res-fournisseurs.label">Fournisseurs externes</strong> : <span data-i18n="grc.continuite.c.res-fournisseurs.desc">prestataires critiques, exigences de continuité contractuelles.</span> <span class="grc-control-tags">ISO 22301 cl. 8.3.2 · ISO A.5.21 · NIST GV.SC</span></li>
+        </ul>
+        <p class="grc-see-also"><span data-i18n="grc.common.seeAlso">Voir aussi :</span> <a href="fournisseurs.html" data-i18n="grc.continuite.see1">Gestion des fournisseurs</a></p>
 
         <h2 data-i18n="grc.common.roleTitle">Rôle en GRC</h2>
         <p data-i18n="grc.continuite.role">Le PCA/PRA garantit que l’organisation peut survivre à un incident majeur.</p>
@@ -57,6 +70,7 @@
 <script src="../assets/script/i18n.js"></script>
 <script src="../assets/script/grc-i18n.js"></script>
 <script src="../assets/script/grc-i18n-domains.js"></script>
+<script src="../assets/script/grc-i18n-components.js"></script>
 
 <script src="../config/grc-author.js"></script>
 
@@ -69,6 +83,9 @@
 <script src="../assets/script/vault-ui.js"></script>
 
 <script src="../assets/script/config-io.js"></script>
+<!-- Chaîne GRC : catalogue Annexe A + liens entre sections (spec/grc-fiches/chaine.md) -->
+<script src="../assets/script/grc-annexe-a.js"></script>
+<script src="../assets/script/grc-links.js"></script>
 <script src="../assets/script/grc-registry-kit.js"></script>
 <script src="../assets/script/grc-continuity.js"></script>
 <script src="../assets/script/grc-continuity-panel.js"></script>
@@ -76,8 +93,18 @@
 
 <script src="../assets/script/inline/apply-i18n.js"></script>
 
+<script src="../assets/script/grc-checklist-migrate.js"></script>
 <script src="../assets/script/grc-checklist.js"></script>
 <script src="../assets/script/inline/init-grc-checklist.js"></script>
+<script src="continuite/index.js"></script>
+<script src="../assets/script/inline/continuite-subsections.js"></script>
+
+
+<!-- Documentation de l'organisation par élément (spec/grc-fiches/) -->
+<script src="../assets/script/grc-vocab.js"></script>
+<script src="../assets/script/grc-fiches.js"></script>
+<script src="../assets/script/grc-fiches-continuite.js"></script>
+<script src="../assets/script/inline/init-grc-fiches.js"></script>
 
 </body>
 </html>

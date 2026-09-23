@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" type="text/css" href="../assets/css/grc.css">
 </head>
-<body>
+<body data-fiche-page="contexte-organisationnel">
 <header>
     <nav class="nav">
         <div class="logo">
@@ -28,15 +28,22 @@
         Cette section décrit l’environnement dans lequel la sécurité de l’information doit opérer. Elle sert à comprendre l’entreprise, ses activités, ses enjeux et ses obligations.
     </p>
 
+    <section class="grc-fiche-root" id="grcFichesRoot"></section>
+
     <section class="content-block">
         <h2 data-i18n="grc.common.contentInclude">Contenu à inclure</h2>
         <ul>
-            <li><strong data-i18n="grc.contexte-organisationnel.item1.label">Présentation de l’organisation</strong> : <span data-i18n="grc.contexte-organisationnel.item1.desc">secteur d’activité, taille, services, clientèle.</span></li>
-            <li><strong data-i18n="grc.contexte-organisationnel.item2.label">Enjeux informationnels</strong> : <span data-i18n="grc.contexte-organisationnel.item2.desc">confidentialité, intégrité, disponibilité, traçabilité, conformité.</span></li>
-            <li><strong data-i18n="grc.contexte-organisationnel.item3.label">Contexte légal</strong> : <span data-i18n="grc.contexte-organisationnel.item3.desc">lois provinciales/fédérales, obligations réglementaires.</span> <span class="grc-control-tags">ISO A.5.31 · NIST GV.OC</span></li>
-            <li><strong data-i18n="grc.contexte-organisationnel.item4.label">Normes de référence</strong> : <span data-i18n="grc.contexte-organisationnel.item4.desc">ISO 27001, ISO 27005, NIST, CIS.</span></li>
-            <li><strong data-i18n="grc.contexte-organisationnel.item5.label">Importance stratégique de la sécurité</strong> : <span data-i18n="grc.contexte-organisationnel.item5.desc">impact sur les opérations, réputation, finances.</span></li>
+            <li data-item-id="mission-vision"><strong data-i18n="grc.contexte-organisationnel.c.mission-vision.label">Mission et vision</strong> : <span data-i18n="grc.contexte-organisationnel.c.mission-vision.desc">raison d’être, orientations stratégiques et objectifs d’affaires qui cadrent la sécurité.</span> <span class="grc-control-tags">ISO 27001 cl. 4.1 · NIST GV.OC</span></li>
+            <li data-item-id="contexte-interne" data-legacy="0"><strong data-i18n="grc.contexte-organisationnel.c.contexte-interne.label">Contexte interne</strong> : <span data-i18n="grc.contexte-organisationnel.c.contexte-interne.desc">secteur, taille, structure, services, clientèle, culture, capacités et contraintes internes.</span> <span class="grc-control-tags">ISO 27001 cl. 4.1 · NIST GV.OC</span></li>
+            <li data-item-id="contexte-externe" data-legacy="2"><strong data-i18n="grc.contexte-organisationnel.c.contexte-externe.label">Contexte externe</strong> : <span data-i18n="grc.contexte-organisationnel.c.contexte-externe.desc">environnement légal et réglementaire (lois provinciales/fédérales), marché, menaces, technologies, partenaires.</span> <span class="grc-control-tags">ISO 27001 cl. 4.1 · NIST GV.OC</span></li>
+            <li data-item-id="parties-prenantes"><strong data-i18n="grc.contexte-organisationnel.c.parties-prenantes.label">Parties prenantes</strong> : <span data-i18n="grc.contexte-organisationnel.c.parties-prenantes.desc">clients, employés, direction, actionnaires, fournisseurs, autorités, assureurs, public.</span> <span class="grc-control-tags">ISO 27001 cl. 4.2 · NIST GV.OC</span></li>
+            <li data-item-id="exigences-pp"><strong data-i18n="grc.contexte-organisationnel.c.exigences-pp.label">Exigences des parties prenantes</strong> : <span data-i18n="grc.contexte-organisationnel.c.exigences-pp.desc">attentes légales, contractuelles et d’affaires retenues comme exigences du SGSI.</span> <span class="grc-control-tags">ISO 27001 cl. 4.2 · NIST GV.OC</span></li>
+            <li data-item-id="portee-sgsi"><strong data-i18n="grc.contexte-organisationnel.c.portee-sgsi.label">Portée du SGSI</strong> : <span data-i18n="grc.contexte-organisationnel.c.portee-sgsi.desc">périmètre organisationnel, physique et technique couvert, exclusions justifiées.</span> <span class="grc-control-tags">ISO 27001 cl. 4.3</span></li>
+            <li data-item-id="portee-pca"><strong data-i18n="grc.contexte-organisationnel.c.portee-pca.label">Portée du PCA</strong> : <span data-i18n="grc.contexte-organisationnel.c.portee-pca.desc">activités, sites et services couverts par la continuité d’activité.</span> <span class="grc-control-tags">ISO 22301 cl. 4.3 · NIST RC.RP</span></li>
+            <li data-item-id="enjeux-affaires" data-legacy="4 1"><strong data-i18n="grc.contexte-organisationnel.c.enjeux-affaires.label">Enjeux d’affaires</strong> : <span data-i18n="grc.contexte-organisationnel.c.enjeux-affaires.desc">impact de la sécurité sur les opérations, la réputation et les finances ; enjeux de confidentialité, intégrité, disponibilité, traçabilité.</span> <span class="grc-control-tags">ISO 27001 cl. 4.1 · NIST GV.OC</span></li>
+            <li data-item-id="cartographie-processus"><strong data-i18n="grc.contexte-organisationnel.c.cartographie-processus.label">Cartographie des processus</strong> : <span data-i18n="grc.contexte-organisationnel.c.cartographie-processus.desc">processus métier, de pilotage et de soutien, leurs interfaces et leurs propriétaires (base du BIA).</span> <span class="grc-control-tags">ISO 27001 cl. 4.4 · NIST ID.AM</span></li>
         </ul>
+        <p class="grc-see-also"><span data-i18n="grc.common.seeAlso">Voir aussi :</span> <a href="continuite/bia.html" data-i18n="grc.contexte-organisationnel.see1">BIA et dépendances métier</a></p>
 
         <h2 data-i18n="grc.common.roleTitle">Rôle en GRC</h2>
         <p data-i18n="grc.contexte-organisationnel.role">Le contexte organisationnel permet de comprendre pourquoi la sécurité est essentielle et quels risques sont les plus critiques.</p>
@@ -49,6 +56,7 @@
 <script src="../assets/script/i18n.js"></script>
 <script src="../assets/script/grc-i18n.js"></script>
 <script src="../assets/script/grc-i18n-domains.js"></script>
+<script src="../assets/script/grc-i18n-components.js"></script>
 
 <script src="../config/grc-author.js"></script>
 
@@ -62,8 +70,18 @@
 
 <script src="../assets/script/inline/apply-i18n.js"></script>
 
+<script src="../assets/script/grc-checklist-migrate.js"></script>
 <script src="../assets/script/grc-checklist.js"></script>
+<script src="../assets/script/config-io.js"></script>
+<!-- Chaîne GRC : catalogue Annexe A + liens entre sections (spec/grc-fiches/chaine.md) -->
+<script src="../assets/script/grc-annexe-a.js"></script>
+<script src="../assets/script/grc-links.js"></script>
+<script src="../assets/script/grc-registry-kit.js"></script>
+<script src="../assets/script/grc-vocab.js"></script>
+<script src="../assets/script/grc-fiches.js"></script>
+<script src="../assets/script/grc-fiches-contexte.js"></script>
 <script src="../assets/script/inline/init-grc-checklist.js"></script>
+<script src="../assets/script/inline/init-grc-fiches.js"></script>
 
 </body>
 </html>

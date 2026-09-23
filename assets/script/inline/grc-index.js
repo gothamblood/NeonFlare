@@ -14,8 +14,8 @@ applyI18n(getSavedLang());
 renderGrcDomains(grcIndexConfig.domains, "#grc-grid");
 renderGrcCoverage(grcIndexConfig.domains, "#grc-grid", "#grc-coverage-summary");
 
-// Export/Reset act on every section at once (this hub + the 4 security
-// sub-hubs), not just the 20 domains shown on this page -- same scope
+// Export/Reset act on every section at once (this hub + the 5 security
+// sub-hubs), not just the 15 domains shown on this page -- same scope
 // as the dashboard's "Couverture GRC" panel.
 const grcAllSections = [
   { title: grcT("nav.grc"), domains: grcIndexConfig.domains, basePath: "./", keyPrefix: "grc" },
@@ -23,11 +23,17 @@ const grcAllSections = [
   { title: grcT("nav.apiSecurity"), domains: securiteApiIndexConfig.domains, basePath: "securite/api/", keyPrefix: "grc.securite.api" },
   { title: grcT("nav.webappSecurity"), domains: securiteWebappIndexConfig.domains, basePath: "securite/webapp/", keyPrefix: "grc.securite.webapp" },
   { title: grcT("nav.databaseSecurity"), domains: securiteDatabaseIndexConfig.domains, basePath: "securite/database/", keyPrefix: "grc.securite.database" },
+  { title: grcT("nav.operationalSecurity"), domains: securiteOperationnelleIndexConfig.domains, basePath: "securite/operationnelle/", keyPrefix: "grc" },
 ];
 
 function confirmResetGrc() {
   if (!confirm(grcT("grc.hub.confirmReset"))) return;
-  resetGrcData(grcAllSections, () => location.reload());
+  // Checklist (6 sections) puis tout le reste de la GRC : documentation,
+  // registres, DDA, chaîne, exemple (grcResetAllData, grc-hub.js).
+  resetGrcData(grcAllSections, () => {
+    if (typeof grcResetAllData === "function") grcResetAllData();
+    location.reload();
+  });
 }
 
 function handleGrcImport(file) {

@@ -5,11 +5,11 @@
     <meta http-equiv="Content-Security-Policy" content="script-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'">
     <link rel="icon" type="image/svg+xml" href="../assets/images/dragon-logo.svg">
     <link rel="icon" type="image/png" href="../assets/images/dragon-favicon.png">
-    <title>Gestion de la vie privée – GRC Cybersecurity</title>
+    <title>Protection des renseignements personnels – GRC Cybersecurity</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" type="text/css" href="../assets/css/grc.css">
 </head>
-<body>
+<body data-fiche-page="vie-privee">
 <header>
     <nav class="nav">
         <div class="logo">
@@ -23,10 +23,12 @@
 </header>
 
 <main>
-    <h1 class="page-title" data-i18n="grc.vie-privee.title">Gestion de la vie privée</h1>
+    <h1 class="page-title" data-i18n="grc.vie-privee.title">Protection des renseignements personnels</h1>
     <p class="page-subtitle" data-i18n="grc.vie-privee.subtitle">
-        La protection des renseignements personnels est un complément essentiel à la sécurité de l’information, encadré au Québec par la Loi 25.
+        La protection des renseignements personnels est un complément essentiel à la sécurité de l’information, encadré au Québec par la Loi 25 : registre des traitements, consentements, EFVP, conservation, violations et droits des personnes.
     </p>
+
+    <section class="grc-fiche-root" id="grcFichesRoot"></section>
 
     <section class="grc-registry-block">
         <h2 data-i18n="grc.vie-privee.reg.title">Registre vie privée</h2>
@@ -37,22 +39,27 @@
     <section class="content-block">
         <h2 data-i18n="grc.vie-privee.whyTitle">Pourquoi c’est important</h2>
         <ul>
-            <li><span data-i18n="grc.vie-privee.why1">Obligatoire avec la Loi 25 au Québec.</span></li>
-            <li><span data-i18n="grc.vie-privee.why2">Complément essentiel à la sécurité de l’information.</span></li>
-            <li><span data-i18n="grc.vie-privee.why3">Nécessite des processus spécifiques.</span></li>
+            <li data-item-id="why1" data-legacy="0"><span data-i18n="grc.vie-privee.why1">Obligatoire avec la Loi 25 au Québec.</span></li>
+            <li data-item-id="why2" data-legacy="1"><span data-i18n="grc.vie-privee.why2">Complément essentiel à la sécurité de l’information.</span></li>
+            <li data-item-id="why3" data-legacy="2"><span data-i18n="grc.vie-privee.why3">Nécessite des processus spécifiques.</span></li>
         </ul>
 
         <h2 data-i18n="grc.vie-privee.includeTitle">Ce que cette section doit contenir</h2>
         <ul>
-            <li><span data-i18n="grc.vie-privee.item1">Politique de vie privée</span> <span class="grc-control-tags">ISO A.5.34 · NIST GV.PO</span></li>
-            <li><span data-i18n="grc.vie-privee.item2">Registre des renseignements personnels</span> <span class="grc-control-tags">ISO A.5.34</span></li>
-            <li><span data-i18n="grc.vie-privee.item3">Consentement</span> <span class="grc-control-tags">ISO A.5.34</span></li>
-            <li><span data-i18n="grc.vie-privee.item4">Minimisation des données</span> <span class="grc-control-tags">ISO A.5.34 · NIST PR.DS</span></li>
-            <li><span data-i18n="grc.vie-privee.item5">DPIA (Privacy Impact Assessment)</span> <span class="grc-control-tags">ISO A.5.34 · NIST ID.RA</span></li>
-            <li><span data-i18n="grc.vie-privee.item6">Droits des personnes (accès, rectification, suppression)</span> <span class="grc-control-tags">ISO A.5.34</span></li>
+            <li data-item-id="loi25" data-legacy="3"><strong data-i18n="grc.conformite.c.loi25.label">Loi 25</strong> : <span data-i18n="grc.conformite.c.loi25.desc">gouvernance des renseignements personnels, responsable (RPRP), politique de vie privée.</span> <span class="grc-control-tags">ISO A.5.34 · NIST GV.OC</span></li>
+            <li data-item-id="registre-traitements" data-legacy="4"><strong data-i18n="grc.conformite.c.registre-traitements.label">Registre des traitements</strong> : <span data-i18n="grc.conformite.c.registre-traitements.desc">finalités, catégories de renseignements, destinataires, transferts.</span> <span class="grc-control-tags">ISO A.5.34 · NIST ID.AM</span></li>
+            <li data-item-id="consentement" data-legacy="5"><strong data-i18n="grc.conformite.c.consentement.label">Consentement</strong> : <span data-i18n="grc.conformite.c.consentement.desc">consentement manifeste, libre, éclairé ; preuve et retrait.</span> <span class="grc-control-tags">ISO A.5.34</span></li>
+            <li data-item-id="efvp" data-legacy="7"><strong data-i18n="grc.conformite.c.efvp.label">EFVP / PIA</strong> : <span data-i18n="grc.conformite.c.efvp.desc">évaluation des facteurs relatifs à la vie privée avant tout projet ou transfert.</span> <span class="grc-control-tags">ISO A.5.34 · NIST ID.RA</span></li>
+            <li data-item-id="renseignements" data-legacy="6"><strong data-i18n="grc.conformite.c.renseignements.label">Renseignements personnels</strong> : <span data-i18n="grc.conformite.c.renseignements.desc">inventaire, minimisation, protection selon la sensibilité.</span> <span class="grc-control-tags">ISO A.5.34 · A.5.12 · NIST PR.DS</span></li>
+            <li data-item-id="conservation"><strong data-i18n="grc.conformite.c.conservation.label">Conservation</strong> : <span data-i18n="grc.conformite.c.conservation.desc">durées de conservation par catégorie et finalité.</span> <span class="grc-control-tags">ISO A.5.33 · A.5.34 · NIST PR.DS</span></li>
+            <li data-item-id="destruction"><strong data-i18n="grc.conformite.c.destruction.label">Destruction</strong> : <span data-i18n="grc.conformite.c.destruction.desc">destruction sécurisée ou anonymisation en fin de conservation.</span> <span class="grc-control-tags">ISO A.8.10 · NIST PR.DS</span></li>
+            <li data-item-id="violations"><strong data-i18n="grc.conformite.c.violations.label">Violations de confidentialité</strong> : <span data-i18n="grc.conformite.c.violations.desc">registre des incidents, évaluation du risque de préjudice sérieux, avis à la CAI et aux personnes.</span> <span class="grc-control-tags">ISO A.5.24 · A.5.26 · A.5.34 · NIST RS.CO</span></li>
+            <li data-item-id="droits" data-legacy="8"><strong data-i18n="grc.conformite.c.droits.label">Droits des personnes concernées</strong> : <span data-i18n="grc.conformite.c.droits.desc">accès, rectification, retrait, portabilité, délais de réponse.</span> <span class="grc-control-tags">ISO A.5.34</span></li>
         </ul>
+        <p class="grc-see-also"><span data-i18n="grc.common.seeAlso">Voir aussi :</span> <a href="conformite.html" data-i18n="grc.vie-privee.see1">Gestion de la conformité (obligations légales)</a> · <a href="documentation.html" data-i18n="grc.vie-privee.see2">Gestion documentaire (conservation des documents)</a></p>
     </section>
 </main>
+
 
 
 <script src="../assets/script/page-boot.js"></script>
@@ -60,6 +67,7 @@
 <script src="../assets/script/i18n.js"></script>
 <script src="../assets/script/grc-i18n.js"></script>
 <script src="../assets/script/grc-i18n-domains.js"></script>
+<script src="../assets/script/grc-i18n-components.js"></script>
 
 <script src="../config/grc-author.js"></script>
 
@@ -72,6 +80,9 @@
 <script src="../assets/script/vault-ui.js"></script>
 
 <script src="../assets/script/config-io.js"></script>
+<!-- Chaîne GRC : catalogue Annexe A + liens entre sections (spec/grc-fiches/chaine.md) -->
+<script src="../assets/script/grc-annexe-a.js"></script>
+<script src="../assets/script/grc-links.js"></script>
 <script src="../assets/script/grc-registry-kit.js"></script>
 <script src="../assets/script/grc-privacy.js"></script>
 <script src="../assets/script/grc-privacy-panel.js"></script>
@@ -79,8 +90,16 @@
 
 <script src="../assets/script/inline/apply-i18n.js"></script>
 
+<script src="../assets/script/grc-checklist-migrate.js"></script>
 <script src="../assets/script/grc-checklist.js"></script>
 <script src="../assets/script/inline/init-grc-checklist.js"></script>
+
+
+<!-- Documentation de l'organisation par élément (spec/grc-fiches/) -->
+<script src="../assets/script/grc-vocab.js"></script>
+<script src="../assets/script/grc-fiches.js"></script>
+<script src="../assets/script/grc-fiches-vie-privee.js"></script>
+<script src="../assets/script/inline/init-grc-fiches.js"></script>
 
 </body>
 </html>

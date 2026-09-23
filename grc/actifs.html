@@ -5,11 +5,11 @@
     <meta http-equiv="Content-Security-Policy" content="script-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'">
     <link rel="icon" type="image/svg+xml" href="../assets/images/dragon-logo.svg">
     <link rel="icon" type="image/png" href="../assets/images/dragon-favicon.png">
-    <title>Inventaire et classification des actifs – GRC Cybersecurity</title>
+    <title>Gestion des actifs – GRC Cybersecurity</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" type="text/css" href="../assets/css/grc.css">
 </head>
-<body>
+<body data-fiche-page="actifs">
 <header>
     <nav class="nav">
         <div class="logo">
@@ -23,10 +23,12 @@
 </header>
 
 <main>
-    <h1 class="page-title" data-i18n="grc.actifs.title">Inventaire et classification des actifs</h1>
+    <h1 class="page-title" data-i18n="grc.actifs.title">Gestion des actifs</h1>
     <p class="page-subtitle" data-i18n="grc.actifs.subtitle">
         Cette section identifie ce qui doit être protégé et à quel niveau.
     </p>
+
+    <section class="grc-fiche-root" id="grcFichesRoot"></section>
 
     <section class="grc-registry-block">
         <h2 data-i18n="grc.actifs.registryTitle">Registre des actifs</h2>
@@ -36,13 +38,21 @@
     <section class="content-block">
         <h2 data-i18n="grc.common.contentInclude">Contenu à inclure</h2>
         <ul>
-            <li><strong data-i18n="grc.actifs.item1.label">Méthodologie</strong> : <span data-i18n="grc.actifs.item1.desc">ISO 27001/27002/27005.</span></li>
-            <li><strong data-i18n="grc.actifs.item2.label">Types d’actifs</strong> : <span data-i18n="grc.actifs.item2.desc">physiques, logiciels, données, humains, réseau.</span> <span class="grc-control-tags">ISO A.5.9 · NIST ID.AM · CIS 1</span></li>
-            <li><strong data-i18n="grc.actifs.item3.label">Classification CIA</strong> : <span data-i18n="grc.actifs.item3.desc">confidentialité, intégrité, disponibilité (1–3).</span> <span class="grc-control-tags">ISO A.5.12 · NIST ID.AM · CIS 3</span></li>
-            <li><strong data-i18n="grc.actifs.item4.label">Criticité globale</strong> : <span data-i18n="grc.actifs.item4.desc">importance de l’actif pour l’organisation.</span> <span class="grc-control-tags">ISO A.5.9 · NIST ID.AM · CIS 1</span></li>
-            <li><strong data-i18n="grc.actifs.item5.label">Actifs primaires vs support</strong> <span class="grc-control-tags">ISO A.5.9 · NIST ID.AM · CIS 1</span></li>
-            <li><strong data-i18n="grc.actifs.item6.label">Dépendances</strong> : <span data-i18n="grc.actifs.item6.desc">liens entre actifs.</span> <span class="grc-control-tags">ISO A.5.9 · NIST ID.AM · CIS 1</span></li>
+            <li data-item-id="inventaire" data-legacy="1"><strong data-i18n="grc.actifs.c.inventaire.label">Inventaire des actifs</strong> : <span data-i18n="grc.actifs.c.inventaire.desc">actifs physiques, logiciels, données, humains, réseau ; actifs primaires et de support.</span> <span class="grc-control-tags">ISO A.5.9 · NIST ID.AM · CIS 1 · CIS 2</span></li>
+            <li data-item-id="classification" data-legacy="2 3"><strong data-i18n="grc.actifs.c.classification.label">Classification des actifs</strong> : <span data-i18n="grc.actifs.c.classification.desc">confidentialité, intégrité, disponibilité (1–3) et criticité globale.</span> <span class="grc-control-tags">ISO A.5.12 · NIST ID.AM · CIS 3</span></li>
+            <li data-item-id="proprietaires"><strong data-i18n="grc.actifs.c.proprietaires.label">Propriétaires des actifs</strong> : <span data-i18n="grc.actifs.c.proprietaires.desc">un propriétaire désigné et responsable par actif.</span> <span class="grc-control-tags">ISO A.5.9 · NIST GV.RR</span></li>
+            <li data-item-id="registre" data-legacy="4"><strong data-i18n="grc.actifs.c.registre.label">Registre des actifs</strong> : <span data-i18n="grc.actifs.c.registre.desc">registre tenu à jour (ci-dessus), avec valeur monétaire (AV) servant au calcul du SLE.</span> <span class="grc-control-tags">ISO A.5.9 · NIST ID.AM · CIS 1</span></li>
+            <li data-item-id="dependances-spof" data-legacy="5"><strong data-i18n="grc.actifs.c.dependances-spof.label">Dépendances et SPOF</strong> : <span data-i18n="grc.actifs.c.dependances-spof.desc">liens entre actifs et points uniques de défaillance.</span> <span class="grc-control-tags">ISO A.5.9 · ISO A.8.14 · NIST ID.AM</span></li>
         </ul>
+        <h3 data-i18n="grc.actifs.g2">Catégories de ressources</h3>
+        <ul>
+            <li data-item-id="rh"><strong data-i18n="grc.actifs.c.rh.label">Ressources humaines</strong> : <span data-i18n="grc.actifs.c.rh.desc">compétences clés, personnes difficiles à remplacer, suppléants.</span> <span class="grc-control-tags">ISO A.6.1 · NIST GV.RR</span></li>
+            <li data-item-id="infrastructures"><strong data-i18n="grc.actifs.c.infrastructures.label">Infrastructures</strong> : <span data-i18n="grc.actifs.c.infrastructures.desc">sites, locaux, énergie, télécoms, équipements.</span> <span class="grc-control-tags">ISO A.7.1 · A.7.11 · NIST ID.AM</span></li>
+            <li data-item-id="si"><strong data-i18n="grc.actifs.c.si.label">Systèmes d’information</strong> : <span data-i18n="grc.actifs.c.si.desc">applications, serveurs, bases de données, services cloud.</span> <span class="grc-control-tags">ISO A.5.9 · NIST ID.AM · CIS 1 · CIS 2</span></li>
+            <li data-item-id="intellectuelles"><strong data-i18n="grc.actifs.c.intellectuelles.label">Ressources intellectuelles</strong> : <span data-i18n="grc.actifs.c.intellectuelles.desc">savoir-faire, documentation, propriété intellectuelle, données.</span> <span class="grc-control-tags">ISO A.5.32 · NIST ID.AM</span></li>
+            <li data-item-id="fournisseurs"><strong data-i18n="grc.actifs.c.fournisseurs.label">Fournisseurs externes</strong> : <span data-i18n="grc.actifs.c.fournisseurs.desc">prestataires et services externes dont dépendent les actifs.</span> <span class="grc-control-tags">ISO A.5.19 · NIST GV.SC · CIS 15</span></li>
+        </ul>
+        <p class="grc-see-also"><span data-i18n="grc.common.seeAlso">Voir aussi :</span> <a href="continuite/bia.html" data-i18n="grc.actifs.see1">Ressources critiques et BIA (Continuité)</a> · <a href="fournisseurs.html" data-i18n="grc.actifs.see2">Gestion des fournisseurs</a></p>
 
         <h2 data-i18n="grc.common.roleTitle">Rôle en GRC</h2>
         <p data-i18n="grc.actifs.role">L’inventaire est la base de l’analyse des risques : on ne peut protéger que ce qu’on connaît.</p>
@@ -54,6 +64,7 @@
 
 <script src="../assets/script/i18n.js"></script>
 <script src="../assets/script/grc-i18n.js"></script>
+<script src="../assets/script/grc-i18n-components.js"></script>
 
 <script src="../config/grc-author.js"></script>
 
@@ -70,6 +81,9 @@
      depuis PlanDurcissement-Securite.txt P2 (grkStore/grkId au
      chargement -- plantent sans ça), même si cette page ne monte que
      le registre d'actifs (pas celui des risques). -->
+<!-- Chaîne GRC : catalogue Annexe A + liens entre sections (spec/grc-fiches/chaine.md) -->
+<script src="../assets/script/grc-annexe-a.js"></script>
+<script src="../assets/script/grc-links.js"></script>
 <script src="../assets/script/grc-registry-kit.js"></script>
 <script src="../assets/script/grc-assets.js"></script>
 <script src="../assets/script/grc-risks.js"></script>
@@ -77,8 +91,17 @@
 
 <script src="../assets/script/inline/apply-i18n.js"></script>
 
+<script src="../assets/script/grc-checklist-migrate.js"></script>
 <script src="../assets/script/grc-checklist.js"></script>
 <script src="../assets/script/inline/init-grc-checklist.js"></script>
+
+
+<!-- Documentation de l'organisation par élément (spec/grc-fiches/) -->
+<script src="../assets/script/grc-suppliers.js"></script>
+<script src="../assets/script/grc-vocab.js"></script>
+<script src="../assets/script/grc-fiches.js"></script>
+<script src="../assets/script/grc-fiches-actifs.js"></script>
+<script src="../assets/script/inline/init-grc-fiches.js"></script>
 
 </body>
 </html>

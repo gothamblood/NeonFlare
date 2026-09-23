@@ -37,13 +37,21 @@ function checkReachable(url, timeoutMs) {
   });
 }
 
+/* `soon: true` : service annoncé mais pas encore en ligne (ex.
+   GothamTech.ca). Carte affichée, pas vérifiée, pas comptée dans le HUD
+   (NODES ONLINE), pas cliquable -- au lieu d'un « unreachable » rouge qui
+   ferait croire à une panne. */
+function isSoonNode(entry) {
+  return !!(entry && entry.soon);
+}
+
 function buildNodeCard(entry) {
   const card = document.createElement("div");
-  card.className = "card node-card";
-  card.onclick = () => window.open(entry.url, "_blank", "noopener");
+  card.className = "card node-card" + (isSoonNode(entry) ? " node-soon" : "");
+  if (!isSoonNode(entry)) card.onclick = () => window.open(entry.url, "_blank", "noopener");
 
   const status = document.createElement("div");
-  status.className = "node-status checking";
+  status.className = "node-status " + (isSoonNode(entry) ? "soon" : "checking");
   card.appendChild(status);
 
   const img = document.createElement("img");
@@ -63,7 +71,7 @@ function buildNodeCard(entry) {
 
   const latency = document.createElement("div");
   latency.className = "node-latency";
-  latency.textContent = "checking...";
+  latency.textContent = isSoonNode(entry) ? "coming soon" : "checking...";
   card.appendChild(latency);
 
   card._status = status;
@@ -105,7 +113,9 @@ function startClock(clockSelector) {
 }
 
 function runNetworkChecks(entries, cards, gaugeSelector, logSelector, statusMap) {
+  const total = entries.filter((e) => !isSoonNode(e)).length;
   entries.forEach((entry, i) => {
+    if (isSoonNode(entry)) return;
     checkReachable(entry.url).then((result) => {
       statusMap[entry.url] = result;
       const card = cards[i];
@@ -118,9 +128,9 @@ function runNetworkChecks(entries, cards, gaugeSelector, logSelector, statusMap)
       );
 
       const online = Object.values(statusMap).filter((r) => r && r.ok).length;
-      updateGauge(gaugeSelector, online, entries.length);
+      updateGauge(gaugeSelector, online, total);
       const countEl = document.querySelector(".status-group .hud-status-count");
-      if (countEl) countEl.textContent = online + " / " + entries.length + " NODES ONLINE";
+      if (countEl) countEl.textContent = online + " / " + total + " NODES ONLINE";
     });
   });
 }
@@ -168,9 +178,10 @@ function initNetworkDashboard(config, opts) {
     grid.appendChild(section);
   });
 
+  const checked = orderedEntries.filter((e) => !isSoonNode(e)).length;
   const countEl = document.querySelector(".status-group .hud-status-count");
-  if (countEl) countEl.textContent = "0 / " + orderedEntries.length + " NODES ONLINE";
-  updateGauge(opts.gaugeSelector, 0, orderedEntries.length);
+  if (countEl) countEl.textContent = "0 / " + checked + " NODES ONLINE";
+  updateGauge(opts.gaugeSelector, 0, checked);
   logLine(opts.logSelector, "NODE REGISTRY LOADED — " + orderedEntries.length + " NODES", "pending");
   startClock(opts.clockSelector);
 

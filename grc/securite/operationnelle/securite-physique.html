@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'">
+    <link rel="icon" type="image/svg+xml" href="../../../assets/images/dragon-logo.svg">
+    <link rel="icon" type="image/png" href="../../../assets/images/dragon-favicon.png">
+    <title>Sécurité physique – GRC Cybersecurity</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" type="text/css" href="../../../assets/css/grc.css">
+</head>
+<body data-fiche-page="securite-physique">
+<header>
+    <nav class="nav">
+        <div class="logo">
+            <div class="logo-mark">O</div>
+            <div>Sécurité opérationnelle</div>
+        </div>
+        <div class="nav-links">
+            <a href="./index.html" data-i18n="grc.common.backToOperationnelle">&larr; Retour à Sécurité opérationnelle</a>
+        </div>
+    </nav>
+</header>
+
+<main>
+    <h1 class="page-title" data-i18n="grc.securite-physique.title">Sécurité physique</h1>
+    <p class="page-subtitle" data-i18n="grc.securite-physique.subtitle">
+        Protéger les lieux, les équipements et les supports : zones, accès, environnement, maintenance, mise au rebut.
+    </p>
+
+    <section class="grc-fiche-root" id="grcFichesRoot"></section>
+
+    <section class="content-block">
+        <h2 data-i18n="grc.common.contentInclude">Contenu à inclure</h2>
+        <ul>
+            <li data-item-id="zones"><strong data-i18n="grc.securite-physique.c.zones.label">Zones et accès physiques</strong> : <span data-i18n="grc.securite-physique.c.zones.desc">périmètres, zones sécurisées, contrôle des entrées, bureaux et salles.</span> <span class="grc-control-tags">ISO 27001 A.7.1 · A.7.2 · A.7.3</span></li>
+            <li data-item-id="surveillance"><strong data-i18n="grc.securite-physique.c.surveillance.label">Surveillance physique</strong> : <span data-i18n="grc.securite-physique.c.surveillance.desc">caméras, alarmes, gardiennage et conservation des enregistrements.</span> <span class="grc-control-tags">ISO 27001 A.7.4</span></li>
+            <li data-item-id="environnement"><strong data-i18n="grc.securite-physique.c.environnement.label">Menaces environnementales et services support</strong> : <span data-i18n="grc.securite-physique.c.environnement.desc">incendie, eau, chaleur, électricité, climatisation, et leurs protections.</span> <span class="grc-control-tags">ISO 27001 A.7.5 · A.7.8 · A.7.11</span></li>
+            <li data-item-id="bureau-propre"><strong data-i18n="grc.securite-physique.c.bureau-propre.label">Bureau propre et écran verrouillé</strong> : <span data-i18n="grc.securite-physique.c.bureau-propre.desc">règles pour les documents papier, supports et écrans laissés sans surveillance.</span> <span class="grc-control-tags">ISO 27001 A.7.7</span></li>
+            <li data-item-id="equipements"><strong data-i18n="grc.securite-physique.c.equipements.label">Équipements : emplacement, hors site, maintenance</strong> : <span data-i18n="grc.securite-physique.c.equipements.desc">protection des équipements, sortie des locaux, entretien selon le fabricant.</span> <span class="grc-control-tags">ISO 27001 A.7.8 · A.7.9 · A.7.13</span></li>
+            <li data-item-id="supports"><strong data-i18n="grc.securite-physique.c.supports.label">Supports de stockage et câblage</strong> : <span data-i18n="grc.securite-physique.c.supports.desc">gestion des supports amovibles, transport, protection du câblage.</span> <span class="grc-control-tags">ISO 27001 A.7.10 · A.7.12</span></li>
+            <li data-item-id="rebut"><strong data-i18n="grc.securite-physique.c.rebut.label">Mise au rebut et réutilisation</strong> : <span data-i18n="grc.securite-physique.c.rebut.desc">effacement ou destruction sûre avant mise au rebut, preuve de destruction.</span> <span class="grc-control-tags">ISO 27001 A.7.14</span></li>
+        </ul>
+
+        <h2 data-i18n="grc.common.roleTitle">Rôle en GRC</h2>
+        <p data-i18n="grc.securite-physique.role">Un serveur volé ou un local inondé contourne toutes les protections logiques. Cette section relie chaque zone à ses actifs et chaque menace physique à un contrôle.</p>
+    </section>
+</main>
+
+
+<script src="../../../assets/script/page-boot.js"></script>
+
+<script src="../../../assets/script/i18n.js"></script>
+<script src="../../../assets/script/grc-i18n.js"></script>
+<script src="../../../assets/script/grc-i18n-domains.js"></script>
+<script src="../../../assets/script/grc-i18n-components.js"></script>
+
+<script src="../../../config/grc-author.js"></script>
+
+<script src="../../../config/encryption.js"></script>
+
+<script src="../../../assets/script/vault-crypto.js"></script>
+<script src="../../../assets/script/theme-accent.js"></script>
+
+<script src="../../../assets/script/vault.js"></script>
+<script src="../../../assets/script/vault-ui.js"></script>
+
+<script src="../../../assets/script/inline/apply-i18n.js"></script>
+
+<script src="../../../assets/script/grc-checklist-migrate.js"></script>
+<script src="../../../assets/script/grc-checklist.js"></script>
+<script src="../../../assets/script/config-io.js"></script>
+<!-- Chaîne GRC : catalogue Annexe A + liens entre sections (spec/grc-fiches/chaine.md) -->
+<script src="../../../assets/script/grc-annexe-a.js"></script>
+<script src="../../../assets/script/grc-links.js"></script>
+<script src="../../../assets/script/grc-registry-kit.js"></script>
+<script src="../../../assets/script/grc-vocab.js"></script>
+<script src="../../../assets/script/grc-fiches.js"></script>
+<script src="../../../assets/script/grc-fiches-physique.js"></script>
+<script src="../../../assets/script/inline/init-grc-checklist.js"></script>
+<script src="../../../assets/script/inline/init-grc-fiches.js"></script>
+
+</body>
+</html>

@@ -53,6 +53,8 @@ const GRC_TP_SCHEMA = {
   transferTo: { type: "string" },
   actions: { type: "array", sortBy: "order", of: GRC_RT_ACTION_SCHEMA },
   linkedControls: { type: "array" },
+  // Chaîne GRC (chaine.md CH2) : contrôles mis en œuvre par le plan.
+  controlIds: { type: "array" },
 };
 
 function grcTpEnsureShape(plan) {
@@ -74,6 +76,31 @@ function saveGrcTreatmentPlans(list) {
 
 function resetGrcTreatmentPlans() {
   _grcTpStore.remove();
+}
+
+// Risques qui référencent ce plan (lien porté par le risque).
+function _grcTpRiskIdsOf(planId) {
+  if (typeof getGrcRisks !== "function") return [];
+  return getGrcRisks().filter((r) => r && r.treatmentPlan && Array.isArray(r.treatmentPlan.planIds)
+    && r.treatmentPlan.planIds.indexOf(planId) !== -1).map((r) => r.id);
+}
+
+// Aligne treatmentPlan.planIds des risques sur la sélection du formulaire.
+function _grcTpSetRisks(planId, riskIds) {
+  if (!planId || typeof getGrcRisks !== "function" || typeof saveGrcRisks !== "function") return;
+  let changed = false;
+  const risks = getGrcRisks().map((r) => {
+    if (!r || !r.id) return r;
+    const t = typeof grcRiskEnsureTreatment === "function" ? grcRiskEnsureTreatment(r)
+      : Object.assign({ planIds: [] }, r.treatmentPlan || {});
+    const has = t.planIds.indexOf(planId) !== -1;
+    const want = riskIds.indexOf(r.id) !== -1;
+    if (has === want) return r;
+    changed = true;
+    t.planIds = want ? t.planIds.concat([planId]) : t.planIds.filter((x) => x !== planId);
+    return Object.assign({}, r, { treatmentPlan: t });
+  });
+  if (changed) saveGrcRisks(risks);
 }
 
 function addGrcTreatmentPlan(plan) {
@@ -288,15 +315,24 @@ function initGrcTreatmentPlansRegistry() {
         options: GRC_RT_STRATEGIES.map((s) => ({ value: s, label: "grc.risques.rt.strat." + s })) },
       { id: "rationale", label: "grc.traitement-risques.form.rationale", type: "textarea" },
       { id: "transferTo", label: "grc.traitement-risques.form.transferTo", type: "text" },
+      // Chaîne GRC (chaine.md CH2) : risques traités et contrôles.
+      { id: "riskIds", label: "grc.links.f.plan.riskIds", type: "multi",
+        options: () => (typeof grcLinksKitOptions === "function" ? grcLinksKitOptions("risk") : []) },
+      ...(typeof grcLinksFormFields === "function" ? grcLinksFormFields("plan") : []),
     ],
-    readForm: (p) => ({ name: p.name, strategy: p.strategy, rationale: p.rationale, transferTo: p.transferTo }),
+    readForm: (p) => Object.assign(typeof grcLinksFormRead === "function" ? grcLinksFormRead("plan", p) : {},
+      { name: p.name, strategy: p.strategy, rationale: p.rationale, transferTo: p.transferTo, riskIds: _grcTpRiskIdsOf(p.id) }),
     submit: (v, editingId) => {
       const fields = grkEnsure(v, { name: { type: "string" }, strategy: { type: "string", enum: GRC_RT_STRATEGIES, default: "mitigate" },
         rationale: { type: "string" }, transferTo: { type: "string" } });
       fields.name = fields.name.trim();
       fields.transferTo = fields.transferTo.trim();
+      if (typeof grcLinksFormPick === "function") Object.assign(fields, grcLinksFormPick("plan", v));
+      let planId = editingId;
       if (editingId) updateGrcTreatmentPlan(editingId, fields);
-      else addGrcTreatmentPlan(fields);
+      else planId = addGrcTreatmentPlan(fields);
+      // Risques traités : le lien vit sur le risque (treatmentPlan.planIds).
+      _grcTpSetRisks(planId, Array.isArray(v.riskIds) ? v.riskIds : []);
     },
     header: (p) => {
       const n = grcTpLinkedRiskCount(p.id);

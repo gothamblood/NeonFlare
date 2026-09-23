@@ -44,6 +44,7 @@ const PAGE_EFFECTS_REGISTRY = [
   { group: "GRC", key: "grc-database", label: "GRC -- Sécurité Base de données", labelI18nKey: "settings.pageEffects.grcDatabase", bg: false },
   { group: "GRC", key: "grc-reseau", label: "GRC -- Sécurité Réseau", labelI18nKey: "settings.pageEffects.grcReseau", bg: false },
   { group: "GRC", key: "grc-webapp", label: "GRC -- Sécurité WebApp", labelI18nKey: "settings.pageEffects.grcWebapp", bg: false },
+  { group: "GRC", key: "grc-operationnelle", label: "GRC -- Sécurité opérationnelle", labelI18nKey: "settings.pageEffects.grcOperationnelle", bg: false },
 
   { group: "Outils", groupI18nKey: "dash.panel.tools", key: "tools-recon", label: "Recon & Enumeration", bg: true },
   { group: "Outils", groupI18nKey: "dash.panel.tools", key: "tools-web", label: "Web Exploitation", bg: true },
@@ -65,7 +66,7 @@ const PAGE_EFFECTS_REGISTRY = [
   { group: "DevSecOps", groupI18nKey: "dash.panel.devsecops", key: "devsecops-custom", label: "Catégories personnalisées", labelI18nKey: "settings.pageEffects.customCategories", bg: true },
 ];
 
-const DEFAULT_VECTOR_PAGES = new Set(["grc-hub", "grc-api", "grc-database", "grc-reseau", "grc-webapp"]);
+const DEFAULT_VECTOR_PAGES = new Set(["grc-hub", "grc-api", "grc-database", "grc-reseau", "grc-webapp", "grc-operationnelle"]);
 
 const DEFAULT_STAR_PAGES = new Set([
   "dashboard", "neonflare-technology",

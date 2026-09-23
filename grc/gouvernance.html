@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" type="text/css" href="../assets/css/grc.css">
 </head>
-<body>
+<body data-fiche-page="gouvernance">
 <header>
     <nav class="nav">
         <div class="logo">
@@ -29,6 +29,8 @@
     </p>
 
 
+    <section class="grc-fiche-root" id="grcFichesRoot"></section>
+
     <section class="grc-registry-block">
         <h2 data-i18n="grc.documents.reg.title">Registre documentaire</h2>
         <div id="grcDocumentsSummary"></div>
@@ -37,13 +39,23 @@
     </section>
     <section class="content-block">
         <h2 data-i18n="grc.common.contentInclude">Contenu à inclure</h2>
+        <p class="grc-intro" data-i18n="grc.gouvernance.intro">La gouvernance investit les ressources là où elles maintiennent la mission d’affaires, pas seulement sur les systèmes les plus visibles.</p>
         <ul>
-            <li><strong data-i18n="grc.gouvernance.item1.label">Leadership</strong> : <span data-i18n="grc.gouvernance.item1.desc">engagement de la direction, allocation des ressources.</span> <span class="grc-control-tags">ISO A.5.4 · NIST GV.RR</span></li>
-            <li><strong data-i18n="grc.gouvernance.item2.label">Modèle PDCA</strong> : <span data-i18n="grc.gouvernance.item2.desc">planification, mise en œuvre, vérification, amélioration.</span></li>
-            <li><strong data-i18n="grc.gouvernance.item3.label">Rôles et responsabilités</strong> : <span data-i18n="grc.gouvernance.item3.desc">CEO, CISO, SOC, GRC, TI, RH, DevOps, utilisateurs.</span> <span class="grc-control-tags">ISO A.5.2 · NIST GV.RR</span></li>
-            <li><strong data-i18n="grc.gouvernance.item4.label">Organigramme sécurité</strong> : <span data-i18n="grc.gouvernance.item4.desc">structure hiérarchique.</span></li>
-            <li><strong data-i18n="grc.gouvernance.item5.label">Registre d’autorité</strong> : <span data-i18n="grc.gouvernance.item5.desc">qui approuve quoi.</span> <span class="grc-control-tags">NIST GV.RR</span></li>
+            <li data-item-id="sgsi" data-legacy="1"><strong data-i18n="grc.gouvernance.c.sgsi.label">SGSI</strong> : <span data-i18n="grc.gouvernance.c.sgsi.desc">système de management de la sécurité de l’information : cycle PDCA, objectifs, amélioration continue.</span> <span class="grc-control-tags">ISO 27001 cl. 4.4 · 6.2 · 10.1</span></li>
+            <li data-item-id="cadre" data-legacy="0 4"><strong data-i18n="grc.gouvernance.c.cadre.label">Cadre de gouvernance</strong> : <span data-i18n="grc.gouvernance.c.cadre.desc">engagement de la direction, allocation des ressources, instances et registre d’autorité (qui approuve quoi).</span> <span class="grc-control-tags">ISO 27001 cl. 5.1 · NIST GV.OV</span></li>
+            <li data-item-id="politique-securite"><strong data-i18n="grc.gouvernance.c.politique-securite.label">Politique de sécurité</strong> : <span data-i18n="grc.gouvernance.c.politique-securite.desc">approuvée et portée par la direction (contenu détaillé : Directives).</span> <span class="grc-control-tags">ISO 27001 cl. 5.2 · A.5.1 · NIST GV.PO</span></li>
+            <li data-item-id="comite-securite"><strong data-i18n="grc.gouvernance.c.comite-securite.label">Comité de sécurité</strong> : <span data-i18n="grc.gouvernance.c.comite-securite.desc">mandat, composition, fréquence, suivi des décisions.</span> <span class="grc-control-tags">ISO A.5.4 · NIST GV.RR</span></li>
+            <li data-item-id="comite-grc"><strong data-i18n="grc.gouvernance.c.comite-grc.label">Comité GRC</strong> : <span data-i18n="grc.gouvernance.c.comite-grc.desc">pilotage des risques, de la conformité et des indicateurs.</span> <span class="grc-control-tags">ISO 27001 cl. 9.3 · NIST GV.OV</span></li>
+            <li data-item-id="comite-crise"><strong data-i18n="grc.gouvernance.c.comite-crise.label">Comité de gestion de crise (CCD)</strong> : <span data-i18n="grc.gouvernance.c.comite-crise.desc">cellule de crise décisionnelle : composition, mandat, conditions d’activation (détail : Continuité › PGC).</span> <span class="grc-control-tags">ISO 22301 cl. 8.4.2 · NIST RS.MA</span></li>
+            <li data-item-id="roles" data-legacy="2 3"><strong data-i18n="grc.gouvernance.c.roles.label">Rôles et responsabilités</strong> : <span data-i18n="grc.gouvernance.c.roles.desc">CEO, CISO, SOC, GRC, TI, RH, DevOps, utilisateurs ; organigramme sécurité ; séparation des tâches.</span> <span class="grc-control-tags">ISO 27001 cl. 5.3 · A.5.2 · A.5.3 · NIST GV.RR</span></li>
+            <li data-item-id="proprietaires-actifs"><strong data-i18n="grc.gouvernance.c.proprietaires-actifs.label">Propriétaires d’actifs</strong> : <span data-i18n="grc.gouvernance.c.proprietaires-actifs.desc">responsables de la classification et des accès de leurs actifs.</span> <span class="grc-control-tags">ISO A.5.9 · NIST GV.RR</span></li>
+            <li data-item-id="gestionnaires-risques"><strong data-i18n="grc.gouvernance.c.gestionnaires-risques.label">Gestionnaires de risques</strong> : <span data-i18n="grc.gouvernance.c.gestionnaires-risques.desc">responsables du traitement et de l’acceptation de leurs risques.</span> <span class="grc-control-tags">ISO 27001 cl. 6.1.2 · NIST GV.RM</span></li>
+            <li data-item-id="appetit-risque"><strong data-i18n="grc.gouvernance.c.appetit-risque.label">Appétit au risque</strong> : <span data-i18n="grc.gouvernance.c.appetit-risque.desc">niveau de risque que la direction est prête à assumer pour atteindre ses objectifs.</span> <span class="grc-control-tags">ISO 27001 cl. 6.1.1 · NIST GV.RM</span></li>
+            <li data-item-id="criteres-acceptation"><strong data-i18n="grc.gouvernance.c.criteres-acceptation.label">Critères d’acceptation</strong> : <span data-i18n="grc.gouvernance.c.criteres-acceptation.desc">seuils (P × I, ALE) sous lesquels un risque peut être accepté, et par qui.</span> <span class="grc-control-tags">ISO 27001 cl. 6.1.2 · NIST GV.RM</span></li>
+            <li data-item-id="revues-direction"><strong data-i18n="grc.gouvernance.c.revues-direction.label">Revues de direction</strong> : <span data-i18n="grc.gouvernance.c.revues-direction.desc">revue périodique du SGSI et du PCA : entrées, décisions, actions.</span> <span class="grc-control-tags">ISO 27001 cl. 9.3 · ISO 22301 cl. 9.3</span></li>
+            <li data-item-id="communication"><strong data-i18n="grc.gouvernance.c.communication.label">Communication</strong> : <span data-i18n="grc.gouvernance.c.communication.desc">quoi communiquer, à qui, quand, par qui et comment, en interne et en externe.</span> <span class="grc-control-tags">ISO 27001 cl. 7.4 · ISO 22301 cl. 7.4</span></li>
         </ul>
+        <p class="grc-see-also"><span data-i18n="grc.common.seeAlso">Voir aussi :</span> <a href="directives.html" data-i18n="grc.gouvernance.see1">Politique de sécurité (Directives)</a> · <a href="continuite/pgc.html" data-i18n="grc.gouvernance.see2">PGC — Plan de gestion de crise</a></p>
 
         <h2 data-i18n="grc.common.roleTitle">Rôle en GRC</h2>
         <p data-i18n="grc.gouvernance.role">La gouvernance assure que la sécurité est structurée, soutenue et alignée avec les objectifs de l’organisation.</p>
@@ -56,6 +68,7 @@
 <script src="../assets/script/i18n.js"></script>
 <script src="../assets/script/grc-i18n.js"></script>
 <script src="../assets/script/grc-i18n-domains.js"></script>
+<script src="../assets/script/grc-i18n-components.js"></script>
 
 <script src="../config/grc-author.js"></script>
 
@@ -69,15 +82,29 @@
 
 <script src="../assets/script/inline/apply-i18n.js"></script>
 
+<script src="../assets/script/grc-checklist-migrate.js"></script>
 <script src="../assets/script/grc-checklist.js"></script>
 <script src="../assets/script/inline/init-grc-checklist.js"></script>
 
 
 <script src="../assets/script/config-io.js"></script>
+<!-- Chaîne GRC : catalogue Annexe A + liens entre sections (spec/grc-fiches/chaine.md) -->
+<script src="../assets/script/grc-annexe-a.js"></script>
+<script src="../assets/script/grc-links.js"></script>
 <script src="../assets/script/grc-registry-kit.js"></script>
 <script src="../assets/script/grc-documents.js"></script>
 <script src="../assets/script/grc-documents-panel.js"></script>
 <script src="../assets/script/inline/grc-gouvernance.js"></script>
+
+
+<!-- Documentation de l'organisation par élément (spec/grc-fiches/) -->
+<script src="../assets/script/grc-assets.js"></script>
+<script src="../assets/script/grc-treatment-plans.js"></script>
+<script src="../assets/script/grc-risks.js"></script>
+<script src="../assets/script/grc-vocab.js"></script>
+<script src="../assets/script/grc-fiches.js"></script>
+<script src="../assets/script/grc-fiches-gouvernance.js"></script>
+<script src="../assets/script/inline/init-grc-fiches.js"></script>
 
 </body>
 </html>

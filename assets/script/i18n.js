@@ -12,6 +12,7 @@ const I18N_DICT = {
   "nav.apiSecurity": { fr: "Sécurité API", en: "API Security" },
   "nav.webappSecurity": { fr: "Sécurité WebApp", en: "WebApp Security" },
   "nav.databaseSecurity": { fr: "Sécurité base de données", en: "Database Security" },
+  "nav.operationalSecurity": { fr: "Sécurité opérationnelle", en: "Operational Security" },
   "nav.grcResources": { fr: "Ressources externes", en: "External resources" },
   "nav.more": { fr: "Plus", en: "More" },
   "nav.topology": { fr: "Topologie", en: "Topology" },
@@ -60,6 +61,7 @@ const I18N_DICT = {
   "settings.pageEffects.grcApi": { fr: "GRC -- Sécurité API", en: "GRC -- API Security" },
   "settings.pageEffects.grcDatabase": { fr: "GRC -- Sécurité Base de données", en: "GRC -- Database Security" },
   "settings.pageEffects.grcReseau": { fr: "GRC -- Sécurité Réseau", en: "GRC -- Network Security" },
+  "settings.pageEffects.grcOperationnelle": { fr: "GRC -- Sécurité opérationnelle", en: "GRC -- Operational Security" },
   "settings.pageEffects.grcWebapp": { fr: "GRC -- Sécurité WebApp", en: "GRC -- WebApp Security" },
 
   "settings.wallpaper.forestDefault": { fr: "Kali -- Forêt (par défaut)", en: "Kali -- Forest (default)" },
@@ -146,6 +148,7 @@ const I18N_DICT = {
     en: "Controls whether coverage percentages show up on the GRC pages (progress bars, card badges)."
   },
   "settings.grcShowPercentage": { fr: "Afficher les pourcentages", en: "Show percentages" },
+  "settings.grcShowAllElements": { fr: "Documentation : afficher tous les onglets (pas seulement l’essentiel)", en: "Documentation: show every tab (not only the essentials)" },
   "settings.grcAuthorLabel": { fr: "Ton nom (traçabilité GRC)", en: "Your name (GRC change-log)" },
   "settings.grcAuthorDesc": {
     fr: "Attaché à chaque case cochée et note GRC (horodatage + ce nom) -- un texte libre, pas un compte vérifié : utile pour un journal de modifications entre toi et une petite équipe qui s'échange des exports, pas une piste d'audit inviolable. Vide par défaut ici ? Renseigne config/grc-author.js pour que ton nom soit déjà rempli sur un nouveau navigateur, sans repasser par Settings.",
@@ -388,8 +391,8 @@ const I18N_DICT = {
     en: "Governance, Risk & Compliance tracking, already pre-filled with a default ISO 27001 / NIST CSF checklist."
   },
   "onboarding.grcHub.text": {
-    fr: "20 domaines détaillés (gouvernance, risques, IAM, cloud, DevSecOps...), chacun avec sa propre checklist exportable.",
-    en: "20 detailed domains (governance, risk, IAM, cloud, DevSecOps...), each with its own exportable checklist."
+    fr: "15 domaines ISO 27001 (gouvernance, risques, continuité, conformité, renseignements personnels...), plus la Sécurité opérationnelle (IAM, ressources humaines, sécurité physique, cloud, DevSecOps...), chacun avec sa propre checklist exportable.",
+    en: "15 ISO 27001 domains (governance, risk, continuity, compliance, personal information...), plus Operational Security (IAM, people, physical security, cloud, DevSecOps...), each with its own exportable checklist."
   },
   "onboarding.pentest.title": { fr: "Findings de pentest", en: "Pentest findings" },
   "onboarding.pentest.text": {
@@ -421,6 +424,11 @@ const I18N_DICT = {
   "dash.legend.checking": { fr: "Vérification", en: "Checking" },
   "dash.btn.dashboards": { fr: "☰ Dashboards", en: "☰ Dashboards" },
   "dash.btn.addShell": { fr: "+ Shell", en: "+ Shell" },
+  "shells.ttydDown": {
+    fr: "Terminaux indisponibles : les scripts ttyd ne sont pas lancés. Démarre-les avec « scripts/ttyd-shells.sh start » : les terminaux se reconnecteront tout seuls.",
+    en: "Terminals unavailable: the ttyd scripts aren't running. Start them with \"scripts/ttyd-shells.sh start\": the terminals will reconnect on their own."
+  },
+  "shells.toastClose": { fr: "Fermer", en: "Close" },
   "dash.btn.panels": { fr: "☰ Panneaux", en: "☰ Panels" },
   "dash.btn.resetLayout": { fr: "⟲ Disposition", en: "⟲ Layout" },
   "dash.btn.resetLayoutTitle": {

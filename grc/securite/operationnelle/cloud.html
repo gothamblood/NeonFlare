@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'">
+    <link rel="icon" type="image/svg+xml" href="../../../assets/images/dragon-logo.svg">
+    <link rel="icon" type="image/png" href="../../../assets/images/dragon-favicon.png">
+    <title>Cloud Security – GRC Cybersecurity</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" type="text/css" href="../../../assets/css/grc.css">
+</head>
+<body data-fiche-page="tech-operationnelle--cloud">
+<header>
+    <nav class="nav">
+        <div class="logo">
+            <div class="logo-mark">O</div>
+            <div>Sécurité opérationnelle</div>
+        </div>
+        <div class="nav-links">
+            <a href="./index.html" data-i18n="grc.common.backToOperationnelle">&larr; Retour à Sécurité opérationnelle</a>
+        </div>
+    </nav>
+</header>
+
+<main>
+    <h1 class="page-title" data-i18n="grc.cloud.title">Cloud Security</h1>
+    <p class="page-subtitle" data-i18n="grc.cloud.subtitle">
+        Décrire les mesures de sécurité spécifiques aux environnements cloud utilisés par l’organisation, le cas échéant.
+    </p>
+
+    <section class="grc-fiche-root" id="grcFichesRoot"></section>
+
+    <section class="content-block">
+        <h2 data-i18n="grc.cloud.whyTitle">Pourquoi c’est important</h2>
+        <ul>
+            <li data-item-id="why1" data-legacy="0"><span data-i18n="grc.cloud.why1">Ne s’applique que si l’organisation exploite des services cloud.</span></li>
+            <li data-item-id="why2" data-legacy="1"><span data-i18n="grc.cloud.why2">Complète les contrôles réseau et applicatifs déjà couverts ailleurs dans le programme.</span></li>
+            <li data-item-id="why3" data-legacy="2"><span data-i18n="grc.cloud.why3">Modèle de responsabilité partagée : certains contrôles reviennent au fournisseur, d’autres à l’organisation.</span></li>
+        </ul>
+
+        <h2 data-i18n="grc.cloud.includeTitle">Ce que cette section doit contenir</h2>
+        <h3 data-i18n="grc.cloud.g1">Environnements</h3>
+        <ul>
+            <li data-item-id="azure"><strong data-i18n="grc.cloud.c.azure.label">Azure</strong> : <span data-i18n="grc.cloud.c.azure.desc">abonnements, groupes de gestion, Entra ID, Defender for Cloud.</span> <span class="grc-control-tags">ISO A.5.23 · NIST PR.PS</span></li>
+            <li data-item-id="m365"><strong data-i18n="grc.cloud.c.m365.label">Microsoft 365</strong> : <span data-i18n="grc.cloud.c.m365.desc">Exchange, SharePoint, Teams : partage externe, rétention, accès conditionnel.</span> <span class="grc-control-tags">ISO A.5.23 · NIST PR.AA · PR.DS</span></li>
+            <li data-item-id="saas"><strong data-i18n="grc.cloud.c.saas.label">SaaS</strong> : <span data-i18n="grc.cloud.c.saas.desc">inventaire des applications, SSO, données confiées.</span> <span class="grc-control-tags">ISO A.5.23 · NIST GV.SC · CIS 15</span></li>
+            <li data-item-id="paas"><strong data-i18n="grc.cloud.c.paas.label">PaaS</strong> : <span data-i18n="grc.cloud.c.paas.desc">services managés, configuration, identités de service.</span> <span class="grc-control-tags">ISO A.5.23 · NIST PR.PS</span></li>
+            <li data-item-id="iaas"><strong data-i18n="grc.cloud.c.iaas.label">IaaS</strong> : <span data-i18n="grc.cloud.c.iaas.desc">machines virtuelles, réseaux virtuels, stockage ; conteneurs et orchestration.</span> <span class="grc-control-tags">ISO A.5.23 · A.8.9 · NIST PR.PS · CIS 4</span></li>
+        </ul>
+        <h3 data-i18n="grc.cloud.g2">Mesures</h3>
+        <ul>
+            <li data-item-id="securite-cloud" data-legacy="3 5"><strong data-i18n="grc.cloud.c.securite-cloud.label">Sécurité cloud</strong> : <span data-i18n="grc.cloud.c.securite-cloud.desc">modèle de responsabilité partagée, IAM cloud, chiffrement au repos et en transit.</span> <span class="grc-control-tags">ISO A.5.23 · A.8.24 · NIST PR.AA · PR.DS</span></li>
+            <li data-item-id="configuration" data-legacy="4"><strong data-i18n="grc.cloud.c.configuration.label">Configuration sécuritaire</strong> : <span data-i18n="grc.cloud.c.configuration.desc">référentiels (CIS Benchmarks), CSPM, dérive de configuration.</span> <span class="grc-control-tags">ISO A.8.9 · NIST PR.PS · CIS 4</span></li>
+            <li data-item-id="journaux" data-legacy="8"><strong data-i18n="grc.cloud.c.journaux.label">Journaux cloud</strong> : <span data-i18n="grc.cloud.c.journaux.desc">journaux d’activité et de sécurité centralisés, rétention.</span> <span class="grc-control-tags">ISO A.8.15 · A.8.16 · NIST DE.CM · CIS 8</span></li>
+            <li data-item-id="sauvegardes"><strong data-i18n="grc.cloud.c.sauvegardes.label">Sauvegardes cloud</strong> : <span data-i18n="grc.cloud.c.sauvegardes.desc">sauvegardes indépendantes du fournisseur, immuables, testées.</span> <span class="grc-control-tags">ISO A.8.13 · NIST PR.DS · CIS 11</span></li>
+            <li data-item-id="continuite"><strong data-i18n="grc.cloud.c.continuite.label">Continuité cloud</strong> : <span data-i18n="grc.cloud.c.continuite.desc">multi-région, réversibilité, dépendance au fournisseur (SPOF).</span> <span class="grc-control-tags">ISO A.5.30 · NIST RC.RP</span></li>
+        </ul>
+        <p class="grc-see-also"><span data-i18n="grc.common.seeAlso">Voir aussi :</span> <a href="../../continuite/psi.html" data-i18n="grc.cloud.see1">PSI — Plan de secours informatique</a></p>
+    </section>
+</main>
+
+
+<script src="../../../assets/script/page-boot.js"></script>
+
+<script src="../../../assets/script/i18n.js"></script>
+<script src="../../../assets/script/grc-i18n.js"></script>
+<script src="../../../assets/script/grc-i18n-domains.js"></script>
+<script src="../../../assets/script/grc-i18n-components.js"></script>
+
+<script src="../../../config/grc-author.js"></script>
+
+<script src="../../../config/encryption.js"></script>
+
+<script src="../../../assets/script/vault-crypto.js"></script>
+<script src="../../../assets/script/theme-accent.js"></script>
+
+<script src="../../../assets/script/vault.js"></script>
+<script src="../../../assets/script/vault-ui.js"></script>
+
+<script src="../../../assets/script/inline/apply-i18n.js"></script>
+
+<script src="../../../assets/script/grc-checklist-migrate.js"></script>
+<script src="../../../assets/script/grc-checklist.js"></script>
+<script src="../../../assets/script/config-io.js"></script>
+<!-- Documentation légère du hub technique (grc-normes N11) + chaîne GRC -->
+<script src="../../../assets/script/grc-annexe-a.js"></script>
+<script src="../../../assets/script/grc-links.js"></script>
+<script src="../../../assets/script/grc-registry-kit.js"></script>
+<script src="../../../assets/script/grc-vocab.js"></script>
+<script src="../../../assets/script/grc-fiches.js"></script>
+<script src="../../../assets/script/grc-fiches-technique.js"></script>
+<script src="../../../assets/script/inline/init-grc-checklist.js"></script>
+<script src="../../../assets/script/inline/init-grc-fiches.js"></script>
+
+</body>
+</html>

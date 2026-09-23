@@ -1,7 +1,36 @@
-/* Seed nodes for the Dashboard "Réseau" panel. Empty by default -- add
-   your own from Settings > Registres (they persist in this browser's
-   localStorage from then on). */
+/* Seed nodes for the Dashboard "Réseau" panel -- what a new install
+   shows until you add your own from Settings > Registres (they persist
+   in this browser's localStorage from then on). Stable ids so other
+   registries can reference them. */
 const reseauConfig = {
   "background": "../assets/images/kali_xl_sharp.png",
-  "cards": []
+  "cards": [
+    {
+      "id": "seed-neonflare",
+      "url": "https://neonflare.ca/",
+      "img": "../assets/images/dragon4_logo.png",
+      "title": "NeonFlare.ca",
+      "sub": "Site web",
+      "category": "NeonFlare"
+    },
+    {
+      "id": "seed-github",
+      "url": "https://github.com/gothamblood",
+      "img": "../assets/images/icon-github.svg",
+      "title": "GothamBlood",
+      "sub": "GitHub",
+      "category": "NeonFlare"
+    },
+    {
+      // Pas encore en ligne : affiché « coming soon », ni vérifié ni compté
+      // (network-dashboard.js isSoonNode). Retirer "soon" à la mise en ligne.
+      "id": "seed-gothamtech",
+      "url": "https://gothamtech.ca/",
+      "img": "../assets/images/dragon-logo.svg",
+      "title": "GothamTech.ca",
+      "sub": "Bientôt disponible",
+      "category": "NeonFlare",
+      "soon": true
+    }
+  ]
 };

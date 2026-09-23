@@ -1,5 +1,5 @@
 /* Panneau d'une vulnérabilité -- barre d'onglets (grkPanel du kit)
-   rendue dans le corps de l'accordéon du registre (grc/vulnerabilites.html)
+   rendue dans le corps de l'accordéon du registre (grc/securite/operationnelle/vulnerabilites.html)
    par grc-vulns.js. Voir spec/grc-registry-upgrades/20-vulnerabilites.md.
 
    AUCUNE logique de store ici : lectures/écritures via les helpers

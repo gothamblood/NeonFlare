@@ -116,6 +116,74 @@ function grcModifiedLabel(at, by) {
   document.body.classList.toggle("grc-hide-percentage", hide);
 })();
 
+/* Pairs each <li> with its saved state (spec/grc-restructure/ R0).
+
+   Historically state was paired by POSITION only (savedItems[i] -> i-th
+   <li>), so inserting/reordering an item silently shifted every checkbox
+   after it. Saved text can't be used instead: it's whatever language the
+   page was last opened in (FR/EN).
+
+   - A page whose <li>s carry no data-item-id keeps the positional pairing
+     (unchanged behavior -- every page not yet restructured).
+   - A page with data-item-id pairs by id. Saved items from before ids
+     existed (no `id`) are reached through the <li>'s data-legacy tokens:
+     "N" = that item's former position on this same page, "<page>:N" =
+     former position on another page merged into this one (the migration
+     in grc-checklist-migrate.js stores those as id "legacy:<page>:N"),
+     "@<relative url>#N" = former position N on ANOTHER page that still
+     exists but lost that item (eg. grc/continuite.html's items moved to
+     its grc/continuite/*.html sub-pages) -- read from that page's
+     legacySnapshot (below), or from its saved items while it hasn't
+     been reopened since the restructure.
+     A new item has no token and starts unchecked -- it never inherits a
+     neighbour's checkbox.
+
+   legacySnapshot: the first time a page with ids loads pre-id state, the
+   original items are kept under saved.legacySnapshot (never exported,
+   never rewritten) so "@" tokens on other pages can still resolve after
+   this page has re-saved its state with ids. */
+function grcChecklistExternalLegacy(ref) {
+  const hash = ref.lastIndexOf("#");
+  if (hash <= 0) return null;
+  const n = parseInt(ref.slice(hash + 1), 10);
+  if (!Number.isInteger(n) || n < 0) return null;
+  let other;
+  try {
+    other = JSON.parse(vaultGetItem(grcChecklistKeyFor(new URL(ref.slice(0, hash), location.href).pathname)) || "null");
+  } catch (e) {
+    return null;
+  }
+  if (!other) return null;
+  let list = Array.isArray(other.legacySnapshot) ? other.legacySnapshot : null;
+  if (!list && Array.isArray(other.items) && !other.items.some((it) => it && it.id)) list = other.items;
+  return list && list[n] && typeof list[n] === "object" ? list[n] : null;
+}
+
+function grcChecklistMatchSaved(lis, savedItems) {
+  const saved = Array.isArray(savedItems) ? savedItems : [];
+  if (!lis.some((li) => li.dataset.itemId)) {
+    return lis.map((li, i) => saved[i] || null);
+  }
+  const byId = {};
+  const byLegacy = {};
+  saved.forEach((it, k) => {
+    if (!it || typeof it !== "object") return;
+    if (typeof it.id !== "string" || !it.id) byLegacy[String(k)] = it;
+    else if (it.id.indexOf("legacy:") === 0) byLegacy[it.id.slice(7)] = it;
+    else byId[it.id] = it;
+  });
+  return lis.map((li) => {
+    const id = li.dataset.itemId;
+    if (id && byId[id]) return byId[id];
+    const tokens = (li.dataset.legacy || "").split(/\s+/).filter(Boolean);
+    for (const t of tokens) {
+      const hit = t.charAt(0) === "@" ? grcChecklistExternalLegacy(t.slice(1)) : byLegacy[t];
+      if (hit) return hit;
+    }
+    return null;
+  });
+}
+
 function initGrcChecklist() {
   const items = Array.from(document.querySelectorAll(".content-block ul li"));
   if (items.length === 0) return;
@@ -133,6 +201,7 @@ function initGrcChecklist() {
   }
   if (vaultGateOr(gate, initGrcChecklist)) return;
   gate.remove();
+  if (typeof grcChecklistMigrate === "function") grcChecklistMigrate();
 
   const key = grcChecklistKeyFor(location.pathname);
   let saved;
@@ -142,20 +211,28 @@ function initGrcChecklist() {
     saved = null;
   }
   const savedItems = saved && Array.isArray(saved.items) ? saved.items : null;
+  const matched = grcChecklistMatchSaved(items, savedItems);
   const state = {
     items: items.map((li, i) => {
-      const prev = savedItems && savedItems[i];
-      return {
+      const prev = matched[i];
+      const out = {
         text: li.textContent.trim(),
         checked: !!(prev && prev.checked),
         checkedAt: (prev && prev.checkedAt) || null,
         checkedBy: (prev && prev.checkedBy) || "",
       };
+      if (li.dataset.itemId) out.id = li.dataset.itemId;
+      return out;
     }),
     comment: saved && typeof saved.comment === "string" ? saved.comment : "",
     commentAt: (saved && saved.commentAt) || null,
     commentBy: (saved && saved.commentBy) || "",
   };
+  if (saved && Array.isArray(saved.legacySnapshot)) {
+    state.legacySnapshot = saved.legacySnapshot;
+  } else if (savedItems && items.some((li) => li.dataset.itemId) && savedItems.some((it) => it && !it.id)) {
+    state.legacySnapshot = savedItems;
+  }
 
   const bar = document.createElement("div");
   bar.className = "grc-progress";
@@ -286,6 +363,31 @@ function readDomainCoverageFromLink(link) {
   return readDomainCoverage(resolvedPath);
 }
 
+/* Sub-pages of a domain (spec/grc-restructure/ C1) -- eg. grc/continuite.html
+   and its grc/continuite/*.html. A child config registers itself on
+   window.GRC_DOMAIN_CHILDREN[<parent link>] = { path, domains } (see
+   grc/continuite/index.js); pages that don't load it simply see no
+   children, same as before. Children count toward their parent's card
+   and are exported / reset / imported as domains of the same section,
+   their link made relative to the section ("continuite/bia.html"). */
+function grcDomainChildren(domain) {
+  const reg = typeof window !== "undefined" && window.GRC_DOMAIN_CHILDREN;
+  const entry = reg && domain && reg[domain.link];
+  if (!entry || !Array.isArray(entry.domains)) return [];
+  return entry.domains
+    .filter((c) => c.enabled !== false)
+    .map((c) => Object.assign({}, c, { link: entry.path + c.link, parentLink: domain.link }));
+}
+
+function grcExpandDomains(domains) {
+  const out = [];
+  domains.filter((d) => d.enabled !== false).forEach((d) => {
+    out.push(d);
+    grcDomainChildren(d).forEach((c) => out.push(c));
+  });
+  return out;
+}
+
 /* domains: the same array passed to renderGrcDomains(). gridSelector must
    be the same grid renderGrcDomains() rendered into -- this reads the
    cards it already built (matched via data-link) rather than building
@@ -300,6 +402,7 @@ function readDomainCoverageFromLink(link) {
    the overall summary, so ticking a box updates this page live instead
    of only after the next reload. */
 function renderGrcCoverage(domains, gridSelector, summarySelector) {
+  if (typeof grcChecklistMigrate === "function") grcChecklistMigrate();
   const grid = document.querySelector(gridSelector);
   if (!grid) return;
 
@@ -327,7 +430,13 @@ function renderGrcCoverage(domains, gridSelector, summarySelector) {
   }
 
   function loadDomain(domain) {
-    const { total, done, comment } = readDomainCoverageFromLink(domain.link);
+    let { total, done, comment } = readDomainCoverageFromLink(domain.link);
+    grcDomainChildren(domain).forEach((c) => {
+      const cov = readDomainCoverageFromLink(c.link);
+      total += cov.total;
+      done += cov.done;
+      if (!(comment && comment.trim())) comment = cov.comment;
+    });
     results[domain.link] = { total, done };
     const badge = badges[domain.link];
     if (badge) {
@@ -370,7 +479,8 @@ function renderGrcCoverage(domains, gridSelector, summarySelector) {
 
   window.addEventListener("message", (e) => {
     if (!e.data || e.data.type !== "grc-checklist-change") return;
-    const domain = enabled.find((d) => new URL(d.link, location.href).pathname === e.data.path);
+    const domain = enabled.find((d) =>
+      [d].concat(grcDomainChildren(d)).some((x) => new URL(x.link, location.href).pathname === e.data.path));
     if (domain) loadDomain(domain);
   });
 }
@@ -386,6 +496,7 @@ function renderGrcCoverage(domains, gridSelector, summarySelector) {
    filename relative to its own hub, so the dashboard has to supply that
    prefix itself to resolve the same URL the hub would. */
 function renderGrcDashboardCoverage(sections, containerSelector) {
+  if (typeof grcChecklistMigrate === "function") grcChecklistMigrate();
   const container = document.querySelector(containerSelector);
   if (!container) return;
   container.innerHTML = "";
@@ -399,7 +510,7 @@ function renderGrcDashboardCoverage(sections, containerSelector) {
       '<span class="grc-progress-label">0%</span>';
     container.appendChild(row);
 
-    const enabled = section.domains.filter((d) => d.enabled !== false);
+    const enabled = grcExpandDomains(section.domains);
     let totalItems = 0;
     let totalDone = 0;
     enabled.forEach((d) => {
@@ -426,8 +537,7 @@ function renderGrcHeaderCoverage(sections, fillSelector, countSelector) {
   let totalItems = 0;
   let totalDone = 0;
   sections.forEach((section) => {
-    section.domains
-      .filter((d) => d.enabled !== false)
+    grcExpandDomains(section.domains)
       .forEach((d) => {
         const { total, done } = readDomainCoverageFromLink(section.basePath + d.link);
         totalItems += total;
@@ -473,8 +583,7 @@ function grcVaultBlocks() {
 function collectGrcExportData(sections) {
   return sections.map((section) => ({
     title: section.title,
-    domains: section.domains
-      .filter((d) => d.enabled !== false)
+    domains: grcExpandDomains(section.domains)
       .map((d) => {
         const url = section.basePath + d.link;
         const cov = readDomainCoverageFromLink(url);
@@ -482,7 +591,8 @@ function collectGrcExportData(sections) {
         // there -- this function only ever runs from pages that also load
         // grc-loader.js): falls back to the raw config text untranslated
         // when no dict entry exists yet, exactly like the on-screen cards.
-        const slug = d.link.replace(/\.html$/, "");
+        // "continuite/bia.html" -> "continuite.bia" (sub-page keys).
+        const slug = d.link.replace(/\.html$/, "").replace(/\//g, ".");
         const prefix = section.keyPrefix || "grc";
         const title = typeof grcLoaderText === "function"
           ? grcLoaderText(prefix + "." + slug + ".hubCard.title", d.title)
@@ -516,8 +626,7 @@ function collectGrcExportData(sections) {
 function grcCollectRefreshTargets(sections) {
   const targets = [];
   sections.forEach((section) => {
-    section.domains
-      .filter((d) => d.enabled !== false)
+    grcExpandDomains(section.domains)
       .forEach((d) => {
         const url = section.basePath + d.link;
         const path = new URL(url, location.href).pathname;
@@ -689,6 +798,9 @@ function grcExportReportBody(sections) {
     });
   });
 
+  // Documentation par élément de chaque page (grc-fiches.js) : jointe au
+  // rapport complet du hub (chaque page garde aussi ses propres exports).
+  if (typeof grcFicheAllDocumentsBody === "function") html += grcFicheAllDocumentsBody();
   return html;
 }
 
@@ -777,8 +889,7 @@ function resetGrcData(sections, onDone) {
 
   const keys = [];
   sections.forEach((section) => {
-    section.domains
-      .filter((d) => d.enabled !== false)
+    grcExpandDomains(section.domains)
       .forEach((d) => {
         const url = section.basePath + d.link;
         const path = new URL(url, location.href).pathname;
@@ -838,8 +949,7 @@ function importGrcData(file, sections, onDone, onError) {
 
     const allowedPaths = new Set();
     sections.forEach((section) => {
-      section.domains
-        .filter((d) => d.enabled !== false)
+      grcExpandDomains(section.domains)
         .forEach((d) => {
           const url = section.basePath + d.link;
           allowedPaths.add(new URL(url, location.href).pathname);
@@ -848,22 +958,38 @@ function importGrcData(file, sections, onDone, onError) {
 
     let restored = 0;
     resetGrcData(sections, () => {
-      data.forEach((section) => {
+      // Two passes: merged-in domains (GRC_CHECKLIST_MOVES mergeTag) last,
+      // so the plain write of their target page can't overwrite what they added.
+      [false, true].forEach((mergePass) => data.forEach((section) => {
         if (!section || !Array.isArray(section.domains)) return;
         section.domains.forEach((domain) => {
           if (!domain || !domain.path || !Array.isArray(domain.items)) return;
           if (!domain.visited) return; // never-reviewed domains have nothing to restore
-          if (!allowedPaths.has(domain.path)) return; // out of scope for this import
-          const key = grcChecklistKeyFor(domain.path);
-          vaultSetItem(key, JSON.stringify({
+          // Backups taken before spec/grc-restructure/ or spec/grc-hub-iso/
+          // carry the old paths (pages moved to Sécurité opérationnelle).
+          const remap = typeof grcChecklistRemapPath === "function" ? grcChecklistRemapPath(domain.path) : null;
+          if (!!(remap && remap.mergeTag) !== mergePass) return;
+          const path = remap ? remap.path : domain.path;
+          if (!allowedPaths.has(path)) return; // out of scope for this import
+          const key = grcChecklistKeyFor(path);
+          let state = {
             items: domain.items,
             comment: domain.comment || "",
             commentAt: domain.commentAt || null,
             commentBy: domain.commentBy || "",
-          }));
+          };
+          if (remap && remap.mergeTag) {
+            let current = null;
+            try { current = JSON.parse(vaultGetItem(key) || "null"); } catch (e) { current = null; }
+            state = grcChecklistMergeState(current, state, remap.mergeTag);
+          }
+          vaultSetItem(key, JSON.stringify(state));
           restored++;
         });
-      });
+      }));
+      // Backups taken while vie-privee.html was merged into conformite.html
+      // (2026-09-22 → 09-23): give its items back to their own page.
+      if (typeof grcChecklistMigrate === "function") grcChecklistMigrate();
       if (onDone) onDone(restored);
     });
   };

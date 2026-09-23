@@ -95,16 +95,17 @@ Object.assign(I18N_DICT, {
   "grc.cloud.item6": { fr: "Journalisation et surveillance cloud-native", en: "Cloud-native logging and monitoring" },
 
   // ===================== conformite =====================
-  "grc.conformite.title": { fr: "Gestion de la conformité", en: "Compliance Management" },
+  "grc.conformite.title": { fr: "Gestion de la conformité", en: "Compliance management" },
   "grc.conformite.subtitle": {
-    fr: "La gestion de la conformité assure que l’organisation respecte ses obligations légales, contractuelles et normatives, et structure ses audits internes et externes.",
-    en: "Compliance management ensures the organization meets its legal, contractual and regulatory obligations, and structures its internal and external audits."
+    fr: "La conformité assure que l’organisation respecte ses obligations légales, contractuelles et normatives et structure ses audits, ses écarts et ses actions correctives.",
+    en: "Compliance ensures the organization meets its legal, contractual and regulatory obligations and structures its audits, nonconformities and corrective actions."
   },
-  "grc.conformite.hubCard.title": { fr: "Gestion de la conformité", en: "Compliance Management" },
+  "grc.conformite.hubCard.title": { fr: "Gestion de la conformité", en: "Compliance management" },
   "grc.conformite.hubCard.desc": {
-    fr: "Respect des lois, normes et obligations contractuelles ; suivi des écarts et des audits.",
-    en: "Compliance with laws, standards and contractual obligations; tracking of gaps and audits."
+    fr: "Obligations légales, contractuelles et normatives (ISO 27001/27005/22301), programme d’audit, écarts et actions correctives.",
+    en: "Legal, contractual and regulatory obligations (ISO 27001/27005/22301), audit programme, nonconformities and corrective actions."
   },
+  "grc.conformite.see2": { fr: "Protection des renseignements personnels (Loi 25)", en: "Personal information protection (Bill 25)" },
   "grc.conformite.whyTitle": { fr: "Pourquoi c’est important", en: "Why it matters" },
   "grc.conformite.why1": {
     fr: "Assure que l’organisation respecte les lois, normes, obligations contractuelles.",
@@ -150,9 +151,9 @@ Object.assign(I18N_DICT, {
   },
 
   // ===================== continuite =====================
-  "grc.continuite.title": { fr: "Plan de continuité (PCA/PRA)", en: "Continuity Plan (BCP/DRP)" },
+  "grc.continuite.title": { fr: "Continuité des activités", en: "Business continuity" },
   "grc.continuite.subtitle": { fr: "Cette section assure la résilience de l’organisation.", en: "This section ensures the organization’s resilience." },
-  "grc.continuite.hubCard.title": { fr: "Continuité", en: "Continuity" },
+  "grc.continuite.hubCard.title": { fr: "Continuité des activités", en: "Business continuity" },
   "grc.continuite.hubCard.desc": {
     fr: "Plans de continuité et de reprise d’activité face aux scénarios de disruption.",
     en: "Business continuity and disaster recovery plans for disruption scenarios."
@@ -215,9 +216,9 @@ Object.assign(I18N_DICT, {
   },
 
   // ===================== directives =====================
-  "grc.directives.title": { fr: "Directives de sécurité", en: "Security Directives" },
+  "grc.directives.title": { fr: "Politiques et directives", en: "Policies and directives" },
   "grc.directives.subtitle": { fr: "Les directives sont les règles que les employés doivent suivre.", en: "Directives are the rules employees must follow." },
-  "grc.directives.hubCard.title": { fr: "Directives", en: "Directives" },
+  "grc.directives.hubCard.title": { fr: "Politiques et directives", en: "Policies and directives" },
   "grc.directives.hubCard.desc": {
     fr: "Politiques et chartes encadrant les pratiques de sécurité de l’organisation.",
     en: "Policies and charters governing the organization’s security practices."
@@ -246,9 +247,9 @@ Object.assign(I18N_DICT, {
   },
 
   // ===================== documentation =====================
-  "grc.documentation.title": { fr: "Gestion documentaire", en: "Document Management" },
+  "grc.documentation.title": { fr: "Gestion documentaire", en: "Document management" },
   "grc.documentation.subtitle": { fr: "Cette section encadre la vie des documents de sécurité.", en: "This section governs the lifecycle of security documents." },
-  "grc.documentation.hubCard.title": { fr: "Documentation", en: "Documentation" },
+  "grc.documentation.hubCard.title": { fr: "Gestion documentaire", en: "Document management" },
   "grc.documentation.hubCard.desc": {
     fr: "Registre central des documents, versions et preuves du système de management.",
     en: "Central register of documents, versions and evidence for the management system."
@@ -347,12 +348,12 @@ Object.assign(I18N_DICT, {
   "grc.iam.item6": { fr: "Revue périodique des accès", en: "Periodic access reviews" },
 
   // ===================== indicateurs =====================
-  "grc.indicateurs.title": { fr: "Gestion des performances GRC", en: "GRC Performance Management" },
+  "grc.indicateurs.title": { fr: "Performance et indicateurs GRC", en: "GRC performance and indicators" },
   "grc.indicateurs.subtitle": {
     fr: "Les indicateurs de performance permettent de mesurer l’efficacité du programme de sécurité, conformément à la clause 9.1 d’ISO 27001.",
     en: "Performance indicators measure the effectiveness of the security program, in line with ISO 27001 clause 9.1."
   },
-  "grc.indicateurs.hubCard.title": { fr: "Gestion des performances GRC", en: "GRC Performance Management" },
+  "grc.indicateurs.hubCard.title": { fr: "Performance et indicateurs GRC", en: "GRC performance and indicators" },
   "grc.indicateurs.hubCard.desc": {
     fr: "Indicateurs KPI/KRI, tableaux de bord et rapports périodiques, exigés par ISO 27001 (clause 9.1).",
     en: "KPI/KRI indicators, dashboards and periodic reports, required by ISO 27001 (clause 9.1)."
@@ -369,9 +370,9 @@ Object.assign(I18N_DICT, {
   "grc.indicateurs.item5": { fr: "Rapports périodiques", en: "Periodic reports" },
 
   // ===================== procedures =====================
-  "grc.procedures.title": { fr: "Procédures de sécurité", en: "Security Procedures" },
+  "grc.procedures.title": { fr: "Procédures opérationnelles", en: "Operating procedures" },
   "grc.procedures.subtitle": { fr: "Les procédures sont les étapes concrètes pour exécuter les directives.", en: "Procedures are the concrete steps for carrying out directives." },
-  "grc.procedures.hubCard.title": { fr: "Procédures", en: "Procedures" },
+  "grc.procedures.hubCard.title": { fr: "Procédures opérationnelles", en: "Operating procedures" },
   "grc.procedures.hubCard.desc": {
     fr: "Modes opératoires détaillés pour l’application concrète des directives.",
     en: "Detailed operating instructions for the practical application of directives."
@@ -415,16 +416,18 @@ Object.assign(I18N_DICT, {
   },
 
   // ===================== vie-privee =====================
-  "grc.vie-privee.title": { fr: "Gestion de la vie privée", en: "Privacy Management" },
+  "grc.vie-privee.title": { fr: "Protection des renseignements personnels", en: "Personal information protection" },
   "grc.vie-privee.subtitle": {
-    fr: "La protection des renseignements personnels est un complément essentiel à la sécurité de l’information, encadré au Québec par la Loi 25.",
-    en: "Protecting personal information is an essential complement to information security, governed in Quebec by Bill 25."
+    fr: "La protection des renseignements personnels est un complément essentiel à la sécurité de l’information, encadré au Québec par la Loi 25 : registre des traitements, consentements, EFVP, conservation, violations et droits des personnes.",
+    en: "Protecting personal information is an essential complement to information security, governed in Quebec by Bill 25: record of processing, consents, PIAs, retention, breaches and data subject rights."
   },
-  "grc.vie-privee.hubCard.title": { fr: "Gestion de la vie privée", en: "Privacy Management" },
+  "grc.vie-privee.hubCard.title": { fr: "Protection des renseignements personnels", en: "Personal information protection" },
   "grc.vie-privee.hubCard.desc": {
-    fr: "Protection des renseignements personnels, consentement et conformité à la Loi 25.",
-    en: "Personal information protection, consent and compliance with Bill 25."
+    fr: "Registre des traitements, consentements, EFVP, conservation, violations de confidentialité et droits des personnes (Loi 25).",
+    en: "Record of processing, consents, PIAs, retention, confidentiality breaches and data subject rights (Bill 25)."
   },
+  "grc.vie-privee.see1": { fr: "Gestion de la conformité (obligations légales)", en: "Compliance management (legal obligations)" },
+  "grc.vie-privee.see2": { fr: "Gestion documentaire (conservation des documents)", en: "Document management (document retention)" },
   "grc.vie-privee.whyTitle": { fr: "Pourquoi c’est important", en: "Why it matters" },
   "grc.vie-privee.why1": { fr: "Obligatoire avec la Loi 25 au Québec.", en: "Mandatory under Quebec’s Bill 25." },
   "grc.vie-privee.why2": { fr: "Complément essentiel à la sécurité de l’information.", en: "Essential complement to information security." },
@@ -462,5 +465,53 @@ Object.assign(I18N_DICT, {
   "grc.vulnerabilites.item2": { fr: "Gestion des correctifs (patch management)", en: "Patch management" },
   "grc.vulnerabilites.item3": { fr: "Priorisation (CVSS)", en: "Prioritization (CVSS)" },
   "grc.vulnerabilites.item4": { fr: "Rapports de vulnérabilités", en: "Vulnerability reports" },
-  "grc.vulnerabilites.item5": { fr: "Suivi des remédiations", en: "Remediation tracking" }
+  "grc.vulnerabilites.item5": { fr: "Suivi des remédiations", en: "Remediation tracking" },
+
+  // ===================== ressources-humaines (grc-debutant) =====================
+  "grc.ressources-humaines.title": { fr: "Ressources humaines et sensibilisation", en: "People and awareness" },
+  "grc.ressources-humaines.subtitle": { fr: "Les personnes sont la première ligne de défense : on vérifie, on forme, on sensibilise et on encadre les arrivées et les départs.", en: "People are the first line of defence: screening, training, awareness, and controlled onboarding and offboarding." },
+  "grc.ressources-humaines.hubCard.title": { fr: "Ressources humaines et sensibilisation", en: "People and awareness" },
+  "grc.ressources-humaines.hubCard.desc": { fr: "Sélection, contrats, compétences, sensibilisation, départs et signalement, exigés par ISO 27001 (7.2, 7.3, A.6).", en: "Screening, contracts, skills, awareness, departures and reporting, required by ISO 27001 (7.2, 7.3, A.6)." },
+  "grc.ressources-humaines.role": { fr: "Sans personnes compétentes et sensibilisées, les meilleurs contrôles techniques sont contournés. Cette section relie chaque rôle à ses compétences et chaque risque humain à une action de sensibilisation.", en: "Without competent and aware people, the best technical controls get bypassed. This section links each role to its skills and each human risk to an awareness action." },
+  "grc.ressources-humaines.c.selection.label": { fr: "Sélection des candidats", en: "Screening" },
+  "grc.ressources-humaines.c.selection.desc": { fr: "vérifications avant l’embauche, proportionnées au poste et à la sensibilité de l’information.", en: "background checks before hiring, proportionate to the role and to information sensitivity." },
+  "grc.ressources-humaines.c.conditions.label": { fr: "Conditions d’emploi et confidentialité", en: "Terms of employment and confidentiality" },
+  "grc.ressources-humaines.c.conditions.desc": { fr: "responsabilités de sécurité dans le contrat, engagements de confidentialité signés.", en: "security responsibilities in the contract, signed confidentiality undertakings." },
+  "grc.ressources-humaines.c.competences.label": { fr: "Compétences", en: "Competence" },
+  "grc.ressources-humaines.c.competences.desc": { fr: "compétences requises par rôle, preuves de compétence, écarts et actions.", en: "competence required per role, evidence of competence, gaps and actions." },
+  "grc.ressources-humaines.c.sensibilisation.label": { fr: "Sensibilisation et formation", en: "Awareness and training" },
+  "grc.ressources-humaines.c.sensibilisation.desc": { fr: "programme de sensibilisation, publics, fréquence, mesure de l’efficacité.", en: "awareness programme, audiences, frequency, effectiveness measurement." },
+  "grc.ressources-humaines.c.disciplinaire.label": { fr: "Processus disciplinaire", en: "Disciplinary process" },
+  "grc.ressources-humaines.c.disciplinaire.desc": { fr: "processus connu et gradué en cas de manquement aux règles de sécurité.", en: "known, graduated process for breaches of security rules." },
+  "grc.ressources-humaines.c.depart.label": { fr: "Départs et changements de poste", en: "Termination and change of employment" },
+  "grc.ressources-humaines.c.depart.desc": { fr: "retrait des accès, restitution des actifs, rappel des obligations qui continuent.", en: "access removal, return of assets, reminder of continuing obligations." },
+  "grc.ressources-humaines.c.signalement.label": { fr: "Signalement des événements", en: "Event reporting" },
+  "grc.ressources-humaines.c.signalement.desc": { fr: "canal simple et connu pour signaler un événement de sécurité, sans crainte de représailles.", en: "simple, known channel to report a security event, without fear of reprisal." },
+  "grc.ressources-humaines.c.teletravail.label": { fr: "Télétravail", en: "Remote working" },
+  "grc.ressources-humaines.c.teletravail.desc": { fr: "règles de sécurité hors des locaux (voir Directives › Télétravail).", en: "security rules outside the premises (see Directives › Remote work)." },
+
+  // ===================== securite-physique (grc-debutant) =====================
+  "grc.securite-physique.title": { fr: "Sécurité physique", en: "Physical security" },
+  "grc.securite-physique.subtitle": { fr: "Protéger les lieux, les équipements et les supports : zones, accès, environnement, maintenance, mise au rebut.", en: "Protect premises, equipment and media: zones, access, environment, maintenance, disposal." },
+  "grc.securite-physique.hubCard.title": { fr: "Sécurité physique", en: "Physical security" },
+  "grc.securite-physique.hubCard.desc": { fr: "Zones et accès physiques, menaces environnementales, équipements, supports et mise au rebut, exigés par ISO 27001 (A.7).", en: "Zones and physical access, environmental threats, equipment, media and disposal, required by ISO 27001 (A.7)." },
+  "grc.securite-physique.role": { fr: "Un serveur volé ou un local inondé contourne toutes les protections logiques. Cette section relie chaque zone à ses actifs et chaque menace physique à un contrôle.", en: "A stolen server or a flooded room bypasses every logical protection. This section links each zone to its assets and each physical threat to a control." },
+  "grc.securite-physique.c.zones.label": { fr: "Zones et accès physiques", en: "Zones and physical access" },
+  "grc.securite-physique.c.zones.desc": { fr: "périmètres, zones sécurisées, contrôle des entrées, bureaux et salles.", en: "perimeters, secure areas, entry controls, offices and rooms." },
+  "grc.securite-physique.c.surveillance.label": { fr: "Surveillance physique", en: "Physical monitoring" },
+  "grc.securite-physique.c.surveillance.desc": { fr: "caméras, alarmes, gardiennage et conservation des enregistrements.", en: "cameras, alarms, guarding and retention of recordings." },
+  "grc.securite-physique.c.environnement.label": { fr: "Menaces environnementales et services support", en: "Environmental threats and utilities" },
+  "grc.securite-physique.c.environnement.desc": { fr: "incendie, eau, chaleur, électricité, climatisation, et leurs protections.", en: "fire, water, heat, power, cooling, and their protections." },
+  "grc.securite-physique.c.bureau-propre.label": { fr: "Bureau propre et écran verrouillé", en: "Clear desk and clear screen" },
+  "grc.securite-physique.c.bureau-propre.desc": { fr: "règles pour les documents papier, supports et écrans laissés sans surveillance.", en: "rules for paper, media and screens left unattended." },
+  "grc.securite-physique.c.equipements.label": { fr: "Équipements : emplacement, hors site, maintenance", en: "Equipment: siting, off-premises, maintenance" },
+  "grc.securite-physique.c.equipements.desc": { fr: "protection des équipements, sortie des locaux, entretien selon le fabricant.", en: "equipment protection, off-premises use, maintenance per manufacturer." },
+  "grc.securite-physique.c.supports.label": { fr: "Supports de stockage et câblage", en: "Storage media and cabling" },
+  "grc.securite-physique.c.supports.desc": { fr: "gestion des supports amovibles, transport, protection du câblage.", en: "removable media handling, transport, cabling protection." },
+  "grc.securite-physique.c.rebut.label": { fr: "Mise au rebut et réutilisation", en: "Secure disposal and re-use" },
+  "grc.securite-physique.c.rebut.desc": { fr: "effacement ou destruction sûre avant mise au rebut, preuve de destruction.", en: "secure erasure or destruction before disposal, proof of destruction." },
+
+  // ===================== demarrer (grc-debutant B5) =====================
+  "grc.demarrer.title": { fr: "Démarrer ici", en: "Start here" },
+  "grc.demarrer.subtitle": { fr: "La démarche GRC pas à pas : diagnostic de départ, étapes dans l’ordre, documents exigés et organisation exemple.", en: "The GRC approach step by step: starting diagnostic, steps in order, required documents and example organization." }
 });

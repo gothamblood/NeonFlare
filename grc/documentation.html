@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" type="text/css" href="../assets/css/grc.css">
 </head>
-<body>
+<body data-fiche-page="documentation">
 <header>
     <nav class="nav">
         <div class="logo">
@@ -29,6 +29,8 @@
     </p>
 
 
+    <section class="grc-fiche-root" id="grcFichesRoot"></section>
+
     <section class="grc-registry-block">
         <h2 data-i18n="grc.documents.reg.title">Registre documentaire</h2>
         <div id="grcDocumentsSummary"></div>
@@ -37,11 +39,15 @@
     <section class="content-block">
         <h2 data-i18n="grc.common.contentInclude">Contenu à inclure</h2>
         <ul>
-            <li><strong data-i18n="grc.documentation.item1.label">Mise en vigueur</strong> : <span data-i18n="grc.documentation.item1.desc">date, approbation.</span> <span class="grc-control-tags">ISO A.5.1 · NIST GV.PO</span></li>
-            <li><strong data-i18n="grc.documentation.item2.label">Révision</strong> : <span data-i18n="grc.documentation.item2.desc">fréquence, versioning.</span> <span class="grc-control-tags">ISO A.5.1 · NIST GV.PO</span></li>
-            <li><strong data-i18n="grc.documentation.item3.label">Archivage</strong> : <span data-i18n="grc.documentation.item3.desc">conservation, accès.</span> <span class="grc-control-tags">ISO A.5.33 · NIST PR.DS</span></li>
-            <li><strong data-i18n="grc.documentation.item4.label">Références</strong> : <span data-i18n="grc.documentation.item4.desc">normes, lois, documents internes.</span></li>
+            <li data-item-id="registre" data-legacy="3"><strong data-i18n="grc.documentation.c.registre.label">Registre documentaire</strong> : <span data-i18n="grc.documentation.c.registre.desc">liste des documents, références aux normes, lois et documents internes.</span> <span class="grc-control-tags">ISO 27001 cl. 7.5 · NIST GV.PO</span></li>
+            <li data-item-id="versions" data-legacy="1"><strong data-i18n="grc.documentation.c.versions.label">Contrôle des versions</strong> : <span data-i18n="grc.documentation.c.versions.desc">numérotation, fréquence de révision, version en vigueur.</span> <span class="grc-control-tags">ISO 27001 cl. 7.5.2</span></li>
+            <li data-item-id="approbations" data-legacy="0"><strong data-i18n="grc.documentation.c.approbations.label">Approbations</strong> : <span data-i18n="grc.documentation.c.approbations.desc">approbateur, date de mise en vigueur.</span> <span class="grc-control-tags">ISO 27001 cl. 7.5.2</span></li>
+            <li data-item-id="archivage" data-legacy="2"><strong data-i18n="grc.documentation.c.archivage.label">Archivage</strong> : <span data-i18n="grc.documentation.c.archivage.desc">versions retirées conservées et accessibles.</span> <span class="grc-control-tags">ISO 27001 cl. 7.5.3 · A.5.33</span></li>
+            <li data-item-id="conservation"><strong data-i18n="grc.documentation.c.conservation.label">Conservation</strong> : <span data-i18n="grc.documentation.c.conservation.desc">durées de conservation documentaires (règles propres aux renseignements personnels : Protection des renseignements personnels).</span> <span class="grc-control-tags">ISO A.5.33</span></li>
+            <li data-item-id="preuves-audit"><strong data-i18n="grc.documentation.c.preuves-audit.label">Preuves d’audit</strong> : <span data-i18n="grc.documentation.c.preuves-audit.desc">enregistrements démontrant l’application des contrôles.</span> <span class="grc-control-tags">ISO 27001 cl. 7.5 · 9.2 · A.5.33</span></li>
+            <li data-item-id="historique"><strong data-i18n="grc.documentation.c.historique.label">Historique des modifications</strong> : <span data-i18n="grc.documentation.c.historique.desc">qui a modifié quoi, quand et pourquoi.</span> <span class="grc-control-tags">ISO 27001 cl. 7.5.3</span></li>
         </ul>
+        <p class="grc-see-also"><span data-i18n="grc.common.seeAlso">Voir aussi :</span> <a href="vie-privee.html#fiche-conservation" data-i18n="grc.documentation.see1">Conservation des renseignements personnels</a></p>
 
         <h2 data-i18n="grc.common.roleTitle">Rôle en GRC</h2>
         <p data-i18n="grc.documentation.role">La gestion documentaire assure que les documents sont à jour, accessibles et conformes.</p>
@@ -54,6 +60,7 @@
 <script src="../assets/script/i18n.js"></script>
 <script src="../assets/script/grc-i18n.js"></script>
 <script src="../assets/script/grc-i18n-domains.js"></script>
+<script src="../assets/script/grc-i18n-components.js"></script>
 
 <script src="../config/grc-author.js"></script>
 
@@ -67,15 +74,27 @@
 
 <script src="../assets/script/inline/apply-i18n.js"></script>
 
+<script src="../assets/script/grc-checklist-migrate.js"></script>
 <script src="../assets/script/grc-checklist.js"></script>
 <script src="../assets/script/inline/init-grc-checklist.js"></script>
 
 
 <script src="../assets/script/config-io.js"></script>
+<!-- Chaîne GRC : catalogue Annexe A + liens entre sections (spec/grc-fiches/chaine.md) -->
+<script src="../assets/script/grc-annexe-a.js"></script>
+<script src="../assets/script/grc-links.js"></script>
 <script src="../assets/script/grc-registry-kit.js"></script>
 <script src="../assets/script/grc-documents.js"></script>
 <script src="../assets/script/grc-documents-panel.js"></script>
 <script src="../assets/script/inline/documentation.js"></script>
+
+
+<!-- Documentation de l'organisation par élément (spec/grc-fiches/) -->
+<script src="../assets/script/grc-controls.js"></script>
+<script src="../assets/script/grc-vocab.js"></script>
+<script src="../assets/script/grc-fiches.js"></script>
+<script src="../assets/script/grc-fiches-documentation.js"></script>
+<script src="../assets/script/inline/init-grc-fiches.js"></script>
 
 </body>
 </html>

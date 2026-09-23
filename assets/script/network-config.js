@@ -27,9 +27,40 @@ function getRawNetworkNodes() {
   }
 }
 
+/* Seeds added after a registry may already have been saved
+   (reseauConfig.addedSeeds, config/reseau.js): appended ONCE to a saved
+   list that lacks them, then remembered in NETWORK_SEEDS_SEEN_KEY --
+   deleting one afterwards is respected. Only runs on a readable list
+   (vault unlocked or off), never on the seed fallback. */
+const NETWORK_SEEDS_SEEN_KEY = "/settings.html/networkNodesSeedsSeen";
+
+function _migrateAddedNetworkSeeds(raw) {
+  const added = (typeof reseauConfig !== "undefined" && Array.isArray(reseauConfig.addedSeeds)) ? reseauConfig.addedSeeds : [];
+  if (!added.length) return raw;
+  let seen = [];
+  try { seen = JSON.parse(localStorage.getItem(NETWORK_SEEDS_SEEN_KEY) || "[]"); } catch (e) { seen = []; }
+  if (!Array.isArray(seen)) seen = [];
+  const todo = added.filter((id) => seen.indexOf(id) === -1);
+  if (!todo.length) return raw;
+  let changed = false;
+  todo.forEach((id) => {
+    const seed = reseauConfig.cards.find((c) => c.id === id);
+    if (seed && !raw.some((n) => n && (n.id === id || n.url === seed.url))) {
+      raw.push(Object.assign({}, seed));
+      changed = true;
+    }
+    seen.push(id);
+  });
+  try {
+    if (changed) saveNetworkNodes(raw);
+    localStorage.setItem(NETWORK_SEEDS_SEEN_KEY, JSON.stringify(seen));
+  } catch (e) { /* réessayé au prochain chargement */ }
+  return raw;
+}
+
 function getNetworkNodes() {
   const raw = getRawNetworkNodes();
-  if (raw) return raw;
+  if (raw) return _migrateAddedNetworkSeeds(raw);
   return reseauConfig.cards.map((card, i) => Object.assign({ id: "seed-" + i }, card));
 }
 

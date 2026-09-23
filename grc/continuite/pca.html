@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'">
+    <link rel="icon" type="image/svg+xml" href="../../assets/images/dragon-logo.svg">
+    <link rel="icon" type="image/png" href="../../assets/images/dragon-favicon.png">
+    <title>PCA — Plan de continuité des activités – GRC Cybersecurity</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" type="text/css" href="../../assets/css/grc.css">
+</head>
+<body data-fiche-page="continuite-pca">
+<header>
+    <nav class="nav">
+        <div class="logo">
+            <div class="logo-mark">C</div>
+            <div>Continuité</div>
+        </div>
+        <div class="nav-links">
+            <a href="../continuite.html" data-i18n="grc.common.backToContinuite">&larr; Retour à Continuité</a>
+        </div>
+    </nav>
+</header>
+
+<main>
+    <h1 class="page-title" data-i18n="grc.continuite.pca.title">PCA — Plan de continuité des activités</h1>
+    <p class="page-subtitle" data-i18n="grc.continuite.pca.subtitle">
+        Le PCA est le cadre englobant : il fixe la politique, la portée et la gouvernance de la continuité et articule les autres plans.
+    </p>
+
+    <section class="grc-fiche-root" id="grcFichesRoot"></section>
+
+    <section class="content-block">
+        <h2 data-i18n="grc.common.contentInclude">Contenu à inclure</h2>
+        <ul>
+            <li data-item-id="politique" data-legacy="@../continuite.html#0"><strong data-i18n="grc.continuite.pca.c.politique.label">Politique de continuité</strong> : <span data-i18n="grc.continuite.pca.c.politique.desc">objectifs (maintenir les services essentiels), principes, engagement de la direction.</span> <span class="grc-control-tags">ISO 22301 cl. 5.2 · ISO A.5.29</span></li>
+            <li data-item-id="portee"><strong data-i18n="grc.continuite.pca.c.portee.label">Portée</strong> : <span data-i18n="grc.continuite.pca.c.portee.desc">activités, sites et services couverts (voir Contexte organisationnel).</span> <span class="grc-control-tags">ISO 22301 cl. 4.3</span></li>
+            <li data-item-id="objectifs"><strong data-i18n="grc.continuite.pca.c.objectifs.label">Objectifs de continuité</strong> : <span data-i18n="grc.continuite.pca.c.objectifs.desc">objectifs mesurables issus du BIA.</span> <span class="grc-control-tags">ISO 22301 cl. 6.2</span></li>
+            <li data-item-id="gouvernance"><strong data-i18n="grc.continuite.pca.c.gouvernance.label">Gouvernance de la continuité</strong> : <span data-i18n="grc.continuite.pca.c.gouvernance.desc">propriétaire du PCA, rôles, lien avec la CCD.</span> <span class="grc-control-tags">ISO 22301 cl. 5.3 · NIST GV.RR</span></li>
+            <li data-item-id="articulation"><strong data-i18n="grc.continuite.pca.c.articulation.label">Articulation des plans</strong> : <span data-i18n="grc.continuite.pca.c.articulation.desc">PCO, PGC, PCM, PRA, PSI et PRI : déclencheur, responsable, horizon de temps.</span> <span class="grc-control-tags">ISO 22301 cl. 8.4</span></li>
+            <li data-item-id="activation"><strong data-i18n="grc.continuite.pca.c.activation.label">Activation</strong> : <span data-i18n="grc.continuite.pca.c.activation.desc">critères et autorité d’activation, phases (alerte, crise, reprise, retour).</span> <span class="grc-control-tags">ISO 22301 cl. 8.4.2</span></li>
+            <li data-item-id="ressources"><strong data-i18n="grc.continuite.pca.c.ressources.label">Ressources et budget</strong> : <span data-i18n="grc.continuite.pca.c.ressources.desc">ressources allouées là où elles maintiennent la mission d’affaires.</span> <span class="grc-control-tags">ISO 22301 cl. 7.1</span></li>
+            <li data-item-id="approbation-revue"><strong data-i18n="grc.continuite.pca.c.approbation-revue.label">Approbation et revue</strong> : <span data-i18n="grc.continuite.pca.c.approbation-revue.desc">approbation par la direction, revue annuelle et après incident.</span> <span class="grc-control-tags">ISO 22301 cl. 9.3 · 10</span></li>
+        </ul>
+
+        <h2 data-i18n="grc.common.roleTitle">Rôle en GRC</h2>
+        <p data-i18n="grc.continuite.pca.role">Le PCA ne remplace pas les plans spécialisés : il décide quand et comment chacun est activé.</p>
+    </section>
+</main>
+
+
+<script src="../../assets/script/page-boot.js"></script>
+
+<script src="../../assets/script/i18n.js"></script>
+<script src="../../assets/script/grc-i18n.js"></script>
+<script src="../../assets/script/grc-i18n-components.js"></script>
+
+<script src="../../config/grc-author.js"></script>
+
+<script src="../../config/encryption.js"></script>
+
+<script src="../../assets/script/vault-crypto.js"></script>
+<script src="../../assets/script/theme-accent.js"></script>
+
+<script src="../../assets/script/vault.js"></script>
+<script src="../../assets/script/vault-ui.js"></script>
+
+<script src="../../assets/script/inline/apply-i18n.js"></script>
+
+<script src="../../assets/script/grc-checklist-migrate.js"></script>
+<script src="../../assets/script/grc-checklist.js"></script>
+<script src="../../assets/script/config-io.js"></script>
+<!-- Chaîne GRC + documentation par élément (spec/grc-fiches/, grc-normes N4) -->
+<script src="../../assets/script/grc-annexe-a.js"></script>
+<script src="../../assets/script/grc-links.js"></script>
+<script src="../../assets/script/grc-registry-kit.js"></script>
+<script src="../../assets/script/grc-vocab.js"></script>
+<script src="../../assets/script/grc-fiches.js"></script>
+<script src="../../assets/script/grc-fiches-continuite-sub.js"></script>
+<script src="../../assets/script/inline/init-grc-checklist.js"></script>
+<script src="../../assets/script/inline/init-grc-fiches.js"></script>
+
+</body>
+</html>

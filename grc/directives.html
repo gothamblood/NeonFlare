@@ -5,11 +5,11 @@
     <meta http-equiv="Content-Security-Policy" content="script-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'">
     <link rel="icon" type="image/svg+xml" href="../assets/images/dragon-logo.svg">
     <link rel="icon" type="image/png" href="../assets/images/dragon-favicon.png">
-    <title>Directives de sécurité – GRC Cybersecurity</title>
+    <title>Politiques et directives – GRC Cybersecurity</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" type="text/css" href="../assets/css/grc.css">
 </head>
-<body>
+<body data-fiche-page="directives">
 <header>
     <nav class="nav">
         <div class="logo">
@@ -23,11 +23,13 @@
 </header>
 
 <main>
-    <h1 class="page-title" data-i18n="grc.directives.title">Directives de sécurité</h1>
+    <h1 class="page-title" data-i18n="grc.directives.title">Politiques et directives</h1>
     <p class="page-subtitle" data-i18n="grc.directives.subtitle">
         Les directives sont les règles que les employés doivent suivre.
     </p>
 
+
+    <section class="grc-fiche-root" id="grcFichesRoot"></section>
 
     <section class="grc-registry-block">
         <h2 data-i18n="grc.documents.reg.title">Registre documentaire</h2>
@@ -37,16 +39,16 @@
     <section class="content-block">
         <h2 data-i18n="grc.common.contentInclude">Contenu à inclure</h2>
         <ul>
-            <li><strong data-i18n="grc.directives.item1.label">Contrôle d’accès</strong> : <span data-i18n="grc.directives.item1.desc">moindre privilège, MFA.</span> <span class="grc-control-tags">ISO A.5.15 · NIST PR.AA · CIS 6</span></li>
-            <li><strong data-i18n="grc.directives.item2.label">Authentification</strong> : <span data-i18n="grc.directives.item2.desc">gestion des identifiants.</span> <span class="grc-control-tags">ISO A.5.17 · NIST PR.AA · CIS 5</span></li>
-            <li><strong data-i18n="grc.directives.item3.label">Sécurité des postes</strong> : <span data-i18n="grc.directives.item3.desc">antivirus, mises à jour, verrouillage.</span> <span class="grc-control-tags">ISO A.8.7 · NIST PR.PS · CIS 10</span></li>
-            <li><strong data-i18n="grc.directives.item4.label">Sécurité réseau</strong> : <span data-i18n="grc.directives.item4.desc">segmentation, filtrage, chiffrement.</span> <span class="grc-control-tags">ISO A.8.22 · NIST PR.IR · CIS 12</span></li>
-            <li><strong data-i18n="grc.directives.item5.label">Classification des données</strong> : <span data-i18n="grc.directives.item5.desc">niveaux de sensibilité.</span> <span class="grc-control-tags">ISO A.5.12 · NIST PR.DS · CIS 3</span></li>
-            <li><strong data-i18n="grc.directives.item6.label">Sauvegarde</strong> : <span data-i18n="grc.directives.item6.desc">fréquence, stockage, restauration.</span> <span class="grc-control-tags">ISO A.8.13 · NIST PR.DS · CIS 11</span></li>
-            <li><strong data-i18n="grc.directives.item7.label">DevSecOps</strong> : <span data-i18n="grc.directives.item7.desc">sécurité intégrée au développement.</span> <span class="grc-control-tags">ISO A.8.25 · NIST PR.PS · CIS 16</span></li>
-            <li><strong data-i18n="grc.directives.item8.label">Sensibilisation</strong> : <span data-i18n="grc.directives.item8.desc">formation continue.</span> <span class="grc-control-tags">ISO A.6.3 · NIST PR.AT · CIS 14</span></li>
-            <li><strong data-i18n="grc.directives.item9.label">Supervision</strong> : <span data-i18n="grc.directives.item9.desc">audits, conformité.</span> <span class="grc-control-tags">ISO A.5.35 · NIST GV.OV</span></li>
+            <li data-item-id="politique-securite" data-legacy="8"><strong data-i18n="grc.directives.c.politique-securite.label">Politique de sécurité</strong> : <span data-i18n="grc.directives.c.politique-securite.desc">politique générale approuvée par la direction : objectifs, principes, supervision, révision.</span> <span class="grc-control-tags">ISO 27001 cl. 5.2 · A.5.1 · NIST GV.PO</span></li>
+            <li data-item-id="acces" data-legacy="0"><strong data-i18n="grc.directives.c.acces.label">Politique de gestion des accès</strong> : <span data-i18n="grc.directives.c.acces.desc">moindre privilège, besoin d’en connaître, MFA, revues.</span> <span class="grc-control-tags">ISO A.5.15 · NIST PR.AA · CIS 6</span></li>
+            <li data-item-id="mots-de-passe" data-legacy="1"><strong data-i18n="grc.directives.c.mots-de-passe.label">Politique de mots de passe</strong> : <span data-i18n="grc.directives.c.mots-de-passe.desc">longueur, gestionnaire de mots de passe, rotation sur compromission, MFA.</span> <span class="grc-control-tags">ISO A.5.17 · NIST PR.AA · CIS 5</span></li>
+            <li data-item-id="sauvegarde" data-legacy="5"><strong data-i18n="grc.directives.c.sauvegarde.label">Politique de sauvegarde</strong> : <span data-i18n="grc.directives.c.sauvegarde.desc">fréquence, rétention, copies hors site ou immuables, tests de restauration.</span> <span class="grc-control-tags">ISO A.8.13 · NIST PR.DS · CIS 11</span></li>
+            <li data-item-id="classification" data-legacy="4"><strong data-i18n="grc.directives.c.classification.label">Politique de classification</strong> : <span data-i18n="grc.directives.c.classification.desc">niveaux de sensibilité, marquage, manipulation.</span> <span class="grc-control-tags">ISO A.5.12 · A.5.13 · NIST ID.AM · CIS 3</span></li>
+            <li data-item-id="utilisation-acceptable" data-legacy="2"><strong data-i18n="grc.directives.c.utilisation-acceptable.label">Politique d’utilisation acceptable</strong> : <span data-i18n="grc.directives.c.utilisation-acceptable.desc">usage des postes, courriel, internet, logiciels ; sécurité des postes de travail.</span> <span class="grc-control-tags">ISO A.5.10 · A.8.1 · NIST PR.AT</span></li>
+            <li data-item-id="teletravail"><strong data-i18n="grc.directives.c.teletravail.label">Politique télétravail</strong> : <span data-i18n="grc.directives.c.teletravail.desc">accès distant, VPN, équipements, confidentialité à domicile.</span> <span class="grc-control-tags">ISO A.6.7 · NIST PR.AA</span></li>
+            <li data-item-id="continuite"><strong data-i18n="grc.directives.c.continuite.label">Politique de continuité</strong> : <span data-i18n="grc.directives.c.continuite.desc">renvoi : décrite dans Continuité › PCA.</span> <span class="grc-control-tags">ISO A.5.29 · ISO 22301 cl. 5.2</span></li>
         </ul>
+        <p class="grc-see-also"><span data-i18n="grc.common.seeAlso">Voir aussi :</span> <a href="continuite/pca.html" data-i18n="grc.directives.see1">Politique de continuité (PCA)</a></p>
 
         <h2 data-i18n="grc.common.roleTitle">Rôle en GRC</h2>
         <p data-i18n="grc.directives.role">Les directives assurent que les employés adoptent des comportements sécuritaires.</p>
@@ -59,6 +61,7 @@
 <script src="../assets/script/i18n.js"></script>
 <script src="../assets/script/grc-i18n.js"></script>
 <script src="../assets/script/grc-i18n-domains.js"></script>
+<script src="../assets/script/grc-i18n-components.js"></script>
 
 <script src="../config/grc-author.js"></script>
 
@@ -72,15 +75,27 @@
 
 <script src="../assets/script/inline/apply-i18n.js"></script>
 
+<script src="../assets/script/grc-checklist-migrate.js"></script>
 <script src="../assets/script/grc-checklist.js"></script>
 <script src="../assets/script/inline/init-grc-checklist.js"></script>
 
 
 <script src="../assets/script/config-io.js"></script>
+<!-- Chaîne GRC : catalogue Annexe A + liens entre sections (spec/grc-fiches/chaine.md) -->
+<script src="../assets/script/grc-annexe-a.js"></script>
+<script src="../assets/script/grc-links.js"></script>
 <script src="../assets/script/grc-registry-kit.js"></script>
 <script src="../assets/script/grc-documents.js"></script>
 <script src="../assets/script/grc-documents-panel.js"></script>
 <script src="../assets/script/inline/directives.js"></script>
+
+
+<!-- Documentation de l'organisation par élément (spec/grc-fiches/) -->
+<script src="../assets/script/grc-controls.js"></script>
+<script src="../assets/script/grc-vocab.js"></script>
+<script src="../assets/script/grc-fiches.js"></script>
+<script src="../assets/script/grc-fiches-directives.js"></script>
+<script src="../assets/script/inline/init-grc-fiches.js"></script>
 
 </body>
 </html>

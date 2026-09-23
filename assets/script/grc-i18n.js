@@ -28,6 +28,7 @@ Object.assign(I18N_DICT, {
   "grc.common.backToApi": { fr: "← Retour à Sécurité API", en: "← Back to API Security" },
   "grc.common.backToWebapp": { fr: "← Retour à Sécurité WebApp", en: "← Back to WebApp Security" },
   "grc.common.backToDatabase": { fr: "← Retour à Sécurité base de données", en: "← Back to Database Security" },
+  "grc.common.backToOperationnelle": { fr: "← Retour à Sécurité opérationnelle", en: "← Back to Operational Security" },
 
   // -- Structure de page commune (checklist "Contenu à inclure") ------
   "grc.common.contentInclude": { fr: "Contenu à inclure", en: "Content to include" },
@@ -47,6 +48,23 @@ Object.assign(I18N_DICT, {
   "grc.common.btnDelete": { fr: "Supprimer", en: "Delete" },
   "grc.common.btnSave": { fr: "Enregistrer", en: "Save" },
   "grc.common.btnCancel": { fr: "Annuler", en: "Cancel" },
+  "grc.common.multiHint": { fr: "Ctrl / Cmd + clic pour choisir plusieurs éléments.", en: "Ctrl / Cmd + click to pick several items." },
+  "grc.common.suggestPlaceholder": { fr: "Choisir dans la liste ou écrire…", en: "Pick from the list or type…" },
+  "grc.common.suggestToggle": { fr: "Afficher les choix", en: "Show choices" },
+  "grc.common.requiredField": { fr: "Champ obligatoire", en: "Required field" },
+  "grc.common.datePlaceholder": { fr: "AAAA-MM-JJ", en: "YYYY-MM-DD" },
+  "grc.common.dateOpen": { fr: "Ouvrir le calendrier", en: "Open the calendar" },
+  "grc.common.dateDialog": { fr: "Choisir une date", en: "Choose a date" },
+  "grc.common.dateInvalid": { fr: "Date invalide : utilise AAAA-MM-JJ (ou JJ/MM/AAAA), ou choisis-la dans le calendrier.", en: "Invalid date: use YYYY-MM-DD (or MM/DD/YYYY), or pick it in the calendar." },
+  "grc.common.dateToday": { fr: "Aujourd’hui", en: "Today" },
+  "grc.common.dateClear": { fr: "Effacer", en: "Clear" },
+  "grc.common.datePrevMonth": { fr: "Mois précédent", en: "Previous month" },
+  "grc.common.dateNextMonth": { fr: "Mois suivant", en: "Next month" },
+  "grc.common.datePrevYear": { fr: "Année précédente", en: "Previous year" },
+  "grc.common.dateNextYear": { fr: "Année suivante", en: "Next year" },
+  "grc.common.toReview": { fr: "à revoir", en: "to review" },
+  "grc.common.markReviewed": { fr: "Marquer comme revu", en: "Mark as reviewed" },
+  "grc.common.fromExample": { fr: "Partir de l’exemple", en: "Start from the example" },
   "grc.common.btnExport": { fr: "⬇ Exporter", en: "⬇ Export" },
   "grc.common.btnExportPdf": { fr: "⬇ Export PDF", en: "⬇ Export PDF" },
   "grc.common.btnImport": { fr: "⬆ Importer", en: "⬆ Import" },
@@ -89,8 +107,8 @@ Object.assign(I18N_DICT, {
   // ===================== Hub principal (grc/index.html) ===============
   "grc.hub.title": { fr: "Gouvernance, Risques & Conformité", en: "Governance, Risk & Compliance" },
   "grc.hub.subtitle": {
-    fr: "Le système de management de la sécurité de l'information, organisé en 20 domaines : de la gouvernance et l'analyse des risques jusqu'à l'IAM, le cloud et le DevSecOps.",
-    en: "The information security management system, organized into 20 domains: from governance and risk analysis to IAM, cloud and DevSecOps."
+    fr: "Le système de management de la sécurité de l'information selon ISO 27001, organisé en 15 domaines : du contexte et de la gouvernance jusqu'à la continuité, la conformité, la protection des renseignements personnels et les indicateurs. Les domaines de mesures (architecture, vulnérabilités, IAM, ressources humaines, sécurité physique, cloud, DevSecOps) sont dans Sécurité opérationnelle.",
+    en: "The information security management system according to ISO 27001, organized into 15 domains: from context and governance to continuity, compliance, personal information protection and indicators. Measure domains (architecture, vulnerabilities, IAM, people, physical security, cloud, DevSecOps) are under Operational Security."
   },
   "grc.hub.exportJson": { fr: "Exporter JSON", en: "Export JSON" },
   "grc.hub.saveAs": { fr: "Enregistrer sous…", en: "Save as…" },
@@ -99,12 +117,12 @@ Object.assign(I18N_DICT, {
   "grc.hub.importJson": { fr: "Importer JSON", en: "Import JSON" },
   "grc.hub.reset": { fr: "Réinitialiser", en: "Reset" },
   "grc.hub.confirmReset": {
-    fr: "Effacer toutes les cases cochées et toutes les notes, sur les 5 sections GRC ? Cette action est irréversible.",
-    en: "Clear every checked box and note, across all 5 GRC sections? This action is irreversible."
+    fr: "Tout réinitialiser dans la GRC ? Seront effacés : les cases cochées et les notes des 6 sections, la documentation de chaque page (et son statut), tous les registres GRC (actifs, risques, plans, contrôles, incidents, continuité, fournisseurs, conformité, vie privée, indicateurs, documents, vulnérabilités, revues des accès), la DDA et l’exemple FSociety s’il est chargé. Cette action est irréversible : exporte d’abord une sauvegarde complète (Paramètres) si besoin.",
+    en: "Reset everything in GRC? This clears: checked boxes and notes across the 6 sections, each page’s documentation (and its status), every GRC register (assets, risks, plans, controls, incidents, continuity, suppliers, compliance, privacy, metrics, documents, vulnerabilities, access reviews), the SoA and the FSociety example if loaded. This cannot be undone: export a full backup first (Settings) if needed."
   },
   "grc.hub.confirmImport": {
-    fr: "Importer ce fichier remplacera toutes les cases cochées et notes actuelles sur les 5 sections GRC. Continuer ?",
-    en: "Importing this file will replace every currently checked box and note across the 5 GRC sections. Continue?"
+    fr: "Importer ce fichier remplacera toutes les cases cochées et notes actuelles sur les 6 sections GRC. Continuer ?",
+    en: "Importing this file will replace every currently checked box and note across the 6 GRC sections. Continue?"
   },
   "grc.hub.importRestoredCount": { fr: "{count} domaine(s) restauré(s) depuis le fichier.", en: "{count} domain(s) restored from the file." },
   "grc.hub.importFailed": { fr: "Import impossible : {message}", en: "Import failed: {message}" },
@@ -118,7 +136,7 @@ Object.assign(I18N_DICT, {
   },
 
   // -- Cartes du hub principal (grc/index.html, grc-loader.js) ---------
-  "grc.actifs.hubCard.title": { fr: "Actifs", en: "Assets" },
+  "grc.actifs.hubCard.title": { fr: "Gestion des actifs", en: "Asset management" },
   "grc.actifs.hubCard.desc": {
     fr: "Inventaire et classification des actifs informationnels et de leurs propriétaires.",
     en: "Inventory and classification of information assets and their owners."
@@ -128,19 +146,19 @@ Object.assign(I18N_DICT, {
     fr: "Identification, évaluation et priorisation des risques liés aux actifs et processus.",
     en: "Identification, assessment and prioritization of risks tied to assets and processes."
   },
-  "grc.controles.hubCard.title": { fr: "Contrôles", en: "Controls" },
+  "grc.controles.hubCard.title": { fr: "Contrôles de sécurité", en: "Security controls" },
   "grc.controles.hubCard.desc": {
     fr: "Mesures de sécurité mises en œuvre et leur correspondance avec les référentiels (ISO 27001, NIST, CIS).",
     en: "Security measures in place and how they map to frameworks (ISO 27001, NIST, CIS)."
   },
-  "grc.incidents.hubCard.title": { fr: "Incidents", en: "Incidents" },
+  "grc.incidents.hubCard.title": { fr: "Gestion des incidents", en: "Incident management" },
   "grc.incidents.hubCard.desc": {
     fr: "Processus de détection, réponse et suivi des incidents de sécurité.",
     en: "Detection, response and follow-up process for security incidents."
   },
 
   // ===================== Actifs (grc/actifs.html) =====================
-  "grc.actifs.title": { fr: "Inventaire et classification des actifs", en: "Asset inventory and classification" },
+  "grc.actifs.title": { fr: "Gestion des actifs", en: "Asset management" },
   "grc.actifs.subtitle": { fr: "Cette section identifie ce qui doit être protégé et à quel niveau.", en: "This section identifies what must be protected, and at what level." },
   "grc.actifs.registryTitle": { fr: "Registre des actifs", en: "Asset registry" },
   "grc.actifs.item1.label": { fr: "Méthodologie", en: "Methodology" },
@@ -177,6 +195,7 @@ Object.assign(I18N_DICT, {
   "grc.actifs.type.donnee": { fr: "Donnée", en: "Data" },
   "grc.actifs.type.humain": { fr: "Humain", en: "People" },
   "grc.actifs.type.reseau": { fr: "Réseau", en: "Network" },
+  "grc.actifs.type.intellectuel": { fr: "Intellectuel (savoir-faire, PI)", en: "Intellectual (know-how, IP)" },
 
   "grc.actifs.crit.high": { fr: "Élevée", en: "High" },
   "grc.actifs.crit.medium": { fr: "Moyenne", en: "Medium" },
@@ -228,6 +247,8 @@ Object.assign(I18N_DICT, {
   "grc.risques.form.name": { fr: "Nom du risque", en: "Risk name" },
   "grc.risques.form.threat": { fr: "Menace", en: "Threat" },
   "grc.risques.form.vulnerability": { fr: "Vulnérabilité", en: "Vulnerability" },
+  "grc.risques.form.evenementRedoute": { fr: "Événement redouté", en: "Feared event" },
+  "grc.risques.form.consequences": { fr: "Conséquences", en: "Consequences" },
   "grc.risques.form.assets": { fr: "Actifs concernés", en: "Affected assets" },
   "grc.risques.form.probability": { fr: "Probabilité (1-5)", en: "Probability (1-5)" },
   "grc.risques.form.impact": { fr: "Impact (1-5)", en: "Impact (1-5)" },
@@ -257,6 +278,8 @@ Object.assign(I18N_DICT, {
 
   "grc.risques.detail.threat": { fr: "Menace : {value}", en: "Threat: {value}" },
   "grc.risques.detail.vulnerability": { fr: "Vulnérabilité : {value}", en: "Vulnerability: {value}" },
+  "grc.risques.detail.evenementRedoute": { fr: "Événement redouté : {value}", en: "Feared event: {value}" },
+  "grc.risques.detail.consequences": { fr: "Conséquences : {value}", en: "Consequences: {value}" },
   "grc.risques.detail.assets": { fr: "Actifs concernés : {names}", en: "Affected assets: {names}" },
   "grc.risques.detail.probImpact": { fr: "Probabilité {p} × Impact {i} — Statut : {status}", en: "Probability {p} × Impact {i} — Status: {status}" },
   "grc.risques.detail.owner": { fr: "Propriétaire : {owner}", en: "Owner: {owner}" },
@@ -301,7 +324,7 @@ Object.assign(I18N_DICT, {
   "grc.risques.scale.impact.5": { fr: "Critique", en: "Critical" },
 
   // ===================== Contrôles (controles.html) ===================
-  "grc.controles.title": { fr: "Sélection des contrôles", en: "Control selection" },
+  "grc.controles.title": { fr: "Contrôles de sécurité", en: "Security controls" },
   "grc.controles.subtitle": { fr: "Cette section décrit les mesures de sécurité choisies pour réduire les risques.", en: "This section describes the security measures chosen to reduce risk." },
   "grc.controles.registryTitle": { fr: "Registre des contrôles", en: "Control registry" },
   "grc.controles.item1.label": { fr: "Contrôles ISO 27001 Annexe A", en: "ISO 27001 Annex A controls" },
@@ -333,6 +356,9 @@ Object.assign(I18N_DICT, {
   "grc.controles.type.organisationnel": { fr: "Organisationnel", en: "Organizational" },
   "grc.controles.type.technique": { fr: "Technique", en: "Technical" },
   "grc.controles.type.humain": { fr: "Humain", en: "Human" },
+  "grc.controles.type.physique": { fr: "Physique", en: "Physical" },
+  "grc.controles.form.justification": { fr: "Justification (inclusion / exclusion — DDA)", en: "Justification (inclusion / exclusion — SoA)" },
+  "grc.controles.detail.justification": { fr: "Justification : {value}", en: "Justification: {value}" },
 
   "grc.controles.status.nonImplemente": { fr: "Non implémenté", en: "Not implemented" },
   "grc.controles.status.partiel": { fr: "Partiel", en: "Partial" },
@@ -599,7 +625,7 @@ Object.assign(I18N_DICT, {
   "grc.continuite.pca.form.criticality": { fr: "Criticité", en: "Criticality" },
   "grc.continuite.pca.form.mtd": {
     fr: "DMIA (durée max. d'interruption admissible)",
-    en: "MTD (maximum tolerable downtime)"
+    en: "MTPD (maximum tolerable period of disruption)"
   },
   "grc.continuite.pca.form.rto": {
     fr: "RTO (délai de reprise visé)",
@@ -611,7 +637,7 @@ Object.assign(I18N_DICT, {
   },
   "grc.continuite.pca.form.mtdHint": {
     fr: "DMIA : au-delà de cette durée d'interruption, l'activité ne s'en remet plus. RTO ≤ DMIA.",
-    en: "MTD: past this outage length, the activity does not recover. RTO ≤ MTD."
+    en: "MTPD: past this outage length, the activity does not recover. RTO ≤ MTPD."
   },
   "grc.continuite.pca.form.rtoHint": {
     fr: "RTO : en combien de temps le service doit être rétabli après le sinistre.",
@@ -633,7 +659,7 @@ Object.assign(I18N_DICT, {
 
   "grc.continuite.pca.warn.rtoGtMtd": {
     fr: "⚠ Le RTO dépasse la DMIA — la reprise visée est plus lente que l'interruption tolérable.",
-    en: "⚠ RTO exceeds MTD — the recovery target is slower than the tolerable outage."
+    en: "⚠ RTO exceeds MTPD — the recovery target is slower than the tolerable outage."
   },
   "grc.continuite.pca.badge.overdue": { fr: "revue en retard", en: "review overdue" },
   "grc.continuite.pca.detail.rto": { fr: "RTO {value}", en: "RTO {value}" },
@@ -642,10 +668,40 @@ Object.assign(I18N_DICT, {
   "grc.continuite.pca.summary.plans": { fr: "{n} plan(s)", en: "{n} plan(s)" },
   "grc.continuite.pca.summary.overdue": { fr: "{n} en retard de revue", en: "{n} review(s) overdue" },
   "grc.continuite.pca.summary.tested": { fr: "testés {t}/{total}", en: "tested {t}/{total}" },
-  "grc.continuite.pca.summary.worstGaps": { fr: "Écarts RTO > DMIA :", en: "RTO > MTD gaps:" },
+  "grc.continuite.pca.summary.worstGaps": { fr: "Écarts RTO > DMIA :", en: "RTO > MTPD gaps:" },
 
   // -- Panneau du plan : onglets (T3) --
   "grc.continuite.pca.tab.synthese": { fr: "Synthèse / BIA", en: "Summary / BIA" },
+  "grc.continuite.pca.tab.bia": { fr: "BIA dans le temps", en: "BIA over time" },
+  "grc.continuite.pca.inv.target": { fr: "Élément lié", en: "Linked item" },
+  "grc.continuite.pca.biat.title": { fr: "Impacts dans le temps", en: "Impacts over time" },
+  "grc.continuite.pca.biat.hint": {
+    fr: "Pour chaque durée d’interruption, note la gravité de l’impact de 1 (négligeable) à 5 (catastrophique). La DMIA suggérée est le premier horizon où un impact devient inacceptable (niveau 4 ou plus).",
+    en: "For each outage duration, rate impact severity from 1 (negligible) to 5 (catastrophic). The suggested MTPD is the first horizon where an impact becomes unacceptable (level 4 or more)."
+  },
+  "grc.continuite.pca.biat.horizon": { fr: "Horizon", en: "Horizon" },
+  "grc.continuite.pca.biat.financier": { fr: "Financier", en: "Financial" },
+  "grc.continuite.pca.biat.operationnel": { fr: "Opérationnel", en: "Operational" },
+  "grc.continuite.pca.biat.reputation": { fr: "Réputation", en: "Reputation" },
+  "grc.continuite.pca.biat.legal": { fr: "Légal / contractuel", en: "Legal / contractual" },
+  "grc.continuite.pca.biat.note": { fr: "Note", en: "Note" },
+  "grc.continuite.pca.biat.l1": { fr: "négligeable", en: "negligible" },
+  "grc.continuite.pca.biat.l2": { fr: "mineur", en: "minor" },
+  "grc.continuite.pca.biat.l3": { fr: "modéré", en: "moderate" },
+  "grc.continuite.pca.biat.l4": { fr: "grave", en: "severe" },
+  "grc.continuite.pca.biat.l5": { fr: "catastrophique", en: "catastrophic" },
+  "grc.continuite.pca.biat.save": { fr: "Enregistrer les impacts", en: "Save impacts" },
+  "grc.continuite.pca.biat.suggest": { fr: "DMIA suggérée : {d}.", en: "Suggested MTPD: {d}." },
+  "grc.continuite.pca.biat.current": { fr: "(DMIA actuelle : {d})", en: "(current MTPD: {d})" },
+  "grc.continuite.pca.biat.apply": { fr: "Appliquer la DMIA suggérée", en: "Apply suggested MTPD" },
+  "grc.continuite.pca.biat.noSuggest": { fr: "Aucune DMIA suggérée : aucun impact de niveau 4 ou plus n’est encore noté.", en: "No suggested MTPD: no impact of level 4 or more rated yet." },
+  "grc.continuite.pca.biat.resTitle": { fr: "Ressources nécessaires dans le temps", en: "Resources required over time" },
+  "grc.continuite.pca.biat.kind.role": { fr: "Rôle / personnes", en: "Role / people" },
+  "grc.continuite.pca.biat.kind.asset": { fr: "Actif", en: "Asset" },
+  "grc.continuite.pca.biat.kind.supplier": { fr: "Fournisseur", en: "Supplier" },
+  "grc.continuite.pca.biat.kind.other": { fr: "Autre", en: "Other" },
+  "grc.continuite.pca.biat.label": { fr: "Précision", en: "Detail" },
+  "grc.continuite.pca.biat.qty": { fr: "Quantité", en: "Quantity" },
   "grc.continuite.pca.tab.dependances": { fr: "Dépendances", en: "Dependencies" },
   "grc.continuite.pca.tab.redondance": { fr: "Redondance", en: "Redundancy" },
   "grc.continuite.pca.tab.pra": { fr: "Procédure PRA", en: "DRP procedure" },
@@ -710,7 +766,7 @@ Object.assign(I18N_DICT, {
   "grc.continuite.pca.test.notes": { fr: "Notes", en: "Notes" },
   "grc.continuite.pca.test.gaps": { fr: "Écarts constatés", en: "Gaps found" },
   "grc.continuite.pca.test.actions": { fr: "Actions correctives", en: "Corrective actions" },
-  "grc.continuite.pca.testKind.tabletop": { fr: "Sur table", en: "Tabletop" },
+  "grc.continuite.pca.testKind.tabletop": { fr: "Exercice sur table (TTX)", en: "Tabletop exercise (TTX)" },
   "grc.continuite.pca.testKind.walkthrough": { fr: "Revue guidée", en: "Walkthrough" },
   "grc.continuite.pca.testKind.failover": { fr: "Bascule", en: "Failover" },
   "grc.continuite.pca.testKind.full": { fr: "Grandeur nature", en: "Full" },
@@ -1399,6 +1455,10 @@ Object.assign(I18N_DICT, {
   "grc.indicateurs.form.name": { fr: "Nom", en: "Name" },
   "grc.indicateurs.form.type": { fr: "Type", en: "Type" },
   "grc.indicateurs.form.unit": { fr: "Unité", en: "Unit" },
+  "grc.indicateurs.form.domaine": { fr: "Domaine", en: "Domain" },
+  "grc.indicateurs.domaine.sgsi": { fr: "SGSI", en: "ISMS" },
+  "grc.indicateurs.domaine.pca": { fr: "PCA", en: "BCP" },
+  "grc.indicateurs.domaine.autre": { fr: "Autre", en: "Other" },
   "grc.indicateurs.form.owner": { fr: "Propriétaire", en: "Owner" },
 
   "grc.indicateurs.mt.kpi": { fr: "KPI (performance)", en: "KPI (performance)" },
@@ -1794,4 +1854,73 @@ Object.assign(I18N_DICT, {
     fr: "Ces références aident à rédiger des politiques et des clauses contractuelles alignées sur les pratiques reconnues du marché, en complément des registres de traitements, fournisseurs et continuité déjà tenus dans le hub GRC.",
     en: "These references help draft policies and contract clauses aligned with recognized market practices, complementing the processing, vendor and continuity registers already kept in the GRC hub."
   }
+});
+
+/* spec/grc-restructure/ Q1-Q4 -- champs calculés : valeur des actifs,
+   volet quantitatif des risques (SLE / ARO / ALE), résiduel quantitatif
+   (réduction, ROSI), continuité (MAO, MBCO, SPOF, SPOC, CCD, cohérence). */
+Object.assign(I18N_DICT, {
+  "grc.actifs.form.value": { fr: "Valeur de l’actif (AV)", en: "Asset value (AV)" },
+  "grc.actifs.form.currency": { fr: "Devise", en: "Currency" },
+  "grc.actifs.detail.value": { fr: "Valeur (AV) : {value}", en: "Value (AV): {value}" },
+  "grc.actifs.pdf.colValue": { fr: "Valeur (AV)", en: "Value (AV)" },
+
+  "grc.risques.form.quantAssetValue": { fr: "Valeur de l’actif AV (vide = somme des actifs liés)", en: "Asset value AV (empty = sum of linked assets)" },
+  "grc.risques.form.quantCurrency": { fr: "Devise", en: "Currency" },
+  "grc.risques.form.quantEf": { fr: "Facteur d’exposition EF (% de la valeur perdue)", en: "Exposure factor EF (% of value lost)" },
+  "grc.risques.form.quantAro": { fr: "ARO (occurrences par an, ex. 0,25)", en: "ARO (occurrences per year, e.g. 0.25)" },
+  "grc.risques.quant.period": { fr: "1 fois tous les {n} ans", en: "once every {n} years" },
+  "grc.risques.quant.avFromAssets": { fr: "AV reprise des actifs liés : {value}", en: "AV taken from linked assets: {value}" },
+  "grc.risques.quant.summaryAle": { fr: "ALE total : {v}", en: "total ALE: {v}" },
+  "grc.risques.quant.noInitialAle": {
+    fr: "Volet quantitatif : renseigner AV, EF et ARO du risque (Modifier) pour calculer l’ALE résiduel et le ROSI.",
+    en: "Quantitative view: fill in the risk’s AV, EF and ARO (Edit) to compute the residual ALE and ROSI."
+  },
+  "grc.risques.quant.residualTitle": { fr: "Résiduel quantitatif", en: "Quantitative residual" },
+  "grc.risques.quant.residualEf": { fr: "EF résiduel (%)", en: "Residual EF (%)" },
+  "grc.risques.quant.residualAro": { fr: "ARO résiduel", en: "Residual ARO" },
+  "grc.risques.quant.controlCost": { fr: "Coût annuel des contrôles", en: "Annual control cost" },
+  "grc.risques.quant.residualMissing": {
+    fr: "Saisir l’EF et/ou l’ARO après contrôles (la valeur initiale est reprise pour l’autre).",
+    en: "Enter the EF and/or ARO after controls (the initial value is reused for the other)."
+  },
+  "grc.risques.quant.residualLine": { fr: "ALE {from} → {to} (réduction {reduction})", en: "ALE {from} → {to} (reduction {reduction})" },
+  "grc.risques.quant.rosi": { fr: "ROSI {v} %", en: "ROSI {v}%" },
+  "grc.risques.quant.worse": {
+    fr: "⚠ L’ALE résiduel dépasse l’ALE initial — vérifier l’EF / l’ARO saisis après contrôles.",
+    en: "⚠ Residual ALE exceeds the initial ALE — check the EF / ARO entered after controls."
+  },
+
+  "grc.continuite.pca.form.mao": { fr: "MAO (interruption max. acceptable — contrats, SLA)", en: "MAO (maximum acceptable outage — contracts, SLAs)" },
+  "grc.continuite.pca.form.maoHint": {
+    fr: "MAO : indisponibilité tolérée par les engagements pris. RTO ≤ MAO ≤ DMIA.",
+    en: "MAO: unavailability tolerated by the commitments made. RTO ≤ MAO ≤ MTPD."
+  },
+  "grc.continuite.pca.form.mbco": { fr: "MBCO (niveau de service minimal pendant la crise)", en: "MBCO (minimum service level during the crisis)" },
+  "grc.continuite.pca.form.mbcoPct": { fr: "MBCO (% du service normal)", en: "MBCO (% of normal service)" },
+  "grc.continuite.pca.short.mtd": { fr: "DMIA", en: "MTPD" },
+  "grc.continuite.pca.warn.rtoGtMao": {
+    fr: "⚠ Le RTO dépasse la MAO — la reprise visée ne respecte pas les engagements (contrats, SLA).",
+    en: "⚠ RTO exceeds the MAO — the recovery target breaks the commitments (contracts, SLAs)."
+  },
+  "grc.continuite.pca.warn.maoGtDmia": {
+    fr: "⚠ La MAO dépasse la DMIA — les engagements tolèrent une interruption que l’organisation ne supporterait pas.",
+    en: "⚠ MAO exceeds the MTPD — commitments tolerate an outage the organization could not survive."
+  },
+  "grc.continuite.pca.warn.rpoGtRto": {
+    fr: "ℹ Le RPO dépasse le RTO — vérifier la fréquence des sauvegardes.",
+    en: "ℹ RPO exceeds the RTO — check the backup frequency."
+  },
+  "grc.continuite.pca.crisis.title": { fr: "Gestion de crise", en: "Crisis management" },
+  "grc.continuite.pca.crisis.spoc": { fr: "SPOC (point de contact unique)", en: "SPOC (single point of contact)" },
+  "grc.continuite.pca.crisis.ccd": { fr: "Cellule de crise décisionnelle (CCD)", en: "Crisis decision cell (CCD)" },
+  "grc.continuite.pca.crisis.role": { fr: "Rôle", en: "Role" },
+  "grc.continuite.pca.crisis.name": { fr: "Nom", en: "Name" },
+  "grc.continuite.pca.crisis.contact": { fr: "Contact", en: "Contact" },
+  "grc.continuite.pca.spofHint": {
+    fr: "Point unique de défaillance : sa défaillance arrête seule le processus.",
+    en: "Single point of failure: its failure alone stops the process."
+  },
+  "grc.continuite.pca.summary.spof": { fr: "SPOF {n}", en: "SPOFs {n}" },
+  "grc.continuite.pca.summary.incoherent": { fr: "objectifs incohérents {n}", en: "inconsistent objectives {n}" },
 });

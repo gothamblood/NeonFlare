@@ -613,6 +613,10 @@ function initGrcIncidentRegistry() {
     store: _incidentStore,
     idAttr: "data-incident-id",
     listGlobal: "renderGrcIncidentList",
+    actions: (i) => (typeof grcFicheCrossOpen === "function" ? [{
+      label: grcT("grc.links.act.lesson"),
+      run: () => grcFicheCrossOpen({ page: "incidents", tab: "lecons", list: "renderGrcFiche_incidents_lecons" }, { incident: i.id }),
+    }] : []),
     deepLink: true,
     i18n: {
       add: "grc.incidents.form.addBtn",
@@ -631,8 +635,10 @@ function initGrcIncidentRegistry() {
       { id: "resolvedAt", label: "grc.incidents.form.resolvedAt", type: "text" },
       { id: "owner", label: "grc.incidents.form.owner", type: "text" },
       { id: "postmortem", label: "grc.incidents.form.postmortem", type: "textarea" },
+      // Chaîne GRC (chaine.md CH2) : actifs, risques, contrôles.
+      ...(typeof grcLinksFormFields === "function" ? grcLinksFormFields("incident") : []),
     ],
-    readForm: (i) => ({
+    readForm: (i) => Object.assign(typeof grcLinksFormRead === "function" ? grcLinksFormRead("incident", i) : {}, {
       title: i.title, description: i.description,
       severity: i.severity, status: i.status,
       detectedAt: grkIsoToLocalInput(i.detectedAt),
@@ -646,6 +652,7 @@ function initGrcIncidentRegistry() {
       fields.description = fields.description.trim();
       fields.owner = fields.owner.trim();
       fields.postmortem = fields.postmortem.trim();
+      if (typeof grcLinksFormPick === "function") Object.assign(fields, grcLinksFormPick("incident", v));
       if (editingId) updateGrcIncident(editingId, fields);
       else addGrcIncident(fields);
     },

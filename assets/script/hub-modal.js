@@ -15,6 +15,9 @@ function closeModal() {
   document.getElementById("modal-grc-frame").src = "about:blank";
   document.documentElement.style.overflow = "";
   document.body.style.overflow = "";
+  // Le hub GRC recalcule avancement / À faire / chaîne après une saisie
+  // faite dans la fenêtre (grc-hub.js).
+  document.dispatchEvent(new Event("hub-modal-closed"));
 }
 
 // Embedded */*.html pages report their real content height so the

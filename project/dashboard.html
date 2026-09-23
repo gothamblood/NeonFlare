@@ -187,6 +187,11 @@
     </div>
     <div class="dash-panel-body">
       <div id="grc-dashboard-coverage"></div>
+      <!-- À faire GRC (UX U6) : à revoir, ruptures graves, échéances -- grc-todo.js -->
+      <div class="dash-grc-todo">
+        <div class="dash-grc-todo-title" data-i18n="grc.todo.title">À faire</div>
+        <div id="grc-dashboard-todo"></div>
+      </div>
     </div>
     <div class="dash-resize-handle" data-target="panelGrc"></div>
   </div>
@@ -274,13 +279,16 @@
 
 <!-- GRC COVERAGE PANEL -->
 <script src="../grc/index.js"></script>
+<script src="../grc/continuite/index.js"></script>
 <script src="../grc/securite/api/index.js"></script>
 <script src="../grc/securite/database/index.js"></script>
 <script src="../grc/securite/reseau/index.js"></script>
 <script src="../grc/securite/webapp/index.js"></script>
+<script src="../grc/securite/operationnelle/index.js"></script>
 <!-- encryption.js/vault-crypto.js/vault.js/vault-ui.js already loaded
      above for the network section -- const/let bindings there would
      throw "already declared" on a second <script> load. -->
+<script src="../assets/script/grc-checklist-migrate.js"></script>
 <script src="../assets/script/grc-checklist.js"></script>
 <script src="../assets/script/inline/dashboard-grc-coverage.js"></script>
 
@@ -292,10 +300,15 @@
 <!-- grc-risks.js (comme grc-pentest.js plus bas) est bâti sur
      grc-registry-kit.js depuis PlanDurcissement-Securite.txt P2 --
      chargé ici, réutilisé par grc-pentest.js plus bas. -->
+<!-- Chaîne GRC : catalogue Annexe A + liens entre sections (spec/grc-fiches/chaine.md) -->
+<script src="../assets/script/grc-annexe-a.js"></script>
+<script src="../assets/script/grc-links.js"></script>
 <script src="../assets/script/grc-registry-kit.js"></script>
 <script src="../assets/script/grc-assets.js"></script>
 <script src="../assets/script/grc-risks.js"></script>
 <script src="../assets/script/inline/dashboard-upcoming-reviews.js"></script>
+<script src="../assets/script/grc-todo.js"></script>
+<script src="../assets/script/inline/dashboard-grc-todo.js"></script>
 
 
 <!-- "+ Finding rapide" (Couverture GRC panel) -- vault/vault-ui/config-io

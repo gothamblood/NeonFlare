@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'">
+    <link rel="icon" type="image/svg+xml" href="../../assets/images/dragon-logo.svg">
+    <link rel="icon" type="image/png" href="../../assets/images/dragon-favicon.png">
+    <title>PCO — Plan de continuité des opérations – GRC Cybersecurity</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" type="text/css" href="../../assets/css/grc.css">
+</head>
+<body data-fiche-page="continuite-pco">
+<header>
+    <nav class="nav">
+        <div class="logo">
+            <div class="logo-mark">C</div>
+            <div>Continuité</div>
+        </div>
+        <div class="nav-links">
+            <a href="../continuite.html" data-i18n="grc.common.backToContinuite">&larr; Retour à Continuité</a>
+        </div>
+    </nav>
+</header>
+
+<main>
+    <h1 class="page-title" data-i18n="grc.continuite.pco.title">PCO — Plan de continuité des opérations</h1>
+    <p class="page-subtitle" data-i18n="grc.continuite.pco.subtitle">
+        Le PCO maintient les opérations des unités et processus critiques en mode dégradé pendant l’interruption.
+    </p>
+
+    <section class="grc-fiche-root" id="grcFichesRoot"></section>
+
+    <section class="content-block">
+        <h2 data-i18n="grc.common.contentInclude">Contenu à inclure</h2>
+        <ul>
+            <li data-item-id="processus"><strong data-i18n="grc.continuite.pco.c.processus.label">Processus couverts</strong> : <span data-i18n="grc.continuite.pco.c.processus.desc">processus critiques issus du BIA, par unité.</span> <span class="grc-control-tags">ISO 22301 cl. 8.4.4</span></li>
+            <li data-item-id="mode-degrade"><strong data-i18n="grc.continuite.pco.c.mode-degrade.label">Mode dégradé</strong> : <span data-i18n="grc.continuite.pco.c.mode-degrade.desc">niveau de service minimal (MBCO) et règles de priorisation.</span> <span class="grc-control-tags">ISO 22301 cl. 8.3 · 8.4.4</span></li>
+            <li data-item-id="contournements"><strong data-i18n="grc.continuite.pco.c.contournements.label">Procédures de contournement</strong> : <span data-i18n="grc.continuite.pco.c.contournements.desc">solutions manuelles ou alternatives sans les systèmes habituels.</span> <span class="grc-control-tags">ISO 22301 cl. 8.4.4</span></li>
+            <li data-item-id="ressources-minimales"><strong data-i18n="grc.continuite.pco.c.ressources-minimales.label">Ressources minimales</strong> : <span data-i18n="grc.continuite.pco.c.ressources-minimales.desc">personnes, postes, fournitures nécessaires au mode dégradé.</span> <span class="grc-control-tags">ISO 22301 cl. 8.3.2</span></li>
+            <li data-item-id="repli"><strong data-i18n="grc.continuite.pco.c.repli.label">Repli des équipes</strong> : <span data-i18n="grc.continuite.pco.c.repli.desc">télétravail, site de repli, rotation des équipes.</span> <span class="grc-control-tags">ISO 22301 cl. 8.3 · ISO A.6.7</span></li>
+            <li data-item-id="roles"><strong data-i18n="grc.continuite.pco.c.roles.label">Rôles</strong> : <span data-i18n="grc.continuite.pco.c.roles.desc">responsables par unité, suppléants, SPOC.</span> <span class="grc-control-tags">ISO 22301 cl. 8.4.2 · NIST GV.RR</span></li>
+            <li data-item-id="retour"><strong data-i18n="grc.continuite.pco.c.retour.label">Retour au mode normal</strong> : <span data-i18n="grc.continuite.pco.c.retour.desc">critères de sortie, rattrapage des opérations en retard.</span> <span class="grc-control-tags">ISO 22301 cl. 8.4.5</span></li>
+        </ul>
+
+        <h2 data-i18n="grc.common.roleTitle">Rôle en GRC</h2>
+        <p data-i18n="grc.continuite.pco.role">Le PCO répond à la question : comment continue-t-on de servir, même partiellement, pendant la crise ?</p>
+    </section>
+</main>
+
+
+<script src="../../assets/script/page-boot.js"></script>
+
+<script src="../../assets/script/i18n.js"></script>
+<script src="../../assets/script/grc-i18n.js"></script>
+<script src="../../assets/script/grc-i18n-components.js"></script>
+
+<script src="../../config/grc-author.js"></script>
+
+<script src="../../config/encryption.js"></script>
+
+<script src="../../assets/script/vault-crypto.js"></script>
+<script src="../../assets/script/theme-accent.js"></script>
+
+<script src="../../assets/script/vault.js"></script>
+<script src="../../assets/script/vault-ui.js"></script>
+
+<script src="../../assets/script/inline/apply-i18n.js"></script>
+
+<script src="../../assets/script/grc-checklist-migrate.js"></script>
+<script src="../../assets/script/grc-checklist.js"></script>
+<script src="../../assets/script/config-io.js"></script>
+<!-- Chaîne GRC + documentation par élément (spec/grc-fiches/, grc-normes N4) -->
+<script src="../../assets/script/grc-annexe-a.js"></script>
+<script src="../../assets/script/grc-links.js"></script>
+<script src="../../assets/script/grc-registry-kit.js"></script>
+<script src="../../assets/script/grc-vocab.js"></script>
+<script src="../../assets/script/grc-fiches.js"></script>
+<script src="../../assets/script/grc-fiches-continuite-sub.js"></script>
+<script src="../../assets/script/inline/init-grc-checklist.js"></script>
+<script src="../../assets/script/inline/init-grc-fiches.js"></script>
+
+</body>
+</html>

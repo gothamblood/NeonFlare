@@ -275,6 +275,62 @@ function _rtRenderResiduel(root, risk) {
     line.appendChild(gain);
   }
   root.appendChild(line);
+
+  _rtRenderResiduelQuant(root, risk);
+}
+
+/* Volet quantitatif résiduel (spec/grc-restructure/ Q3) : EF / ARO après
+   contrôles + coût annuel -> ALE résiduel, réduction, ROSI. Affiché
+   seulement si le risque a un ALE initial (volet quantitatif renseigné). */
+function _rtRenderResiduelQuant(root, risk) {
+  const id = risk.id;
+  const q = grcRiskQuant(risk);
+  if (q.ale == null) {
+    const hint = document.createElement("p");
+    hint.className = "grk-hint";
+    hint.textContent = grcT("grc.risques.quant.noInitialAle");
+    root.appendChild(hint);
+    return;
+  }
+  const t = grcRiskEnsureTreatment(risk);
+  const h = document.createElement("h4");
+  h.textContent = grcT("grc.risques.quant.residualTitle");
+  root.appendChild(h);
+
+  const grid = document.createElement("div");
+  grid.className = "grk-formgrid";
+  const mk = (labelKey, value, onChange, cls) => {
+    const inp = document.createElement("input");
+    inp.type = "text";
+    inp.className = cls;
+    inp.value = value == null ? "" : String(value);
+    inp.addEventListener("change", () => { onChange(inp.value); grkRefresh(grid); });
+    grid.appendChild(grkField(grcT(labelKey), inp));
+  };
+  mk("grc.risques.quant.residualEf", t.residual.exposureFactor, (v) => grcRiskSetResidual(id, { exposureFactor: v }), "grc-rt-res-ef");
+  mk("grc.risques.quant.residualAro", t.residual.aro, (v) => grcRiskSetResidual(id, { aro: v }), "grc-rt-res-aro");
+  mk("grc.risques.quant.controlCost", t.annualControlCost, (v) => grcRiskSetControlCost(id, v), "grc-rt-cost");
+  root.appendChild(grid);
+
+  const rq = grcRiskResidualQuant(risk);
+  const out = document.createElement("p");
+  out.className = "grc-sup-score-line grc-rt-quant";
+  if (rq.ale == null) {
+    out.textContent = grcT("grc.risques.quant.residualMissing");
+  } else {
+    out.textContent = grcT("grc.risques.quant.residualLine")
+      .replace("{from}", grkFormatMoney(rq.initialAle, rq.currency))
+      .replace("{to}", grkFormatMoney(rq.ale, rq.currency))
+      .replace("{reduction}", grkFormatMoney(rq.reduction, rq.currency)) +
+      (rq.rosi != null ? " · " + grcT("grc.risques.quant.rosi").replace("{v}", grcRiskFmtNumber(rq.rosi * 100, 0)) : "");
+  }
+  root.appendChild(out);
+  if (rq.worse) {
+    const warn = document.createElement("p");
+    warn.className = "grc-sup-warn grc-rt-quant-worse";
+    warn.textContent = grcT("grc.risques.quant.worse");
+    root.appendChild(warn);
+  }
 }
 
 /* ---------- onglet Acceptation (propre au risque) ------ */

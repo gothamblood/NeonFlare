@@ -35,6 +35,8 @@ const GRC_METRIC_SCHEMA = {
   name: { type: "string" },
   type: { type: "string", enum: GRC_METRIC_TYPES, default: "kpi" },
   unit: { type: "string" },
+  // Domaine de pilotage (spec/grc-fiches/ -- Indicateurs SGSI / PCA).
+  domaine: { type: "string", enum: ["sgsi", "pca", "autre"], default: "sgsi" },
   owner: { type: "string" },
   source: { type: "string" },
   cadenceMonths: { type: "number", default: GRC_METRIC_DEFAULT_CADENCE },
@@ -47,6 +49,10 @@ const GRC_METRIC_SCHEMA = {
     },
   },
   linkedRisk: { type: "string" },
+  // Chaîne GRC (chaine.md CH2) : risque, objectif et contrôle mesurés.
+  riskId: { type: "string" },
+  objectifId: { type: "string" },
+  controlId: { type: "string" },
   formulaNote: { type: "string" },
   series: { type: "array", of: GRC_METRIC_MEASURE_SCHEMA },
 };
@@ -99,6 +105,7 @@ function grcMetricSetDefinition(id, changes) {
       if (k in changes && typeof changes[k] === "string") m[k] = changes[k].trim();
     });
     if ("type" in changes && GRC_METRIC_TYPES.indexOf(changes.type) !== -1) m.type = changes.type;
+    if ("domaine" in changes && ["sgsi", "pca", "autre"].indexOf(changes.domaine) !== -1) m.domaine = changes.domaine;
     if ("direction" in changes && GRC_METRIC_DIRECTIONS.indexOf(changes.direction) !== -1) m.direction = changes.direction;
     if ("target" in changes) m.target = _grcMetricNum(changes.target);
     if ("amber" in changes) m.thresholds.amber = _grcMetricNum(changes.amber);
@@ -259,6 +266,10 @@ function initGrcMetricsRegistry() {
     schema: GRC_METRIC_SCHEMA,
     idAttr: "data-metric-id",
     listGlobal: "renderGrcMetricsList",
+    actions: (m) => (typeof grcFicheCrossOpen === "function" ? [{
+      label: grcT("grc.links.act.createAction"),
+      run: () => grcFicheCrossOpen({ page: "gouvernance", tab: "amelioration", list: "renderGrcFiche_gouvernance_amelioration" }, { origine: "indicateur", sourceIndicateur: m.id, description: m.name || "" }),
+    }] : []),
     deepLink: true,
     i18n: {
       add: "grc.indicateurs.form.addBtn",
@@ -270,16 +281,24 @@ function initGrcMetricsRegistry() {
       { id: "type", label: "grc.indicateurs.form.type", type: "select",
         options: _metEnumOptions(GRC_METRIC_TYPES, "grc.indicateurs.mt.") },
       { id: "unit", label: "grc.indicateurs.form.unit", type: "text" },
+      { id: "domaine", label: "grc.indicateurs.form.domaine", type: "select",
+        options: ["sgsi", "pca", "autre"].map((d) => ({ value: d, label: "grc.indicateurs.domaine." + d })) },
       { id: "owner", label: "grc.indicateurs.form.owner", type: "text" },
+      ...(typeof grcLinksFormFields === "function" ? grcLinksFormFields("metric") : []),
     ],
-    readForm: (m) => ({ name: m.name, type: m.type, unit: m.unit, owner: m.owner }),
+    readForm: (m) => Object.assign(typeof grcLinksFormRead === "function" ? grcLinksFormRead("metric", m) : {},
+      { name: m.name, type: m.type, unit: m.unit, domaine: m.domaine || "sgsi", owner: m.owner }),
     submit: (v, editingId) => {
       const fields = {
         name: (v.name || "").trim(), type: v.type,
         unit: (v.unit || "").trim(), owner: (v.owner || "").trim(),
+        domaine: ["sgsi", "pca", "autre"].indexOf(v.domaine) !== -1 ? v.domaine : "sgsi",
       };
-      if (editingId) grcMetricSetDefinition(editingId, fields);
-      else addGrcMetric(fields);
+      const links = typeof grcLinksFormPick === "function" ? grcLinksFormPick("metric", v) : {};
+      if (editingId) {
+        grcMetricSetDefinition(editingId, fields);
+        if (Object.keys(links).length) updateGrcMetric(editingId, links);
+      } else addGrcMetric(Object.assign(fields, links));
     },
     header: (m) => {
       const rag = grcMetricRagBadge(m);

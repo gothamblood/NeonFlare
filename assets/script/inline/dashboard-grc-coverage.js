@@ -7,6 +7,7 @@
     { title: "Sécurité API", domains: securiteApiIndexConfig.domains, basePath: "../grc/securite/api/" },
     { title: "Sécurité WebApp", domains: securiteWebappIndexConfig.domains, basePath: "../grc/securite/webapp/" },
     { title: "Sécurité base de données", domains: securiteDatabaseIndexConfig.domains, basePath: "../grc/securite/database/" },
+    { title: "Sécurité opérationnelle", domains: securiteOperationnelleIndexConfig.domains, basePath: "../grc/securite/operationnelle/" },
   ];
   renderGrcDashboardCoverage(grcDashboardSections, "#grc-dashboard-coverage");
   renderGrcHeaderCoverage(grcDashboardSections, "#grcHeaderStatus .grc-progress-fill", "#grcHeaderCount");

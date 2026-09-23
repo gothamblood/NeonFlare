@@ -9,6 +9,7 @@
 <link rel="stylesheet" type="text/css" href="../assets/css/style.css">
 <link rel="stylesheet" type="text/css" href="../assets/css/dashboard-panels.css">
 <link rel="stylesheet" type="text/css" href="../assets/css/network-config.css">
+<link rel="stylesheet" type="text/css" href="../assets/css/grc-datepicker.css">
 
 </head>
 
@@ -341,6 +342,14 @@
       </label>
     </div>
 
+    <div class="toggle-row">
+      <span class="toggle-row-label" data-i18n="settings.grcShowAllElements">Documentation : afficher tous les onglets (pas seulement l’essentiel)</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="grcShowAllElementsToggle">
+        <span class="slider"></span>
+      </label>
+    </div>
+
     <label style="display:block; margin-top: 1rem;">
       <span style="font-size: 0.85rem;" data-i18n="settings.grcAuthorLabel">Ton nom (traçabilité GRC)</span>
       <input type="text" id="grcAuthorInput" placeholder="Optionnel"
@@ -423,6 +432,13 @@
       <span class="toggle-row-label" data-i18n="nav.databaseSecurity">Database Security</span>
       <label class="toggle-switch">
         <input type="checkbox" data-page="securite-database">
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="toggle-row">
+      <span class="toggle-row-label" data-i18n="nav.operationalSecurity">Operational Security</span>
+      <label class="toggle-switch">
+        <input type="checkbox" data-page="securite-operationnelle">
         <span class="slider"></span>
       </label>
     </div>
@@ -541,6 +557,7 @@
 <script src="../config/topology.js"></script>
 <script src="../assets/script/dashboards.js"></script>
 <script src="../assets/script/config-io.js"></script>
+<script src="../assets/script/grc-checklist-migrate.js"></script>
 <script src="../assets/script/grc-checklist.js"></script>
 <script src="../assets/script/grc-registry-kit.js"></script>
 <script src="../assets/script/grc-assets.js"></script>

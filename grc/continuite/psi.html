@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'">
+    <link rel="icon" type="image/svg+xml" href="../../assets/images/dragon-logo.svg">
+    <link rel="icon" type="image/png" href="../../assets/images/dragon-favicon.png">
+    <title>PSI — Plan de secours informatique – GRC Cybersecurity</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" type="text/css" href="../../assets/css/grc.css">
+</head>
+<body data-fiche-page="continuite-psi">
+<header>
+    <nav class="nav">
+        <div class="logo">
+            <div class="logo-mark">C</div>
+            <div>Continuité</div>
+        </div>
+        <div class="nav-links">
+            <a href="../continuite.html" data-i18n="grc.common.backToContinuite">&larr; Retour à Continuité</a>
+        </div>
+    </nav>
+</header>
+
+<main>
+    <h1 class="page-title" data-i18n="grc.continuite.psi.title">PSI — Plan de secours informatique</h1>
+    <p class="page-subtitle" data-i18n="grc.continuite.psi.subtitle">
+        Le PSI organise le secours PENDANT l’incident : bascule vers les moyens de secours pour maintenir les systèmes d’information critiques.
+    </p>
+
+    <section class="grc-fiche-root" id="grcFichesRoot"></section>
+
+    <section class="content-block">
+        <h2 data-i18n="grc.common.contentInclude">Contenu à inclure</h2>
+        <ul>
+            <li data-item-id="moyens-secours"><strong data-i18n="grc.continuite.psi.c.moyens-secours.label">Moyens de secours</strong> : <span data-i18n="grc.continuite.psi.c.moyens-secours.desc">site de repli (chaud, tiède, froid), redondance, capacité cloud.</span> <span class="grc-control-tags">ISO A.5.30 · A.8.14 · NIST RC.RP</span></li>
+            <li data-item-id="bascule"><strong data-i18n="grc.continuite.psi.c.bascule.label">Procédure de bascule</strong> : <span data-i18n="grc.continuite.psi.c.bascule.desc">déclenchement, étapes, responsables, durée cible compatible avec les RTO.</span> <span class="grc-control-tags">ISO A.5.30 · NIST RC.RP</span></li>
+            <li data-item-id="mode-degrade-si"><strong data-i18n="grc.continuite.psi.c.mode-degrade-si.label">Mode dégradé informatique</strong> : <span data-i18n="grc.continuite.psi.c.mode-degrade-si.desc">services réduits disponibles pendant le secours.</span> <span class="grc-control-tags">ISO A.5.30</span></li>
+            <li data-item-id="sauvegardes"><strong data-i18n="grc.continuite.psi.c.sauvegardes.label">Sauvegardes</strong> : <span data-i18n="grc.continuite.psi.c.sauvegardes.desc">copies disponibles sur le site de secours, cohérentes avec le RPO.</span> <span class="grc-control-tags">ISO A.8.13 · NIST PR.DS · CIS 11</span></li>
+            <li data-item-id="mco"><strong data-i18n="grc.continuite.psi.c.mco.label">MCO des moyens de secours</strong> : <span data-i18n="grc.continuite.psi.c.mco.desc">mises à jour, supervision et capacité du site de secours.</span> <span class="grc-control-tags">ISO A.5.30 · A.8.6 · NIST PR.PS</span></li>
+            <li data-item-id="tests-bascule"><strong data-i18n="grc.continuite.psi.c.tests-bascule.label">Tests de bascule</strong> : <span data-i18n="grc.continuite.psi.c.tests-bascule.desc">bascules réelles planifiées, mesure des délais.</span> <span class="grc-control-tags">ISO A.5.30 · ISO 22301 cl. 8.5</span></li>
+            <li data-item-id="contrats"><strong data-i18n="grc.continuite.psi.c.contrats.label">Contrats de secours</strong> : <span data-i18n="grc.continuite.psi.c.contrats.desc">fournisseurs de secours, engagements (MAO, SLA), SPOC.</span> <span class="grc-control-tags">ISO A.5.20 · A.5.21 · NIST GV.SC</span></li>
+        </ul>
+
+        <h2 data-i18n="grc.common.roleTitle">Rôle en GRC</h2>
+        <p data-i18n="grc.continuite.psi.role">PSI ≠ PRI : le PSI maintient le service pendant l’incident, le PRI rétablit les systèmes nominaux après.</p>
+    </section>
+</main>
+
+
+<script src="../../assets/script/page-boot.js"></script>
+
+<script src="../../assets/script/i18n.js"></script>
+<script src="../../assets/script/grc-i18n.js"></script>
+<script src="../../assets/script/grc-i18n-components.js"></script>
+
+<script src="../../config/grc-author.js"></script>
+
+<script src="../../config/encryption.js"></script>
+
+<script src="../../assets/script/vault-crypto.js"></script>
+<script src="../../assets/script/theme-accent.js"></script>
+
+<script src="../../assets/script/vault.js"></script>
+<script src="../../assets/script/vault-ui.js"></script>
+
+<script src="../../assets/script/inline/apply-i18n.js"></script>
+
+<script src="../../assets/script/grc-checklist-migrate.js"></script>
+<script src="../../assets/script/grc-checklist.js"></script>
+<script src="../../assets/script/config-io.js"></script>
+<!-- Chaîne GRC + documentation par élément (spec/grc-fiches/, grc-normes N4) -->
+<script src="../../assets/script/grc-annexe-a.js"></script>
+<script src="../../assets/script/grc-links.js"></script>
+<script src="../../assets/script/grc-registry-kit.js"></script>
+<script src="../../assets/script/grc-vocab.js"></script>
+<script src="../../assets/script/grc-fiches.js"></script>
+<script src="../../assets/script/grc-fiches-continuite-sub.js"></script>
+<script src="../../assets/script/inline/init-grc-checklist.js"></script>
+<script src="../../assets/script/inline/init-grc-fiches.js"></script>
+
+</body>
+</html>

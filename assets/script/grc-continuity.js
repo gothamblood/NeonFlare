@@ -29,6 +29,13 @@ const GRC_CONT_TEST_KINDS = ["tabletop", "walkthrough", "failover", "full"];
 const GRC_CONT_TEST_RESULTS = ["pass", "partial", "fail"];
 const GRC_CONT_DURATION_UNITS = ["min", "h", "j"];
 const GRC_CONT_DEFAULT_CADENCE = 12;
+// BIA dans le temps (grc-normes N2, décision E2) : horizons par défaut, en
+// minutes ; niveaux d'impact 1 (négligeable) à 5 (catastrophique).
+const GRC_CONT_BIA_HORIZONS = [240, 1440, 4320, 10080, 43200];
+const GRC_CONT_IMPACT_KINDS = ["financier", "operationnel", "reputation", "legal"];
+const GRC_CONT_RES_KINDS = ["role", "asset", "supplier", "other"];
+// Niveau à partir duquel l'impact est jugé inacceptable (DMIA suggérée).
+const GRC_CONT_UNACCEPTABLE = 4;
 
 const _GRC_CONT_UNIT_MIN = { min: 1, h: 60, j: 1440 };
 
@@ -91,7 +98,9 @@ function resetGrcContinuity() {
 
 /* ---------- modèle : forme garantie ---------------------------------- */
 
-// Renvoie une COPIE bien formée (schema 1). Ne sauve pas. Idempotent :
+// Renvoie une COPIE bien formée (schema 2 -- spec/grc-restructure/ Q4 :
+// + bia.maoMin/mbco/mbcoPct, spoc, ccd[], dependencies[].spof ; un plan
+// schema 1 est complété sans perte). Ne sauve pas. Idempotent :
 // préserve les données existantes, garantit arrays / bia / review / enums.
 function grcContinuityEnsureShape(plan) {
   const src = plan && typeof plan === "object" ? plan : {};
@@ -101,7 +110,7 @@ function grcContinuityEnsureShape(plan) {
     ? Math.round(rev.cadenceMonths) : GRC_CONT_DEFAULT_CADENCE;
   return {
     id: typeof src.id === "string" ? src.id : "",
-    schema: 1,
+    schema: 2,
     service: typeof src.service === "string" ? src.service : "",
     description: typeof src.description === "string" ? src.description : "",
     owner: typeof src.owner === "string" ? src.owner : "",
@@ -110,10 +119,45 @@ function grcContinuityEnsureShape(plan) {
       mtdMin: _contNumOrNull(bia.mtdMin),
       rtoMin: _contNumOrNull(bia.rtoMin),
       rpoMin: _contNumOrNull(bia.rpoMin),
+      maoMin: _contNumOrNull(bia.maoMin),
+      mbco: typeof bia.mbco === "string" ? bia.mbco : "",
+      mbcoPct: grkDecimalOrNull(bia.mbcoPct, 0, 100),
       impacts: typeof bia.impacts === "string" ? bia.impacts : "",
       peakPeriods: typeof bia.peakPeriods === "string" ? bia.peakPeriods : "",
+      // N2 : impacts par horizon et ressources nécessaires dans le temps.
+      timeline: Array.isArray(bia.timeline) ? bia.timeline.filter((t) => t && typeof t === "object").map((t) => ({
+        id: typeof t.id === "string" ? t.id : contId("hz"),
+        horizonMin: _contNumOrNull(t.horizonMin),
+        financier: _contLevel(t.financier), operationnel: _contLevel(t.operationnel),
+        reputation: _contLevel(t.reputation), legal: _contLevel(t.legal),
+        level: _contLevel(t.level) || Math.max(_contLevel(t.financier), _contLevel(t.operationnel), _contLevel(t.reputation), _contLevel(t.legal)),
+        note: typeof t.note === "string" ? t.note : "",
+      })).sort((a, b) => (a.horizonMin || 0) - (b.horizonMin || 0)) : [],
+      resources: Array.isArray(bia.resources) ? bia.resources.filter((r) => r && typeof r === "object").map((r) => ({
+        id: typeof r.id === "string" ? r.id : contId("res"),
+        kind: GRC_CONT_RES_KINDS.indexOf(r.kind) !== -1 ? r.kind : "other",
+        roleId: typeof r.roleId === "string" ? r.roleId : "",
+        assetId: typeof r.assetId === "string" ? r.assetId : "",
+        supplierId: typeof r.supplierId === "string" ? r.supplierId : "",
+        label: typeof r.label === "string" ? r.label : "",
+        quantity: typeof r.quantity === "string" ? r.quantity : "",
+        horizonMin: _contNumOrNull(r.horizonMin),
+      })) : [],
     },
-    dependencies: Array.isArray(src.dependencies) ? src.dependencies : [],
+    // Chaîne GRC (chaine.md CH2) : processus de la cartographie couvert.
+    processId: typeof src.processId === "string" ? src.processId : "",
+    dependencies: Array.isArray(src.dependencies)
+      ? src.dependencies.map((d) => Object.assign({}, d, { spof: !!(d && d.spof) }))
+      : [],
+    spoc: typeof src.spoc === "string" ? src.spoc : "",
+    ccd: Array.isArray(src.ccd)
+      ? src.ccd.filter((m) => m && typeof m === "object").map((m) => ({
+        id: typeof m.id === "string" ? m.id : contId("ccd"),
+        role: typeof m.role === "string" ? m.role : "",
+        name: typeof m.name === "string" ? m.name : "",
+        contact: typeof m.contact === "string" ? m.contact : "",
+      }))
+      : [],
     redundancy: Array.isArray(src.redundancy) ? src.redundancy : [],
     drp: Array.isArray(src.drp)
       ? src.drp.slice().sort((a, b) => (a.order || 0) - (b.order || 0))
@@ -130,6 +174,33 @@ function grcContinuityEnsureShape(plan) {
 
 // Mutation atomique : charge, applique fn sur une copie bien formée
 // (id préservé), sauve. Renvoie ce que fn renvoie (null si absent).
+function _contLevel(v) {
+  const n = Math.round(Number(v));
+  return Number.isFinite(n) && n >= 1 && n <= 5 ? n : 0;
+}
+
+// DMIA suggérée (N2) : premier horizon où un impact devient inacceptable.
+function grcContSuggestedMtd(plan) {
+  const tl = plan && plan.bia && Array.isArray(plan.bia.timeline) ? plan.bia.timeline : [];
+  const hit = tl.filter((t) => t.horizonMin != null && t.level >= GRC_CONT_UNACCEPTABLE)
+    .sort((a, b) => a.horizonMin - b.horizonMin)[0];
+  return hit ? hit.horizonMin : null;
+}
+
+function grcContSetTimeline(id, rows) {
+  return contMutate(id, (p) => {
+    p.bia.timeline = (Array.isArray(rows) ? rows : []).map((t) => Object.assign({ id: t.id || contId("hz") }, t));
+    return true;
+  });
+}
+
+function grcContSetResources(id, rows) {
+  return contMutate(id, (p) => {
+    p.bia.resources = (Array.isArray(rows) ? rows : []).map((r) => Object.assign({ id: r.id || contId("res") }, r));
+    return true;
+  });
+}
+
 function contMutate(id, fn) {
   const plans = getGrcContinuity();
   const idx = plans.findIndex((p) => p.id === id);
@@ -150,7 +221,10 @@ function grcContAddDependency(id, dep) {
       id: contId("dep"),
       type: dep && GRC_CONT_DEP_TYPES.indexOf(dep.type) !== -1 ? dep.type : "asset",
       ref: dep && typeof dep.ref === "string" ? dep.ref : "",
+      // Lien réel vers l'actif / le fournisseur (chaine.md CH2).
+      targetId: dep && typeof dep.targetId === "string" ? dep.targetId : "",
       note: dep && typeof dep.note === "string" ? dep.note : "",
+      spof: !!(dep && dep.spof),
     };
     p.dependencies.push(d);
     return d.id;
@@ -163,6 +237,7 @@ function grcContUpdateDependency(id, depId, changes) {
     if (!d) return false;
     const n = Object.assign({}, changes);
     if ("type" in n && GRC_CONT_DEP_TYPES.indexOf(n.type) === -1) delete n.type;
+    if ("spof" in n) n.spof = !!n.spof;
     Object.assign(d, n);
     return true;
   });
@@ -173,6 +248,40 @@ function grcContRemoveDependency(id, depId) {
     const before = p.dependencies.length;
     p.dependencies = p.dependencies.filter((x) => x.id !== depId);
     return p.dependencies.length < before;
+  });
+}
+
+/* ---------- sous-liste : cellule de crise décisionnelle (CCD) ------- */
+
+function grcContAddCcd(id, member) {
+  return contMutate(id, (p) => {
+    const m = {
+      id: contId("ccd"),
+      role: member && typeof member.role === "string" ? member.role.trim() : "",
+      name: member && typeof member.name === "string" ? member.name.trim() : "",
+      contact: member && typeof member.contact === "string" ? member.contact.trim() : "",
+    };
+    p.ccd.push(m);
+    return m.id;
+  });
+}
+
+function grcContUpdateCcd(id, memberId, changes) {
+  return contMutate(id, (p) => {
+    const m = p.ccd.find((x) => x.id === memberId);
+    if (!m) return false;
+    ["role", "name", "contact"].forEach((k) => {
+      if (changes && typeof changes[k] === "string") m[k] = changes[k].trim();
+    });
+    return true;
+  });
+}
+
+function grcContRemoveCcd(id, memberId) {
+  return contMutate(id, (p) => {
+    const before = p.ccd.length;
+    p.ccd = p.ccd.filter((x) => x.id !== memberId);
+    return p.ccd.length < before;
   });
 }
 
@@ -318,9 +427,11 @@ function grcContRemoveTest(id, testId) {
 function grcContSetBia(id, changes) {
   return contMutate(id, (p) => {
     const b = p.bia;
-    ["mtdMin", "rtoMin", "rpoMin"].forEach((k) => {
+    ["mtdMin", "rtoMin", "rpoMin", "maoMin"].forEach((k) => {
       if (k in changes) b[k] = _contNumOrNull(changes[k]);
     });
+    if ("mbco" in changes && typeof changes.mbco === "string") b.mbco = changes.mbco;
+    if ("mbcoPct" in changes) b.mbcoPct = grkDecimalOrNull(changes.mbcoPct, 0, 100);
     if ("impacts" in changes && typeof changes.impacts === "string") b.impacts = changes.impacts;
     if ("peakPeriods" in changes && typeof changes.peakPeriods === "string") b.peakPeriods = changes.peakPeriods;
     return true;
@@ -347,6 +458,8 @@ function grcContSetCore(id, changes) {
     if ("owner" in changes && typeof changes.owner === "string") p.owner = changes.owner.trim();
     if ("criticality" in changes && GRC_CONT_CRITICALITY.indexOf(changes.criticality) !== -1) p.criticality = changes.criticality;
     if ("linkedIncident" in changes && typeof changes.linkedIncident === "string") p.linkedIncident = changes.linkedIncident.trim();
+    if ("spoc" in changes && typeof changes.spoc === "string") p.spoc = changes.spoc.trim();
+    if ("processId" in changes && typeof changes.processId === "string") p.processId = changes.processId;
     return true;
   });
 }
@@ -370,9 +483,30 @@ function grcContRtoGap(plan) {
   return g > 0 ? g : null;
 }
 
+/* Cohérence des objectifs du BIA (spec/grc-restructure/ Q4) :
+   RTO ≤ MAO ≤ DMIA, et RPO ≤ RTO (information). Renvoie les codes des
+   règles violées -- avertissement seulement, jamais bloquant.
+   "rto>dmia" = même règle que grcContRtoGap() (alerte historique). */
+function grcContCoherence(plan) {
+  const b = plan && plan.bia ? plan.bia : {};
+  const out = [];
+  const gt = (x, y) => x != null && y != null && x > y;
+  if (gt(b.rtoMin, b.maoMin)) out.push("rto>mao");
+  if (gt(b.maoMin, b.mtdMin)) out.push("mao>dmia");
+  if (gt(b.rtoMin, b.mtdMin)) out.push("rto>dmia");
+  if (gt(b.rpoMin, b.rtoMin)) out.push("rpo>rto");
+  return out;
+}
+
+function grcContSpofCount(plan) {
+  return (plan && Array.isArray(plan.dependencies) ? plan.dependencies : []).filter((d) => d && d.spof).length;
+}
+
 function grcContSummary(plans) {
   const list = Array.isArray(plans) ? plans : [];
   return {
+    spof: list.reduce((acc, p) => acc + grcContSpofCount(p), 0),
+    incoherent: list.filter((p) => grcContCoherence(p).length > 0).length,
     count: list.length,
     overdue: list.filter(grcContIsReviewOverdue).length,
     worstGaps: list
@@ -450,6 +584,8 @@ function renderGrcContinuitySummary() {
     grcT("grc.continuite.pca.summary.plans").replace("{n}", s.count),
     grcT("grc.continuite.pca.summary.overdue").replace("{n}", s.overdue),
     grcT("grc.continuite.pca.summary.tested").replace("{t}", s.tested).replace("{total}", s.total),
+    grcT("grc.continuite.pca.summary.spof").replace("{n}", s.spof),
+    grcT("grc.continuite.pca.summary.incoherent").replace("{n}", s.incoherent),
   ].forEach((t) => {
     const c = document.createElement("span");
     c.className = "grc-cont-chip";
@@ -468,6 +604,20 @@ function renderGrcContinuitySummary() {
   el.appendChild(wrap);
 }
 
+// Liste des processus de la cartographie (Contexte) pour le plan.
+function _contFillProcesses(sel, current) {
+  sel.innerHTML = "";
+  const opts = [{ value: "", label: "—" }].concat(typeof grcLinksKitOptions === "function" ? grcLinksKitOptions("processus") : []);
+  if (current && !opts.some((o) => o.value === current)) opts.push({ value: current, label: grcT("grc.fiche.ui.refMissing") });
+  opts.forEach((o) => {
+    const op = document.createElement("option");
+    op.value = o.value;
+    op.textContent = o.label;
+    sel.appendChild(op);
+  });
+  sel.value = current || "";
+}
+
 function initGrcContinuityRegistry() {
   const container = document.getElementById("grcContinuityRegistry");
   if (!container) return;
@@ -475,6 +625,7 @@ function initGrcContinuityRegistry() {
 
   let editingId = null;
   let expandedId = null;
+  let pending = {};   // valeurs pré-remplies (actions croisées, UX U5)
 
   const unitOpts = GRC_CONT_DURATION_UNITS
     .map((u) => `<option value="${u}">${grcT("grc.continuite.pca.unit." + u)}</option>`).join("");
@@ -497,6 +648,7 @@ function initGrcContinuityRegistry() {
       <h3 id="contFormTitle">${grcT("grc.continuite.pca.form.title")}</h3>
       <label>${grcT("grc.continuite.pca.form.service")} <input type="text" id="contService" required></label>
       <label>${grcT("grc.continuite.pca.form.description")} <textarea id="contDescription" rows="2"></textarea></label>
+      <label>${grcT("grc.links.f.continuity.processId")} <select id="contProcessId"></select></label>
       <div class="grc-registry-form-row">
         <label>${grcT("grc.continuite.pca.form.owner")} <input type="text" id="contOwner"></label>
         <label>${grcT("grc.continuite.pca.form.criticality")}
@@ -551,6 +703,9 @@ function initGrcContinuityRegistry() {
       : (typeof grcAuthorName === "function" ? grcAuthorName() : "");
     $("#contCriticality").value = plan ? plan.criticality : "important";
     $("#contLinkedIncident").value = plan ? (plan.linkedIncident || "") : "";
+    _contFillProcesses($("#contProcessId"), plan ? plan.processId : (pending.processId || ""));
+    if (!plan && pending.service) $("#contService").value = pending.service;
+    pending = {};
     const bia = plan && plan.bia ? plan.bia : {};
     setDur("contMtd", bia.mtdMin);
     setDur("contRto", bia.rtoMin);
@@ -596,6 +751,7 @@ function initGrcContinuityRegistry() {
       rpoMin: getDur("contRpo"),
     };
     const linkedIncident = $("#contLinkedIncident").value.trim();
+    const processId = $("#contProcessId").value;
     if (editingId) {
       const existing = getGrcContinuity().find((p) => p.id === editingId);
       const merged = Object.assign({}, existing && existing.bia, bia);
@@ -605,8 +761,13 @@ function initGrcContinuityRegistry() {
         owner: $("#contOwner").value.trim(),
         criticality: $("#contCriticality").value,
         linkedIncident,
+        processId,
         bia: merged,
       });
+      if (typeof grcChainChanged === "function") {
+        const saved = getGrcContinuity().find((p) => p.id === editingId);
+        if (saved) grcChainChanged(GRC_CONTINUITY_KEY, saved);
+      }
     } else {
       addGrcContinuityPlan({
         service,
@@ -614,6 +775,7 @@ function initGrcContinuityRegistry() {
         owner: $("#contOwner").value.trim(),
         criticality: $("#contCriticality").value,
         linkedIncident,
+        processId,
         bia: bia,
       });
     }
@@ -653,6 +815,11 @@ function initGrcContinuityRegistry() {
         d.textContent = plan.description || "";
         body.appendChild(d);
       }
+      // Chaîne GRC (chaine.md M2) : dépend de / utilisé par.
+      if (typeof grcLinksDepsBlock === "function") {
+        const deps = grcLinksDepsBlock(GRC_CONTINUITY_KEY, plan);
+        if (deps) body.appendChild(deps);
+      }
 
       const actions = document.createElement("div");
       actions.className = "grc-ir-actions grc-cont-actions";
@@ -669,7 +836,8 @@ function initGrcContinuityRegistry() {
       delBtn.className = "grc-registry-io-btn grc-ir-toggle";
       delBtn.textContent = grcT("grc.common.btnDelete");
       delBtn.onclick = () => {
-        if (!confirm(grcT("grc.common.confirmDelete").replace("{name}", plan.service || ""))) return;
+        const guard = typeof grcLinksDeleteWarning === "function" ? grcLinksDeleteWarning(GRC_CONTINUITY_KEY, plan) : "";
+        if (!confirm(grcT("grc.common.confirmDelete").replace("{name}", plan.service || "") + guard)) return;
         removeGrcContinuityPlan(plan.id);
         if (expandedId === plan.id) expandedId = null;
         renderGrcContinuityList();
@@ -682,6 +850,9 @@ function initGrcContinuityRegistry() {
 
     return li;
   }
+
+  // Ouverture pré-remplie depuis une autre page (grcFicheCrossOpen).
+  window.grcContinuityOpenWith = { openWith: (values) => { pending = values || {}; showForm(null); } };
 
   window.renderGrcContinuityList = function () {
     const list = $("#contList");

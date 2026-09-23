@@ -102,3 +102,59 @@
   border: none;
   background: #0b0d12;
 }
+
+/* Avertissement temporaire « ttyd non lancé » (shells-host.js
+   showTtydToast) : bas de l'écran, au-dessus des terminaux, se ferme
+   tout seul (ou ×). Ambre = avertissement, pas une erreur bloquante. */
+.ttyd-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 1.5rem;
+  z-index: 10001;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  max-width: min(36rem, calc(100vw - 2rem));
+  box-sizing: border-box;
+  padding: 0.75rem 0.9rem;
+  border: 1px solid #ffb454;
+  border-left-width: 4px;
+  border-radius: 10px;
+  background: rgba(14, 16, 24, 0.96);
+  color: #f5f7ff;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55);
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 12px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.ttyd-toast.visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(-50%, 0);
+}
+
+.ttyd-toast-msg::before {
+  content: "⚠ ";
+  color: #ffb454;
+}
+
+.ttyd-toast-close {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid #ffb454;
+  background: transparent;
+  color: #ffb454;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.ttyd-toast-close:hover {
+  background: rgba(255, 180, 84, 0.2);
+}

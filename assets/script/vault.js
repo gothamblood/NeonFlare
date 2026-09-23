@@ -37,16 +37,22 @@ const VAULT_PROTECTED_EXACT_KEYS = [
   "/grc/access-reviews/registry",
   "/grc/metrics/registry",
   "/grc/documents/registry",
+  // Chaîne GRC (spec/grc-fiches/chaine.md) : DDA et entrées « à revoir ».
+  "/grc/soa/registry",
+  "/grc/chain/review",
   "/pentest/engagements",
 ];
 const VAULT_PROTECTED_PREFIX = "/grc/checklist";
+// Fiches de documentation par composante (grc-fiches.js) : une clé par page.
+const VAULT_PROTECTED_PREFIX_FICHES = "/grc/fiches/";
 
 let vaultKey = null; // CryptoKey, non-extractable -- null while locked
 let vaultUnlocked = false;
 let vaultCache = {}; // protected localStorage key -> decrypted string value
 
 function vaultIsProtectedKey(key) {
-  return VAULT_PROTECTED_EXACT_KEYS.indexOf(key) !== -1 || key.indexOf(VAULT_PROTECTED_PREFIX) === 0;
+  return VAULT_PROTECTED_EXACT_KEYS.indexOf(key) !== -1 || key.indexOf(VAULT_PROTECTED_PREFIX) === 0 ||
+    key.indexOf(VAULT_PROTECTED_PREFIX_FICHES) === 0;
 }
 
 function vaultIsFeatureEnabled() {

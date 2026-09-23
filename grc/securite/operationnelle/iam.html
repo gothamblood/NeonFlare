@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'">
+    <link rel="icon" type="image/svg+xml" href="../../../assets/images/dragon-logo.svg">
+    <link rel="icon" type="image/png" href="../../../assets/images/dragon-favicon.png">
+    <title>Identity & Access Management – GRC Cybersecurity</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" type="text/css" href="../../../assets/css/grc.css">
+</head>
+<body data-fiche-page="tech-operationnelle--iam">
+<header>
+    <nav class="nav">
+        <div class="logo">
+            <div class="logo-mark">O</div>
+            <div>Sécurité opérationnelle</div>
+        </div>
+        <div class="nav-links">
+            <a href="./index.html" data-i18n="grc.common.backToOperationnelle">&larr; Retour à Sécurité opérationnelle</a>
+        </div>
+    </nav>
+</header>
+
+<main>
+    <h1 class="page-title" data-i18n="grc.iam.title">Identity & Access Management</h1>
+    <p class="page-subtitle" data-i18n="grc.iam.subtitle">
+        L’IAM encadre la gestion des identités, l’authentification et les droits d’accès à travers l’organisation.
+    </p>
+
+    <section class="grc-registry-block">
+        <h2 data-i18n="grc.iam.reg.title">Recertification des accès</h2>
+        <div id="grcIamSummary"></div>
+        <div id="grcIamRegistry"></div>
+    </section>
+
+    <section class="grc-fiche-root" id="grcFichesRoot"></section>
+
+    <section class="content-block">
+        <h2 data-i18n="grc.iam.whyTitle">Pourquoi c’est important</h2>
+        <ul>
+            <li data-item-id="why1" data-legacy="0"><span data-i18n="grc.iam.why1">Pilier central du Zero Trust : ne jamais faire confiance par défaut, vérifier chaque accès.</span></li>
+            <li data-item-id="why2" data-legacy="1"><span data-i18n="grc.iam.why2">Réduit la surface d’attaque liée aux identités compromises.</span></li>
+            <li data-item-id="why3" data-legacy="2"><span data-i18n="grc.iam.why3">Base technique de la gouvernance des accès définie ailleurs dans le programme GRC.</span></li>
+        </ul>
+
+        <h2 data-i18n="grc.iam.includeTitle">Ce que cette section doit contenir</h2>
+        <ul>
+            <li data-item-id="identites" data-legacy="7"><strong data-i18n="grc.iam.c.identites.label">Gestion des identités</strong> : <span data-i18n="grc.iam.c.identites.desc">référentiel unique, fédération (SSO, OIDC/SAML).</span> <span class="grc-control-tags">ISO A.5.16 · NIST PR.AA</span></li>
+            <li data-item-id="cycle-vie" data-legacy="6"><strong data-i18n="grc.iam.c.cycle-vie.label">Cycle de vie des comptes</strong> : <span data-i18n="grc.iam.c.cycle-vie.desc">arrivée, mobilité, départ (JML).</span> <span class="grc-control-tags">ISO A.5.16 · A.5.18 · NIST PR.AA · CIS 5</span></li>
+            <li data-item-id="mfa" data-legacy="4"><strong data-i18n="grc.iam.c.mfa.label">MFA</strong> : <span data-i18n="grc.iam.c.mfa.desc">authentification multifacteur obligatoire, résistante à l’hameçonnage pour les accès sensibles.</span> <span class="grc-control-tags">ISO A.8.5 · NIST PR.AA · CIS 6</span></li>
+            <li data-item-id="rbac" data-legacy="5"><strong data-i18n="grc.iam.c.rbac.label">RBAC</strong> : <span data-i18n="grc.iam.c.rbac.desc">droits attribués selon le rôle, moindre privilège.</span> <span class="grc-control-tags">ISO A.5.15 · NIST PR.AA · CIS 6</span></li>
+            <li data-item-id="pam" data-legacy="3"><strong data-i18n="grc.iam.c.pam.label">PAM</strong> : <span data-i18n="grc.iam.c.pam.desc">gestion des accès privilégiés : coffre, session, juste-à-temps (Zero Trust).</span> <span class="grc-control-tags">ISO A.8.2 · A.8.18 · NIST PR.AA · CIS 6</span></li>
+            <li data-item-id="privilegies"><strong data-i18n="grc.iam.c.privilegies.label">Comptes privilégiés</strong> : <span data-i18n="grc.iam.c.privilegies.desc">inventaire, comptes nominatifs séparés, comptes de service.</span> <span class="grc-control-tags">ISO A.8.2 · NIST PR.AA · CIS 5</span></li>
+            <li data-item-id="revue-acces" data-legacy="8"><strong data-i18n="grc.iam.c.revue-acces.label">Revue des accès</strong> : <span data-i18n="grc.iam.c.revue-acces.desc">recertification périodique par les propriétaires (registre ci-dessus).</span> <span class="grc-control-tags">ISO A.5.18 · NIST PR.AA · CIS 6</span></li>
+            <li data-item-id="provisionnement"><strong data-i18n="grc.iam.c.provisionnement.label">Provisionnement</strong> : <span data-i18n="grc.iam.c.provisionnement.desc">création automatisée et approuvée des comptes et droits.</span> <span class="grc-control-tags">ISO A.5.18 · NIST PR.AA · CIS 5</span></li>
+            <li data-item-id="deprovisionnement"><strong data-i18n="grc.iam.c.deprovisionnement.label">Déprovisionnement</strong> : <span data-i18n="grc.iam.c.deprovisionnement.desc">révocation immédiate au départ, comptes orphelins.</span> <span class="grc-control-tags">ISO A.5.18 · A.6.5 · NIST PR.AA · CIS 5</span></li>
+        </ul>
+        <p class="grc-see-also"><span data-i18n="grc.common.seeAlso">Voir aussi :</span> <a href="../../procedures.html" data-i18n="grc.iam.see1">Procédures (gestion des accès)</a></p>
+    </section>
+</main>
+
+
+<script src="../../../assets/script/page-boot.js"></script>
+
+<script src="../../../assets/script/i18n.js"></script>
+<script src="../../../assets/script/grc-i18n.js"></script>
+<script src="../../../assets/script/grc-i18n-domains.js"></script>
+<script src="../../../assets/script/grc-i18n-components.js"></script>
+
+<script src="../../../config/grc-author.js"></script>
+
+<script src="../../../config/encryption.js"></script>
+
+<script src="../../../assets/script/vault-crypto.js"></script>
+<script src="../../../assets/script/theme-accent.js"></script>
+
+<script src="../../../assets/script/vault.js"></script>
+<script src="../../../assets/script/vault-ui.js"></script>
+
+<script src="../../../assets/script/config-io.js"></script>
+<!-- Chaîne GRC : catalogue Annexe A + liens entre sections (spec/grc-fiches/chaine.md) -->
+<script src="../../../assets/script/grc-annexe-a.js"></script>
+<script src="../../../assets/script/grc-links.js"></script>
+<script src="../../../assets/script/grc-registry-kit.js"></script>
+<script src="../../../assets/script/grc-access-reviews.js"></script>
+<script src="../../../assets/script/grc-access-reviews-panel.js"></script>
+<script src="../../../assets/script/inline/iam.js"></script>
+
+<script src="../../../assets/script/inline/apply-i18n.js"></script>
+
+<script src="../../../assets/script/grc-checklist-migrate.js"></script>
+<script src="../../../assets/script/grc-checklist.js"></script>
+<!-- Documentation légère du hub technique (grc-normes N11) + chaîne GRC -->
+<script src="../../../assets/script/grc-vocab.js"></script>
+<script src="../../../assets/script/grc-fiches.js"></script>
+<script src="../../../assets/script/grc-fiches-technique.js"></script>
+<script src="../../../assets/script/inline/init-grc-checklist.js"></script>
+<script src="../../../assets/script/inline/init-grc-fiches.js"></script>
+
+</body>
+</html>

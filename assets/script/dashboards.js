@@ -122,6 +122,66 @@ function hiddenSectionsKey(dashboardId) {
 // rest of this file.
 const DEFAULT_DASHBOARD_HIDDEN_SECTIONS = ["panelFs", "panelNetwork", "panelDevSecOps", "panelWebsite", "panelLog", "panelGrc", "grcHeaderStatus", "panelUpcomingReviews"];
 
+/* Tableaux de bord préconstruits d'un NOUVEL utilisateur (2026-09-23).
+   Un nouveau venu reçoit 4 tableaux au lieu d'un seul :
+     Dashboard           Réseau + System log              (id "default")
+     Système d'attaque   Shells (un Bash déjà ouvert) + Outils
+     File Explorer       Explorateur
+     GRC & Website       Couverture GRC (panneau, en-tête), Prochaines
+                         revues, Website
+   Tout panneau non cité (ex. DevSecOps) est masqué, et reste activable
+   par « ☰ Panneaux » ou Paramètres > Sections du Dashboard.
+
+   « Nouveau » = visite guidée jamais terminée ET aucun tableau ni aucun
+   choix de panneaux enregistré : un utilisateur existant garde
+   exactement sa configuration (son tableau par défaut garde le seed
+   historique DEFAULT_DASHBOARD_HIDDEN_SECTIONS ci-dessus). Les tableaux
+   sont ÉCRITS dès le premier chargement (pas calculés à la volée) : ils
+   survivent ainsi à la fin de la visite guidée, qui pose
+   ONBOARDING_DONE_KEY, et se renomment / suppriment comme les autres. */
+const NEW_USER_DASHBOARDS = [
+  { id: "default", name: "Dashboard", visible: ["panelNetwork", "panelLog"] },
+  { id: "seed-attaque", name: "Système d’attaque", visible: ["panelShells", "panelTools"] },
+  { id: "seed-explorer", name: "File Explorer", visible: ["panelFs"] },
+  { id: "seed-grc-website", name: "GRC & Website", visible: ["panelGrc", "grcHeaderStatus", "panelUpcomingReviews", "panelWebsite"] },
+];
+const _NEW_USER_ONBOARDING_KEY = "/settings.html/onboardingDone";
+const NEW_USER_OPEN_SHELLS_KEY = "/index.html/openShells"; // = shells-host.js OPEN_SHELLS_STORAGE_KEY
+
+function isNewDashboardUser() {
+  try {
+    return localStorage.getItem(_NEW_USER_ONBOARDING_KEY) === null &&
+      localStorage.getItem(DASHBOARDS_KEY) === null &&
+      localStorage.getItem(hiddenSectionsKey("default")) === null;
+  } catch (e) {
+    return false;
+  }
+}
+
+function seedNewUserDashboards() {
+  if (!isNewDashboardUser()) return false;
+  const all = DASHBOARD_SECTIONS.map((s) => s.key);
+  try {
+    NEW_USER_DASHBOARDS.forEach((d) => {
+      const hidden = all.filter((k) => d.visible.indexOf(k) === -1);
+      localStorage.setItem(hiddenSectionsKey(d.id), JSON.stringify(hidden));
+    });
+    // Le tableau "default" garde son nom intégré (traduit dans la barre
+    // latérale) : seuls les trois autres entrent dans le registre.
+    saveExtraDashboards(NEW_USER_DASHBOARDS.filter((d) => d.id !== "default").map((d) => ({ id: d.id, name: d.name })));
+    // Un Bash déjà ouvert (slot 1) : shells-host.js le restaure au
+    // chargement (restoreOpenShells) et il s'affiche dans « Système
+    // d'attaque », le seul tableau qui montre Shells. Si ttyd n'est pas
+    // lancé, shells-host.js affiche un avertissement temporaire.
+    if (localStorage.getItem(NEW_USER_OPEN_SHELLS_KEY) === null) {
+      localStorage.setItem(NEW_USER_OPEN_SHELLS_KEY, JSON.stringify([{ type: "bash", slot: 1, title: "" }]));
+    }
+  } catch (e) {
+    return false; // stockage bloqué : on reste sur le tableau unique historique
+  }
+  return true;
+}
+
 function getHiddenDashboardSections(dashboardId) {
   try {
     const raw = localStorage.getItem(hiddenSectionsKey(dashboardId));
@@ -138,3 +198,7 @@ function setDashboardSectionVisible(dashboardId, key, visible) {
   if (!visible) hidden.push(key);
   localStorage.setItem(hiddenSectionsKey(dashboardId), JSON.stringify(hidden));
 }
+
+// Chargé par index.html, dashboard.html et settings.html : le premier
+// chargement d'un nouvel utilisateur crée ses tableaux préconstruits.
+seedNewUserDashboards();

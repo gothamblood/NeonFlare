@@ -361,6 +361,18 @@ body {
   box-shadow: 0 0 8px #ff4757;
 }
 
+/* Service annoncé, pas encore en ligne (network-dashboard.js isSoonNode) :
+   gris neutre, ni vert ni rouge ; carte non cliquable. */
+.node-status.soon {
+  background: #7f8c8d;
+  box-shadow: none;
+}
+
+.node-card.node-soon {
+  cursor: default;
+  opacity: 0.75;
+}
+
 .node-status.checking {
   background: #f1c40f;
   box-shadow: 0 0 8px #f1c40f;

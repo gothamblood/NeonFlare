@@ -381,7 +381,7 @@ async function importGrcVulnsFromJson(file) {
 
 /* ================================================================== *
  *  Registre -- liste + formulaire + encart (grkRegistry, T2).
- *  Monté par grc/vulnerabilites.html (#grcVulnsRegistry /
+ *  Monté par grc/securite/operationnelle/vulnerabilites.html (#grcVulnsRegistry /
  *  #grcVulnsSummary). Panneau : renderVulnPanel (grc-vulns-panel.js).
  * ================================================================== */
 

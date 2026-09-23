@@ -23,11 +23,13 @@
 <main>
     <h1 class="page-title" data-i18n="grc.hub.title">Gouvernance, Risques &amp; Conformité</h1>
     <p class="page-subtitle" data-i18n="grc.hub.subtitle">
-        Le système de management de la sécurité de l'information, organisé en 20 domaines : de la gouvernance et
-        l'analyse des risques jusqu'à l'IAM, le cloud et le DevSecOps.
+        Le système de management de la sécurité de l'information selon ISO 27001, organisé en 15 domaines : du contexte et de la gouvernance jusqu'à la continuité, la conformité, la protection des renseignements personnels et les indicateurs. Les domaines de mesures (architecture, vulnérabilités, IAM, ressources humaines, sécurité physique, cloud, DevSecOps) sont dans Sécurité opérationnelle.
     </p>
 
     <div class="grc-progress" id="grc-coverage-summary"></div>
+
+    <!-- Démarche GRC : Démarrer ici, prochaine étape, documents exigés, À faire, chaîne, recherche (grc-hub.js) -->
+    <section class="grc-hub-guide" id="grc-hub-guide"></section>
 
     <div class="grc-toolbar">
       <button type="button" id="btnExportJson" class="grc-toolbar-btn" data-i18n="grc.hub.exportJson">Exporter JSON</button>
@@ -60,11 +62,15 @@
 <script src="../assets/script/grc-i18n-securite-api.js"></script>
 <script src="../assets/script/grc-i18n-securite-webapp.js"></script>
 <script src="../assets/script/grc-i18n-securite-database.js"></script>
+<script src="../assets/script/grc-i18n-securite-operationnelle.js"></script>
+<script src="../assets/script/grc-i18n-components.js"></script>
 <script src="index.js"></script>
+<script src="continuite/index.js"></script>
 <script src="securite/api/index.js"></script>
 <script src="securite/database/index.js"></script>
 <script src="securite/reseau/index.js"></script>
 <script src="securite/webapp/index.js"></script>
+<script src="securite/operationnelle/index.js"></script>
 <script src="../assets/script/grc-loader.js"></script>
 <script src="../assets/script/theme-accent.js"></script>
 <script src="../assets/script/page-effects.js"></script>
@@ -73,11 +79,41 @@
 <script src="../assets/script/vault-crypto.js"></script>
 <script src="../assets/script/vault.js"></script>
 <script src="../assets/script/vault-ui.js"></script>
+<!-- Chaîne GRC : catalogue Annexe A + liens entre sections (spec/grc-fiches/chaine.md) -->
+<script src="../assets/script/grc-annexe-a.js"></script>
+<script src="../assets/script/grc-links.js"></script>
+<script src="../assets/script/grc-checklist-migrate.js"></script>
 <script src="../assets/script/grc-checklist.js"></script>
 <script src="../assets/script/hub-modal.js"></script>
 <script src="../assets/script/onboarding-target.js"></script>
+<script src="../assets/script/config-io.js"></script>
+<script src="../assets/script/grc-registry-kit.js"></script>
+<script src="../assets/script/grc-vocab.js"></script>
+<script src="../assets/script/grc-fiches.js"></script>
+<script src="../assets/script/grc-fiches-contexte.js"></script>
+<script src="../assets/script/grc-fiches-gouvernance.js"></script>
+<script src="../assets/script/grc-fiches-actifs.js"></script>
+<script src="../assets/script/grc-fiches-risques.js"></script>
+<script src="../assets/script/grc-fiches-traitement.js"></script>
+<script src="../assets/script/grc-fiches-controles.js"></script>
+<script src="../assets/script/grc-fiches-physique.js"></script>
+<script src="../assets/script/grc-fiches-directives.js"></script>
+<script src="../assets/script/grc-fiches-procedures.js"></script>
+<script src="../assets/script/grc-fiches-rh.js"></script>
+<script src="../assets/script/grc-fiches-incidents.js"></script>
+<script src="../assets/script/grc-fiches-continuite.js"></script>
+<script src="../assets/script/grc-fiches-continuite-sub.js"></script>
+<script src="../assets/script/grc-fiches-documentation.js"></script>
+<script src="../assets/script/grc-fiches-conformite.js"></script>
+<script src="../assets/script/grc-fiches-fournisseurs.js"></script>
+<script src="../assets/script/grc-fiches-indicateurs.js"></script>
+<script src="../assets/script/grc-soa.js"></script>
+<script src="../assets/script/grc-exigences.js"></script>
+<script src="../assets/script/grc-todo.js"></script>
+<script src="../assets/script/grc-hub.js"></script>
 <script src="../assets/script/inline/grc-index.js"></script>
 <script src="../assets/script/inline/grc-hub-modal-wiring.js"></script>
+<script src="../assets/script/inline/init-grc-hub.js"></script>
 
 </body>
 </html>

@@ -20,6 +20,7 @@
 
 const GRC_CONT_TABS = [
   { key: "synthese", i18n: "grc.continuite.pca.tab.synthese" },
+  { key: "bia", i18n: "grc.continuite.pca.tab.bia" },
   { key: "dependances", i18n: "grc.continuite.pca.tab.dependances" },
   { key: "redondance", i18n: "grc.continuite.pca.tab.redondance" },
   { key: "pra", i18n: "grc.continuite.pca.tab.pra" },
@@ -112,6 +113,7 @@ function _contSyncTabs(panel, planId) {
   ensured.id = planId;
 
   if (active === "synthese") _contRenderSynthese(content, ensured);
+  else if (active === "bia") _contRenderBiaTime(content, ensured);
   else if (active === "dependances") _contRenderDependencies(content, ensured);
   else if (active === "redondance") _contRenderRedundancy(content, ensured);
   else if (active === "pra") _contRenderDrp(content, ensured);
@@ -158,13 +160,34 @@ function _contRenderSynthese(root, plan) {
   const mtdF = _contDurField(grcT("grc.continuite.pca.form.mtd"), plan.bia.mtdMin, (m) => setBia({ mtdMin: m }));
   const rtoF = _contDurField(grcT("grc.continuite.pca.form.rto"), plan.bia.rtoMin, (m) => setBia({ rtoMin: m }));
   const rpoF = _contDurField(grcT("grc.continuite.pca.form.rpo"), plan.bia.rpoMin, (m) => setBia({ rpoMin: m }));
+  const maoF = _contDurField(grcT("grc.continuite.pca.form.mao"), plan.bia.maoMin, (m) => setBia({ maoMin: m }));
   mtdF.title = grcT("grc.continuite.pca.form.mtdHint");
   rtoF.title = grcT("grc.continuite.pca.form.rtoHint");
   rpoF.title = grcT("grc.continuite.pca.form.rpoHint");
+  maoF.title = grcT("grc.continuite.pca.form.maoHint");
+  maoF.classList.add("grc-cont-mao");
   biaGrid.appendChild(mtdF);
+  biaGrid.appendChild(maoF);
   biaGrid.appendChild(rtoF);
   biaGrid.appendChild(rpoF);
   biaSec.appendChild(biaGrid);
+
+  // MBCO : niveau de service plancher (texte + % facultatif).
+  const mbcoGrid = document.createElement("div");
+  mbcoGrid.className = "grc-ir-formgrid";
+  const mbco = document.createElement("input");
+  mbco.type = "text";
+  mbco.className = "grc-cont-mbco";
+  mbco.value = plan.bia.mbco || "";
+  mbco.addEventListener("change", () => grcContSetBia(id, { mbco: mbco.value.trim() }));
+  mbcoGrid.appendChild(_contField(grcT("grc.continuite.pca.form.mbco"), mbco));
+  const mbcoPct = document.createElement("input");
+  mbcoPct.type = "text";
+  mbcoPct.className = "grc-cont-mbco-pct";
+  mbcoPct.value = plan.bia.mbcoPct == null ? "" : String(plan.bia.mbcoPct);
+  mbcoPct.addEventListener("change", () => { grcContSetBia(id, { mbcoPct: mbcoPct.value }); _contRefresh(mbcoPct); });
+  mbcoGrid.appendChild(_contField(grcT("grc.continuite.pca.form.mbcoPct"), mbcoPct));
+  biaSec.appendChild(mbcoGrid);
 
   const biaHint = document.createElement("p");
   biaHint.className = "grc-ir-hint";
@@ -180,6 +203,15 @@ function _contRenderSynthese(root, plan) {
     warn.textContent = grcT("grc.continuite.pca.warn.rtoGtMtd");
     biaSec.appendChild(warn);
   }
+  // Autres règles de cohérence RTO ≤ MAO ≤ DMIA, RPO ≤ RTO (rto>dmia
+  // déjà couverte par l'alerte historique juste au-dessus).
+  grcContCoherence(plan).filter((c) => c !== "rto>dmia").forEach((c) => {
+    const warn = document.createElement("p");
+    warn.className = "grc-cont-warn grc-cont-coherence";
+    warn.dataset.rule = c;
+    warn.textContent = grcT("grc.continuite.pca.warn." + c.replace(">", "Gt"));
+    biaSec.appendChild(warn);
+  });
 
   const impacts = document.createElement("textarea");
   impacts.rows = 2;
@@ -194,6 +226,9 @@ function _contRenderSynthese(root, plan) {
   biaSec.appendChild(_contField(grcT("grc.continuite.pca.bia.peakPeriods"), peak));
 
   root.appendChild(biaSec);
+
+  // 2 bis. Gestion de crise : SPOC + cellule de crise décisionnelle (CCD).
+  _contRenderCrisis(root, plan);
 
   // 3. Revue.
   const revSec = document.createElement("section");
@@ -246,6 +281,7 @@ function _contRenderSynthese(root, plan) {
   const passTests = plan.tests.filter((t) => t.result === "pass").length;
   const counters = [
     grcT("grc.continuite.pca.counters.deps").replace("{n}", plan.dependencies.length),
+    grcT("grc.continuite.pca.summary.spof").replace("{n}", grcContSpofCount(plan)),
     grcT("grc.continuite.pca.counters.redundancy").replace("{n}", plan.redundancy.length).replace("{t}", testedRed),
     grcT("grc.continuite.pca.counters.steps").replace("{n}", plan.drp.length),
     grcT("grc.continuite.pca.counters.tests").replace("{n}", plan.tests.length).replace("{p}", passTests),
@@ -265,6 +301,69 @@ function _contRenderSynthese(root, plan) {
   });
   cSec.appendChild(chips);
   root.appendChild(cSec);
+}
+
+/* Gestion de crise (spec/grc-restructure/ Q4) : SPOC du plan + membres
+   de la CCD (rôle, nom, contact). Contacts = données personnelles, mais
+   le registre entier est déjà chiffré par le coffre. */
+function _contRenderCrisis(root, plan) {
+  const id = plan.id;
+  const sec = document.createElement("section");
+  sec.className = "grc-ir-sec grc-cont-crisis";
+  const h = document.createElement("h4");
+  h.textContent = grcT("grc.continuite.pca.crisis.title");
+  sec.appendChild(h);
+
+  const spoc = document.createElement("input");
+  spoc.type = "text";
+  spoc.className = "grc-cont-spoc";
+  spoc.value = plan.spoc || "";
+  spoc.addEventListener("change", () => grcContSetCore(id, { spoc: spoc.value }));
+  sec.appendChild(_contField(grcT("grc.continuite.pca.crisis.spoc"), spoc));
+
+  const list = document.createElement("div");
+  list.className = "grc-ir-inv-list grc-cont-ccd-list";
+  const lh = document.createElement("p");
+  lh.className = "grc-ir-hint";
+  lh.textContent = grcT("grc.continuite.pca.crisis.ccd");
+  sec.appendChild(lh);
+  sec.appendChild(list);
+  plan.ccd.forEach((m) => {
+    const row = document.createElement("div");
+    row.className = "grc-ir-inv-row";
+    ["role", "name", "contact"].forEach((k) => {
+      const inp = document.createElement("input");
+      inp.type = "text";
+      inp.placeholder = grcT("grc.continuite.pca.crisis." + k);
+      inp.value = m[k] || "";
+      if (k !== "contact") inp.className = "grc-ir-inv-grow";
+      inp.addEventListener("change", () => { const c = {}; c[k] = inp.value; grcContUpdateCcd(id, m.id, c); });
+      row.appendChild(inp);
+    });
+    row.appendChild(_contDelBtn(() => { grcContRemoveCcd(id, m.id); _contRefresh(row); }));
+    list.appendChild(row);
+  });
+  if (!plan.ccd.length) list.appendChild(_contEmptyLine());
+
+  const inputs = ["role", "name", "contact"].map((k) => {
+    const inp = document.createElement("input");
+    inp.type = "text";
+    inp.placeholder = grcT("grc.continuite.pca.crisis." + k);
+    if (k === "name") inp.required = true;
+    return inp;
+  });
+  const btn = document.createElement("button");
+  btn.type = "submit";
+  btn.className = "grc-registry-add-btn";
+  btn.textContent = grcT("grc.continuite.pca.inv.add");
+  const form = _contAddForm(inputs.concat([btn]), () => {
+    if (!inputs[1].value.trim()) return;
+    grcContAddCcd(id, { role: inputs[0].value, name: inputs[1].value, contact: inputs[2].value });
+    _contRefresh(form);
+  });
+  form.classList.add("grc-cont-ccd-add");
+  sec.appendChild(form);
+  root.appendChild(sec);
 }
 
 /* ---------- helpers de liste (patron _irInv* du Mode IR) ---------- */
@@ -334,6 +433,18 @@ function _contRenderDependencies(root, plan) {
     if (listId) ref.setAttribute("list", listId);
     ref.addEventListener("change", () => grcContUpdateDependency(id, d.id, { ref: ref.value.trim() }));
     row.appendChild(ref);
+    // Lien réel (chaine.md CH2) pour un actif ou un fournisseur.
+    if (d.type === "asset" || d.type === "supplier") {
+      const tgt = _contTargetSelect(d.type, d.targetId);
+      tgt.addEventListener("change", () => {
+        const o = tgt.selectedOptions[0];
+        const patch = { targetId: tgt.value };
+        if (tgt.value && o) patch.ref = o.textContent;
+        grcContUpdateDependency(id, d.id, patch);
+        _contRefresh(row);
+      });
+      row.appendChild(tgt);
+    }
 
     const note = document.createElement("input");
     note.type = "text";
@@ -341,6 +452,17 @@ function _contRenderDependencies(root, plan) {
     note.value = d.note || "";
     note.addEventListener("change", () => grcContUpdateDependency(id, d.id, { note: note.value.trim() }));
     row.appendChild(note);
+
+    const spofLbl = document.createElement("label");
+    spofLbl.className = "grc-sup-check grc-cont-spof";
+    spofLbl.title = grcT("grc.continuite.pca.spofHint");
+    const spof = document.createElement("input");
+    spof.type = "checkbox";
+    spof.checked = !!d.spof;
+    spof.addEventListener("change", () => { grcContUpdateDependency(id, d.id, { spof: spof.checked }); _contRefresh(row); });
+    spofLbl.appendChild(spof);
+    spofLbl.appendChild(document.createTextNode(" SPOF"));
+    row.appendChild(spofLbl);
 
     row.appendChild(_contDelBtn(() => { grcContRemoveDependency(id, d.id); _contRefresh(row); }));
     list.appendChild(row);
@@ -357,17 +479,202 @@ function _contRenderDependencies(root, plan) {
   const note = document.createElement("input");
   note.type = "text";
   note.placeholder = grcT("grc.continuite.pca.inv.note");
+  const spofLbl = document.createElement("label");
+  spofLbl.className = "grc-sup-check";
+  spofLbl.title = grcT("grc.continuite.pca.spofHint");
+  const spof = document.createElement("input");
+  spof.type = "checkbox";
+  spof.className = "grc-cont-spof-new";
+  spofLbl.appendChild(spof);
+  spofLbl.appendChild(document.createTextNode(" SPOF"));
   const btn = document.createElement("button");
   btn.type = "submit";
   btn.className = "grc-registry-add-btn";
   btn.textContent = grcT("grc.continuite.pca.inv.add");
-  const form = _contAddForm([type, ref, note, btn], () => {
+  const form = _contAddForm([type, ref, note, spofLbl, btn], () => {
     const v = ref.value.trim();
     if (!v) return;
-    grcContAddDependency(id, { type: type.value, ref: v, note: note.value.trim() });
+    grcContAddDependency(id, { type: type.value, ref: v, note: note.value.trim(), spof: spof.checked });
     _contRefresh(form);
   });
   root.appendChild(form);
+}
+
+function _contTargetSelect(type, current) {
+  const s = document.createElement("select");
+  s.className = "grc-cont-target";
+  s.title = grcT("grc.continuite.pca.inv.target");
+  const opts = [{ value: "", label: grcT("grc.continuite.pca.inv.target") + " —" }]
+    .concat(typeof grcLinksKitOptions === "function" ? grcLinksKitOptions(type === "asset" ? "asset" : "supplier") : []);
+  opts.forEach((o) => {
+    const op = document.createElement("option");
+    op.value = o.value;
+    op.textContent = o.label;
+    s.appendChild(op);
+  });
+  s.value = current || "";
+  return s;
+}
+
+/* ---------- onglet BIA dans le temps (grc-normes N2) --------------
+   Impacts par horizon (1 à 5 par nature) et ressources nécessaires ;
+   la DMIA suggérée = premier horizon où un impact atteint
+   GRC_CONT_UNACCEPTABLE. Rien n'est remplacé sans action explicite. */
+function _contRenderBiaTime(root, plan) {
+  const id = plan.id;
+  const sec = document.createElement("section");
+  sec.className = "grc-ir-sec grc-cont-bia-time";
+  const h = document.createElement("h4");
+  h.textContent = grcT("grc.continuite.pca.biat.title");
+  sec.appendChild(h);
+  const hint = document.createElement("p");
+  hint.className = "grc-ir-hint";
+  hint.textContent = grcT("grc.continuite.pca.biat.hint");
+  sec.appendChild(hint);
+
+  const rows = plan.bia.timeline.length ? plan.bia.timeline
+    : GRC_CONT_BIA_HORIZONS.map((m) => ({ id: "", horizonMin: m, financier: 0, operationnel: 0, reputation: 0, legal: 0, note: "" }));
+  const table = document.createElement("table");
+  table.className = "grc-fiche-table grc-cont-bia-table";
+  const thead = document.createElement("thead");
+  const htr = document.createElement("tr");
+  ["horizon"].concat(GRC_CONT_IMPACT_KINDS).concat(["note"]).forEach((k) => {
+    const th = document.createElement("th");
+    th.textContent = grcT("grc.continuite.pca.biat." + k);
+    htr.appendChild(th);
+  });
+  thead.appendChild(htr);
+  table.appendChild(thead);
+  const tbody = document.createElement("tbody");
+  const levels = [0, 1, 2, 3, 4, 5];
+  rows.forEach((r, i) => {
+    const tr = document.createElement("tr");
+    tr.dataset.row = String(i);
+    const td0 = document.createElement("td");
+    td0.textContent = contFmtDuration(r.horizonMin);
+    tr.appendChild(td0);
+    GRC_CONT_IMPACT_KINDS.forEach((k) => {
+      const td = document.createElement("td");
+      const s = _contSelect(levels, r[k] || 0, (n) => (n ? String(n) + " — " + grcT("grc.continuite.pca.biat.l" + n) : "—"));
+      s.dataset.kind = k;
+      td.appendChild(s);
+      tr.appendChild(td);
+    });
+    const tdn = document.createElement("td");
+    const note = document.createElement("input");
+    note.type = "text";
+    note.dataset.kind = "note";
+    note.value = r.note || "";
+    tdn.appendChild(note);
+    tr.appendChild(tdn);
+    tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);
+  const wrap = document.createElement("div");
+  wrap.className = "grc-fiche-table-wrap";
+  wrap.appendChild(table);
+  sec.appendChild(wrap);
+
+  const save = document.createElement("button");
+  save.type = "button";
+  save.className = "grc-registry-add-btn grc-cont-bia-save";
+  save.textContent = grcT("grc.continuite.pca.biat.save");
+  save.addEventListener("click", () => {
+    const out = rows.map((r, i) => {
+      const tr = tbody.querySelector('tr[data-row="' + i + '"]');
+      const v = { id: r.id || "", horizonMin: r.horizonMin, note: tr.querySelector('[data-kind="note"]').value.trim() };
+      GRC_CONT_IMPACT_KINDS.forEach((k) => { v[k] = Number(tr.querySelector('[data-kind="' + k + '"]').value) || 0; });
+      v.level = Math.max(v.financier, v.operationnel, v.reputation, v.legal);
+      return v;
+    });
+    grcContSetTimeline(id, out);
+    _contRefresh(save);
+  });
+  sec.appendChild(save);
+
+  // DMIA suggérée
+  const sug = grcContSuggestedMtd(plan);
+  const sp = document.createElement("p");
+  sp.className = "grc-cont-bia-suggest";
+  if (sug != null) {
+    sp.textContent = grcT("grc.continuite.pca.biat.suggest").replace("{d}", contFmtDuration(sug)) +
+      (plan.bia.mtdMin != null ? " " + grcT("grc.continuite.pca.biat.current").replace("{d}", contFmtDuration(plan.bia.mtdMin)) : "");
+    if (plan.bia.mtdMin !== sug) {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "grc-registry-io-btn grc-cont-bia-apply";
+      b.textContent = grcT("grc.continuite.pca.biat.apply");
+      b.addEventListener("click", () => { grcContSetBia(id, { mtdMin: sug }); _contRefresh(b); });
+      sp.appendChild(document.createTextNode(" "));
+      sp.appendChild(b);
+    }
+  } else {
+    sp.textContent = grcT("grc.continuite.pca.biat.noSuggest");
+  }
+  sec.appendChild(sp);
+  root.appendChild(sec);
+
+  // Ressources nécessaires dans le temps
+  const rs = document.createElement("section");
+  rs.className = "grc-ir-sec grc-cont-bia-res";
+  const rh = document.createElement("h4");
+  rh.textContent = grcT("grc.continuite.pca.biat.resTitle");
+  rs.appendChild(rh);
+  const list = document.createElement("div");
+  rs.appendChild(list);
+  const resRows = plan.bia.resources;
+  const labelOf = (r) => {
+    const type = r.kind === "role" ? "role" : r.kind === "asset" ? "asset" : r.kind === "supplier" ? "supplier" : null;
+    const rid = r.roleId || r.assetId || r.supplierId;
+    if (type && rid && typeof grcLinksLabel === "function") return grcLinksLabel(type, rid);
+    return r.label || "";
+  };
+  resRows.forEach((r) => {
+    const row = document.createElement("div");
+    row.className = "grc-ir-inv-row";
+    row.appendChild(document.createTextNode(grcT("grc.continuite.pca.biat.kind." + r.kind) + " — " + labelOf(r) +
+      (r.quantity ? " × " + r.quantity : "") + (r.horizonMin != null ? " (" + contFmtDuration(r.horizonMin) + ")" : "")));
+    row.appendChild(_contDelBtn(() => { grcContSetResources(id, resRows.filter((x) => x.id !== r.id)); _contRefresh(row); }));
+    list.appendChild(row);
+  });
+  if (!resRows.length) list.appendChild(_contEmptyLine());
+  const kind = _contSelect(GRC_CONT_RES_KINDS, "role", (k) => grcT("grc.continuite.pca.biat.kind." + k));
+  const tgt = document.createElement("select");
+  const fillTgt = () => {
+    tgt.innerHTML = "";
+    const type = kind.value === "role" ? "role" : kind.value === "asset" ? "asset" : kind.value === "supplier" ? "supplier" : null;
+    tgt.hidden = !type;
+    (type && typeof grcLinksKitOptions === "function" ? grcLinksKitOptions(type) : []).forEach((o) => {
+      const op = document.createElement("option");
+      op.value = o.value;
+      op.textContent = o.label;
+      tgt.appendChild(op);
+    });
+  };
+  kind.addEventListener("change", fillTgt);
+  fillTgt();
+  const lbl = document.createElement("input");
+  lbl.type = "text";
+  lbl.placeholder = grcT("grc.continuite.pca.biat.label");
+  const qty = document.createElement("input");
+  qty.type = "text";
+  qty.placeholder = grcT("grc.continuite.pca.biat.qty");
+  const hz = _contSelect([""].concat(GRC_CONT_BIA_HORIZONS.map(String)), "", (m) => (m ? contFmtDuration(Number(m)) : grcT("grc.continuite.pca.biat.horizon")));
+  const btn = document.createElement("button");
+  btn.type = "submit";
+  btn.className = "grc-registry-add-btn";
+  btn.textContent = grcT("grc.continuite.pca.inv.add");
+  const form = _contAddForm([kind, tgt, lbl, qty, hz, btn], () => {
+    const r = { kind: kind.value, label: lbl.value.trim(), quantity: qty.value.trim(), horizonMin: hz.value ? Number(hz.value) : null };
+    if (kind.value === "role") r.roleId = tgt.value;
+    if (kind.value === "asset") r.assetId = tgt.value;
+    if (kind.value === "supplier") r.supplierId = tgt.value;
+    if (!r.label && !tgt.value) return;
+    grcContSetResources(id, resRows.concat([r]));
+    _contRefresh(form);
+  });
+  rs.appendChild(form);
+  root.appendChild(rs);
 }
 
 /* ---------- onglet Redondance (T4) ----------------------------- */
@@ -676,8 +983,24 @@ function continuityReportBody(scope) {
     h += "<tr><th>" + L("grc.continuite.pca.form.mtd") + "</th><td>" + esc(contFmtDuration(p.bia.mtdMin)) + "</td></tr>";
     h += "<tr><th>" + L("grc.continuite.pca.form.rto") + "</th><td>" + esc(contFmtDuration(p.bia.rtoMin)) + "</td></tr>";
     h += "<tr><th>" + L("grc.continuite.pca.form.rpo") + "</th><td>" + esc(contFmtDuration(p.bia.rpoMin)) + "</td></tr>";
+    h += "<tr><th>" + L("grc.continuite.pca.form.mao") + "</th><td>" + esc(contFmtDuration(p.bia.maoMin)) + "</td></tr>";
+    h += "<tr><th>" + L("grc.continuite.pca.form.mbco") + "</th><td>" + esc(p.bia.mbco || "") +
+      (p.bia.mbcoPct != null ? " (" + esc(p.bia.mbcoPct) + " %)" : "") + "</td></tr>";
     h += "</tbody></table>";
     if (grcContRtoGap(p) != null) h += "<p><em>" + L("grc.continuite.pca.warn.rtoGtMtd") + "</em></p>";
+    grcContCoherence(p).filter((c) => c !== "rto>dmia").forEach((c) => {
+      h += "<p><em>" + L("grc.continuite.pca.warn." + c.replace(">", "Gt")) + "</em></p>";
+    });
+    if (p.spoc || p.ccd.length) {
+      h += "<h3>" + L("grc.continuite.pca.crisis.title") + "</h3>";
+      if (p.spoc) h += "<p><strong>" + L("grc.continuite.pca.crisis.spoc") + " :</strong> " + esc(p.spoc) + "</p>";
+      if (p.ccd.length) {
+        h += "<table border='1' cellspacing='0' cellpadding='4'><thead><tr><th>" + L("grc.continuite.pca.crisis.role") +
+          "</th><th>" + L("grc.continuite.pca.crisis.name") + "</th><th>" + L("grc.continuite.pca.crisis.contact") + "</th></tr></thead><tbody>";
+        p.ccd.forEach((m) => { h += "<tr><td>" + esc(m.role) + "</td><td>" + esc(m.name) + "</td><td>" + esc(m.contact) + "</td></tr>"; });
+        h += "</tbody></table>";
+      }
+    }
     if (p.bia.impacts) h += "<p><strong>" + L("grc.continuite.pca.bia.impacts") + " :</strong><br>" + nl2br(p.bia.impacts) + "</p>";
     if (p.bia.peakPeriods) h += "<p><strong>" + L("grc.continuite.pca.bia.peakPeriods") + " :</strong> " + esc(p.bia.peakPeriods) + "</p>";
 
@@ -685,9 +1008,10 @@ function continuityReportBody(scope) {
     h += "<h3>" + L("grc.continuite.pca.tab.dependances") + " (" + p.dependencies.length + ")</h3>";
     if (p.dependencies.length) {
       h += "<table border='1' cellspacing='0' cellpadding='4'><thead><tr><th>" + L("grc.continuite.pca.report.type") +
-        "</th><th>" + L("grc.continuite.pca.report.ref") + "</th><th>" + L("grc.continuite.pca.inv.note") + "</th></tr></thead><tbody>";
+        "</th><th>" + L("grc.continuite.pca.report.ref") + "</th><th>" + L("grc.continuite.pca.inv.note") + "</th><th>SPOF</th></tr></thead><tbody>";
       p.dependencies.forEach((d) => {
-        h += "<tr><td>" + L("grc.continuite.pca.depType." + d.type) + "</td><td>" + esc(d.ref || "") + "</td><td>" + esc(d.note || "") + "</td></tr>";
+        h += "<tr><td>" + L("grc.continuite.pca.depType." + d.type) + "</td><td>" + esc(d.ref || "") + "</td><td>" + esc(d.note || "") +
+          "</td><td>" + yn(!!d.spof) + "</td></tr>";
       });
       h += "</tbody></table>";
     } else h += none;
@@ -747,9 +1071,12 @@ function continuityCardBody(plan) {
   const L = (k) => grcT(k);
   let h = "<h1>" + L("grc.continuite.pca.card.title") + " — " + esc(p.service || "") + "</h1>";
   h += "<p><strong>" + L("grc.continuite.pca.form.criticality") + " :</strong> " + L("grc.continuite.pca.crit." + p.criticality) + "</p>";
-  h += "<p><strong>DMIA</strong> " + esc(contFmtDuration(p.bia.mtdMin)) +
+  h += "<p><strong>" + L("grc.continuite.pca.short.mtd") + "</strong> " + esc(contFmtDuration(p.bia.mtdMin)) +
+    " &nbsp;·&nbsp; <strong>MAO</strong> " + esc(contFmtDuration(p.bia.maoMin)) +
     " &nbsp;·&nbsp; <strong>RTO</strong> " + esc(contFmtDuration(p.bia.rtoMin)) +
     " &nbsp;·&nbsp; <strong>RPO</strong> " + esc(contFmtDuration(p.bia.rpoMin)) + "</p>";
+  if (p.bia.mbco) h += "<p><strong>MBCO</strong> " + esc(p.bia.mbco) + (p.bia.mbcoPct != null ? " (" + esc(p.bia.mbcoPct) + " %)" : "") + "</p>";
+  if (p.spoc) h += "<p><strong>SPOC</strong> " + esc(p.spoc) + "</p>";
 
   h += "<h2>" + L("grc.continuite.pca.tab.pra") + "</h2>";
   if (p.drp.length) {
@@ -764,13 +1091,17 @@ function continuityCardBody(plan) {
   const contacts = [];
   if (p.owner) contacts.push(p.owner);
   p.drp.forEach((s) => { if (s.owner && contacts.indexOf(s.owner) === -1) contacts.push(s.owner); });
+  p.ccd.forEach((m) => {
+    const c = [m.role, m.name, m.contact].filter(Boolean).join(" — ");
+    if (c && contacts.indexOf(c) === -1) contacts.push(c);
+  });
   if (contacts.length) {
     h += "<h2>" + L("grc.continuite.pca.card.contacts") + "</h2><p>" + contacts.map(esc).join(" &nbsp;·&nbsp; ") + "</p>";
   }
   if (p.dependencies.length) {
     h += "<h2>" + L("grc.continuite.pca.card.vitalDeps") + "</h2><ul>";
     p.dependencies.forEach((d) => {
-      h += "<li>" + L("grc.continuite.pca.depType." + d.type) + " — " + esc(d.ref || "") + "</li>";
+      h += "<li>" + L("grc.continuite.pca.depType." + d.type) + " — " + esc(d.ref || "") + (d.spof ? " <strong>(SPOF)</strong>" : "") + "</li>";
     });
     h += "</ul>";
   }
@@ -812,7 +1143,8 @@ function exportContinuityCard(plan) {
 function exportContinuityBiaCsv(plans) {
   if (_contExportGated()) return;
   const list = (Array.isArray(plans) ? plans : [plans]).map(grcContinuityEnsureShape);
-  const rows = [["service", "criticite", "DMIA_min", "RTO_min", "RPO_min", "revue_ok"]];
+  const rows = [["service", "criticite", "DMIA_min", "RTO_min", "RPO_min", "revue_ok",
+    "MAO_min", "MBCO", "MBCO_pct", "SPOF", "SPOC", "coherence"]];
   list.forEach((p) => {
     rows.push([
       p.service, p.criticality,
@@ -820,6 +1152,12 @@ function exportContinuityBiaCsv(plans) {
       p.bia.rtoMin == null ? "" : p.bia.rtoMin,
       p.bia.rpoMin == null ? "" : p.bia.rpoMin,
       grcContIsReviewOverdue(p) ? "0" : "1",
+      p.bia.maoMin == null ? "" : p.bia.maoMin,
+      p.bia.mbco || "",
+      p.bia.mbcoPct == null ? "" : p.bia.mbcoPct,
+      grcContSpofCount(p),
+      p.spoc || "",
+      grcContCoherence(p).join(" "),
     ]);
   });
   const csv = rows.map((r) => r.map(contCsvCell).join(";")).join("\r\n") + "\r\n";

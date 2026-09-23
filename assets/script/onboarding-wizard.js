@@ -325,20 +325,43 @@ function onbSetSpotlightRect(rect) {
    arriving after the user already moved to a different step (eg.
    clicking Next twice fast) -- only the latest request's response is
    applied. */
+// Tableau de bord où le panneau visé est visible : le tableau par défaut
+// d'abord, sinon le premier qui l'affiche (tableaux préconstruits d'un
+// nouvel utilisateur, dashboards.js) ; "default" si aucun ne l'affiche
+// (l'étape tombe alors sur la carte centrée, comme avant).
+function onbDashboardFor(panelId) {
+  if (typeof getDashboards !== "function" || typeof getHiddenDashboardSections !== "function") return "default";
+  const list = getDashboards();
+  const shows = (d) => getHiddenDashboardSections(d.id).indexOf(panelId) === -1;
+  const def = list.find((d) => d.id === "default");
+  if (def && shows(def)) return "default";
+  const other = list.find(shows);
+  return other ? other.id : "default";
+}
+
+function onbFrameOn(frame, page, dashboardId) {
+  if (!frame.src.includes(ONBOARDING_PAGE_URLS[page])) return false;
+  if (page !== "dashboard") return true;
+  let current = "default";
+  try { current = new URL(frame.src).searchParams.get("id") || "default"; } catch (e) { current = "default"; }
+  return current === dashboardId;
+}
+
 function onbRequestPanelRect(panelId, page, scrollAlign) {
   const frame = document.getElementById("frame");
   const token = ++onbRequestToken;
+  const dashboardId = page === "dashboard" ? onbDashboardFor(panelId) : null;
 
   const ask = () => {
     frame.contentWindow.postMessage({ type: "onb-request-rect", panelId, token, scrollAlign }, "*");
   };
 
-  if (!frame.src.includes(ONBOARDING_PAGE_URLS[page])) {
+  if (!onbFrameOn(frame, page, dashboardId)) {
     frame.addEventListener("load", function handler() {
       frame.removeEventListener("load", handler);
       if (token === onbRequestToken) ask();
     });
-    loadPage(page);
+    loadPage(page, dashboardId || undefined);
   } else {
     ask();
   }

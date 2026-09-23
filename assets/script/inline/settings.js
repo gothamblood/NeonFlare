@@ -98,8 +98,35 @@
     resetGrcAccessReviews();
     resetGrcMetrics();
     resetGrcDocuments();
+    // Fiches de documentation (grc-fiches.js) : une clé par page.
+    const ficheKeys = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.indexOf(SETTINGS_GRC_FICHES_PREFIX) === 0) ficheKeys.push(k);
+    }
+    ficheKeys.forEach((k) => vaultRemoveItem(k));
+    // Chaîne GRC : DDA (grc-soa.js) et entrées « à revoir » (grc-links.js).
+    vaultRemoveItem(SETTINGS_GRC_SOA_KEY);
+    vaultRemoveItem(SETTINGS_GRC_CHAIN_KEY);
     resetPentestEngagements();
     alert(grcT("settings.assistant.everythingResetAlert"));
+  }
+
+  // Fiches de documentation (grc-fiches.js, spec/grc-fiches/) -- même
+  // préfixe que GRC_FICHES_PREFIX, répété ici car settings.html ne charge
+  // pas grc-fiches.js ; instantané brut clé/valeur comme la checklist.
+  const SETTINGS_GRC_FICHES_PREFIX = "/grc/fiches/";
+  // Chaîne GRC (spec/grc-fiches/chaine.md) -- mêmes clés que grc-soa.js /
+  // grc-links.js, non chargés sur settings.html.
+  const SETTINGS_GRC_SOA_KEY = "/grc/soa/registry";
+  const SETTINGS_GRC_CHAIN_KEY = "/grc/chain/review";
+  function _settingsJson(key, fallback) {
+    try {
+      const raw = vaultGetItem(key);
+      return raw ? JSON.parse(raw) : fallback;
+    } catch (e) {
+      return fallback;
+    }
   }
 
   // Assistant de configuration > Sauvegarde complète -- one JSON file
@@ -121,11 +148,13 @@
   // restoring just writes the same keys back.
   function settingsCollectAllConfigData() {
     const grcChecklist = {};
+    const grcFiches = {};
     const dashboards = {};
     for (let i = 0; i < localStorage.length; i++) {
       const k = localStorage.key(i);
       if (!k) continue;
       if (k.indexOf(GRC_CHECKLIST_PREFIX) === 0) grcChecklist[k] = vaultGetItem(k);
+      if (k.indexOf(SETTINGS_GRC_FICHES_PREFIX) === 0) grcFiches[k] = vaultGetItem(k);
       if (k === DASHBOARDS_KEY || k.indexOf("/settings.html/hiddenDashboardSections") === 0) dashboards[k] = localStorage.getItem(k);
     }
     const toolsCommands = {};
@@ -150,6 +179,9 @@
         titleOverrides: getTopologyTitleOverrides(),
       },
       grcChecklist,
+      grcFiches,
+      grcSoa: _settingsJson(SETTINGS_GRC_SOA_KEY, []),
+      grcChainReview: _settingsJson(SETTINGS_GRC_CHAIN_KEY, {}),
       grcAssets: getGrcAssets(),
       grcRisks: getGrcRisks(),
       grcTreatmentPlans: getGrcTreatmentPlans(),
@@ -221,6 +253,18 @@
           vaultSetItem(k, data.grcChecklist[k]);
         }
       });
+    }
+    if (data.grcFiches && typeof data.grcFiches === "object") {
+      // Même garde de préfixe que grcChecklist ci-dessus (Sweep3 §2.1).
+      Object.keys(data.grcFiches).forEach((k) => {
+        if (typeof k === "string" && k.indexOf(SETTINGS_GRC_FICHES_PREFIX) === 0 && typeof data.grcFiches[k] === "string") {
+          vaultSetItem(k, data.grcFiches[k]);
+        }
+      });
+    }
+    if (Array.isArray(data.grcSoa)) vaultSetItem(SETTINGS_GRC_SOA_KEY, JSON.stringify(data.grcSoa.filter((x) => x && typeof x === "object" && typeof x.id === "string")));
+    if (data.grcChainReview && typeof data.grcChainReview === "object" && !Array.isArray(data.grcChainReview)) {
+      vaultSetItem(SETTINGS_GRC_CHAIN_KEY, JSON.stringify(data.grcChainReview));
     }
     if (Array.isArray(data.grcAssets)) saveGrcAssets(data.grcAssets);
     if (Array.isArray(data.grcRisks)) saveGrcRisks(data.grcRisks);
@@ -2535,6 +2579,18 @@
 
   // GRC & Shells tab.
   document.getElementById("grcShowPercentageToggle").addEventListener("change", (e) => setGrcShowPercentage(e.target.checked));
+  // Affichage progressif de la documentation (UX U0) : préférence globale,
+  // chaque page peut la remplacer (« Afficher tout » / « Essentiel »).
+  // Confort local (localStorage direct, hors coffre) -- lu par grc-fiches.js.
+  (function () {
+    const key = "/grc/fiches-ui/all";
+    const box = document.getElementById("grcShowAllElementsToggle");
+    if (!box) return;
+    try { box.checked = localStorage.getItem(key) === "1"; } catch (e) { box.checked = false; }
+    box.addEventListener("change", () => {
+      try { localStorage.setItem(key, box.checked ? "1" : "0"); } catch (e) { /* stockage indisponible */ }
+    });
+  })();
   document.getElementById("grcAuthorInput").addEventListener("input", (e) => setGrcAuthor(e.target.value));
   document.getElementById("rprpNameInput").addEventListener("input", (e) => setRprpField(RPRP_NAME_KEY, e.target.value));
   document.getElementById("rprpContactInput").addEventListener("input", (e) => setRprpField(RPRP_CONTACT_KEY, e.target.value));

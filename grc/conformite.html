@@ -9,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" type="text/css" href="../assets/css/grc.css">
 </head>
-<body>
+<body data-fiche-page="conformite">
 <header>
     <nav class="nav">
         <div class="logo">
@@ -25,8 +25,10 @@
 <main>
     <h1 class="page-title" data-i18n="grc.conformite.title">Gestion de la conformité</h1>
     <p class="page-subtitle" data-i18n="grc.conformite.subtitle">
-        La gestion de la conformité assure que l’organisation respecte ses obligations légales, contractuelles et normatives, et structure ses audits internes et externes.
+        La conformité assure que l’organisation respecte ses obligations légales, contractuelles et normatives et structure ses audits, ses écarts et ses actions correctives.
     </p>
+
+    <section class="grc-fiche-root" id="grcFichesRoot"></section>
 
     <section class="grc-registry-block">
         <h2 data-i18n="grc.conformite.reg.title">Registre de conformité</h2>
@@ -37,20 +39,24 @@
     <section class="content-block">
         <h2 data-i18n="grc.conformite.whyTitle">Pourquoi c’est important</h2>
         <ul>
-            <li><span data-i18n="grc.conformite.why1">Assure que l’organisation respecte les lois, normes, obligations contractuelles.</span> <span class="grc-control-tags">ISO A.5.31 · NIST GV.OC</span></li>
-            <li><span data-i18n="grc.conformite.why2">Permet de suivre les écarts de conformité.</span> <span class="grc-control-tags">ISO A.5.36 · NIST GV.OV</span></li>
-            <li><span data-i18n="grc.conformite.why3">Structure les audits internes et externes.</span> <span class="grc-control-tags">ISO A.5.35 · NIST GV.OV</span></li>
+            <li data-item-id="why1" data-legacy="0"><span data-i18n="grc.conformite.why1">Assure que l’organisation respecte les lois, normes, obligations contractuelles.</span> <span class="grc-control-tags">ISO A.5.31 · NIST GV.OC</span></li>
+            <li data-item-id="why2" data-legacy="1"><span data-i18n="grc.conformite.why2">Permet de suivre les écarts de conformité.</span> <span class="grc-control-tags">ISO A.5.36 · NIST GV.OV</span></li>
+            <li data-item-id="why3" data-legacy="2"><span data-i18n="grc.conformite.why3">Structure les audits internes et externes.</span> <span class="grc-control-tags">ISO A.5.35 · NIST GV.OV</span></li>
         </ul>
 
         <h2 data-i18n="grc.conformite.includeTitle">Ce que cette section doit contenir</h2>
         <ul>
-            <li><span data-i18n="grc.conformite.item1">Obligations légales (LPRPDE, Loi 25, etc.)</span> <span class="grc-control-tags">ISO A.5.31 · NIST GV.OC</span></li>
-            <li><span data-i18n="grc.conformite.item2">Obligations contractuelles</span> <span class="grc-control-tags">ISO A.5.31 · NIST GV.OC</span></li>
-            <li><span data-i18n="grc.conformite.item3">Normes (ISO, NIST, CIS)</span></li>
-            <li><span data-i18n="grc.conformite.item4">Registre de conformité</span> <span class="grc-control-tags">ISO A.5.36 · NIST GV.OV</span></li>
-            <li><span data-i18n="grc.conformite.item5">Processus d’audit</span> <span class="grc-control-tags">ISO A.5.35 · NIST GV.OV</span></li>
-            <li><span data-i18n="grc.conformite.item6">Suivi des non-conformités</span> <span class="grc-control-tags">ISO A.5.36 · NIST GV.OV</span></li>
+            <li data-item-id="iso27001" data-legacy="5"><strong data-i18n="grc.conformite.c.iso27001.label">ISO 27001</strong> : <span data-i18n="grc.conformite.c.iso27001.desc">exigences du SGSI (clauses 4 à 10) et Annexe A.</span> <span class="grc-control-tags">ISO 27001 · NIST GV.OC</span></li>
+            <li data-item-id="iso27005"><strong data-i18n="grc.conformite.c.iso27005.label">ISO 27005</strong> : <span data-i18n="grc.conformite.c.iso27005.desc">méthode de gestion des risques retenue.</span> <span class="grc-control-tags">ISO 27001 cl. 6.1 · NIST GV.RM</span></li>
+            <li data-item-id="iso22301"><strong data-i18n="grc.conformite.c.iso22301.label">ISO 22301</strong> : <span data-i18n="grc.conformite.c.iso22301.desc">exigences du système de management de la continuité.</span> <span class="grc-control-tags">ISO A.5.29 · A.5.30 · NIST RC.RP</span></li>
+            <li data-item-id="legales" data-legacy="3"><strong data-i18n="grc.conformite.c.legales.label">Exigences légales</strong> : <span data-i18n="grc.conformite.c.legales.desc">lois et règlements applicables (LPRPDE, Loi 25, lois sectorielles).</span> <span class="grc-control-tags">ISO A.5.31 · NIST GV.OC</span></li>
+            <li data-item-id="contractuelles" data-legacy="4"><strong data-i18n="grc.conformite.c.contractuelles.label">Exigences contractuelles</strong> : <span data-i18n="grc.conformite.c.contractuelles.desc">clauses de sécurité, SLA, obligations envers clients et partenaires.</span> <span class="grc-control-tags">ISO A.5.31 · A.5.20 · NIST GV.SC</span></li>
+            <li data-item-id="audits-internes" data-legacy="7"><strong data-i18n="grc.conformite.c.audits-internes.label">Audits internes</strong> : <span data-i18n="grc.conformite.c.audits-internes.desc">programme, auditeurs indépendants, rapports.</span> <span class="grc-control-tags">ISO 27001 cl. 9.2 · A.5.35 · NIST GV.OV</span></li>
+            <li data-item-id="audits-externes"><strong data-i18n="grc.conformite.c.audits-externes.label">Audits externes</strong> : <span data-i18n="grc.conformite.c.audits-externes.desc">certification, audits clients, autorités.</span> <span class="grc-control-tags">ISO A.5.35 · NIST GV.OV</span></li>
+            <li data-item-id="ecarts" data-legacy="8"><strong data-i18n="grc.conformite.c.ecarts.label">Écarts</strong> : <span data-i18n="grc.conformite.c.ecarts.desc">non-conformités constatées, gravité, cause.</span> <span class="grc-control-tags">ISO 27001 cl. 10.2 · A.5.36 · NIST GV.OV</span></li>
+            <li data-item-id="plans-correctifs"><strong data-i18n="grc.conformite.c.plans-correctifs.label">Plans correctifs</strong> : <span data-i18n="grc.conformite.c.plans-correctifs.desc">actions, responsables, échéances, vérification d’efficacité.</span> <span class="grc-control-tags">ISO 27001 cl. 10.2 · NIST ID.IM</span></li>
         </ul>
+        <p class="grc-see-also"><span data-i18n="grc.common.seeAlso">Voir aussi :</span> <a href="documentation.html" data-i18n="grc.conformite.see1">Documentation (preuves d’audit)</a> · <a href="vie-privee.html" data-i18n="grc.conformite.see2">Protection des renseignements personnels (Loi 25)</a></p>
     </section>
 </main>
 
@@ -60,6 +66,7 @@
 <script src="../assets/script/i18n.js"></script>
 <script src="../assets/script/grc-i18n.js"></script>
 <script src="../assets/script/grc-i18n-domains.js"></script>
+<script src="../assets/script/grc-i18n-components.js"></script>
 
 <script src="../config/grc-author.js"></script>
 
@@ -72,6 +79,9 @@
 <script src="../assets/script/vault-ui.js"></script>
 
 <script src="../assets/script/config-io.js"></script>
+<!-- Chaîne GRC : catalogue Annexe A + liens entre sections (spec/grc-fiches/chaine.md) -->
+<script src="../assets/script/grc-annexe-a.js"></script>
+<script src="../assets/script/grc-links.js"></script>
 <script src="../assets/script/grc-registry-kit.js"></script>
 <script src="../assets/script/grc-compliance.js"></script>
 <script src="../assets/script/grc-compliance-panel.js"></script>
@@ -79,8 +89,16 @@
 
 <script src="../assets/script/inline/apply-i18n.js"></script>
 
+<script src="../assets/script/grc-checklist-migrate.js"></script>
 <script src="../assets/script/grc-checklist.js"></script>
 <script src="../assets/script/inline/init-grc-checklist.js"></script>
+
+
+<!-- Documentation de l'organisation par élément (spec/grc-fiches/) -->
+<script src="../assets/script/grc-vocab.js"></script>
+<script src="../assets/script/grc-fiches.js"></script>
+<script src="../assets/script/grc-fiches-conformite.js"></script>
+<script src="../assets/script/inline/init-grc-fiches.js"></script>
 
 </body>
 </html>

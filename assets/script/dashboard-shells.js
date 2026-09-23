@@ -31,8 +31,22 @@ function applyShellsState(active) {
   reportRect();
 }
 
+/* Shells masqué sur CE tableau (Paramètres > Sections du Dashboard,
+   « ☰ Panneaux », tableaux préconstruits) -- lu dans le registre et pas
+   seulement via la classe .dash-section-off : celle-ci n'est posée qu'en
+   fin de page (inline/dashboard-hidden-sections.js), et les premiers
+   rapports de rect partaient avant, faisant apparaître ~300 ms le
+   terminal (et l'avertissement ttyd) sur un tableau sans Shells. */
+function shellsSectionOffHere() {
+  if (typeof getHiddenDashboardSections !== "function") return false;
+  let id = new URLSearchParams(window.location.search).get("id") || "default";
+  if (typeof getDashboards === "function" && !getDashboards().some((d) => d.id === id)) id = "default";
+  return getHiddenDashboardSections(id).indexOf("panelShells") !== -1;
+}
+
 function isShellAreaVisible() {
   const panel = document.getElementById("panelShells");
+  if (shellsSectionOffHere()) return false;
   // Collapsed is NOT excluded here: per .dash-row-top > .dash-panel-shells
   // .collapsed in dashboard-panels.css, collapsed narrows the shell windows
   // to one stacked column rather than hiding them -- they're still

@@ -774,3 +774,33 @@ details.fsx-bookmarks[open] .fsx-bm-head {
   margin: 0;
   opacity: 0.8;
 }
+
+/* ---- taille par défaut : la majeure partie de l'écran (2026-09-23) --------
+   Tant que l'utilisateur n'a ni déplacé ni redimensionné le panneau
+   (.dash-positioned, dashboard-layout.js), l'explorateur remplit l'espace
+   disponible sous l'en-tête (au moins 70 % de la hauteur d'écran) au lieu
+   de se limiter à son contenu : la liste des fichiers prend tout ce qui
+   reste et défile à l'intérieur ; aperçu et journal gardent leurs caps.
+   Un panneau redimensionné garde sa taille à lui. */
+.dash-panel-fs:not(.dash-positioned):not(.collapsed) {
+  flex: 1 1 0;
+  min-height: 70vh;
+  max-height: calc(100vh - 1rem);
+}
+
+.dash-panel-fs:not(.dash-positioned):not(.collapsed) .dash-panel-body {
+  max-height: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.dash-panel-fs:not(.dash-positioned):not(.collapsed) .fsx-root {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.dash-panel-fs:not(.dash-positioned):not(.collapsed) .fsx-listing {
+  flex: 1 1 0;
+  min-height: 10rem;
+  max-height: none;
+}

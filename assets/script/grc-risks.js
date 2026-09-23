@@ -70,6 +70,9 @@ const GRC_RISK_FORM_SCHEMA = {
   name: { type: "string" },
   threat: { type: "string" },
   vulnerability: { type: "string" },
+  // Identification ISO 27005 complète (spec/grc-fiches/ plan §1).
+  evenementRedoute: { type: "string" },
+  consequences: { type: "string" },
   probability: { type: "number", default: 1 },
   impact: { type: "number", default: 1 },
   treatmentStrategy: { type: "string", enum: GRC_RISK_TREATMENT_STRATEGIES, default: "" },
@@ -143,6 +146,97 @@ function grcRiskCriticality(risk) {
   return (risk.probability || 1) * (risk.impact || 1);
 }
 
+/* ---------- volet quantitatif (spec/grc-restructure/ Q2) -------------
+   Optionnel, à côté de la matrice qualitative P × I (qui reste la
+   méthode principale). risk.quant = { assetValue, exposureFactor (%),
+   aro, currency } -- hors GRC_RISK_FORM_SCHEMA (objet, normalisé ici).
+     SLE = AV × EF          (perte par occurrence)
+     ALE = SLE × ARO        (perte annuelle attendue)
+     1 / ARO                (périodicité : ARO 0,25 = 1 fois / 4 ans)
+   AV vide -> somme des valeurs des actifs liés (grcAssetValue,
+   grc-assets.js), source affichée. Rien n'est stocké de dérivé. */
+function grcRiskSle(av, ef) {
+  return av == null || ef == null ? null : av * ef / 100;
+}
+
+function grcRiskAle(sle, aro) {
+  return sle == null || aro == null ? null : sle * aro;
+}
+
+function grcRiskAroPeriodYears(aro) {
+  return aro != null && aro > 0 ? 1 / aro : null;
+}
+
+function grcRiskQuantInput(risk) {
+  const q = risk && risk.quant && typeof risk.quant === "object" ? risk.quant : {};
+  return {
+    assetValue: grkDecimalOrNull(q.assetValue, 0),
+    exposureFactor: grkDecimalOrNull(q.exposureFactor, 0, 100),
+    aro: grkDecimalOrNull(q.aro, 0),
+    currency: GRK_CURRENCIES.indexOf(q.currency) !== -1 ? q.currency : null,
+  };
+}
+
+// Somme des valeurs des actifs liés qui en ont une ; null sinon.
+function grcRiskDefaultAssetValue(risk) {
+  if (typeof getGrcAssets !== "function" || typeof grcAssetValue !== "function") return null;
+  const ids = Array.isArray(risk && risk.assetIds) ? risk.assetIds : [];
+  const valued = getGrcAssets().filter((a) => ids.indexOf(a.id) !== -1 && grcAssetValue(a) != null);
+  if (!valued.length) return null;
+  return {
+    value: valued.reduce((acc, a) => acc + grcAssetValue(a), 0),
+    currency: valued[0].valueCurrency || "CAD",
+  };
+}
+
+function grcRiskQuant(risk) {
+  const q = grcRiskQuantInput(risk);
+  let av = q.assetValue;
+  let source = av == null ? null : "manual";
+  let currency = q.currency;
+  if (av == null) {
+    const d = grcRiskDefaultAssetValue(risk);
+    if (d) { av = d.value; source = "assets"; currency = currency || d.currency; }
+  }
+  const sle = grcRiskSle(av, q.exposureFactor);
+  return {
+    av: av, avSource: source, ef: q.exposureFactor, aro: q.aro, currency: currency || "CAD",
+    sle: sle, ale: grcRiskAle(sle, q.aro), periodYears: grcRiskAroPeriodYears(q.aro),
+  };
+}
+
+function grcRiskFmtNumber(n, digits) {
+  if (n == null) return "—";
+  const lang = typeof getSavedLang === "function" ? getSavedLang() : "fr";
+  return Number(n).toLocaleString(lang === "en" ? "en-CA" : "fr-CA", { maximumFractionDigits: digits == null ? 2 : digits });
+}
+
+// "SLE … · ARO … (1 fois / N ans) · ALE …" -- "" si rien de renseigné.
+function grcRiskQuantLine(risk) {
+  const q = grcRiskQuant(risk);
+  if (q.sle == null && q.aro == null) return "";
+  const parts = [];
+  if (q.sle != null) parts.push("SLE " + grkFormatMoney(q.sle, q.currency));
+  if (q.aro != null) {
+    parts.push("ARO " + grcRiskFmtNumber(q.aro, 3) + (q.periodYears != null
+      ? " (" + grcT("grc.risques.quant.period").replace("{n}", grcRiskFmtNumber(q.periodYears, 1)) + ")" : ""));
+  }
+  if (q.ale != null) parts.push("ALE " + grkFormatMoney(q.ale, q.currency));
+  return parts.join(" · ");
+}
+
+// Totaux d'ALE par devise pour l'encart de synthèse : "12 500 $ CA" / "…".
+function grcRisksAleTotal(list) {
+  const byCur = {};
+  (Array.isArray(list) ? list : []).forEach((r) => {
+    const q = grcRiskQuant(r);
+    if (q.ale == null) return;
+    byCur[q.currency] = (byCur[q.currency] || 0) + q.ale;
+  });
+  const curs = Object.keys(byCur);
+  return curs.length ? curs.map((c) => grkFormatMoney(byCur[c], c)).join(" + ") : null;
+}
+
 // Seuils pour une échelle 1-5 x 1-5 (score max 25) -- répartition
 // approximative en tiers (bas ~32%, moyen ~28%, élevé ~40%, ce dernier
 // délibérément plus large pour qu'un score élevé sur UN seul axe avec
@@ -199,7 +293,8 @@ function grcRisksReportBody() {
     "<th>" + grcT("grc.risques.pdf.colName") + "</th><th>" + grcT("grc.risques.pdf.colThreat") + "</th>" +
     "<th>" + grcT("grc.risques.pdf.colVulnerability") + "</th><th>" + grcT("grc.risques.pdf.colAssets") + "</th>" +
     "<th>" + grcT("grc.risques.pdf.colProbability") + "</th><th>" + grcT("grc.risques.pdf.colImpact") + "</th>" +
-    "<th>" + grcT("grc.risques.pdf.colCrit") + "</th><th>" + grcT("grc.risques.pdf.colStatus") + "</th>" +
+    "<th>" + grcT("grc.risques.pdf.colCrit") + "</th><th>SLE</th><th>ARO</th><th>ALE</th>" +
+    "<th>" + grcT("grc.risques.pdf.colStatus") + "</th>" +
     "<th>" + grcT("grc.risques.pdf.colOwner") + "</th><th>" + grcT("grc.risques.pdf.colReviewDate") + "</th>" +
     "<th>" + grcT("grc.risques.pdf.colStrategy") + "</th><th>" + grcT("grc.risques.pdf.colTreatment") + "</th>" +
     "</tr></thead><tbody>";
@@ -212,6 +307,9 @@ function grcRisksReportBody() {
       "<td>" + grkEscapeHtml(getRiskAssetNames(risk).join(", ")) + "</td>" +
       "<td>" + grkEscapeHtml(risk.probability) + "</td><td>" + grkEscapeHtml(risk.impact) + "</td>" +
       "<td>" + grkEscapeHtml(crit.text) + "</td>" +
+      "<td>" + grkEscapeHtml(grkFormatMoney(grcRiskQuant(risk).sle, grcRiskQuant(risk).currency)) + "</td>" +
+      "<td>" + grkEscapeHtml(grcRiskQuant(risk).aro == null ? "" : grcRiskFmtNumber(grcRiskQuant(risk).aro, 3)) + "</td>" +
+      "<td>" + grkEscapeHtml(grkFormatMoney(grcRiskQuant(risk).ale, grcRiskQuant(risk).currency)) + "</td>" +
       "<td>" + grkEscapeHtml(grcRiskStatusLabel(risk.status)) + "</td>" +
       "<td>" + grkEscapeHtml(risk.owner || "") + "</td>" +
       "<td>" + grkEscapeHtml(risk.reviewDate || "") + "</td>" +
@@ -306,7 +404,11 @@ function renderRiskDetailPanel(body, risk) {
   info.innerHTML =
     (risk.threat ? `<p>${grcT("grc.risques.detail.threat").replace("{value}", grkEscapeHtml(risk.threat))}</p>` : "") +
     (risk.vulnerability ? `<p>${grcT("grc.risques.detail.vulnerability").replace("{value}", grkEscapeHtml(risk.vulnerability))}</p>` : "") +
+    (risk.evenementRedoute ? `<p>${grcT("grc.risques.detail.evenementRedoute").replace("{value}", grkEscapeHtml(risk.evenementRedoute))}</p>` : "") +
+    (risk.consequences ? `<p>${grcT("grc.risques.detail.consequences").replace("{value}", grkEscapeHtml(risk.consequences))}</p>` : "") +
     `<p>${grcT("grc.risques.detail.probImpact").replace("{p}", grkEscapeHtml(risk.probability)).replace("{i}", grkEscapeHtml(risk.impact)).replace("{status}", grkEscapeHtml(grcRiskStatusLabel(risk.status)))}</p>` +
+    (grcRiskQuantLine(risk) ? `<p class="grc-risk-quant-line">${grkEscapeHtml(grcRiskQuantLine(risk))}</p>` : "") +
+    (grcRiskQuant(risk).avSource === "assets" ? `<p class="grk-hint">${grcT("grc.risques.quant.avFromAssets").replace("{value}", grkEscapeHtml(grkFormatMoney(grcRiskQuant(risk).av, grcRiskQuant(risk).currency)))}</p>` : "") +
     (risk.owner ? `<p>${grcT("grc.risques.detail.owner").replace("{owner}", grkEscapeHtml(risk.owner))}</p>` : "") +
     (risk.reviewDate ? `<p>${grcT("grc.risques.detail.reviewDate").replace("{date}", grkEscapeHtml(risk.reviewDate))}</p>` : "") +
     (risk.treatmentStrategy ? `<p>${grcT("grc.risques.detail.strategy").replace("{value}", grkEscapeHtml(grcRiskTreatmentStrategyLabel(risk.treatmentStrategy)))}</p>` : "") +
@@ -426,6 +528,11 @@ function initGrcRiskRegistry() {
     store: _grcRiskStore,
     idAttr: "data-risk-id",
     listGlobal: "renderGrcRiskRegistry",
+    // Actions croisées (UX U5) : le plan créé reste lié au risque.
+    actions: (r) => (typeof grcFicheCrossOpen === "function" ? [{
+      label: grcT("grc.links.act.createPlan"),
+      run: () => grcFicheCrossOpen({ page: "traitement-risques", tab: "plans", list: "renderGrcTreatmentPlansList" }, { name: r.name || "", riskIds: [r.id] }),
+    }] : []),
     deepLink: true,
     i18n: {
       add: "grc.risques.form.addBtn",
@@ -438,6 +545,8 @@ function initGrcRiskRegistry() {
       { id: "name", label: "grc.risques.form.name", type: "text", required: true },
       { id: "threat", label: "grc.risques.form.threat", type: "text" },
       { id: "vulnerability", label: "grc.risques.form.vulnerability", type: "text" },
+      { id: "evenementRedoute", label: "grc.risques.form.evenementRedoute", type: "text" },
+      { id: "consequences", label: "grc.risques.form.consequences", type: "textarea" },
       { id: "probability", label: "grc.risques.form.probability", type: "select",
         options: GRC_RISK_LEVELS.map((n) => ({ value: n, label: "grc.risques.scale.probability." + n })) },
       { id: "impact", label: "grc.risques.form.impact", type: "select",
@@ -449,12 +558,24 @@ function initGrcRiskRegistry() {
       { id: "reviewDate", label: "grc.risques.form.reviewDate", type: "text" },
       { id: "status", label: "grc.risques.form.status", type: "select",
         options: _grcRiskEnumOptions(GRC_RISK_STATUSES, (v) => "grc.risques.status." + v) },
+      { id: "quantAssetValue", label: "grc.risques.form.quantAssetValue", type: "text" },
+      { id: "quantCurrency", label: "grc.risques.form.quantCurrency", type: "select",
+        options: GRK_CURRENCIES.map((c) => ({ value: c, label: c })) },
+      { id: "quantEf", label: "grc.risques.form.quantEf", type: "text" },
+      { id: "quantAro", label: "grc.risques.form.quantAro", type: "text" },
+      // Chaîne GRC (chaine.md CH2) : actifs, enjeux, menaces, sources, scénario.
+      ...(typeof grcLinksFormFields === "function" ? grcLinksFormFields("risk") : []),
     ],
-    readForm: (r) => ({
+    readForm: (r) => Object.assign(typeof grcLinksFormRead === "function" ? grcLinksFormRead("risk", r) : {}, {
       name: r.name, threat: r.threat, vulnerability: r.vulnerability,
+      evenementRedoute: r.evenementRedoute || "", consequences: r.consequences || "",
       probability: r.probability, impact: r.impact,
       treatmentStrategy: r.treatmentStrategy || "", treatment: r.treatment,
       owner: r.owner, reviewDate: r.reviewDate, status: r.status,
+      quantAssetValue: grcRiskQuantInput(r).assetValue == null ? "" : String(grcRiskQuantInput(r).assetValue),
+      quantCurrency: grcRiskQuantInput(r).currency || "CAD",
+      quantEf: grcRiskQuantInput(r).exposureFactor == null ? "" : String(grcRiskQuantInput(r).exposureFactor),
+      quantAro: grcRiskQuantInput(r).aro == null ? "" : String(grcRiskQuantInput(r).aro),
     }),
     // grkEnsure() ici (juste sur les champs SOUMIS, jamais sur le risque
     // stocké en entier -- voir la note d'en-tête sur treatmentPlan) :
@@ -471,9 +592,18 @@ function initGrcRiskRegistry() {
       fields.name = fields.name.trim();
       fields.threat = fields.threat.trim();
       fields.vulnerability = fields.vulnerability.trim();
+      fields.evenementRedoute = fields.evenementRedoute.trim();
+      fields.consequences = fields.consequences.trim();
       fields.treatment = fields.treatment.trim();
       fields.owner = fields.owner.trim();
       fields.reviewDate = fields.reviewDate.trim();
+      fields.quant = {
+        assetValue: grkDecimalOrNull(v.quantAssetValue, 0),
+        exposureFactor: grkDecimalOrNull(v.quantEf, 0, 100),
+        aro: grkDecimalOrNull(v.quantAro, 0),
+        currency: GRK_CURRENCIES.indexOf(v.quantCurrency) !== -1 ? v.quantCurrency : "CAD",
+      };
+      if (typeof grcLinksFormPick === "function") Object.assign(fields, grcLinksFormPick("risk", v));
       if (editingId) updateGrcRisk(editingId, fields);
       else addGrcRisk(fields);
     },
@@ -484,6 +614,13 @@ function initGrcRiskRegistry() {
         { text: r.name || "" },
         { badge: { cls: crit.cls, text: crit.text } },
       ];
+      const q = grcRiskQuant(r);
+      if (q.ale != null) {
+        const b = document.createElement("span");
+        b.className = "grc-sup-mini-badge grc-risk-ale-chip";
+        b.textContent = "ALE " + grkFormatMoney(q.ale, q.currency);
+        cells.push(b);
+      }
       // Nodes directs (pas {text:...}, un <span> nu sans classe) pour
       // garder EXACTEMENT les classes CSS/hooks de test d'avant cette
       // migration (.grc-rt-badge, .grc-sup-mini-badge.grc-sup-badge-expired
@@ -515,6 +652,7 @@ function initGrcRiskRegistry() {
           grcT("grc.risques.rt.summary.overdueActions").replace("{n}", s.overdueActions),
           grcT("grc.risques.rt.summary.acceptanceReview").replace("{n}", s.acceptanceReview),
           grcT("grc.risques.rt.summary.avgReduction").replace("{v}", s.avgReductionPct == null ? "—" : s.avgReductionPct),
+          grcT("grc.risques.quant.summaryAle").replace("{v}", grcRisksAleTotal(list) || "—"),
         ],
       };
     },
@@ -575,8 +713,14 @@ const GRC_RT_SCHEMA = {
     type: "object", of: {
       likelihood: { type: "number", default: null },
       impact: { type: "number", default: null },
+      // Volet quantitatif résiduel (spec/grc-restructure/ Q3) -- EF / ARO
+      // APRÈS contrôles ; l'AV reste celle du risque.
+      exposureFactor: { type: "number", default: null },
+      aro: { type: "number", default: null },
     },
   },
+  // Coût annuel des contrôles de ce risque (tous plans confondus) -> ROSI.
+  annualControlCost: { type: "number", default: null },
   acceptance: {
     type: "object", of: {
       by: { type: "string" },
@@ -743,8 +887,39 @@ function grcRiskSetResidual(id, patch) {
         t.residual[k] = Number.isFinite(n) && n >= 1 && n <= 5 ? n : null;
       }
     });
+    if ("exposureFactor" in p) t.residual.exposureFactor = grkDecimalOrNull(p.exposureFactor, 0, 100);
+    if ("aro" in p) t.residual.aro = grkDecimalOrNull(p.aro, 0);
     return true;
   });
+}
+
+function grcRiskSetControlCost(id, value) {
+  return grcRiskTreatmentMutate(id, (t) => {
+    t.annualControlCost = grkDecimalOrNull(value, 0);
+    return true;
+  });
+}
+
+/* Résiduel quantitatif (Q3) : EF / ARO résiduels (à défaut, ceux du
+   risque initial -- un contrôle réduit souvent l'un OU l'autre), même AV.
+     réduction = ALE initial − ALE résiduel
+     ROSI      = (réduction − coût annuel) / coût annuel
+   null partout tant qu'il manque l'ALE initial ou tout résiduel saisi. */
+function grcRiskResidualQuant(risk) {
+  const q = grcRiskQuant(risk);
+  const t = grcRiskHasTreatment(risk) ? grcRiskEnsureTreatment(risk) : null;
+  const r = t ? t.residual : {};
+  const hasResidual = r.exposureFactor != null || r.aro != null;
+  const ef = r.exposureFactor != null ? r.exposureFactor : q.ef;
+  const aro = r.aro != null ? r.aro : q.aro;
+  const ale = hasResidual ? grcRiskAle(grcRiskSle(q.av, ef), aro) : null;
+  const reduction = q.ale != null && ale != null ? q.ale - ale : null;
+  const cost = t ? t.annualControlCost : null;
+  return {
+    currency: q.currency, initialAle: q.ale, ef: ef, aro: aro, ale: ale, reduction: reduction, cost: cost,
+    rosi: reduction != null && cost != null && cost > 0 ? (reduction - cost) / cost : null,
+    worse: reduction != null && reduction < 0,
+  };
 }
 
 function grcRiskSetAcceptance(id, patch) {
@@ -860,6 +1035,11 @@ function riskTreatmentReportSection(risk) {
   });
   h += "<p><strong>" + L("grc.risques.rt.reduction") + " :</strong> " +
     (red ? esc(red.from + " → " + red.to + " (−" + red.pct + " %)") : "—") + "</p>";
+  const rq = grcRiskResidualQuant(risk);
+  if (rq.ale != null) {
+    h += "<p><strong>ALE :</strong> " + esc(grkFormatMoney(rq.initialAle, rq.currency) + " → " + grkFormatMoney(rq.ale, rq.currency)) +
+      (rq.rosi != null ? " · ROSI " + esc(grcRiskFmtNumber(rq.rosi * 100, 0) + " %") : "") + "</p>";
+  }
   if (grcRiskAcceptanceRequired(risk)) {
     h += "<p><strong>" + L("grc.risques.rt.acceptance") + " :</strong> " +
       esc((acceptance.by || "—") + " — " + (acceptance.reason || "") +
@@ -876,11 +1056,12 @@ function exportRiskTreatmentCsv(risks) {
   if (typeof grkExportGated === "function" && grkExportGated()) return;
   const arr = Array.isArray(risks) ? risks : [risks];
   const rows = [["risk", "plan", "strategy", "inherent", "residual", "reduction_pct",
-    "open_actions", "acceptance_review"]];
+    "open_actions", "acceptance_review", "ale", "residual_ale", "ale_reduction", "rosi"]];
   arr.forEach((r) => {
     const plans = grcRiskTreatmentPlans(r);
     if (!plans.length) return;
     const red = grcRiskReduction(r);
+    const rq = grcRiskResidualQuant(r);
     plans.forEach((t) => {
       rows.push([
         r.name, t.name, t.strategy,
@@ -889,6 +1070,10 @@ function exportRiskTreatmentCsv(risks) {
         red ? red.pct : "",
         t.actions.filter((a) => a.status !== "done").length,
         grcRiskAcceptanceDueForReview(r) ? "1" : "0",
+        rq.initialAle == null ? "" : Math.round(rq.initialAle),
+        rq.ale == null ? "" : Math.round(rq.ale),
+        rq.reduction == null ? "" : Math.round(rq.reduction),
+        rq.rosi == null ? "" : rq.rosi.toFixed(2),
       ]);
     });
   });

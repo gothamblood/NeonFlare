@@ -3,7 +3,7 @@
    Same lazy-migration pattern as assets/script/dashboards.js: nothing
    is written to localStorage until the user actually adds/edits/
    removes a category or a link, so a fresh install still shows exactly
-   the original 14 categories below. */
+   the default categories below (the original 14 + "More"). */
 
 const WEBSITE_CATEGORIES_KEY = "/settings.html/websiteCategories";
 
@@ -92,7 +92,44 @@ const DEFAULT_WEBSITE_CATEGORIES = [
     { name: "GTFOBins", url: "https://gtfobins.github.io" },
     { name: "LOLBAS", url: "https://lolbas-project.github.io" },
   ] },
+  { id: "more", title: "More", sub: "Security Certification Roadmap", links: [
+    { name: "Paul Jerimy — Security Certification Roadmap", url: "https://pauljerimy.com/security-certification-roadmap/" },
+  ] },
 ];
+
+/* Default categories added after the first release. A registry that was
+   already customized (saved in localStorage) never sees new defaults on
+   its own, so each id here is appended ONCE to a saved registry that
+   lacks it, then remembered in WEBSITE_DEFAULTS_SEEN_KEY -- deleting it
+   afterwards is respected (it never comes back). */
+const WEBSITE_ADDED_DEFAULTS = ["more"];
+const WEBSITE_DEFAULTS_SEEN_KEY = "/settings.html/websiteCategoriesDefaultsSeen";
+
+function _migrateWebsiteDefaults(raw) {
+  let seen = [];
+  try { seen = JSON.parse(localStorage.getItem(WEBSITE_DEFAULTS_SEEN_KEY) || "[]"); } catch (e) { seen = []; }
+  if (!Array.isArray(seen)) seen = [];
+  const todo = WEBSITE_ADDED_DEFAULTS.filter((id) => seen.indexOf(id) === -1);
+  if (!todo.length) return raw;
+  let changed = false;
+  todo.forEach((id) => {
+    if (!raw.some((c) => c && c.id === id)) {
+      const def = DEFAULT_WEBSITE_CATEGORIES.find((c) => c.id === id);
+      if (def) {
+        raw.push(Object.assign({}, def, {
+          links: (def.links || []).map((link, i) => Object.assign({ id: def.id + "-l" + i }, link)),
+        }));
+        changed = true;
+      }
+    }
+    seen.push(id);
+  });
+  try {
+    if (changed) localStorage.setItem(WEBSITE_CATEGORIES_KEY, JSON.stringify(raw));
+    localStorage.setItem(WEBSITE_DEFAULTS_SEEN_KEY, JSON.stringify(seen));
+  } catch (e) { /* stockage plein ou bloqué : réessayé au prochain chargement */ }
+  return raw;
+}
 
 function getRawWebsiteCategories() {
   try {
@@ -105,6 +142,7 @@ function getRawWebsiteCategories() {
 
 function getWebsiteCategories() {
   const raw = getRawWebsiteCategories();
+  if (Array.isArray(raw)) return _migrateWebsiteDefaults(raw);
   if (raw) return raw;
   // Seed links have no id of their own (see DEFAULT_WEBSITE_CATEGORIES
   // above) -- assign one lazily, same reasoning as dashboards.js/

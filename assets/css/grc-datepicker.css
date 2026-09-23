@@ -1,0 +1,212 @@
+/* Sélecteur de date thémé (grc-registry-kit.js grkDatePicker,
+   spec/grc-suggest/ §9). Importé par grc.css ; chargé à part par les
+   pages qui n'utilisent pas grc.css (Paramètres).
+
+   Couleurs dérivées de --accent : suit les 4 thèmes et la couleur
+   d'accent personnalisée (theme-accent.js). Replis pour les pages dont
+   la feuille ne définit pas --bg-alt / --text / --muted. */
+
+:root {
+  --grk-datepicker: 1; /* drapeau lu par grkAutoDatePickers() */
+}
+
+.grk-date {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+}
+
+.grk-date input.grk-date-input {
+  flex: 1 1 auto;
+  width: 100%;
+  min-width: 0;
+  padding-right: 2.3rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.grk-date input.grk-date-input.is-invalid {
+  border-color: var(--danger, #ff4b6a);
+}
+
+.grk-date {
+  flex-wrap: wrap;
+}
+
+.grk-date-error {
+  flex: 1 0 100%;
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: var(--danger, #ff4b6a);
+}
+
+.grk-date-error[hidden] {
+  display: none;
+}
+
+/* Message affiché : l'icône reste à la hauteur du champ. */
+.grk-date:has(.grk-date-error:not([hidden])) .grk-date-btn {
+  bottom: auto;
+  height: calc(100% - 1.2rem - 0.25rem);
+}
+
+.grk-date-btn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 2.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  background: transparent;
+  color: var(--accent, #48dbfb);
+  cursor: pointer;
+  border-radius: 0 8px 8px 0;
+}
+
+.grk-date-btn:hover,
+.grk-date-btn:focus-visible {
+  background: color-mix(in srgb, var(--accent, #48dbfb) 14%, transparent);
+  outline: none;
+}
+
+.grk-cal {
+  position: fixed;
+  z-index: 10000;
+  width: 17.5rem;
+  max-width: calc(100vw - 16px);
+  box-sizing: border-box;
+  padding: 0.6rem;
+  background: var(--bg-alt, #11182a);
+  color: var(--text, #f5f7ff);
+  border: 1px solid color-mix(in srgb, var(--accent, #48dbfb) 45%, transparent);
+  border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55);
+  font-family: inherit;
+  font-size: 0.85rem;
+}
+
+.grk-cal-head {
+  display: flex;
+  align-items: center;
+  gap: 0.15rem;
+  margin-bottom: 0.4rem;
+}
+
+.grk-cal-title {
+  flex: 1 1 auto;
+  text-align: center;
+  font-weight: 600;
+  color: var(--accent, #48dbfb);
+}
+
+.grk-cal button {
+  font-family: inherit;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.grk-cal-nav {
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  line-height: 1;
+  color: var(--accent, #48dbfb) !important;
+}
+
+.grk-cal-nav:hover,
+.grk-cal-nav:focus-visible,
+.grk-cal-action:hover,
+.grk-cal-action:focus-visible {
+  background: color-mix(in srgb, var(--accent, #48dbfb) 14%, transparent) !important;
+  outline: none;
+}
+
+.grk-cal-grid {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+/* Neutralise les styles de tableau des pages hôtes (ex. style.css). */
+.grk-cal-grid,
+.grk-cal-grid tr,
+.grk-cal-grid th,
+.grk-cal-grid td {
+  border: 0 !important;
+  background: none;
+  box-shadow: none;
+}
+
+.grk-cal-grid th {
+  padding: 0.2rem 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--muted, #a7b0c7);
+  text-align: center;
+}
+
+.grk-cal-grid td {
+  padding: 1px;
+  text-align: center;
+}
+
+.grk-cal-day {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 8px;
+  font-variant-numeric: tabular-nums;
+}
+
+.grk-cal-day:hover {
+  background: color-mix(in srgb, var(--accent, #48dbfb) 16%, transparent) !important;
+}
+
+.grk-cal-day:focus-visible {
+  outline: 2px solid var(--accent, #48dbfb);
+  outline-offset: -2px;
+}
+
+.grk-cal-day.is-other {
+  color: var(--muted, #a7b0c7) !important;
+  opacity: 0.55;
+}
+
+.grk-cal-day.is-today {
+  box-shadow: inset 0 0 0 1px var(--accent, #48dbfb);
+}
+
+.grk-cal-day.is-selected {
+  background: var(--accent, #48dbfb) !important;
+  color: #0b1020 !important;
+  font-weight: 700;
+  opacity: 1;
+}
+
+.grk-cal-foot {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.4rem;
+  padding-top: 0.4rem;
+  border-top: 1px solid color-mix(in srgb, var(--accent, #48dbfb) 20%, transparent);
+}
+
+.grk-cal-action {
+  padding: 0.3rem 0.6rem;
+  border-radius: 8px;
+  color: var(--accent, #48dbfb) !important;
+  font-size: 0.8rem;
+}
+
+/* Heure + date (datetime-local) : calendrier natif, au moins aux couleurs
+   sombres du thème. */
+input[type="datetime-local"] {
+  color-scheme: dark;
+  accent-color: var(--accent, #48dbfb);
+}

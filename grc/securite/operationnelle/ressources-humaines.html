@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'">
+    <link rel="icon" type="image/svg+xml" href="../../../assets/images/dragon-logo.svg">
+    <link rel="icon" type="image/png" href="../../../assets/images/dragon-favicon.png">
+    <title>Ressources humaines et sensibilisation – GRC Cybersecurity</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" type="text/css" href="../../../assets/css/grc.css">
+</head>
+<body data-fiche-page="ressources-humaines">
+<header>
+    <nav class="nav">
+        <div class="logo">
+            <div class="logo-mark">O</div>
+            <div>Sécurité opérationnelle</div>
+        </div>
+        <div class="nav-links">
+            <a href="./index.html" data-i18n="grc.common.backToOperationnelle">&larr; Retour à Sécurité opérationnelle</a>
+        </div>
+    </nav>
+</header>
+
+<main>
+    <h1 class="page-title" data-i18n="grc.ressources-humaines.title">Ressources humaines et sensibilisation</h1>
+    <p class="page-subtitle" data-i18n="grc.ressources-humaines.subtitle">
+        Les personnes sont la première ligne de défense : on vérifie, on forme, on sensibilise et on encadre les arrivées et les départs.
+    </p>
+
+    <section class="grc-fiche-root" id="grcFichesRoot"></section>
+
+    <section class="content-block">
+        <h2 data-i18n="grc.common.contentInclude">Contenu à inclure</h2>
+        <ul>
+            <li data-item-id="selection"><strong data-i18n="grc.ressources-humaines.c.selection.label">Sélection des candidats</strong> : <span data-i18n="grc.ressources-humaines.c.selection.desc">vérifications avant l’embauche, proportionnées au poste et à la sensibilité de l’information.</span> <span class="grc-control-tags">ISO 27001 A.6.1</span></li>
+            <li data-item-id="conditions"><strong data-i18n="grc.ressources-humaines.c.conditions.label">Conditions d’emploi et confidentialité</strong> : <span data-i18n="grc.ressources-humaines.c.conditions.desc">responsabilités de sécurité dans le contrat, engagements de confidentialité signés.</span> <span class="grc-control-tags">ISO 27001 A.6.2 · A.6.6</span></li>
+            <li data-item-id="competences"><strong data-i18n="grc.ressources-humaines.c.competences.label">Compétences</strong> : <span data-i18n="grc.ressources-humaines.c.competences.desc">compétences requises par rôle, preuves de compétence, écarts et actions.</span> <span class="grc-control-tags">ISO 27001 cl. 7.2</span></li>
+            <li data-item-id="sensibilisation"><strong data-i18n="grc.ressources-humaines.c.sensibilisation.label">Sensibilisation et formation</strong> : <span data-i18n="grc.ressources-humaines.c.sensibilisation.desc">programme de sensibilisation, publics, fréquence, mesure de l’efficacité.</span> <span class="grc-control-tags">ISO 27001 cl. 7.3 · A.6.3</span></li>
+            <li data-item-id="disciplinaire"><strong data-i18n="grc.ressources-humaines.c.disciplinaire.label">Processus disciplinaire</strong> : <span data-i18n="grc.ressources-humaines.c.disciplinaire.desc">processus connu et gradué en cas de manquement aux règles de sécurité.</span> <span class="grc-control-tags">ISO 27001 A.6.4</span></li>
+            <li data-item-id="depart"><strong data-i18n="grc.ressources-humaines.c.depart.label">Départs et changements de poste</strong> : <span data-i18n="grc.ressources-humaines.c.depart.desc">retrait des accès, restitution des actifs, rappel des obligations qui continuent.</span> <span class="grc-control-tags">ISO 27001 A.6.5 · A.5.11</span></li>
+            <li data-item-id="signalement"><strong data-i18n="grc.ressources-humaines.c.signalement.label">Signalement des événements</strong> : <span data-i18n="grc.ressources-humaines.c.signalement.desc">canal simple et connu pour signaler un événement de sécurité, sans crainte de représailles.</span> <span class="grc-control-tags">ISO 27001 A.6.8</span></li>
+            <li data-item-id="teletravail"><strong data-i18n="grc.ressources-humaines.c.teletravail.label">Télétravail</strong> : <span data-i18n="grc.ressources-humaines.c.teletravail.desc">règles de sécurité hors des locaux (voir Directives › Télétravail).</span> <span class="grc-control-tags">ISO 27001 A.6.7</span></li>
+        </ul>
+
+        <h2 data-i18n="grc.common.roleTitle">Rôle en GRC</h2>
+        <p data-i18n="grc.ressources-humaines.role">Sans personnes compétentes et sensibilisées, les meilleurs contrôles techniques sont contournés. Cette section relie chaque rôle à ses compétences et chaque risque humain à une action de sensibilisation.</p>
+    </section>
+</main>
+
+
+<script src="../../../assets/script/page-boot.js"></script>
+
+<script src="../../../assets/script/i18n.js"></script>
+<script src="../../../assets/script/grc-i18n.js"></script>
+<script src="../../../assets/script/grc-i18n-domains.js"></script>
+<script src="../../../assets/script/grc-i18n-components.js"></script>
+
+<script src="../../../config/grc-author.js"></script>
+
+<script src="../../../config/encryption.js"></script>
+
+<script src="../../../assets/script/vault-crypto.js"></script>
+<script src="../../../assets/script/theme-accent.js"></script>
+
+<script src="../../../assets/script/vault.js"></script>
+<script src="../../../assets/script/vault-ui.js"></script>
+
+<script src="../../../assets/script/inline/apply-i18n.js"></script>
+
+<script src="../../../assets/script/grc-checklist-migrate.js"></script>
+<script src="../../../assets/script/grc-checklist.js"></script>
+<script src="../../../assets/script/config-io.js"></script>
+<!-- Chaîne GRC : catalogue Annexe A + liens entre sections (spec/grc-fiches/chaine.md) -->
+<script src="../../../assets/script/grc-annexe-a.js"></script>
+<script src="../../../assets/script/grc-links.js"></script>
+<script src="../../../assets/script/grc-registry-kit.js"></script>
+<script src="../../../assets/script/grc-vocab.js"></script>
+<script src="../../../assets/script/grc-fiches.js"></script>
+<script src="../../../assets/script/grc-fiches-rh.js"></script>
+<script src="../../../assets/script/inline/init-grc-checklist.js"></script>
+<script src="../../../assets/script/inline/init-grc-fiches.js"></script>
+
+</body>
+</html>

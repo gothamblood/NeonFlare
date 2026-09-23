@@ -1,5 +1,5 @@
 /* Panneaux IAM -- Campagne de recertification et Mouvement (JML),
-   rendus dans le corps de l'accordéon du registre (grc/iam.html) par
+   rendus dans le corps de l'accordéon du registre (grc/securite/operationnelle/iam.html) par
    grc-access-reviews.js via grkPanel du kit. Voir
    spec/grc-registry-upgrades/40-iam-access-reviews.md.
 

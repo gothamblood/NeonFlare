@@ -72,6 +72,8 @@ const GRC_PRIV_CONSENT_SCHEMA = {
 
 const GRC_PROCESSING_SCHEMA = {
   id: { type: "string" },
+  // Chaîne GRC (chaine.md CH2) : fournisseurs destinataires.
+  recipientSupplierIds: { type: "array" },
   schema: { type: "number", default: 1 },
   kind: { type: "string", default: "processing" },
   name: { type: "string" },

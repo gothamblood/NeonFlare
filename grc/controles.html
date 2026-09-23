@@ -5,11 +5,11 @@
     <meta http-equiv="Content-Security-Policy" content="script-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'">
     <link rel="icon" type="image/svg+xml" href="../assets/images/dragon-logo.svg">
     <link rel="icon" type="image/png" href="../assets/images/dragon-favicon.png">
-    <title>Sélection des contrôles – GRC Cybersecurity</title>
+    <title>Contrôles de sécurité – GRC Cybersecurity</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" type="text/css" href="../assets/css/grc.css">
 </head>
-<body>
+<body data-fiche-page="controles">
 <header>
     <nav class="nav">
         <div class="logo">
@@ -23,10 +23,12 @@
 </header>
 
 <main>
-    <h1 class="page-title" data-i18n="grc.controles.title">Sélection des contrôles</h1>
+    <h1 class="page-title" data-i18n="grc.controles.title">Contrôles de sécurité</h1>
     <p class="page-subtitle" data-i18n="grc.controles.subtitle">
         Cette section décrit les mesures de sécurité choisies pour réduire les risques.
     </p>
+
+    <section class="grc-fiche-root" id="grcFichesRoot"></section>
 
     <section class="grc-registry-block">
         <h2 data-i18n="grc.controles.registryTitle">Registre des contrôles</h2>
@@ -36,13 +38,16 @@
     <section class="content-block">
         <h2 data-i18n="grc.common.contentInclude">Contenu à inclure</h2>
         <ul>
-            <li><strong data-i18n="grc.controles.item1.label">Contrôles ISO 27001 Annexe A</strong></li>
-            <li><strong data-i18n="grc.controles.item2.label">Mapping</strong> : <span data-i18n="grc.controles.item2.desc">ISO / NIST / CIS.</span></li>
-            <li><strong data-i18n="grc.controles.item3.label">Déclaration d’Applicabilité (DDA)</strong> : <span data-i18n="grc.controles.item3.desc">contrôles retenus ou non retenus.</span></li>
-            <li><strong data-i18n="grc.controles.item4.label">Contrôles organisationnels</strong> : <span data-i18n="grc.controles.item4.desc">politiques, gouvernance, sensibilisation.</span></li>
-            <li><strong data-i18n="grc.controles.item5.label">Contrôles techniques</strong> : <span data-i18n="grc.controles.item5.desc">MFA, pare-feu, segmentation, chiffrement.</span></li>
-            <li><strong data-i18n="grc.controles.item6.label">Contrôles humains</strong> : <span data-i18n="grc.controles.item6.desc">formation, responsabilités.</span> <span class="grc-control-tags">ISO A.6.3 · NIST PR.AT · CIS 14</span></li>
+            <li data-item-id="soa" data-legacy="2"><strong data-i18n="grc.controles.c.soa.label">Déclaration d’applicabilité (SOA)</strong> : <span data-i18n="grc.controles.c.soa.desc">contrôles retenus ou exclus, avec justification et état de mise en œuvre.</span> <span class="grc-control-tags">ISO 27001 cl. 6.1.3 d)</span></li>
+            <li data-item-id="iso" data-legacy="0"><strong data-i18n="grc.controles.c.iso.label">Contrôles ISO 27001</strong> : <span data-i18n="grc.controles.c.iso.desc">93 contrôles de l’Annexe A (organisationnels, humains, physiques, technologiques).</span> <span class="grc-control-tags">ISO 27001 Annexe A</span></li>
+            <li data-item-id="nist" data-legacy="1"><strong data-i18n="grc.controles.c.nist.label">Contrôles NIST</strong> : <span data-i18n="grc.controles.c.nist.desc">correspondance avec les fonctions et catégories du NIST CSF 2.0.</span> <span class="grc-control-tags">NIST CSF 2.0</span></li>
+            <li data-item-id="cis"><strong data-i18n="grc.controles.c.cis.label">Contrôles CIS</strong> : <span data-i18n="grc.controles.c.cis.desc">correspondance avec les 18 CIS Controls v8 et leurs groupes de mise en œuvre.</span> <span class="grc-control-tags">CIS v8</span></li>
+            <li data-item-id="administratifs" data-legacy="3 5"><strong data-i18n="grc.controles.c.administratifs.label">Contrôles administratifs</strong> : <span data-i18n="grc.controles.c.administratifs.desc">politiques, gouvernance, formation, sensibilisation, responsabilités.</span> <span class="grc-control-tags">ISO A.5 · A.6 · NIST GV · PR.AT</span></li>
+            <li data-item-id="techniques" data-legacy="4"><strong data-i18n="grc.controles.c.techniques.label">Contrôles techniques</strong> : <span data-i18n="grc.controles.c.techniques.desc">MFA, pare-feu, segmentation, chiffrement, journalisation.</span> <span class="grc-control-tags">ISO A.8 · NIST PR</span></li>
+            <li data-item-id="physiques"><strong data-i18n="grc.controles.c.physiques.label">Contrôles physiques</strong> : <span data-i18n="grc.controles.c.physiques.desc">périmètres, contrôle d’accès physique, protection des équipements.</span> <span class="grc-control-tags">ISO A.7 · NIST PR.AA</span></li>
+            <li data-item-id="matrice"><strong data-i18n="grc.controles.c.matrice.label">Matrice risques ↔ contrôles</strong> : <span data-i18n="grc.controles.c.matrice.desc">quels contrôles traitent quels risques, et risques sans contrôle.</span> <span class="grc-control-tags">ISO 27001 cl. 6.1.3 · NIST GV.RM</span></li>
         </ul>
+        <p class="grc-see-also"><span data-i18n="grc.common.seeAlso">Voir aussi :</span> <a href="traitement-risques.html" data-i18n="grc.controles.see1">Traitement des risques</a></p>
 
         <h2 data-i18n="grc.common.roleTitle">Rôle en GRC</h2>
         <p data-i18n="grc.controles.role">Les contrôles sont les outils concrets qui protègent les actifs et réduisent les risques.</p>
@@ -54,6 +59,7 @@
 
 <script src="../assets/script/i18n.js"></script>
 <script src="../assets/script/grc-i18n.js"></script>
+<script src="../assets/script/grc-i18n-components.js"></script>
 
 <script src="../config/grc-author.js"></script>
 
@@ -69,6 +75,9 @@
 <!-- grc-risks.js est bâti sur grc-registry-kit.js depuis
      PlanDurcissement-Securite.txt P2 (grkStore/grkId au chargement --
      plante sans ça), même si cette page ne monte pas son registre. -->
+<!-- Chaîne GRC : catalogue Annexe A + liens entre sections (spec/grc-fiches/chaine.md) -->
+<script src="../assets/script/grc-annexe-a.js"></script>
+<script src="../assets/script/grc-links.js"></script>
 <script src="../assets/script/grc-registry-kit.js"></script>
 <script src="../assets/script/grc-risks.js"></script>
 <script src="../assets/script/grc-controls.js"></script>
@@ -76,8 +85,17 @@
 
 <script src="../assets/script/inline/apply-i18n.js"></script>
 
+<script src="../assets/script/grc-checklist-migrate.js"></script>
 <script src="../assets/script/grc-checklist.js"></script>
 <script src="../assets/script/inline/init-grc-checklist.js"></script>
+
+
+<!-- Documentation de l'organisation par élément (spec/grc-fiches/) -->
+<script src="../assets/script/grc-soa.js"></script>
+<script src="../assets/script/grc-vocab.js"></script>
+<script src="../assets/script/grc-fiches.js"></script>
+<script src="../assets/script/grc-fiches-controles.js"></script>
+<script src="../assets/script/inline/init-grc-fiches.js"></script>
 
 </body>
 </html>

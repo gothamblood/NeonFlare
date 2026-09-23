@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'">
+    <link rel="icon" type="image/svg+xml" href="../../../assets/images/dragon-logo.svg">
+    <link rel="icon" type="image/png" href="../../../assets/images/dragon-favicon.png">
+    <title>Architecture de sécurité – GRC Cybersecurity</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" type="text/css" href="../../../assets/css/grc.css">
+</head>
+<body data-fiche-page="tech-operationnelle--architecture">
+<header>
+    <nav class="nav">
+        <div class="logo">
+            <div class="logo-mark">O</div>
+            <div>Sécurité opérationnelle</div>
+        </div>
+        <div class="nav-links">
+            <a href="./index.html" data-i18n="grc.common.backToOperationnelle">&larr; Retour à Sécurité opérationnelle</a>
+        </div>
+    </nav>
+</header>
+
+<main>
+    <h1 class="page-title" data-i18n="grc.architecture.title">Architecture de sécurité</h1>
+    <p class="page-subtitle" data-i18n="grc.architecture.subtitle">
+        L’architecture de sécurité décrit la structure technique qui met en œuvre la gouvernance et les contrôles définis ailleurs dans le programme GRC.
+    </p>
+
+    <section class="grc-fiche-root" id="grcFichesRoot"></section>
+
+    <section class="content-block">
+        <h2 data-i18n="grc.architecture.whyTitle">Pourquoi c’est important</h2>
+        <ul>
+            <li data-item-id="why1" data-legacy="0"><span data-i18n="grc.architecture.why1">Permet de montrer la structure technique de la sécurité.</span></li>
+            <li data-item-id="why2" data-legacy="1"><span data-i18n="grc.architecture.why2">Essentiel pour démontrer la cohérence entre l’architecture technique et la gouvernance GRC.</span></li>
+        </ul>
+
+        <h2 data-i18n="grc.architecture.includeTitle">Ce que cette section doit contenir</h2>
+        <ul>
+            <li data-item-id="reseau" data-legacy="3"><strong data-i18n="grc.architecture.c.reseau.label">Architecture réseau</strong> : <span data-i18n="grc.architecture.c.reseau.desc">zones (LAN, DMZ, WAN), flux autorisés, points d’interconnexion.</span> <span class="grc-control-tags">ISO A.8.20 · NIST PR.IR · CIS 12</span></li>
+            <li data-item-id="segmentation"><strong data-i18n="grc.architecture.c.segmentation.label">Segmentation</strong> : <span data-i18n="grc.architecture.c.segmentation.desc">VLAN, ACL, micro-segmentation, séparation des environnements.</span> <span class="grc-control-tags">ISO A.8.22 · NIST PR.IR · CIS 12</span></li>
+            <li data-item-id="zero-trust" data-legacy="2"><strong data-i18n="grc.architecture.c.zero-trust.label">Zero Trust</strong> : <span data-i18n="grc.architecture.c.zero-trust.desc">ne jamais faire confiance par défaut, vérifier chaque accès.</span> <span class="grc-control-tags">ISO A.8.27 · NIST PR.AA · PR.IR</span></li>
+            <li data-item-id="defense-profondeur"><strong data-i18n="grc.architecture.c.defense-profondeur.label">Défense en profondeur</strong> : <span data-i18n="grc.architecture.c.defense-profondeur.desc">couches de contrôles complémentaires.</span> <span class="grc-control-tags">ISO A.8.27 · NIST PR.IR</span></li>
+            <li data-item-id="applicative" data-legacy="4"><strong data-i18n="grc.architecture.c.applicative.label">Architecture applicative</strong> : <span data-i18n="grc.architecture.c.applicative.desc">tiers, API, exigences de sécurité applicative.</span> <span class="grc-control-tags">ISO A.8.26 · NIST PR.PS · CIS 16</span></li>
+            <li data-item-id="cloud" data-legacy="5"><strong data-i18n="grc.architecture.c.cloud.label">Architecture cloud</strong> : <span data-i18n="grc.architecture.c.cloud.desc">IaaS / PaaS / SaaS, hybride, on-prem, responsabilité partagée.</span> <span class="grc-control-tags">ISO A.5.23 · NIST PR.IR</span></li>
+            <li data-item-id="iam"><strong data-i18n="grc.architecture.c.iam.label">Architecture IAM</strong> : <span data-i18n="grc.architecture.c.iam.desc">annuaire, fournisseur d’identité, fédération, PAM.</span> <span class="grc-control-tags">ISO A.5.16 · A.8.5 · NIST PR.AA</span></li>
+            <li data-item-id="flux-donnees"><strong data-i18n="grc.architecture.c.flux-donnees.label">Flux de données</strong> : <span data-i18n="grc.architecture.c.flux-donnees.desc">cartographie des flux, chiffrement en transit, frontières de confiance.</span> <span class="grc-control-tags">ISO A.5.14 · A.8.24 · NIST ID.AM · PR.DS</span></li>
+            <li data-item-id="modeles-reference" data-legacy="6"><strong data-i18n="grc.architecture.c.modeles-reference.label">Modèles de référence</strong> : <span data-i18n="grc.architecture.c.modeles-reference.desc">diagrammes techniques et architectures de référence tenus à jour.</span> <span class="grc-control-tags">ISO A.8.27 · NIST ID.AM</span></li>
+        </ul>
+        <p class="grc-see-also"><span data-i18n="grc.common.seeAlso">Voir aussi :</span> <a href="../reseau/index.html" data-i18n="grc.architecture.see1">Sécurité réseau</a></p>
+    </section>
+</main>
+
+
+<script src="../../../assets/script/page-boot.js"></script>
+
+<script src="../../../assets/script/i18n.js"></script>
+<script src="../../../assets/script/grc-i18n.js"></script>
+<script src="../../../assets/script/grc-i18n-domains.js"></script>
+<script src="../../../assets/script/grc-i18n-components.js"></script>
+
+<script src="../../../config/grc-author.js"></script>
+
+<script src="../../../config/encryption.js"></script>
+
+<script src="../../../assets/script/vault-crypto.js"></script>
+<script src="../../../assets/script/theme-accent.js"></script>
+
+<script src="../../../assets/script/vault.js"></script>
+<script src="../../../assets/script/vault-ui.js"></script>
+
+<script src="../../../assets/script/inline/apply-i18n.js"></script>
+
+<script src="../../../assets/script/grc-checklist-migrate.js"></script>
+<script src="../../../assets/script/grc-checklist.js"></script>
+<script src="../../../assets/script/config-io.js"></script>
+<!-- Documentation légère du hub technique (grc-normes N11) + chaîne GRC -->
+<script src="../../../assets/script/grc-annexe-a.js"></script>
+<script src="../../../assets/script/grc-links.js"></script>
+<script src="../../../assets/script/grc-registry-kit.js"></script>
+<script src="../../../assets/script/grc-vocab.js"></script>
+<script src="../../../assets/script/grc-fiches.js"></script>
+<script src="../../../assets/script/grc-fiches-technique.js"></script>
+<script src="../../../assets/script/inline/init-grc-checklist.js"></script>
+<script src="../../../assets/script/inline/init-grc-fiches.js"></script>
+
+</body>
+</html>

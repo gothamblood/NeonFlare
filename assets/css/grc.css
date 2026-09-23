@@ -1,3 +1,6 @@
+/* Sélecteur de date thémé (spec/grc-suggest/ §9). */
+@import url("grc-datepicker.css");
+
 :root {
     --bg: #0b1020;
     --bg-alt: #11182a;
@@ -2297,4 +2300,929 @@ body.theme-tron .grc-ir-panel { --ir-kind-detection: #37c8e0; }
 .grc-doc-authority tbody tr:nth-child(even),
 .grc-doc-authority tbody tr:nth-child(even) {
   background: var(--accent-04, transparent);
+}
+
+/* spec/grc-restructure/ -- sous-titres de groupe, renvois et grille des
+   sous-sections de Continuité. */
+.content-block h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 1.1rem 0 0.4rem;
+    color: var(--text);
+}
+
+.content-block p.grc-intro {
+    border-left: 3px solid var(--accent-50);
+    padding-left: 0.7rem;
+    color: var(--text);
+}
+
+.content-block p.grc-see-also {
+    font-size: 0.88rem;
+}
+
+.content-block p.grc-see-also a {
+    color: var(--accent);
+}
+
+.grc-subsections {
+    margin: 1.4rem 0;
+}
+
+.grc-subsections h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0 0 0.8rem;
+}
+
+.grc-subsections .card-link {
+    position: relative;
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Documentation de l'organisation par élément (grc-fiches.js, spec/grc-fiches/). */
+.grc-fiche-root {
+    margin: 0 0 2rem;
+}
+
+.grc-fiche-head {
+    margin-bottom: 1rem;
+    padding: 0.9rem 1rem;
+    border-radius: 10px;
+    border: 1px solid var(--accent-12);
+    background: var(--accent-08);
+}
+
+.grc-fiche-head h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0 0 0.3rem;
+}
+
+.grc-fiche-hint {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin: 0 0 0.5rem;
+    max-width: 860px;
+}
+
+.grc-fiche-toc {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: 0 0 0.8rem;
+}
+
+.grc-fiche-toc-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.25rem 0.65rem;
+    border-radius: 999px;
+    border: 1px solid var(--accent-25);
+    background: transparent;
+    color: var(--text);
+    font: inherit;
+    font-size: 0.82rem;
+    cursor: pointer;
+}
+
+.grc-fiche-toc-item.is-active {
+    border-color: var(--accent);
+    background: var(--accent-12);
+    font-weight: 600;
+}
+
+.grc-fiche-nav {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-top: 0.8rem;
+}
+
+.grc-fiche-nav-next {
+    margin-left: auto;
+}
+
+.grc-fiche-element[hidden] {
+    display: none;
+}
+
+.grc-fiche-toc-item:hover {
+    border-color: var(--accent);
+}
+
+.grc-fiche-toc-count {
+    min-width: 1.3rem;
+    padding: 0 0.35rem;
+    border-radius: 999px;
+    background: var(--accent-12);
+    color: var(--muted);
+    text-align: center;
+    font-size: 0.75rem;
+}
+
+.grc-fiche-toc-item.is-filled .grc-fiche-toc-count {
+    background: var(--accent-40);
+    color: var(--text);
+}
+
+.grc-fiche-element {
+    scroll-margin-top: 5rem;
+}
+
+.grc-fiche-element h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 0.2rem;
+}
+
+.grc-fiche-ref {
+    font-size: 0.78rem;
+    color: var(--accent);
+    margin: 0 0 0.35rem;
+}
+
+.grc-fiche-links {
+    font-size: 0.85rem;
+    margin: 0 0 0.5rem;
+}
+
+.grc-fiche-links a {
+    color: var(--accent);
+}
+
+.grc-fiche-detail {
+    display: grid;
+    grid-template-columns: minmax(8rem, 14rem) 1fr;
+    gap: 0.3rem 0.8rem;
+    margin: 0.3rem 0;
+    font-size: 0.9rem;
+}
+
+.grc-fiche-detail dt {
+    font-weight: 600;
+    color: var(--muted);
+}
+
+.grc-fiche-detail dd {
+    margin: 0;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.grc-fiche-stamp {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin: 0.4rem 0 0;
+}
+
+@media (max-width: 640px) {
+    .grc-fiche-detail {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Onglets REGISTRE / VUE / RENVOI (grc-fiches.js, spec/grc-fiches/plan.md §1). */
+.grc-fiche-moved {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    box-shadow: none;
+}
+
+.grc-fiche-moved > h2 {
+    display: none;
+}
+
+.grc-fiche-linkcard {
+    margin: 0.4rem 0;
+}
+
+.grc-fiche-linkcard a {
+    display: inline-block;
+    text-decoration: none;
+}
+
+.grc-fiche-manage {
+    margin-top: 0.6rem;
+}
+
+.grc-fiche-body .grc-fiche-table-wrap {
+    overflow-x: auto;
+    margin-bottom: 0.4rem;
+}
+
+.grc-fiche-body .grc-fiche-table {
+    border-collapse: collapse;
+    min-width: 100%;
+    font-size: 0.86rem;
+}
+
+.grc-fiche-body .grc-fiche-table th {
+    text-align: left;
+    font-weight: 600;
+    padding: 0.35rem 0.5rem;
+    border-bottom: 1px solid var(--accent-25);
+    white-space: nowrap;
+}
+
+.grc-fiche-body .grc-fiche-table td {
+    padding: 0.3rem 0.5rem;
+    border-bottom: 1px solid var(--accent-08);
+    vertical-align: top;
+    white-space: pre-wrap;
+}
+
+.grc-fiche-kind-view .grc-fiche-toc-count,
+.grc-fiche-kind-register .grc-fiche-toc-count {
+    font-style: italic;
+}
+
+/* ===================================================================
+   Chaîne GRC, UX et normes (spec/grc-fiches/chaine.md, ux-plan.md,
+   spec/grc-normes/, spec/grc-debutant/) -- 2026-09-23
+   =================================================================== */
+
+/* M2 : dépend de / utilisé par */
+.grc-links-deps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    gap: 0.6rem 1rem;
+    margin: 0.6rem 0;
+    padding: 0.6rem 0.8rem;
+    border: 1px dashed var(--accent-25);
+    border-radius: 8px;
+}
+
+.grc-links-list h5 {
+    margin: 0 0 0.3rem;
+    font-size: 0.82rem;
+    color: var(--muted);
+    font-weight: 600;
+}
+
+.grc-links-list ul {
+    margin: 0;
+    padding-left: 1rem;
+    font-size: 0.85rem;
+}
+
+.grc-links-list a {
+    color: var(--accent);
+    overflow-wrap: anywhere;
+}
+
+.grc-links-type {
+    display: inline-block;
+    padding: 0 0.4rem;
+    border-radius: 999px;
+    background: var(--accent-08);
+    color: var(--muted);
+    font-size: 0.72rem;
+}
+
+.grc-links-missing,
+.grc-fiche-relink {
+    color: var(--danger) !important;
+}
+
+/* Liste déroulante des champs à suggestions (grc-registry-kit.js
+   _grkCombo, spec/grc-suggest/) : même habillage que les champs du
+   formulaire, texte libre permis, ▾ toujours visible. */
+.grk-combo {
+  position: relative;
+  display: flex;
+}
+
+.grc-registry-form .grk-combo input.grk-suggest {
+  flex: 1 1 auto;
+  width: 100%;
+  padding-right: 2.2rem;
+}
+
+.grk-combo-toggle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 2.1rem;
+  border: 0;
+  background: transparent;
+  color: var(--accent);
+  font-size: 0.95rem;
+  cursor: pointer;
+  border-radius: 0 8px 8px 0;
+}
+
+.grk-combo-toggle:hover {
+  background: var(--accent-12);
+}
+
+.grk-combo-list {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 50;
+  margin: 0;
+  padding: 0.25rem 0;
+  list-style: none;
+  max-height: 16rem;
+  overflow-y: auto;
+  background: #1e1e1e;
+  border: 1px solid var(--accent-40);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+}
+
+.grk-combo-list[hidden] {
+  display: none;
+}
+
+.grk-combo-list li {
+  padding: 0.4rem 0.75rem;
+  font-size: 0.85rem;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.grk-combo-list li:hover,
+.grk-combo-list li.is-active {
+  background: var(--accent-soft);
+}
+
+.grk-combo-list li.is-current {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.grk-combo-list li.is-current::before {
+  content: "✓ ";
+}
+
+/* Indices et exemples dans les champs vides : gris italique, pour ne
+   jamais être pris pour une valeur saisie (spec/grc-suggest/ §8). */
+.grc-registry-form input::placeholder,
+.grc-registry-form textarea::placeholder {
+  color: var(--muted);
+  font-style: italic;
+  opacity: 0.7;
+}
+
+/* Champ obligatoire signalé avant l'enregistrement. */
+.grk-required {
+  color: var(--danger);
+  font-weight: 700;
+  margin-left: 0.15rem;
+}
+
+.grk-multi {
+    min-height: 6rem;
+}
+
+.grk-multi-hint {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--muted);
+}
+
+/* CH6 : à revoir */
+.grc-chain-review {
+    background: rgba(255, 200, 87, 0.18);
+    color: var(--cont-crit-important);
+}
+
+.grc-chain-review-banner {
+    grid-column: 1 / -1;
+    margin: 0;
+    padding: 0.4rem 0.6rem;
+    border-radius: 6px;
+    background: rgba(255, 200, 87, 0.12);
+    font-size: 0.85rem;
+}
+
+.grc-chain-review-banner button {
+    margin-left: 0.6rem;
+}
+
+/* CH5 : panneau Chaîne */
+.grc-chain-head {
+    font-weight: 600;
+    margin: 0 0 0.5rem;
+}
+
+.grc-chain-rupture,
+.grc-chain-legacy {
+    margin: 0 0 0.5rem;
+    padding: 0.4rem 0.7rem;
+    border-left: 3px solid var(--accent-40);
+    background: var(--accent-08);
+    border-radius: 0 6px 6px 0;
+}
+
+.grc-chain-rupture.grc-chain-high {
+    border-left-color: var(--cont-crit-vital);
+}
+
+.grc-chain-rupture.grc-chain-medium {
+    border-left-color: var(--cont-crit-important);
+}
+
+.grc-chain-rupture summary,
+.grc-chain-legacy summary {
+    cursor: pointer;
+    font-size: 0.88rem;
+}
+
+.grc-chain-rupture ul,
+.grc-chain-legacy ul {
+    margin: 0.4rem 0 0;
+    padding-left: 1.1rem;
+    font-size: 0.85rem;
+}
+
+.grc-chain-rupture li,
+.grc-chain-legacy li {
+    margin: 0.2rem 0;
+}
+
+.grc-chain-rupture a {
+    color: var(--accent);
+}
+
+.grc-chain-fix,
+.grc-chain-apply {
+    margin-left: 0.4rem;
+    padding: 0.1rem 0.5rem !important;
+    font-size: 0.75rem !important;
+}
+
+.grc-chain-count {
+    background: rgba(255, 84, 112, 0.18);
+    color: var(--cont-crit-vital);
+}
+
+/* U0 / U1 / U3 / U4 / U7 */
+.grc-fiche-showall {
+    margin: -0.3rem 0 0.8rem;
+    font-size: 0.78rem !important;
+}
+
+.grc-fiche-toc-item.is-essential {
+    border-width: 2px;
+}
+
+.grc-fiche-groups {
+    display: flex;
+    gap: 0.4rem;
+    margin: 0 0 0.5rem;
+}
+
+.grc-fiche-group {
+    padding: 0.3rem 0.9rem;
+    border-radius: 6px;
+    border: 1px solid var(--accent-25);
+    background: transparent;
+    color: var(--text);
+    font: inherit;
+    font-size: 0.88rem;
+    cursor: pointer;
+}
+
+.grc-fiche-group.is-active {
+    border-color: var(--accent);
+    background: var(--accent-12);
+    font-weight: 600;
+}
+
+.grc-fiche-lead {
+    color: var(--text);
+}
+
+.grc-fiche-more summary {
+    cursor: pointer;
+    font-size: 0.82rem;
+    color: var(--accent);
+    margin: 0 0 0.3rem;
+}
+
+.grc-fiche-empty {
+    font-style: italic;
+}
+
+.grc-fiche-progress {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin: 0.3rem 0;
+}
+
+.grc-fiche-meta {
+    margin: 0.4rem 0;
+    font-size: 0.86rem;
+}
+
+.grc-fiche-meta-line {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+    margin: 0;
+}
+
+.grc-fiche-meta-edit {
+    margin-left: auto;
+    font-size: 0.75rem !important;
+}
+
+.grc-fiche-status-approuve {
+    background: rgba(53, 208, 127, 0.18);
+    color: var(--cont-test-pass);
+}
+
+.grc-fiche-status-revision {
+    background: rgba(255, 200, 87, 0.18);
+    color: var(--cont-crit-important);
+}
+
+.grc-fiche-nav-nextstep,
+.grc-fiche-nav-prevstep {
+    font-weight: 600;
+}
+
+.grc-fiche-nav-nextstep {
+    margin-left: auto;
+}
+
+.grc-demo-banner {
+    margin: 0.4rem 0;
+    padding: 0.35rem 0.7rem;
+    border-radius: 6px;
+    background: var(--accent-12);
+    font-size: 0.85rem;
+}
+
+.grc-demo-banner a {
+    color: var(--accent);
+}
+
+/* Checklist reliée (U3) */
+.grc-check-doc {
+    margin-left: 0.4rem;
+    font-size: 0.75rem;
+    color: var(--accent);
+    white-space: nowrap;
+}
+
+.grc-check-doc.is-empty {
+    color: var(--muted);
+}
+
+/* DDA / attributs (N1) */
+.grc-soa-summary,
+.grc-ex-summary {
+    font-weight: 600;
+    margin: 0 0 0.3rem;
+}
+
+.grc-soa-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    margin: 0.4rem 0;
+    font-size: 0.85rem;
+}
+
+.grc-soa-bar select,
+.grc-soa-bar input,
+.grc-ex-bar select {
+    max-width: 16rem;
+}
+
+.grc-soa-table td:first-child {
+    white-space: nowrap;
+}
+
+.grc-soa-row.is-undecided td:nth-child(3) {
+    color: var(--cont-crit-important);
+}
+
+.grc-soa-editor {
+    margin: 0.3rem 0;
+}
+
+/* BIA dans le temps (N2) */
+.grc-cont-bia-table select {
+    max-width: 9rem;
+}
+
+.grc-cont-bia-suggest {
+    margin: 0.5rem 0;
+    font-weight: 600;
+}
+
+/* Documents exigés (B4) */
+.grc-ex-limits {
+    padding: 0.4rem 0.7rem;
+    border-left: 3px solid var(--cont-crit-important);
+    background: rgba(255, 200, 87, 0.08);
+    font-size: 0.85rem;
+}
+
+.grc-ex-state-pret {
+    background: rgba(53, 208, 127, 0.18);
+    color: var(--cont-test-pass);
+}
+
+.grc-ex-state-commence {
+    background: rgba(255, 200, 87, 0.18);
+    color: var(--cont-crit-important);
+}
+
+.grc-ex-state-manquant {
+    background: rgba(255, 84, 112, 0.14);
+    color: var(--cont-crit-vital);
+}
+
+.grc-ex-table a {
+    color: var(--accent);
+}
+
+/* Hub : démarche, À faire, recherche (U3, U6, U9, B5) */
+.grc-hub-guide {
+    display: grid;
+    gap: 0.6rem;
+    margin: 0 0 1rem;
+}
+
+.grc-start-card {
+    padding: 0.9rem 1.1rem;
+    border: 1px solid var(--accent-40);
+    border-radius: 10px;
+    background: var(--accent-08);
+}
+
+.grc-start-card.is-compact {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.5rem 1rem;
+}
+
+.grc-start-title {
+    margin: 0 0 0.3rem;
+    font-size: 1.05rem;
+}
+
+.grc-start-card.is-compact .grc-start-title {
+    margin: 0;
+}
+
+.grc-start-desc {
+    margin: 0 0 0.6rem;
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+
+.grc-next-step,
+.grc-ex-compact {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.grc-next-step a,
+.grc-ex-compact a {
+    color: var(--accent);
+    font-weight: 600;
+}
+
+.grc-next-pre {
+    color: var(--muted);
+}
+
+.grc-hub-panel {
+    border: 1px solid var(--accent-25);
+    border-radius: 8px;
+    padding: 0.4rem 0.8rem;
+}
+
+.grc-hub-panel > summary {
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.grc-hub-panel-body {
+    margin-top: 0.5rem;
+}
+
+.grc-hub-search {
+    position: relative;
+    max-width: 36rem;
+}
+
+/* Loupe dessinée en CSS (aucune image externe). */
+.grc-hub-search::before {
+    content: "";
+    position: absolute;
+    left: 0.85rem;
+    top: 1.05rem;
+    width: 0.6rem;
+    height: 0.6rem;
+    border: 2px solid var(--accent-70);
+    border-radius: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.grc-hub-search::after {
+    content: "";
+    position: absolute;
+    left: 1.45rem;
+    top: 1.45rem;
+    width: 0.4rem;
+    height: 2px;
+    background: var(--accent-70);
+    transform: rotate(45deg);
+    pointer-events: none;
+}
+
+.grc-hub-search-input {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.55rem 0.9rem 0.55rem 2.3rem;
+    font: inherit;
+    font-size: 0.88rem;
+    color: var(--text);
+    background: var(--accent-08);
+    border: 1px solid var(--accent-40);
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.grc-hub-search-input::placeholder {
+    color: var(--muted);
+}
+
+.grc-hub-search-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-25);
+}
+
+.grc-hub-search-input::-webkit-search-cancel-button {
+    filter: invert(1) opacity(0.6);
+}
+
+.grc-hub-search-results {
+    margin: 0.4rem 0 0;
+    padding: 0;
+    list-style: none;
+    font-size: 0.85rem;
+}
+
+.grc-hub-search-results:not(:empty) {
+    padding: 0.4rem 0.6rem;
+    border: 1px solid var(--accent-25);
+    border-radius: 8px;
+    background: var(--bg-alt);
+    max-height: 18rem;
+    overflow-y: auto;
+}
+
+.grc-hub-search-item {
+    padding: 0.25rem 0;
+}
+
+.grc-hub-search-results a,
+.grc-todo-list a {
+    color: var(--accent);
+}
+
+.grc-todo-list {
+    margin: 0;
+    padding-left: 0;
+    list-style: none;
+    font-size: 0.86rem;
+}
+
+.grc-todo-item {
+    margin: 0.25rem 0;
+}
+
+.grc-todo-review .grc-todo-tag,
+.grc-todo-due .grc-todo-tag {
+    background: rgba(255, 200, 87, 0.18);
+    color: var(--cont-crit-important);
+}
+
+.grc-todo-break .grc-todo-tag,
+.grc-todo-overdue .grc-todo-tag {
+    background: rgba(255, 84, 112, 0.14);
+    color: var(--cont-crit-vital);
+}
+
+.grc-todo-detail {
+    color: var(--muted);
+}
+
+.grc-card-doc {
+    margin-top: 0.4rem;
+    font-size: 0.78rem;
+    color: var(--muted);
+}
+
+/* Démarrer ici */
+.grc-demarche-table tr.is-next td {
+    background: var(--accent-12);
+    font-weight: 600;
+}
+
+.grc-diag-form h4 {
+    margin: 0.8rem 0 0.3rem;
+}
+
+.grc-diag-roadmap {
+    font-size: 0.9rem;
+}
+
+.grc-diag-roadmap a {
+    color: var(--accent);
+}
+
+.grc-diag-priorite {
+    font-weight: 600;
+}
+
+@media (max-width: 640px) {
+    .grc-start-card.is-compact {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+/* En-tête de la documentation repliable (réduit par défaut) + formulaire
+   de statut réellement masqué (.grc-registry-form impose display:flex). */
+.grc-fiche-meta-form[hidden] {
+    display: none;
+}
+
+.grc-fiche-head-fold {
+    padding-top: 0.6rem;
+    padding-bottom: 0.6rem;
+}
+
+.grc-fiche-head-summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem 0.8rem;
+    cursor: pointer;
+    list-style: none;
+}
+
+.grc-fiche-head-summary::-webkit-details-marker {
+    display: none;
+}
+
+.grc-fiche-head-summary::before {
+    content: "▸";
+    color: var(--accent);
+    transition: transform 0.15s;
+}
+
+.grc-fiche-head-fold[open] > .grc-fiche-head-summary::before {
+    transform: rotate(90deg);
+}
+
+.grc-fiche-head-summary h2 {
+    margin: 0;
+    font-size: 1.05rem;
+}
+
+.grc-fiche-head-summary .grc-fiche-progress {
+    margin: 0;
+    font-size: 0.8rem;
+}
+
+.grc-fiche-head-fold[open] > .grc-fiche-hint {
+    margin-top: 0.5rem;
+}
+
+.grc-fiche-head-status {
+    font-size: 0.75rem;
+    padding: 0.1rem 0.55rem;
+    border-radius: 999px;
+    background: var(--accent-12);
+    color: var(--muted);
+}
+
+.grc-demo-tag {
+    font-size: 0.75rem;
+    padding: 0.1rem 0.55rem;
+    border-radius: 999px;
+    background: rgba(255, 200, 87, 0.18);
+    color: var(--cont-crit-important);
+    font-weight: 600;
 }

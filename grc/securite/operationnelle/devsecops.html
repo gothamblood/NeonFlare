@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'">
+    <link rel="icon" type="image/svg+xml" href="../../../assets/images/dragon-logo.svg">
+    <link rel="icon" type="image/png" href="../../../assets/images/dragon-favicon.png">
+    <title>DevSecOps – GRC Cybersecurity</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" type="text/css" href="../../../assets/css/grc.css">
+</head>
+<body data-fiche-page="tech-operationnelle--devsecops">
+<header>
+    <nav class="nav">
+        <div class="logo">
+            <div class="logo-mark">O</div>
+            <div>Sécurité opérationnelle</div>
+        </div>
+        <div class="nav-links">
+            <a href="./index.html" data-i18n="grc.common.backToOperationnelle">&larr; Retour à Sécurité opérationnelle</a>
+        </div>
+    </nav>
+</header>
+
+<main>
+    <h1 class="page-title" data-i18n="grc.devsecops.title">DevSecOps</h1>
+    <p class="page-subtitle" data-i18n="grc.devsecops.subtitle">
+        Le DevSecOps intègre la sécurité directement dans le cycle de vie du développement logiciel.
+    </p>
+
+    <section class="grc-fiche-root" id="grcFichesRoot"></section>
+
+    <section class="content-block">
+        <h2 data-i18n="grc.devsecops.whyTitle">Pourquoi c’est important</h2>
+        <ul>
+            <li data-item-id="why1" data-legacy="0"><span data-i18n="grc.devsecops.why1">Évite que les vulnérabilités atteignent la production en les détectant tôt dans le pipeline.</span></li>
+            <li data-item-id="why2" data-legacy="1"><span data-i18n="grc.devsecops.why2">Intègre des contrôles de sécurité continus plutôt qu’un audit ponctuel en fin de projet.</span></li>
+            <li data-item-id="why3" data-legacy="2"><span data-i18n="grc.devsecops.why3">Complète la gestion du cycle de vie et des tests déjà couverts pour les API et applications web.</span></li>
+        </ul>
+
+        <h2 data-i18n="grc.devsecops.includeTitle">Ce que cette section doit contenir</h2>
+        <ul>
+            <li data-item-id="sdlc"><strong data-i18n="grc.devsecops.c.sdlc.label">SDLC sécurisé</strong> : <span data-i18n="grc.devsecops.c.sdlc.desc">exigences de sécurité à chaque phase du cycle de développement.</span> <span class="grc-control-tags">ISO A.8.25 · NIST PR.PS · CIS 16</span></li>
+            <li data-item-id="cicd" data-legacy="3 8"><strong data-i18n="grc.devsecops.c.cicd.label">CI/CD</strong> : <span data-i18n="grc.devsecops.c.cicd.desc">pipelines protégés, artefacts signés, scan des images de conteneurs.</span> <span class="grc-control-tags">ISO A.8.25 · A.8.32 · NIST PR.PS · CIS 16</span></li>
+            <li data-item-id="sast" data-legacy="4"><strong data-i18n="grc.devsecops.c.sast.label">SAST</strong> : <span data-i18n="grc.devsecops.c.sast.desc">analyse statique du code.</span> <span class="grc-control-tags">ISO A.8.29 · NIST PR.PS · CIS 16</span></li>
+            <li data-item-id="dast" data-legacy="5"><strong data-i18n="grc.devsecops.c.dast.label">DAST</strong> : <span data-i18n="grc.devsecops.c.dast.desc">analyse dynamique en exécution.</span> <span class="grc-control-tags">ISO A.8.29 · NIST PR.PS · CIS 16</span></li>
+            <li data-item-id="dependances" data-legacy="6"><strong data-i18n="grc.devsecops.c.dependances.label">Gestion des dépendances</strong> : <span data-i18n="grc.devsecops.c.dependances.desc">SCA, SBOM, mises à jour des bibliothèques.</span> <span class="grc-control-tags">ISO A.8.8 · NIST ID.RA · CIS 7 · CIS 16</span></li>
+            <li data-item-id="secrets" data-legacy="7"><strong data-i18n="grc.devsecops.c.secrets.label">Secrets management</strong> : <span data-i18n="grc.devsecops.c.secrets.desc">coffre à secrets, rotation, détection de secrets dans le code.</span> <span class="grc-control-tags">ISO A.5.17 · NIST PR.AA</span></li>
+            <li data-item-id="revue-code"><strong data-i18n="grc.devsecops.c.revue-code.label">Revue de code</strong> : <span data-i18n="grc.devsecops.c.revue-code.desc">revue par les pairs obligatoire, règles de codage sécurisé.</span> <span class="grc-control-tags">ISO A.8.28 · NIST PR.PS · CIS 16</span></li>
+            <li data-item-id="security-gates"><strong data-i18n="grc.devsecops.c.security-gates.label">Security Gates</strong> : <span data-i18n="grc.devsecops.c.security-gates.desc">critères bloquants avant fusion et mise en production.</span> <span class="grc-control-tags">ISO A.8.29 · A.8.32 · NIST PR.PS</span></li>
+            <li data-item-id="threat-modeling"><strong data-i18n="grc.devsecops.c.threat-modeling.label">Threat Modeling</strong> : <span data-i18n="grc.devsecops.c.threat-modeling.desc">modélisation des menaces (STRIDE) dès la conception.</span> <span class="grc-control-tags">ISO A.8.27 · NIST ID.RA · CIS 16</span></li>
+            <li data-item-id="environnements-dev"><strong data-i18n="grc.devsecops.c.environnements-dev.label">Sécurité des environnements de développement</strong> : <span data-i18n="grc.devsecops.c.environnements-dev.desc">séparation dev / test / prod, données de test, accès au code source.</span> <span class="grc-control-tags">ISO A.8.4 · A.8.31 · A.8.33 · NIST PR.PS</span></li>
+        </ul>
+        <p class="grc-see-also"><span data-i18n="grc.common.seeAlso">Voir aussi :</span> <a href="../webapp/index.html" data-i18n="grc.devsecops.see1">Sécurité WebApp</a></p>
+    </section>
+</main>
+
+
+<script src="../../../assets/script/page-boot.js"></script>
+
+<script src="../../../assets/script/i18n.js"></script>
+<script src="../../../assets/script/grc-i18n.js"></script>
+<script src="../../../assets/script/grc-i18n-domains.js"></script>
+<script src="../../../assets/script/grc-i18n-components.js"></script>
+
+<script src="../../../config/grc-author.js"></script>
+
+<script src="../../../config/encryption.js"></script>
+
+<script src="../../../assets/script/vault-crypto.js"></script>
+<script src="../../../assets/script/theme-accent.js"></script>
+
+<script src="../../../assets/script/vault.js"></script>
+<script src="../../../assets/script/vault-ui.js"></script>
+
+<script src="../../../assets/script/inline/apply-i18n.js"></script>
+
+<script src="../../../assets/script/grc-checklist-migrate.js"></script>
+<script src="../../../assets/script/grc-checklist.js"></script>
+<script src="../../../assets/script/config-io.js"></script>
+<!-- Documentation légère du hub technique (grc-normes N11) + chaîne GRC -->
+<script src="../../../assets/script/grc-annexe-a.js"></script>
+<script src="../../../assets/script/grc-links.js"></script>
+<script src="../../../assets/script/grc-registry-kit.js"></script>
+<script src="../../../assets/script/grc-vocab.js"></script>
+<script src="../../../assets/script/grc-fiches.js"></script>
+<script src="../../../assets/script/grc-fiches-technique.js"></script>
+<script src="../../../assets/script/inline/init-grc-checklist.js"></script>
+<script src="../../../assets/script/inline/init-grc-fiches.js"></script>
+
+</body>
+</html>

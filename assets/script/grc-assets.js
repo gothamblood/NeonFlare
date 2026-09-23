@@ -48,7 +48,8 @@
 
 const GRC_ASSETS_KEY = "/grc/actifs/registry";
 
-const GRC_ASSET_TYPES = ["physique", "logiciel", "donnee", "humain", "reseau"];
+// "intellectuel" ajouté par spec/grc-fiches/ (Actifs › Ressources intellectuelles).
+const GRC_ASSET_TYPES = ["physique", "logiciel", "donnee", "humain", "reseau", "intellectuel"];
 
 const _assetStore = grkStore(GRC_ASSETS_KEY);
 
@@ -160,7 +161,8 @@ function grcAssetsReportBody() {
     "<th>" + grcT("grc.actifs.pdf.colName") + "</th><th>" + grcT("grc.actifs.pdf.colType") + "</th>" +
     "<th>C</th><th>I</th><th>A</th><th>" + grcT("grc.actifs.pdf.colCrit") + "</th>" +
     "<th>" + grcT("grc.actifs.pdf.colRole") + "</th><th>" + grcT("grc.actifs.pdf.colOwner") + "</th>" +
-    "<th>" + grcT("grc.actifs.pdf.colNextReview") + "</th><th>" + grcT("grc.actifs.pdf.colDependsOn") + "</th>" +
+    "<th>" + grcT("grc.actifs.pdf.colNextReview") + "</th><th>" + grcT("grc.actifs.pdf.colValue") + "</th>" +
+    "<th>" + grcT("grc.actifs.pdf.colDependsOn") + "</th>" +
     "<th>" + grcT("grc.actifs.pdf.colNotes") + "</th>" +
     "</tr></thead><tbody>";
   assets.forEach((asset) => {
@@ -178,6 +180,7 @@ function grcAssetsReportBody() {
       "<td>" + (asset.role === "support" ? grcT("grc.actifs.form.roleSupport") : grcT("grc.actifs.form.rolePrimary")) + "</td>" +
       "<td>" + grkEscapeHtml(asset.owner || "") + "</td>" +
       "<td>" + grkEscapeHtml(asset.nextReviewDate || "") + "</td>" +
+      "<td>" + grkEscapeHtml(grkFormatMoney(grcAssetValue(asset), asset.valueCurrency)) + "</td>" +
       "<td>" + grkEscapeHtml(deps) + "</td>" +
       "<td>" + grkEscapeHtml(asset.notes || "") + "</td>" +
       "</tr>";
@@ -214,7 +217,16 @@ const GRC_ASSET_FORM_SCHEMA = {
   owner: { type: "string" },
   nextReviewDate: { type: "string" },
   notes: { type: "string" },
+  valueCurrency: { type: "string", enum: GRK_CURRENCIES, default: "CAD" },
 };
+
+// Valeur monétaire de l'actif (AV) -- spec/grc-restructure/ Q1. Sert de
+// valeur par défaut au volet quantitatif des risques liés (SLE = AV × EF,
+// voir grcRiskDefaultAssetValue() dans grc-risks.js). Hors schéma : décimal
+// FR ("100 000,50") accepté, null si vide/invalide/négatif.
+function grcAssetValue(asset) {
+  return asset && Number.isFinite(asset.valueAmount) && asset.valueAmount >= 0 ? asset.valueAmount : null;
+}
 
 // Lien vie privée (90-privacy-loi25-plus.md §2.3) : un actif peut porter
 // des renseignements personnels et référencer le(s) traitement(s)
@@ -264,6 +276,7 @@ function renderAssetDetailPanel(body, ent) {
       .replace("{a}", grkEscapeHtml(ent.a)).replace("{role}", grkEscapeHtml(roleLabel))}</p>` +
     (ent.owner ? `<p>${grcT("grc.actifs.detail.owner").replace("{owner}", grkEscapeHtml(ent.owner))}</p>` : "") +
     (ent.nextReviewDate ? `<p>${grcT("grc.actifs.detail.nextReview").replace("{date}", grkEscapeHtml(ent.nextReviewDate))}</p>` : "") +
+    (grcAssetValue(ent) != null ? `<p>${grcT("grc.actifs.detail.value").replace("{value}", grkEscapeHtml(grkFormatMoney(ent.valueAmount, ent.valueCurrency)))}</p>` : "") +
     (ent.notes ? `<p>${grkEscapeHtml(ent.notes)}</p>` : "");
   body.appendChild(info);
 
@@ -375,18 +388,27 @@ function initGrcAssetRegistry() {
         ] },
       { id: "owner", label: "grc.actifs.form.owner", type: "text" },
       { id: "nextReviewDate", label: "grc.actifs.form.nextReview", type: "text" },
+      { id: "valueAmount", label: "grc.actifs.form.value", type: "text" },
+      { id: "valueCurrency", label: "grc.actifs.form.currency", type: "select",
+        options: GRK_CURRENCIES.map((c) => ({ value: c, label: c })) },
       { id: "notes", label: "grc.actifs.form.notes", type: "textarea" },
+      // Chaîne GRC (chaine.md CH2) : processus, fournisseurs, portée.
+      ...(typeof grcLinksFormFields === "function" ? grcLinksFormFields("asset") : []),
     ],
-    readForm: (ent) => ({
+    readForm: (ent) => Object.assign(typeof grcLinksFormRead === "function" ? grcLinksFormRead("asset", ent) : {}, {
       name: ent.name, type: ent.type, c: ent.c, i: ent.i, a: ent.a,
       role: ent.role, owner: ent.owner, nextReviewDate: ent.nextReviewDate, notes: ent.notes,
+      valueAmount: grcAssetValue(ent) == null ? "" : String(ent.valueAmount),
+      valueCurrency: ent.valueCurrency || "CAD",
     }),
     submit: (v, editingId) => {
       const fields = grkEnsure(v, GRC_ASSET_FORM_SCHEMA);
+      fields.valueAmount = grkDecimalOrNull(v.valueAmount, 0);
       fields.name = fields.name.trim();
       fields.owner = fields.owner.trim();
       fields.nextReviewDate = fields.nextReviewDate.trim();
       fields.notes = fields.notes.trim();
+      if (typeof grcLinksFormPick === "function") Object.assign(fields, grcLinksFormPick("asset", v));
       if (editingId) updateGrcAsset(editingId, fields);
       else addGrcAsset(Object.assign({ dependsOn: [] }, fields));
     },

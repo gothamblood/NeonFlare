@@ -20,7 +20,7 @@
 (function () {
   "use strict";
 
-  var TOKEN = "";        // scripts/ttyd-shells.sh rewrites this line
+  var TOKEN = "602b2c24b1d11926d928457391d7d2707a55309e7fc4397dcfd64db02b386c59";        // scripts/ttyd-shells.sh rewrites this line
   var LOW = 7681, HIGH = 7710;   // bash 7681.. / zsh 7691.. / pwsh 7701..
 
   function inRange(port) {

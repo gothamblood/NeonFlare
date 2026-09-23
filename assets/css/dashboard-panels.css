@@ -209,6 +209,14 @@
    into -- without this, Network's fixed width never yields and
    .dash-panel-shells (min-width: 0) gets crushed to ~0px and pushed
    off-screen by justify-content: flex-end once the row can't fit both. */
+/* Rangée du haut sans aucun panneau affiché (Shells sans terminal ouvert
+   ou masqué, Réseau masqué -- ex. tableaux « File Explorer », « GRC &
+   Website ») : elle ne réserve plus son espace (min-height ci-dessous),
+   les panneaux suivants remontent. Réapparaît dès qu'un shell s'ouvre. */
+.dash-row-top:not(:has(> .dash-panel:not(.dash-section-off):not(.hidden))) {
+  display: none;
+}
+
 .dash-row-top {
   flex: 1 1 auto;
   /* Without a floor, a short window crushes this to a literal 0px --
@@ -307,6 +315,14 @@
    different dashboard's saved layout) hides/shows this the same way,
    automatically. */
 body:has(#panelNetwork.dash-section-off) #hudLegend {
+  display: none;
+}
+
+/* Même règle pour le HUD « Network — Status » (jauge + NODES ONLINE) : il
+   ne résume que le panneau Réseau, il n'a donc de sens que si ce panneau
+   est affiché sur le tableau courant. Le dragon (#dragonSlot, chargé par
+   loadDragons) reste. */
+body:has(#panelNetwork.dash-section-off) #dragonSlot > .hud-status {
   display: none;
 }
 
@@ -661,4 +677,50 @@ body:has(#panelNetwork.dash-section-off) #hudLegend {
 .quick-finding-empty {
   padding: 0.5rem 0;
   line-height: 1.6;
+}
+
+/* À faire GRC (grc-todo.js, UX U6) */
+.dash-grc-todo {
+  margin-top: 0.8rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 0.6rem;
+}
+
+.dash-grc-todo-title {
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-bottom: 0.3rem;
+}
+
+.dash-grc-todo .grc-todo-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.8rem;
+}
+
+.dash-grc-todo .grc-todo-item {
+  margin: 0.2rem 0;
+}
+
+.dash-grc-todo .grc-todo-tag {
+  display: inline-block;
+  padding: 0 0.4rem;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  background: rgba(255, 200, 87, 0.18);
+}
+
+.dash-grc-todo .grc-todo-break .grc-todo-tag,
+.dash-grc-todo .grc-todo-overdue .grc-todo-tag {
+  background: rgba(255, 84, 112, 0.18);
+}
+
+.dash-grc-todo a {
+  color: inherit;
+}
+
+.dash-grc-todo .grc-todo-detail,
+.dash-grc-todo .grc-fiche-hint {
+  opacity: 0.7;
 }

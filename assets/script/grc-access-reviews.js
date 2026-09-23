@@ -307,7 +307,7 @@ async function importGrcAccessReviewsFromJson(file) {
 /* ================================================================== *
  *  Registre -- toggle Campagnes / Mouvements + 2 grkRegistry
  *  (filtrés par kind, même store) + encart commun (T2).
- *  Monté par grc/iam.html (#grcIamRegistry / #grcIamSummary).
+ *  Monté par grc/securite/operationnelle/iam.html (#grcIamRegistry / #grcIamSummary).
  *  Réutilise le toggle CSS .grc-priv-kindbar/.grc-priv-kindbtn.
  * ================================================================== */
 

@@ -69,6 +69,10 @@ const GRC_OBLIGATION_SCHEMA = {
   evidence: { type: "string" },
   notes: { type: "string" },
   controls: { type: "array" },
+  // Chaîne GRC (chaine.md CH2) : contrôles liés, source de l'obligation.
+  controlIds: { type: "array" },
+  sourceExigenceId: { type: "string" },
+  sourceFacteurId: { type: "string" },
   assessment: {
     type: "object", of: {
       lastAt: { type: "iso" },
@@ -430,6 +434,10 @@ function initGrcComplianceRegistry() {
     schema: GRC_OBLIGATION_SCHEMA,
     idAttr: "data-cmp-id",
     listGlobal: "renderGrcObligationsList",
+    actions: (o) => (typeof grcFicheCrossOpen === "function" ? [{
+      label: grcT("grc.links.act.createControl"),
+      run: () => grcFicheCrossOpen({ page: "controles", tab: "registre", list: "renderGrcControlList" }, { name: o.title || "", obligationIds: [o.id] }),
+    }] : []),
     deepLink: true,
     filter: (e) => e.kind !== "audit",
     i18n: {
@@ -444,15 +452,17 @@ function initGrcComplianceRegistry() {
         options: _cmpEnumOptions(GRC_CMP_SOURCE_TYPES, "grc.conformite.src.") },
       { id: "sourceRef", label: "grc.conformite.obl.sourceRef", type: "text" },
       { id: "owner", label: "grc.conformite.obl.owner", type: "text" },
+      ...(typeof grcLinksFormFields === "function" ? grcLinksFormFields("obligation") : []),
     ],
-    readForm: (e) => ({ ref: e.ref, title: e.title, sourceType: e.sourceType,
-      sourceRef: e.sourceRef, owner: e.owner }),
+    readForm: (e) => Object.assign(typeof grcLinksFormRead === "function" ? grcLinksFormRead("obligation", e) : {},
+      { ref: e.ref, title: e.title, sourceType: e.sourceType, sourceRef: e.sourceRef, owner: e.owner }),
     submit: (v, editingId) => {
       const fields = {
         ref: (v.ref || "").trim(), title: (v.title || "").trim(),
         sourceType: v.sourceType, sourceRef: (v.sourceRef || "").trim(),
         owner: (v.owner || "").trim(),
       };
+      if (typeof grcLinksFormPick === "function") Object.assign(fields, grcLinksFormPick("obligation", v));
       if (editingId) updateGrcComplianceEntry(editingId, fields);
       else addGrcObligation(fields);
     },

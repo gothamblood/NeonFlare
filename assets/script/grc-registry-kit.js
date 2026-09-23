@@ -114,6 +114,32 @@ function grkNumOrNull(v) {
   return Number.isFinite(n) && n >= 0 ? Math.round(n) : null;
 }
 
+// Décimal saisi à la main (spec/grc-restructure/ Q) : accepte la virgule
+// décimale et les espaces de milliers ("100 000,50"). null si vide, non
+// numérique, ou hors [min, max] (bornes facultatives).
+function grkDecimalOrNull(v, min, max) {
+  if (v === "" || v == null) return null;
+  const n = typeof v === "number" ? v : Number(String(v).replace(/[\s\u00a0\u202f]/g, "").replace(",", "."));
+  if (!Number.isFinite(n)) return null;
+  if (min != null && n < min) return null;
+  if (max != null && n > max) return null;
+  return n;
+}
+
+// Montant formaté selon la langue du site ; "" si absent.
+const GRK_CURRENCIES = ["CAD", "USD", "EUR"];
+function grkFormatMoney(n, currency) {
+  if (n == null || !Number.isFinite(n)) return "";
+  const cur = GRK_CURRENCIES.indexOf(currency) !== -1 ? currency : "CAD";
+  const lang = typeof getSavedLang === "function" ? getSavedLang() : "fr";
+  try {
+    return new Intl.NumberFormat(lang === "en" ? "en-CA" : "fr-CA",
+      { style: "currency", currency: cur, maximumFractionDigits: 0 }).format(n);
+  } catch (e) {
+    return Math.round(n) + " " + cur;
+  }
+}
+
 /* ================================================================== *
  *  §2.2 — Modèle : descripteur `grkEnsure`, store, mutation           *
  * ================================================================== */
@@ -719,7 +745,10 @@ function _grkDurControl() {
      listGlobal  (str)   nom de la fn globale de re-render          [requis]
      i18n : { add, save?, cancel?, export?, import?, titleAdd, titleEdit }
      form : [ { id, label(cléi18n), type:"text|textarea|select|dur",
-                required?, options?:[{value,label}], } ]
+                required?, options?:[{value,label}],
+                suggest?:[str] | () => [str]  (texte : liste déroulante
+                          maison + texte libre, _grkCombo),
+                placeholder?:str  (texte, zone de texte, nombre) } ]
      readForm(entity)      -> { fieldId: value }  (déf : entity[fieldId])
      submit(values, editingId)                    écrit dans le store
      header(entity)        -> [ Node | {text} | {badge:{cls,text}} ]
@@ -733,6 +762,153 @@ function _grkDurControl() {
      deepLink    (bool)  #<id> déplie + scrolle le <li>
      confirmName(entity)   -> str  (nom pour le confirm de suppression)
 */
+function _grkFillOptions(sel, options) {
+  const list = typeof options === "function" ? (options() || []) : (options || []);
+  const keep = sel.multiple ? Array.from(sel.selectedOptions).map((o) => o.value) : [sel.value];
+  sel.innerHTML = "";
+  list.forEach((o) => {
+    const opt = document.createElement("option");
+    opt.value = o.value;
+    opt.textContent = /^grc\./.test(o.label || "") ? grcT(o.label) : (o.label || o.value);
+    sel.appendChild(opt);
+  });
+  Array.from(sel.options).forEach((o) => { if (keep.indexOf(o.value) !== -1) o.selected = true; });
+}
+
+/* Suggestions d'un champ texte (spec/grc-suggest/) : liste déroulante
+   maison (combobox ARIA), le texte libre reste permis. Pas de <datalist>
+   natif : il masque les autres choix dès que le champ est rempli
+   (Chromium), ne s'ouvre qu'en tapant (Firefox) et ne suit pas le thème.
+   - clic sur le champ ou sur ▾ : TOUTE la liste, valeur actuelle surlignée ;
+   - frappe : filtre (casse et accents ignorés) ;
+   - ↑ ↓ Entrée Échap au clavier ; Tab ferme sans rien choisir.
+   `suggest` = liste de chaînes ou fonction qui la renvoie (recalculée à
+   chaque ouverture du formulaire). Aucun HTML injecté (textContent). */
+let _grkComboSeq = 0;
+
+function _grkComboNorm(s) {
+  return String(s == null ? "" : s).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
+}
+
+function _grkCombo(suggest) {
+  const id = "grk-combo-" + (++_grkComboSeq);
+  const wrap = document.createElement("div");
+  wrap.className = "grk-combo";
+  const input = document.createElement("input");
+  input.type = "text";
+  input.className = "grk-suggest";
+  input.autocomplete = "off";
+  input.spellcheck = false;
+  input.placeholder = grcT("grc.common.suggestPlaceholder");
+  input.setAttribute("role", "combobox");
+  input.setAttribute("aria-autocomplete", "list");
+  input.setAttribute("aria-expanded", "false");
+  input.setAttribute("aria-controls", id);
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "grk-combo-toggle";
+  btn.tabIndex = -1;
+  btn.setAttribute("aria-label", grcT("grc.common.suggestToggle"));
+  btn.textContent = "▾";
+  const list = document.createElement("ul");
+  list.className = "grk-combo-list";
+  list.id = id;
+  list.setAttribute("role", "listbox");
+  list.hidden = true;
+  wrap.appendChild(input);
+  wrap.appendChild(btn);
+  wrap.appendChild(list);
+
+  let items = [];
+  let shown = [];
+  let active = -1;
+
+  function refresh() {
+    let raw = [];
+    try { raw = typeof suggest === "function" ? (suggest() || []) : (suggest || []); } catch (e) { raw = []; }
+    const seen = Object.create(null);
+    items = [];
+    raw.forEach((v) => {
+      const t = v == null ? "" : String(v).trim();
+      if (!t || seen[t]) return;
+      seen[t] = 1;
+      items.push(t);
+    });
+  }
+  function setActive(i) {
+    active = i;
+    Array.from(list.children).forEach((li, k) => {
+      li.classList.toggle("is-active", k === i);
+      li.setAttribute("aria-selected", k === i ? "true" : "false");
+    });
+    if (i >= 0 && list.children[i]) {
+      input.setAttribute("aria-activedescendant", list.children[i].id);
+      if (list.children[i].scrollIntoView) list.children[i].scrollIntoView({ block: "nearest" });
+    } else input.removeAttribute("aria-activedescendant");
+  }
+  function open(filter) {
+    const q = filter ? _grkComboNorm(input.value) : "";
+    shown = q ? items.filter((t) => _grkComboNorm(t).indexOf(q) !== -1) : items.slice();
+    list.innerHTML = "";
+    if (!shown.length) { close(); return; }
+    const cur = _grkComboNorm(input.value);
+    let hit = -1;
+    shown.forEach((t, k) => {
+      const li = document.createElement("li");
+      li.id = id + "-" + k;
+      li.setAttribute("role", "option");
+      li.textContent = t;
+      if (_grkComboNorm(t) === cur) { li.classList.add("is-current"); hit = k; }
+      // mousedown (pas click) : le champ garde le focus.
+      li.addEventListener("mousedown", (e) => { e.preventDefault(); choose(t); });
+      list.appendChild(li);
+    });
+    list.hidden = false;
+    input.setAttribute("aria-expanded", "true");
+    setActive(hit);
+  }
+  function close() {
+    list.hidden = true;
+    input.setAttribute("aria-expanded", "false");
+    setActive(-1);
+  }
+  function choose(t) {
+    input.value = t;
+    close();
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+  input.addEventListener("mousedown", () => { if (list.hidden) open(false); else close(); });
+  input.addEventListener("input", (e) => { if (e.isTrusted) open(true); });
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      e.preventDefault();
+      if (list.hidden) { open(false); if (active === -1) setActive(0); return; }
+      const n = shown.length;
+      setActive(e.key === "ArrowDown" ? (active + 1) % n : (active <= 0 ? n - 1 : active - 1));
+    } else if (e.key === "Enter" && !list.hidden && active >= 0) {
+      e.preventDefault();
+      choose(shown[active]);
+    } else if (e.key === "Escape" && !list.hidden) {
+      e.preventDefault();
+      e.stopPropagation();
+      close();
+    } else if (e.key === "Tab") {
+      close();
+    }
+  });
+  input.addEventListener("blur", () => close());
+  btn.addEventListener("mousedown", (e) => {
+    e.preventDefault();
+    if (list.hidden) { input.focus(); open(false); } else close();
+  });
+  // Un clic sur le libellé ne doit pas ouvrir/fermer la liste deux fois.
+  btn.addEventListener("click", (e) => e.preventDefault());
+
+  input._grkCombo = { refresh: refresh, close: close };
+  return { node: wrap, input: input };
+}
+
 function grkRegistry(cfg) {
   const idAttr = cfg.idAttr || "data-grk-id";
   const ensure = (e) => (cfg.schema ? grkEnsure(e, cfg.schema) : e);
@@ -772,7 +948,11 @@ function grkRegistry(cfg) {
         const file = e.target.files[0];
         if (!file) return;
         Promise.resolve(cfg.importFn(file))
-          .then(() => renderList())
+          .then(() => {
+            renderList();
+            // Liens vérifiés à l'import (chaine.md I2).
+            if (typeof grcLinksImportReport === "function" && cfg.store) grcLinksImportReport(cfg.store.key);
+          })
           .catch((err) => alert((err && err.message) || grcT("grc.common.invalidJsonFile")))
           .finally(() => { e.target.value = ""; });
       });
@@ -791,29 +971,69 @@ function grkRegistry(cfg) {
     const controls = {};   // fieldId -> input/select | _grkDurControl
     (cfg.form || []).forEach((f) => {
       const label = document.createElement("label");
-      label.appendChild(document.createTextNode(grcT(f.label) + " "));
+      if (f.required) {
+        // Champ obligatoire signalé AVANT l'enregistrement (UX, spec/grc-suggest/) ;
+        // libellé et « * » dans un même élément (le <label> est une colonne flex).
+        const txt = document.createElement("span");
+        txt.className = "grk-label-text";
+        txt.appendChild(document.createTextNode(grcT(f.label) + " "));
+        const req = document.createElement("span");
+        req.className = "grk-required";
+        req.textContent = "*";
+        req.title = grcT("grc.common.requiredField");
+        req.setAttribute("aria-hidden", "true");
+        txt.appendChild(req);
+        label.appendChild(txt);
+      } else {
+        label.appendChild(document.createTextNode(grcT(f.label) + " "));
+      }
       let ctl;
       if (f.type === "textarea") {
         ctl = document.createElement("textarea");
         ctl.rows = 2;
+        // Obligatoire signalé par le navigateur (sinon l'envoi échouait sans message).
+        if (f.required) ctl.required = true;
         label.appendChild(ctl);
-      } else if (f.type === "select") {
+      } else if (f.type === "select" || f.type === "multi") {
+        // "multi" (spec/grc-fiches/chaine.md M1) : plusieurs liens, valeur
+        // = tableau d'identifiants. `options` peut être une fonction
+        // (listes de liens) : recalculée à chaque ouverture du formulaire.
         ctl = document.createElement("select");
-        (f.options || []).forEach((o) => {
-          const opt = document.createElement("option");
-          opt.value = o.value;
-          opt.textContent = /\./.test(o.label || "") ? grcT(o.label) : (o.label || o.value);
-          ctl.appendChild(opt);
-        });
+        if (f.type === "multi") {
+          ctl.multiple = true;
+          ctl.size = 5;
+          ctl.className = "grk-multi";
+        }
+        _grkFillOptions(ctl, f.options);
         label.appendChild(ctl);
+        if (f.type === "multi") {
+          const hint = document.createElement("span");
+          hint.className = "grk-hint grk-multi-hint";
+          hint.textContent = grcT("grc.common.multiHint");
+          label.appendChild(hint);
+        }
       } else if (f.type === "dur") {
         ctl = _grkDurControl();
         label.appendChild(ctl.node);
+      } else if (f.suggest && (!f.type || f.type === "text")) {
+        const combo = _grkCombo(f.suggest);
+        ctl = combo.input;
+        // Nom accessible = le libellé seul (le <label> contient aussi ▾ et la liste).
+        ctl.setAttribute("aria-label", grcT(f.label));
+        if (f.required) ctl.required = true;
+        label.appendChild(combo.node);
       } else {
         ctl = document.createElement("input");
-        ctl.type = "text";
+        // "date" (UX U1) : AAAA-MM-JJ ; "number" : saisie numérique.
+        ctl.type = f.type === "date" || f.type === "number" ? f.type : "text";
+        if (f.type === "number") ctl.step = "any";
         if (f.required) ctl.required = true;
         label.appendChild(ctl);
+      }
+      // Indice ou exemple (UX, spec/grc-suggest/ §8) : jamais sur un champ à
+      // suggestions (il garde « Choisir dans la liste ou écrire… »).
+      if (f.placeholder && !f.suggest && (ctl.tagName === "TEXTAREA" || ctl.type === "text" || ctl.type === "number")) {
+        ctl.placeholder = f.placeholder;
       }
       controls[f.id] = ctl;
       form.appendChild(label);
@@ -838,13 +1058,25 @@ function grkRegistry(cfg) {
       const c = controls[id];
       if (!c) return "";
       if (c.get) return c.get();                 // _grkDurControl
+      if (c.multiple) return Array.from(c.selectedOptions).map((o) => o.value).filter(Boolean);
       return (c.value || "").toString();
     }
     function writeCtl(id, v) {
       const c = controls[id];
       if (!c) return;
       if (c.set) c.set(v);
-      else c.value = v == null ? "" : v;
+      else if (c.multiple) {
+        const vals = Array.isArray(v) ? v : (v ? [v] : []);
+        Array.from(c.options).forEach((o) => { o.selected = vals.indexOf(o.value) !== -1; });
+      } else {
+        // Date existante non conforme : restée modifiable en texte (U1).
+        // Le calendrier thémé (grkDatePicker) est déjà un champ texte.
+        const want = (cfg.form || []).find((f) => f.id === id);
+        if (want && want.type === "date" && !c._grkDate) {
+          c.type = v && !/^\d{4}-\d{2}-\d{2}$/.test(String(v)) ? "text" : "date";
+        }
+        c.value = v == null ? "" : v;
+      }
     }
     function showForm(entity) {
       editingId = entity ? entity.id : null;
@@ -853,10 +1085,17 @@ function grkRegistry(cfg) {
         ? (cfg.readForm ? cfg.readForm(entity) : entity)
         : {};
       (cfg.form || []).forEach((f) => {
+        if (typeof f.options === "function") _grkFillOptions(controls[f.id], f.options);
+        if (controls[f.id]._grkCombo) { controls[f.id]._grkCombo.refresh(); controls[f.id]._grkCombo.close(); }
+        const pre = !entity && cfg.prefill ? cfg.prefill() : null;
         if (entity) writeCtl(f.id, vals[f.id]);
+        else if (pre && f.id in pre) writeCtl(f.id, pre[f.id]);
         else if (f.type === "dur") controls[f.id].set(null);
+        else if (f.type === "multi") writeCtl(f.id, []);
+        else if (f.type === "date") writeCtl(f.id, "");
         else controls[f.id].value = f.id === "owner" && !entity ? grkAuthorName() : "";
       });
+      cfg.prefill = null;
       form.style.display = "";
       addBtn.style.display = "none";
       if (formTitle.scrollIntoView) formTitle.scrollIntoView({ block: "center" });
@@ -869,14 +1108,36 @@ function grkRegistry(cfg) {
     }
 
     addBtn.addEventListener("click", () => showForm(null));
+    // « Partir de l'exemple » (UX U2) : formulaire pré-rempli, rien
+    // n'est enregistré sans validation.
+    if (typeof cfg.example === "function") {
+      const exBtn = _grkBtn("grc-registry-io-btn grc-example-btn", grcT("grc.common.fromExample"));
+      exBtn.addEventListener("click", () => { cfg.prefill = () => cfg.example() || {}; showForm(null); });
+      addBtn.insertAdjacentElement("afterend", exBtn);
+    }
+    // Pré-remplissage calculé (ex. « Préparer automatiquement » la revue
+    // de direction, grc-normes N8) : { label, values() }.
+    if (cfg.autoFill && typeof cfg.autoFill.values === "function") {
+      const auBtn = _grkBtn("grc-registry-io-btn grc-autofill-btn", cfg.autoFill.label);
+      auBtn.addEventListener("click", () => { cfg.prefill = () => cfg.autoFill.values() || {}; showForm(null); });
+      addBtn.insertAdjacentElement("afterend", auBtn);
+    }
     cancelBtn.addEventListener("click", hideForm);
     form.addEventListener("submit", (e) => {
       e.preventDefault();
       const values = {};
       (cfg.form || []).forEach((f) => { values[f.id] = readCtl(f.id); });
-      const req = (cfg.form || []).find((f) => f.required && !String(values[f.id] || "").trim());
+      const req = (cfg.form || []).find((f) => f.required &&
+        (Array.isArray(values[f.id]) ? !values[f.id].length : !String(values[f.id] || "").trim()));
       if (req) return;
+      const wasEditing = editingId;
       cfg.submit(values, editingId);
+      // Propagation (chaine.md CH6) : ce qui dépend de l'entrée modifiée
+      // passe « à revoir » ; l'entrée elle-même est réputée revue.
+      if (typeof grcChainChanged === "function" && cfg.store && cfg.store.key) {
+        const saved = wasEditing ? cfg.store.get().find((x) => x && x.id === wasEditing) : null;
+        if (saved) grcChainChanged(cfg.store.key, saved);
+      }
       hideForm();
       renderList();
     });
@@ -900,6 +1161,16 @@ function grkRegistry(cfg) {
         }
         header.appendChild(span);
       });
+      if (typeof grcChainFlag === "function" && cfg.store && cfg.store.key) {
+        const flag = grcChainFlag(cfg.store.key, entity);
+        if (flag) {
+          const r = document.createElement("span");
+          r.className = "grc-cont-crit grc-chain-review";
+          r.textContent = grcT("grc.common.toReview");
+          r.title = flag.cause || "";
+          header.appendChild(r);
+        }
+      }
       const chev = document.createElement("span");
       chev.className = "chevron";
       chev.textContent = "▸";
@@ -914,6 +1185,12 @@ function grkRegistry(cfg) {
         const body = document.createElement("div");
         body.className = "grc-registry-body";
         if (cfg.panel) cfg.panel(body, entity);
+        // Chaîne GRC (spec/grc-fiches/chaine.md M2) : « Dépend de » /
+        // « Utilisé par », calculés depuis le catalogue grc-links.js.
+        if (typeof grcLinksDepsBlock === "function" && cfg.store && cfg.store.key) {
+          const deps = grcLinksDepsBlock(cfg.store.key, entity);
+          if (deps) body.appendChild(deps);
+        }
 
         const acts = document.createElement("div");
         acts.className = "grc-ir-actions grc-cont-actions";
@@ -925,13 +1202,24 @@ function grkRegistry(cfg) {
         const delBtn = _grkBtn("grc-registry-io-btn grc-ir-toggle", grcT("grc.common.btnDelete"));
         delBtn.addEventListener("click", () => {
           const nm = cfg.confirmName ? cfg.confirmName(entity) : (entity.id || "");
-          if (!confirm(grcT("grc.common.confirmDelete").replace("{name}", nm))) return;
+          // Suppression protégée (chaine.md I1) : liste ce qui en dépend.
+          const guard = typeof grcLinksDeleteWarning === "function" && cfg.store ? grcLinksDeleteWarning(cfg.store.key, entity) : "";
+          if (!confirm(grcT("grc.common.confirmDelete").replace("{name}", nm) + guard)) return;
           cfg.store.save(cfg.store.get().filter((x) => x && x.id !== entity.id));
           if (expandedId === entity.id) expandedId = null;
+          if (typeof cfg.onDelete === "function") cfg.onDelete(entity);
           renderList();
         });
         acts.appendChild(editBtn);
         acts.appendChild(delBtn);
+        // Actions croisées (UX U5) : [{ label, run }] propres au registre.
+        if (typeof cfg.actions === "function") {
+          (cfg.actions(entity) || []).forEach((a) => {
+            const b = _grkBtn("grc-registry-io-btn grc-cross-action", a.label);
+            b.addEventListener("click", () => a.run(entity));
+            acts.appendChild(b);
+          });
+        }
         body.appendChild(acts);
         li.appendChild(body);
       }
@@ -978,6 +1266,8 @@ function grkRegistry(cfg) {
       renderSummary();
     }
     window[cfg.listGlobal] = renderList;
+    // Ouverture du formulaire pré-rempli (UX U2 / U5) : window[listGlobal].prefill({ champ: valeur }).
+    renderList.openWith = (values) => { cfg.prefill = () => values || {}; showForm(null); };
 
     /* -- deep-link -- */
     function applyDeepLink() {
@@ -1000,4 +1290,361 @@ function grkRegistry(cfg) {
   }
 
   return init;
+}
+
+/* ================================================================== *
+ *  Sélecteur de date thémé (spec/grc-suggest/ §9)                     *
+ * ================================================================== */
+/* Remplace le calendrier natif de <input type="date"> (format et couleurs
+   imposés par le navigateur, illisible sur le thème sombre) par un
+   calendrier aux couleurs du thème (--accent), FR / EN.
+
+   - La valeur reste "AAAA-MM-JJ" : aucun code appelant ne change.
+   - Saisie au clavier toujours permise : "2027-3-5", "5/3/2027" (FR :
+     J/M/A ; EN : M/J/A) sont normalisés en AAAA-MM-JJ au changement.
+   - Une date invalide saisie à la main est refusée (message du champ) et
+     l'événement "change" n'atteint pas le code de la page : rien de faux
+     n'est enregistré (comme un <input type="date"> natif).
+   - Une valeur existante non conforme (U1) reste telle quelle tant
+     qu'on n'y touche pas.
+   - Calendrier : clic sur le champ ou sur l'icône ; ↑ ↓ ← → jour/semaine,
+     Page préc./suiv. mois (Maj : année), Début/Fin semaine, Entrée
+     choisit, Échap ferme ; « Aujourd'hui » / « Effacer ».
+   - Attaché au <body> en position fixe : jamais coupé par un conteneur
+     overflow:hidden (accordéons des registres).
+   Branché automatiquement sur tout input[type=date] des pages qui
+   chargent la feuille grc-datepicker.css (drapeau --grk-datepicker). */
+
+function _grkDateLang() {
+  return typeof getSavedLang === "function" && getSavedLang() === "en" ? "en" : "fr";
+}
+
+function _grkPad2(n) {
+  return String(n).padStart(2, "0");
+}
+
+function _grkIsoOf(y, m, d) {
+  return y + "-" + _grkPad2(m + 1) + "-" + _grkPad2(d);
+}
+
+// Texte saisi -> "AAAA-MM-JJ", "" (vide) ou null (invalide).
+function grkParseDate(text) {
+  const t = String(text == null ? "" : text).trim();
+  if (!t) return "";
+  let y, m, d, g;
+  if ((g = /^(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})$/.exec(t))) {
+    y = +g[1]; m = +g[2]; d = +g[3];
+  } else if ((g = /^(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})$/.exec(t))) {
+    y = +g[3];
+    if (_grkDateLang() === "en") { m = +g[1]; d = +g[2]; } else { d = +g[1]; m = +g[2]; }
+  } else {
+    return null;
+  }
+  if (y < 1900 || y > 2200) return null;
+  const dt = new Date(y, m - 1, d);
+  if (dt.getFullYear() !== y || dt.getMonth() !== m - 1 || dt.getDate() !== d) return null;
+  return _grkIsoOf(y, m - 1, d);
+}
+
+let _grkCal = null; // calendrier ouvert : { input, pop, view, focus, cleanup }
+
+function _grkCalIcon() {
+  const NS = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(NS, "svg");
+  svg.setAttribute("viewBox", "0 0 24 24");
+  svg.setAttribute("width", "16");
+  svg.setAttribute("height", "16");
+  svg.setAttribute("aria-hidden", "true");
+  svg.setAttribute("fill", "none");
+  svg.setAttribute("stroke", "currentColor");
+  svg.setAttribute("stroke-width", "2");
+  svg.setAttribute("stroke-linecap", "round");
+  [["rect", { x: 3, y: 5, width: 18, height: 16, rx: 2 }], ["line", { x1: 3, y1: 10, x2: 21, y2: 10 }],
+    ["line", { x1: 8, y1: 3, x2: 8, y2: 7 }], ["line", { x1: 16, y1: 3, x2: 16, y2: 7 }]].forEach(([tag, attrs]) => {
+    const el = document.createElementNS(NS, tag);
+    Object.keys(attrs).forEach((k) => el.setAttribute(k, attrs[k]));
+    svg.appendChild(el);
+  });
+  return svg;
+}
+
+function grkDatePicker(input) {
+  if (!input || input._grkDate) return;
+  input._grkDate = true;
+  input.type = "text";
+  input.classList.add("grk-date-input");
+  input.autocomplete = "off";
+  input.spellcheck = false;
+  input.inputMode = "numeric";
+  if (!input.placeholder) input.placeholder = grcT("grc.common.datePlaceholder");
+  input.setAttribute("aria-haspopup", "dialog");
+
+  const wrap = document.createElement("span");
+  wrap.className = "grk-date";
+  if (input.parentNode) input.parentNode.insertBefore(wrap, input);
+  wrap.appendChild(input);
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "grk-date-btn";
+  btn.setAttribute("aria-label", grcT("grc.common.dateOpen"));
+  btn.title = grcT("grc.common.dateOpen");
+  btn.appendChild(_grkCalIcon());
+  wrap.appendChild(btn);
+
+  btn.addEventListener("mousedown", (e) => e.preventDefault());
+  btn.addEventListener("click", (e) => {
+    e.preventDefault();
+    if (_grkCal && _grkCal.input === input) _grkCalClose(true);
+    else _grkCalOpen(input, true);
+  });
+  input.addEventListener("click", () => { if (!_grkCal || _grkCal.input !== input) _grkCalOpen(input, false); });
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowDown" && (e.altKey || !_grkCal || _grkCal.input !== input)) {
+      e.preventDefault();
+      _grkCalOpen(input, true);
+    } else if (e.key === "Escape" && _grkCal && _grkCal.input === input) {
+      e.preventDefault();
+      e.stopPropagation();
+      _grkCalClose(false);
+    } else if (e.key === "Tab" && _grkCal && _grkCal.input === input) {
+      _grkCalClose(false);
+    }
+  });
+  // Message sous le champ (pas de reportValidity() : il ramène le focus
+  // sur la date et empêche d'aller remplir un autre champ).
+  const err = document.createElement("span");
+  err.className = "grk-date-error";
+  err.setAttribute("role", "alert");
+  err.hidden = true;
+  const setError = (msg) => {
+    input.setCustomValidity(msg);
+    input.classList.toggle("is-invalid", !!msg);
+    err.textContent = msg;
+    err.hidden = !msg;
+  };
+  wrap.appendChild(err);
+  input.addEventListener("input", () => setError(""));
+  // Capture sur le conteneur : passe AVANT les écouteurs "change" posés
+  // par la page sur le champ lui-même.
+  wrap.addEventListener("change", (e) => {
+    if (e.target !== input) return;
+    const iso = grkParseDate(input.value);
+    if (iso === null) {
+      setError(grcT("grc.common.dateInvalid"));
+      e.stopImmediatePropagation();
+      return;
+    }
+    if (iso !== input.value) input.value = iso;
+    setError("");
+  }, true);
+}
+
+function _grkCalClose(refocus) {
+  if (!_grkCal) return;
+  const c = _grkCal;
+  _grkCal = null;
+  c.cleanup();
+  c.pop.remove();
+  c.input.setAttribute("aria-expanded", "false");
+  if (refocus) c.input.focus();
+}
+
+function _grkCalOpen(input, focusGrid) {
+  _grkCalClose(false);
+  const lang = _grkDateLang();
+  const locale = lang === "en" ? "en-CA" : "fr-CA";
+  const weekStart = lang === "en" ? 0 : 1;
+  const today = new Date();
+  const todayIso = _grkIsoOf(today.getFullYear(), today.getMonth(), today.getDate());
+  const selIso = grkParseDate(input.value) || "";
+  const base = selIso ? new Date(+selIso.slice(0, 4), +selIso.slice(5, 7) - 1, +selIso.slice(8, 10)) : today;
+
+  const pop = document.createElement("div");
+  pop.className = "grk-cal";
+  pop.setAttribute("role", "dialog");
+  pop.setAttribute("aria-label", grcT("grc.common.dateDialog"));
+  const head = document.createElement("div");
+  head.className = "grk-cal-head";
+  const mkNav = (txt, key, delta) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "grk-cal-nav";
+    b.textContent = txt;
+    b.setAttribute("aria-label", grcT(key));
+    b.addEventListener("click", () => move(0, delta.m, delta.y, true));
+    return b;
+  };
+  const title = document.createElement("span");
+  title.className = "grk-cal-title";
+  title.setAttribute("aria-live", "polite");
+  head.appendChild(mkNav("«", "grc.common.datePrevYear", { m: 0, y: -1 }));
+  head.appendChild(mkNav("‹", "grc.common.datePrevMonth", { m: -1, y: 0 }));
+  head.appendChild(title);
+  head.appendChild(mkNav("›", "grc.common.dateNextMonth", { m: 1, y: 0 }));
+  head.appendChild(mkNav("»", "grc.common.dateNextYear", { m: 0, y: 1 }));
+  const grid = document.createElement("table");
+  grid.className = "grk-cal-grid";
+  grid.setAttribute("role", "grid");
+  const thead = document.createElement("thead");
+  const trh = document.createElement("tr");
+  const wd = new Intl.DateTimeFormat(locale, { weekday: "narrow" });
+  const wdLong = new Intl.DateTimeFormat(locale, { weekday: "long" });
+  for (let i = 0; i < 7; i++) {
+    const day = new Date(2024, 0, 7 + ((weekStart + i) % 7)); // 2024-01-07 = dimanche
+    const th = document.createElement("th");
+    th.setAttribute("scope", "col");
+    th.setAttribute("abbr", wdLong.format(day));
+    th.textContent = wd.format(day);
+    trh.appendChild(th);
+  }
+  thead.appendChild(trh);
+  grid.appendChild(thead);
+  const tbody = document.createElement("tbody");
+  grid.appendChild(tbody);
+  const foot = document.createElement("div");
+  foot.className = "grk-cal-foot";
+  const bToday = document.createElement("button");
+  bToday.type = "button";
+  bToday.className = "grk-cal-action";
+  bToday.textContent = grcT("grc.common.dateToday");
+  bToday.addEventListener("click", () => pick(todayIso));
+  const bClear = document.createElement("button");
+  bClear.type = "button";
+  bClear.className = "grk-cal-action";
+  bClear.textContent = grcT("grc.common.dateClear");
+  bClear.addEventListener("click", () => pick(""));
+  foot.appendChild(bToday);
+  foot.appendChild(bClear);
+  pop.appendChild(head);
+  pop.appendChild(grid);
+  pop.appendChild(foot);
+
+  const state = { y: base.getFullYear(), m: base.getMonth(), d: base.getDate() };
+  const monthFmt = new Intl.DateTimeFormat(locale, { month: "long", year: "numeric" });
+  const dayFmt = new Intl.DateTimeFormat(locale, { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+
+  function render(focusDay) {
+    const t = monthFmt.format(new Date(state.y, state.m, 1));
+    title.textContent = t.charAt(0).toUpperCase() + t.slice(1);
+    tbody.innerHTML = "";
+    const first = new Date(state.y, state.m, 1);
+    const offset = (first.getDay() - weekStart + 7) % 7;
+    const start = new Date(state.y, state.m, 1 - offset);
+    const focusIso = _grkIsoOf(state.y, state.m, state.d);
+    for (let r = 0; r < 6; r++) {
+      const tr = document.createElement("tr");
+      for (let c = 0; c < 7; c++) {
+        const dt = new Date(start.getFullYear(), start.getMonth(), start.getDate() + r * 7 + c);
+        const iso = _grkIsoOf(dt.getFullYear(), dt.getMonth(), dt.getDate());
+        const td = document.createElement("td");
+        td.setAttribute("role", "gridcell");
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "grk-cal-day";
+        b.textContent = String(dt.getDate());
+        b.dataset.iso = iso;
+        b.setAttribute("aria-label", dayFmt.format(dt));
+        b.tabIndex = iso === focusIso ? 0 : -1;
+        if (dt.getMonth() !== state.m) b.classList.add("is-other");
+        if (iso === todayIso) { b.classList.add("is-today"); b.setAttribute("aria-current", "date"); }
+        if (iso === selIso) { b.classList.add("is-selected"); td.setAttribute("aria-selected", "true"); }
+        b.addEventListener("click", () => pick(iso));
+        td.appendChild(b);
+        tr.appendChild(td);
+      }
+      tbody.appendChild(tr);
+    }
+    if (focusDay) {
+      const f = tbody.querySelector('button[data-iso="' + focusIso + '"]');
+      if (f) f.focus();
+    }
+  }
+  function move(days, months, years, keepFocusInHead) {
+    const dt = new Date(state.y + (years || 0), state.m + (months || 0), 1);
+    const last = new Date(dt.getFullYear(), dt.getMonth() + 1, 0).getDate();
+    const next = new Date(dt.getFullYear(), dt.getMonth(), Math.min(state.d, last) + (days || 0));
+    state.y = next.getFullYear();
+    state.m = next.getMonth();
+    state.d = next.getDate();
+    render(!keepFocusInHead);
+  }
+  function pick(iso) {
+    input.value = iso;
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+    _grkCalClose(true);
+  }
+  function position() {
+    const r = input.parentNode.getBoundingClientRect();
+    if (r.bottom < 0 || r.top > window.innerHeight) { _grkCalClose(false); return; }
+    const w = pop.offsetWidth;
+    const h = pop.offsetHeight;
+    const left = Math.max(8, Math.min(r.left, window.innerWidth - w - 8));
+    let top = r.bottom + 4;
+    if (top + h > window.innerHeight - 8 && r.top - h - 4 > 8) top = r.top - h - 4;
+    pop.style.left = left + "px";
+    pop.style.top = top + "px";
+  }
+
+  pop.addEventListener("keydown", (e) => {
+    const onDay = e.target.classList && e.target.classList.contains("grk-cal-day");
+    const k = e.key;
+    if (k === "Escape") { e.preventDefault(); e.stopPropagation(); _grkCalClose(true); return; }
+    if (!onDay) return;
+    const map = { ArrowLeft: [-1, 0, 0], ArrowRight: [1, 0, 0], ArrowUp: [-7, 0, 0], ArrowDown: [7, 0, 0],
+      PageUp: [0, e.shiftKey ? 0 : -1, e.shiftKey ? -1 : 0], PageDown: [0, e.shiftKey ? 0 : 1, e.shiftKey ? 1 : 0] };
+    if (map[k]) { e.preventDefault(); move(map[k][0], map[k][1], map[k][2]); return; }
+    if (k === "Home" || k === "End") {
+      e.preventDefault();
+      const dow = (new Date(state.y, state.m, state.d).getDay() - weekStart + 7) % 7;
+      move(k === "Home" ? -dow : 6 - dow, 0, 0);
+      return;
+    }
+    if (k === "Enter" || k === " ") { e.preventDefault(); pick(e.target.dataset.iso); }
+  });
+  // Un clic hors du calendrier et du champ ferme ; un défilement le replace.
+  const outside = (e) => { if (!pop.contains(e.target) && !input.parentNode.contains(e.target)) _grkCalClose(false); };
+  const onMove = () => position();
+  const onFocusOut = (e) => {
+    const to = e.relatedTarget;
+    if (to && !pop.contains(to) && to !== input) _grkCalClose(false);
+  };
+  document.addEventListener("mousedown", outside, true);
+  window.addEventListener("scroll", onMove, true);
+  window.addEventListener("resize", onMove);
+  pop.addEventListener("focusout", onFocusOut);
+
+  document.body.appendChild(pop);
+  _grkCal = {
+    input: input, pop: pop,
+    cleanup: () => {
+      document.removeEventListener("mousedown", outside, true);
+      window.removeEventListener("scroll", onMove, true);
+      window.removeEventListener("resize", onMove);
+    },
+  };
+  input.setAttribute("aria-expanded", "true");
+  render(focusGrid);
+  position();
+}
+
+// Branche le calendrier sur tous les input[type=date], présents et à venir.
+function grkAutoDatePickers() {
+  if (typeof document === "undefined" || !document.documentElement) return;
+  let flag = "";
+  try { flag = getComputedStyle(document.documentElement).getPropertyValue("--grk-datepicker").trim(); } catch (e) { flag = ""; }
+  if (flag !== "1") return;
+  const scan = (root) => {
+    if (root.nodeType !== 1) return;
+    if (root.matches && root.matches('input[type="date"]')) grkDatePicker(root);
+    if (root.querySelectorAll) root.querySelectorAll('input[type="date"]').forEach(grkDatePicker);
+  };
+  scan(document.body);
+  new MutationObserver((muts) => muts.forEach((m) => m.addedNodes.forEach(scan)))
+    .observe(document.body, { childList: true, subtree: true });
+}
+
+if (typeof document !== "undefined") {
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", grkAutoDatePickers);
+  else grkAutoDatePickers();
 }

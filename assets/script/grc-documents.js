@@ -55,6 +55,8 @@ const GRC_DOC_HISTORY_SCHEMA = {
 
 const GRC_DOC_SCHEMA = {
   id: { type: "string" },
+  // Chaîne GRC (chaine.md CH2) : contrôles documentés.
+  controlIds: { type: "array" },
   schema: { type: "number", default: 1 },
   title: { type: "string" },
   docType: { type: "string", enum: GRC_DOC_TYPES, default: "procedure" },
@@ -431,8 +433,9 @@ function initGrcDocumentsRegistry(opts) {
       { id: "owner", label: "grc.documents.form.owner", type: "text" },
       { id: "approver", label: "grc.documents.form.approver", type: "text" },
       { id: "version", label: "grc.documents.form.version", type: "text" },
+      ...(typeof grcLinksFormFields === "function" ? grcLinksFormFields("document") : []),
     ],
-    readForm: (d) => ({
+    readForm: (d) => Object.assign(typeof grcLinksFormRead === "function" ? grcLinksFormRead("document", d) : {}, {
       title: d.title, docType: d.docType, owner: d.owner,
       approver: d.approver, version: d.version,
     }),
@@ -444,6 +447,7 @@ function initGrcDocumentsRegistry(opts) {
         approver: (v.approver || "").trim(),
         version: (v.version || "").trim() || "1.0",
       };
+      if (typeof grcLinksFormPick === "function") Object.assign(fields, grcLinksFormPick("document", v));
       if (editingId) updateGrcDocument(editingId, fields);
       else addGrcDocument(fields);
     },

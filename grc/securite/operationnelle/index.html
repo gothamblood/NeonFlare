@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'">
+    <link rel="icon" type="image/svg+xml" href="../../../assets/images/dragon-logo.svg">
+    <link rel="icon" type="image/png" href="../../../assets/images/dragon-favicon.png">
+    <title>Sécurité opérationnelle</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="Architecture de sécurité, vulnérabilités, IAM, cloud et DevSecOps." />
+    <link rel="stylesheet" type="text/css" href="../../../assets/css/grc.css">
+</head>
+<body class="hub-page" data-page-key="grc-operationnelle">
+<header>
+    <nav class="nav">
+        <div class="logo">
+            <div class="logo-mark">O</div>
+            <div>Sécurité opérationnelle</div>
+        </div>
+    </nav>
+</header>
+
+<main>
+    <h1 class="page-title" data-i18n="grc.securite.operationnelle.hub.title">Sécurité opérationnelle</h1>
+    <p class="page-subtitle" data-i18n="grc.securite.operationnelle.hub.subtitle">
+        Architecture de sécurité, gestion des vulnérabilités, identités et accès, ressources humaines et sensibilisation, sécurité physique, sécurité cloud et DevSecOps, organisés en 7 domaines.
+    </p>
+
+    <div class="grc-progress" id="grc-coverage-summary"></div>
+
+    <div class="grc-toolbar">
+      <button type="button" id="btnExportJson" class="grc-toolbar-btn" data-i18n="grc.hub.exportJson">Exporter JSON</button>
+      <button type="button" id="btnSaveAs" class="grc-toolbar-btn" data-i18n="grc.hub.saveAs">Enregistrer sous…</button>
+      <button type="button" id="btnExportWord" class="grc-toolbar-btn" data-i18n="grc.hub.exportWord">Exporter Word</button>
+      <button type="button" id="btnExportPdf" class="grc-toolbar-btn" data-i18n="grc.hub.exportPdf">Exporter PDF</button>
+      <button type="button" id="btnImportTrigger" class="grc-toolbar-btn" data-i18n="grc.hub.importJson">Importer JSON</button>
+      <input type="file" id="sectionImportInput" accept=".json,application/json" style="display:none">
+      <button type="button" id="btnReset" class="grc-toolbar-btn grc-toolbar-btn-danger" data-i18n="grc.hub.reset">Réinitialiser</button>
+    </div>
+
+    <div class="grid-3" id="securite-operationnelle-grid"></div>
+</main>
+
+
+<div id="overlay"></div>
+
+<!-- Shared modal: loads the picked domain's standalone page in an iframe -->
+<div id="modal-grc" class="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-box-title" id="modal-grc-title"></div>
+    <iframe id="modal-grc-frame" src="about:blank" title="Domaine Sécurité opérationnelle"></iframe>
+  </div>
+</div>
+
+<script src="../../../assets/script/i18n.js"></script>
+<script src="../../../assets/script/grc-i18n.js"></script>
+<script src="../../../assets/script/grc-i18n-domains.js"></script>
+<script src="../../../assets/script/grc-i18n-securite-operationnelle.js"></script>
+<script src="index.js"></script>
+<script src="../../../assets/script/grc-loader.js"></script>
+<script src="../../../assets/script/theme-accent.js"></script>
+<script src="../../../assets/script/page-effects.js"></script>
+<script src="../../../assets/script/page-effects-loader.js"></script>
+<script src="../../../config/encryption.js"></script>
+<script src="../../../assets/script/vault-crypto.js"></script>
+<script src="../../../assets/script/vault.js"></script>
+<script src="../../../assets/script/vault-ui.js"></script>
+<script src="../../../assets/script/grc-checklist-migrate.js"></script>
+<script src="../../../assets/script/grc-checklist.js"></script>
+<script src="../../../assets/script/hub-modal.js"></script>
+<script src="../../../assets/script/inline/grc-securite-operationnelle.js"></script>
+<script src="../../../assets/script/inline/grc-hub-modal-wiring.js"></script>
+
+</body>
+</html>

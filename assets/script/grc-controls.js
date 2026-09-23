@@ -37,7 +37,8 @@
 
 const GRC_CONTROLS_KEY = "/grc/controles/registry";
 
-const GRC_CONTROL_TYPES = ["organisationnel", "technique", "humain"];
+// "physique" ajouté par spec/grc-fiches/ (Contrôles › Contrôles physiques).
+const GRC_CONTROL_TYPES = ["organisationnel", "technique", "humain", "physique"];
 
 // Les statuts d'une Déclaration d'Applicabilité (SoA) ISO 27001 --
 // l'export PDF de ce registre EST la SoA (voir exportGrcControlsAsPdf).
@@ -217,6 +218,9 @@ const GRC_CONTROL_FORM_SCHEMA = {
   status: { type: "string", enum: GRC_CONTROL_STATUSES.map((s) => s.value), default: GRC_CONTROL_STATUSES[0].value },
   owner: { type: "string" },
   evidence: { type: "string" },
+  // Justification d'inclusion / d'exclusion -- déclaration d'applicabilité
+  // (statut « non applicable » = exclu), spec/grc-fiches/ plan §1.
+  justification: { type: "string" },
 };
 
 // Panneau déplié : détail (type/référentiels/propriétaire/preuve, même
@@ -236,7 +240,8 @@ function renderControlDetailPanel(body, ent) {
     `<p>${grcT("grc.controles.detail.type").replace("{value}", grkEscapeHtml(grcControlTypeLabel(ent.type)))}</p>` +
     (refs.length ? `<p>${grcT("grc.controles.detail.refs").replace("{value}", grkEscapeHtml(refs.join(" · ")))}</p>` : "") +
     (ent.owner ? `<p>${grcT("grc.controles.detail.owner").replace("{owner}", grkEscapeHtml(ent.owner))}</p>` : "") +
-    (ent.evidence ? `<p>${grcT("grc.controles.detail.evidence").replace("{value}", grkEscapeHtml(ent.evidence))}</p>` : "");
+    (ent.evidence ? `<p>${grcT("grc.controles.detail.evidence").replace("{value}", grkEscapeHtml(ent.evidence))}</p>` : "") +
+    (ent.justification ? `<p>${grcT("grc.controles.detail.justification").replace("{value}", grkEscapeHtml(ent.justification))}</p>` : "");
   body.appendChild(info);
 
   const allRisks = typeof getGrcRisks === "function" ? getGrcRisks() : [];
@@ -280,6 +285,10 @@ function initGrcControlRegistry() {
     store: _controlStore,
     idAttr: "data-control-id",
     listGlobal: "renderGrcControlList",
+    actions: (c) => (typeof grcFicheCrossOpen === "function" ? [{
+      label: grcT("grc.links.act.addEvidence"),
+      run: () => grcFicheCrossOpen({ page: "documentation", tab: "preuves-audit", list: "renderGrcFiche_documentation_preuves_audit" }, { preuve: c.name || "", controle: c.id }),
+    }] : []),
     deepLink: true,
     i18n: {
       add: "grc.controles.form.addBtn",
@@ -297,10 +306,14 @@ function initGrcControlRegistry() {
         options: GRC_CONTROL_STATUSES.map((s) => ({ value: s.value, label: "grc.controles.status." + s.i18nKey })) },
       { id: "owner", label: "grc.controles.form.owner", type: "text" },
       { id: "evidence", label: "grc.controles.form.evidence", type: "textarea" },
+      { id: "justification", label: "grc.controles.form.justification", type: "textarea" },
+      // Chaîne GRC (chaine.md CH2) : risques, obligations, Annexe A.
+      ...(typeof grcLinksFormFields === "function" ? grcLinksFormFields("control") : []),
     ],
-    readForm: (ent) => ({
+    readForm: (ent) => Object.assign(typeof grcLinksFormRead === "function" ? grcLinksFormRead("control", ent) : {}, {
       name: ent.name, isoRef: ent.isoRef, nistRef: ent.nistRef, cisRef: ent.cisRef,
       type: ent.type, status: ent.status, owner: ent.owner, evidence: ent.evidence,
+      justification: ent.justification || "",
     }),
     submit: (v, editingId) => {
       const fields = grkEnsure(v, GRC_CONTROL_FORM_SCHEMA);
@@ -310,6 +323,8 @@ function initGrcControlRegistry() {
       fields.cisRef = fields.cisRef.trim();
       fields.owner = fields.owner.trim();
       fields.evidence = fields.evidence.trim();
+      fields.justification = fields.justification.trim();
+      if (typeof grcLinksFormPick === "function") Object.assign(fields, grcLinksFormPick("control", v));
       if (editingId) updateGrcControl(editingId, fields);
       else addGrcControl(Object.assign({ riskIds: [] }, fields));
     },
