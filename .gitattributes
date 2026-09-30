@@ -1,0 +1,9 @@
+# Scripts exécutés sous Linux / WSL : toujours LF, même sur un clone fait
+# depuis Windows (Git pour Windows convertit en CRLF par défaut, et bash
+# refuse alors le script : "bash\r: No such file or directory").
+*.sh   text eol=lf
+*.py   text eol=lf
+
+# Lanceurs Windows : CRLF natif.
+*.cmd  text eol=crlf
+*.bat  text eol=crlf

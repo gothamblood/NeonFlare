@@ -618,6 +618,74 @@ function collectGrcExportData(sections) {
   }));
 }
 
+/* ------------------------------------------------------------------ *
+ *  Sauvegarde GRC complète (2026-09-29)                              *
+ *                                                                    *
+ *  L'export/import du hub ne portait QUE sur la checklist (cases +   *
+ *  commentaires), jamais sur les registres (Actifs, Risques,         *
+ *  Incidents, Fournisseurs, Vulnérabilités, Contrôles, Conformité,   *
+ *  Continuité, Indicateurs, Documents, Vie privée, Plans de          *
+ *  traitement, Revues d'accès, Pentest) ni sur les fiches / SoA /    *
+ *  chaîne / RPRP. Résultat : "j'exporte depuis le hub, je réimporte, *
+ *  mes données de registres ne reviennent pas" -- elles n'étaient    *
+ *  jamais dans le fichier. Le seul export complet vivait dans        *
+ *  Réglages > "Exporter toute la configuration".                     *
+ *                                                                    *
+ *  On lit/écrit les registres par leur CLÉ localStorage directement  *
+ *  (grcCollectDataBundle / grcIsBackupDataKey) plutôt que via les    *
+ *  getters/setters grc-assets.js & co : ces modules ne sont PAS      *
+ *  chargés sur grc/index.html. Même approche que la sauvegarde       *
+ *  "toute la configuration" des Réglages, qui restaure elle aussi    *
+ *  la checklist et les fiches par clé.                               *
+ * ------------------------------------------------------------------ */
+
+/* true si `k` est une clé de données GRC à embarquer dans une
+   sauvegarde complète -- tout ce qui vit sous /grc/ SAUF la checklist
+   (elle a son propre mécanisme scopé par section), plus le registre
+   pentest et les clés GRC rangées sous /settings.html/ (nom du
+   change-log, responsable de la protection des renseignements). Sert
+   AUSSI de liste blanche à l'import : un fichier importé ne peut donc
+   écrire que ces clés, jamais une clé localStorage arbitraire (même
+   garde que le bloc grcChecklist/grcFiches de inline/settings.js). */
+function grcIsBackupDataKey(k) {
+  if (typeof k !== "string") return false;
+  if (k.indexOf(GRC_CHECKLIST_PREFIX) === 0) return false; // géré par la checklist
+  return (
+    k.indexOf("/grc/") === 0 ||
+    k === "/pentest/engagements" ||
+    k.indexOf("/settings.html/grc") === 0 ||
+    k.indexOf("/settings.html/rprp") === 0
+  );
+}
+
+/* { "<clé>": "<JSON brut>" } pour toute clé grcIsBackupDataKey() qui a
+   une valeur. Les clés absentes/vides sont omises : à l'import une clé
+   absente = "on laisse tel quel", jamais "on efface" (même contrat que
+   l'import "toute la configuration"). */
+function grcCollectDataBundle() {
+  const bundle = {};
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (!grcIsBackupDataKey(k)) continue;
+    const v = vaultGetItem(k);
+    if (typeof v === "string") bundle[k] = v;
+  }
+  return bundle;
+}
+
+/* Charge utile d'un export JSON du hub. En mode complet (opts.full,
+   càd le hub GRC principal), on enveloppe la checklist AVEC les
+   registres dans un objet ; sinon on garde le tableau nu historique
+   (sous-hubs de sécurité, et compatibilité des anciens fichiers à la
+   relecture -- importGrcData() accepte toujours les deux formes). */
+function grcBuildExportPayload(sections, opts) {
+  const checklist = collectGrcExportData(sections);
+  if (opts && opts.full) {
+    return { grcFullBackup: 1, checklist: checklist, data: grcCollectDataBundle() };
+  }
+  return checklist;
+}
+
 /* Every domain that has ANY saved checklist state, as {url, path} --
    url is section.basePath + link (what an iframe src= or new URL(link,
    location.href) expects), path is the already-resolved absolute
@@ -694,9 +762,9 @@ function triggerDownload(blob, filename) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
-async function exportGrcAsJson(sections, filenamePrefix) {
+async function exportGrcAsJson(sections, filenamePrefix, opts) {
   if (grcVaultBlocks()) return;
-  const data = await vaultMaybeEncryptForExport(collectGrcExportData(sections));
+  const data = await vaultMaybeEncryptForExport(grcBuildExportPayload(sections, opts));
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
   triggerDownload(blob, grcExportFilename("json", filenamePrefix));
 }
@@ -721,9 +789,9 @@ function grcSanitizeFilename(name) {
      part outside of it.
    Only wired up for JSON -- that's the round-trippable format (see
    importGrcData()), the one worth actually naming/placing yourself. */
-async function saveGrcAsJson(sections, filenamePrefix) {
+async function saveGrcAsJson(sections, filenamePrefix, opts) {
   if (grcVaultBlocks()) return;
-  const data = await vaultMaybeEncryptForExport(collectGrcExportData(sections));
+  const data = await vaultMaybeEncryptForExport(grcBuildExportPayload(sections, opts));
   const json = JSON.stringify(data, null, 2);
   const defaultName = grcExportFilename("json", filenamePrefix);
 
@@ -915,7 +983,7 @@ function resetGrcData(sections, onDone) {
    if the picked file happens to contain a full site export (eg.
    importing an "everything" backup from a scoped page). Pass
    grcAllSections for a real full-site restore. */
-function importGrcData(file, sections, onDone, onError) {
+function importGrcData(file, sections, onDone, onError, opts) {
   if (typeof vaultShouldGate === "function" && vaultShouldGate()) {
     // Stop before touching anything -- resetGrcData() below would wipe
     // first and the restore writes would then throw (PlanDeTestSecurite
@@ -935,14 +1003,33 @@ function importGrcData(file, sections, onDone, onError) {
       if (onError) onError(grcT("grc.common.notValidJson"));
       return;
     }
-    let data;
+    let payload;
     try {
-      data = await vaultMaybeDecryptImport(raw);
+      payload = await vaultMaybeDecryptImport(raw);
     } catch (e) {
       if (onError) onError(e.message || grcT("grc.common.cannotDecrypt"));
       return;
     }
-    if (!Array.isArray(data)) {
+
+    // Deux formes acceptées :
+    //  - un tableau nu = ancien export checklist seule (reste lisible).
+    //  - { checklist:[...], data:{clé:JSON} } = sauvegarde GRC complète
+    //    (registres inclus), produite par le hub principal depuis
+    //    2026-09-29 (grcBuildExportPayload).
+    let data;
+    let dataBundle = null;
+    if (Array.isArray(payload)) {
+      data = payload;
+    } else if (payload && typeof payload === "object" && Array.isArray(payload.checklist)) {
+      data = payload.checklist;
+      // Les registres ne sont restaurés qu'en import PLEINE PORTÉE (le
+      // hub GRC principal passe opts.full) : un sous-hub de sécurité
+      // reste scopé à sa seule section même si le fichier contient tout,
+      // exactement comme la checklist ci-dessous (garde de portée 2026-09-08).
+      if (opts && opts.full && payload.data && typeof payload.data === "object") {
+        dataBundle = payload.data;
+      }
+    } else {
       if (onError) onError(grcT("grc.common.unexpectedFormat"));
       return;
     }
@@ -957,41 +1044,75 @@ function importGrcData(file, sections, onDone, onError) {
     });
 
     let restored = 0;
+    let restoredData = 0;
     resetGrcData(sections, () => {
-      // Two passes: merged-in domains (GRC_CHECKLIST_MOVES mergeTag) last,
-      // so the plain write of their target page can't overwrite what they added.
-      [false, true].forEach((mergePass) => data.forEach((section) => {
-        if (!section || !Array.isArray(section.domains)) return;
-        section.domains.forEach((domain) => {
-          if (!domain || !domain.path || !Array.isArray(domain.items)) return;
-          if (!domain.visited) return; // never-reviewed domains have nothing to restore
-          // Backups taken before spec/grc-restructure/ or spec/grc-hub-iso/
-          // carry the old paths (pages moved to Sécurité opérationnelle).
-          const remap = typeof grcChecklistRemapPath === "function" ? grcChecklistRemapPath(domain.path) : null;
-          if (!!(remap && remap.mergeTag) !== mergePass) return;
-          const path = remap ? remap.path : domain.path;
-          if (!allowedPaths.has(path)) return; // out of scope for this import
-          const key = grcChecklistKeyFor(path);
-          let state = {
-            items: domain.items,
-            comment: domain.comment || "",
-            commentAt: domain.commentAt || null,
-            commentBy: domain.commentBy || "",
-          };
-          if (remap && remap.mergeTag) {
-            let current = null;
-            try { current = JSON.parse(vaultGetItem(key) || "null"); } catch (e) { current = null; }
-            state = grcChecklistMergeState(current, state, remap.mergeTag);
-          }
-          vaultSetItem(key, JSON.stringify(state));
-          restored++;
+      // Registres + fiches + SoA + chaîne + RPRP d'une sauvegarde complète
+      // D'ABORD et ISOLÉMENT : c'est la donnée la plus précieuse ; elle ne doit
+      // jamais être sautée si la restauration de la checklist ou une migration
+      // lève une exception (d'où le try/catch séparé, par clé). Réécrits par
+      // clé (les modules grc-assets.js & co ne sont pas chargés sur le hub --
+      // on écrit le JSON brut, comme l'import "toute la configuration" des
+      // Réglages). resetGrcData() n'a effacé que les clés de checklist, donc
+      // une clé absente du fichier reste telle quelle plutôt que d'être vidée.
+      if (dataBundle) {
+        Object.keys(dataBundle).forEach((k) => {
+          try {
+            if (grcIsBackupDataKey(k) && typeof dataBundle[k] === "string") {
+              vaultSetItem(k, dataBundle[k]);
+              restoredData++;
+            }
+          } catch (e) { console.error("GRC import : clé de données non restaurée", k, e); }
         });
-      }));
-      // Backups taken while vie-privee.html was merged into conformite.html
-      // (2026-09-22 → 09-23): give its items back to their own page.
-      if (typeof grcChecklistMigrate === "function") grcChecklistMigrate();
-      if (onDone) onDone(restored);
+      }
+
+      // Checklist (cases + commentaires) ENSUITE, tolérante aux erreurs : un
+      // échec de remap/migration ne doit ni perdre les registres ci-dessus ni
+      // empêcher le rechargement.
+      try {
+        // Two passes: merged-in domains (GRC_CHECKLIST_MOVES mergeTag) last,
+        // so the plain write of their target page can't overwrite what they added.
+        [false, true].forEach((mergePass) => data.forEach((section) => {
+          if (!section || !Array.isArray(section.domains)) return;
+          section.domains.forEach((domain) => {
+            if (!domain || !domain.path || !Array.isArray(domain.items)) return;
+            if (!domain.visited) return; // never-reviewed domains have nothing to restore
+            // Backups taken before spec/grc-restructure/ or spec/grc-hub-iso/
+            // carry the old paths (pages moved to Sécurité opérationnelle).
+            const remap = typeof grcChecklistRemapPath === "function" ? grcChecklistRemapPath(domain.path) : null;
+            if (!!(remap && remap.mergeTag) !== mergePass) return;
+            const path = remap ? remap.path : domain.path;
+            if (!allowedPaths.has(path)) return; // out of scope for this import
+            const key = grcChecklistKeyFor(path);
+            let state = {
+              items: domain.items,
+              comment: domain.comment || "",
+              commentAt: domain.commentAt || null,
+              commentBy: domain.commentBy || "",
+            };
+            if (remap && remap.mergeTag) {
+              let current = null;
+              try { current = JSON.parse(vaultGetItem(key) || "null"); } catch (e) { current = null; }
+              state = grcChecklistMergeState(current, state, remap.mergeTag);
+            }
+            vaultSetItem(key, JSON.stringify(state));
+            restored++;
+          });
+        }));
+        // Backups taken while vie-privee.html was merged into conformite.html
+        // (2026-09-22 → 09-23): give its items back to their own page.
+        if (typeof grcChecklistMigrate === "function") grcChecklistMigrate();
+      } catch (e) { console.error("GRC import : restauration checklist partielle", e); }
     });
+
+    // resetGrcData() a exécuté son callback de façon SYNCHRONE ci-dessus (tous
+    // les vaultSetItem sont partis). Avec un coffre actif, la persistance du
+    // chiffré est ASYNCHRONE : on l'attend AVANT que onDone ne déclenche
+    // location.reload(), sinon le reload interrompt le chiffrement et les
+    // registres/fiches ne sont jamais écrits dans localStorage (bug 2026-09-29).
+    if (typeof vaultFlush === "function") {
+      try { await vaultFlush(); } catch (e) { /* on recharge quand même */ }
+    }
+    if (onDone) onDone(restored, restoredData);
   };
   reader.readAsText(file);
 }

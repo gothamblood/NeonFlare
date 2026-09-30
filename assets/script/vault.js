@@ -49,6 +49,12 @@ const VAULT_PROTECTED_PREFIX_FICHES = "/grc/fiches/";
 let vaultKey = null; // CryptoKey, non-extractable -- null while locked
 let vaultUnlocked = false;
 let vaultCache = {}; // protected localStorage key -> decrypted string value
+// Écritures chiffrées encore en vol (vaultPersistEncrypted est async) :
+// vaultFlush() les attend avant un location.reload() qui suivrait des
+// vaultSetItem() en rafale (ex. import d'une sauvegarde GRC coffre actif),
+// sinon le reload interrompt le chiffrement et la donnée n'est jamais
+// persistée dans localStorage.
+let _vaultPending = new Set();
 
 function vaultIsProtectedKey(key) {
   return VAULT_PROTECTED_EXACT_KEYS.indexOf(key) !== -1 || key.indexOf(VAULT_PROTECTED_PREFIX) === 0 ||
@@ -263,7 +269,18 @@ function vaultSetItem(key, value) {
     throw new Error("Vault is locked -- can't write " + key);
   }
   vaultCache[key] = value;
-  vaultPersistEncrypted(key, value).catch((e) => console.error("Vault: failed to persist", key, e));
+  const p = vaultPersistEncrypted(key, value)
+    .catch((e) => console.error("Vault: failed to persist", key, e))
+    .finally(() => _vaultPending.delete(p));
+  _vaultPending.add(p);
+}
+
+// Résout quand toutes les écritures chiffrées en attente ont fini d'être
+// persistées dans localStorage. À appeler avant tout location.reload() qui
+// suit une série de vaultSetItem() (import/restauration), sinon le reload
+// peut interrompre le chiffrement asynchrone et perdre la donnée.
+async function vaultFlush() {
+  await Promise.all(Array.from(_vaultPending));
 }
 
 function vaultRemoveItem(key) {

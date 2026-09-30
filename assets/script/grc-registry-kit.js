@@ -775,6 +775,25 @@ function _grkFillOptions(sel, options) {
   Array.from(sel.options).forEach((o) => { if (keep.indexOf(o.value) !== -1) o.selected = true; });
 }
 
+/* AV1 : après un « + Ajouter » (grcLinksAddNew ouvre la cible dans un nouvel
+   onglet), l'élément y est créé ; au retour sur cet onglet-ci (focus / redevenu
+   visible) on recharge les options du select — _grkFillOptions conserve la
+   sélection en cours — pour que le nouvel élément soit immédiatement choisissable.
+   Le handler se retire seul dès que le select quitte le DOM (formulaire fermé). */
+function _grkRefreshOptionsOnReturn(sel, options) {
+  const refresh = () => {
+    if (!document.body.contains(sel)) {
+      window.removeEventListener("focus", refresh);
+      document.removeEventListener("visibilitychange", refresh);
+      return;
+    }
+    if (document.hidden) return;
+    _grkFillOptions(sel, options);
+  };
+  window.addEventListener("focus", refresh);
+  document.addEventListener("visibilitychange", refresh);
+}
+
 /* Suggestions d'un champ texte (spec/grc-suggest/) : liste déroulante
    maison (combobox ARIA), le texte libre reste permis. Pas de <datalist>
    natif : il masque les autres choix dès que le champ est rempli
@@ -1011,6 +1030,17 @@ function grkRegistry(cfg) {
           hint.className = "grk-hint grk-multi-hint";
           hint.textContent = grcT("grc.common.multiHint");
           label.appendChild(hint);
+        }
+        // AV1 : bouton « + Ajouter » pour créer la cible du lien à la volée
+        // (nouvel onglet), quand le type est créable (pas l'Annexe A statique
+        // ni un constat d'audit virtuel).
+        if (f.linkTo && typeof grcLinksAddNew === "function" &&
+            typeof grcLinksOpenTarget === "function" && grcLinksOpenTarget(f.linkTo)) {
+          const addBtn = _grkBtn("grk-link-add", "+ " + grcT("grc.links.addNew"));
+          addBtn.title = grcT("grc.links.addNewTitle");
+          addBtn.addEventListener("click", () => grcLinksAddNew(f.linkTo));
+          label.appendChild(addBtn);
+          _grkRefreshOptionsOnReturn(ctl, f.options);
         }
       } else if (f.type === "dur") {
         ctl = _grkDurControl();

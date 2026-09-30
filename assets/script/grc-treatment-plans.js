@@ -316,7 +316,7 @@ function initGrcTreatmentPlansRegistry() {
       { id: "rationale", label: "grc.traitement-risques.form.rationale", type: "textarea" },
       { id: "transferTo", label: "grc.traitement-risques.form.transferTo", type: "text" },
       // Chaîne GRC (chaine.md CH2) : risques traités et contrôles.
-      { id: "riskIds", label: "grc.links.f.plan.riskIds", type: "multi",
+      { id: "riskIds", label: "grc.links.f.plan.riskIds", type: "multi", linkTo: "risk",
         options: () => (typeof grcLinksKitOptions === "function" ? grcLinksKitOptions("risk") : []) },
       ...(typeof grcLinksFormFields === "function" ? grcLinksFormFields("plan") : []),
     ],

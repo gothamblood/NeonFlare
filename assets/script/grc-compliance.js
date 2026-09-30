@@ -544,6 +544,16 @@ function initGrcComplianceRegistry() {
     confirmName: (e) => e.title || "",
   })();
 
+  // openWith() (bouton « + Ajouter » d'un champ de lien, action croisée) :
+  // basculer d'abord sur le bon sous-registre, sinon le formulaire s'ouvre
+  // dans le conteneur masqué (Audits est caché par défaut).
+  [["renderGrcObligationsList", "obligation"], ["renderGrcAuditsList", "audit"]].forEach(([g, kind]) => {
+    const r = window[g];
+    if (!r || typeof r.openWith !== "function") return;
+    const open = r.openWith;
+    r.openWith = (values) => { showKind(kind); open(values); };
+  });
+
   showKind("obligation");
 }
 

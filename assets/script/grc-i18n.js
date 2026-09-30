@@ -125,6 +125,7 @@ Object.assign(I18N_DICT, {
     en: "Importing this file will replace every currently checked box and note across the 6 GRC sections. Continue?"
   },
   "grc.hub.importRestoredCount": { fr: "{count} domaine(s) restauré(s) depuis le fichier.", en: "{count} domain(s) restored from the file." },
+  "grc.hub.importRestoredFull": { fr: "Sauvegarde restaurée : {domains} domaine(s) de checklist et {data} bloc(s) de données (registres, fiches, SoA…).", en: "Backup restored: {domains} checklist domain(s) and {data} data block(s) (registers, records, SoA…)." },
   "grc.hub.importFailed": { fr: "Import impossible : {message}", en: "Import failed: {message}" },
   "grc.hub.confirmResetSection": {
     fr: "Effacer toutes les cases cochées et toutes les notes de cette section ? Cette action est irréversible.",

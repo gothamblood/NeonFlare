@@ -55,18 +55,19 @@ function _ficheType(page, el, labelField, name, extra) {
 
 const GRC_LINK_TYPES = {
   // Registres existants
-  asset: { key: "/grc/actifs/registry", pageFile: "actifs.html", tab: "registre", label: (e) => e.name, name: _L("Actif", "Asset") },
-  risk: { key: "/grc/analyse-risques/registry", pageFile: "analyse-risques.html", tab: "registre", label: (e) => e.name, name: _L("Risque", "Risk") },
-  plan: { key: "/grc/traitement-risques/registry", pageFile: "traitement-risques.html", tab: "plans", label: (e) => e.name, name: _L("Plan de traitement", "Treatment plan") },
-  control: { key: "/grc/controles/registry", pageFile: "controles.html", tab: "registre", label: (e) => e.name, name: _L("Contrôle", "Control") },
-  incident: { key: "/grc/incidents/registry", pageFile: "incidents.html", tab: "suivi", label: (e) => e.title, name: _L("Incident", "Incident") },
-  continuity: { key: "/grc/continuity/registry", pageFile: "continuite.html", tab: "registre", label: (e) => e.service, name: _L("Plan de continuité", "Continuity plan") },
-  supplier: { key: "/grc/fournisseurs/registry", pageFile: "fournisseurs.html", tab: "registre", label: (e) => e.name, name: _L("Fournisseur", "Supplier") },
-  obligation: { key: "/grc/compliance/registry", filter: (e) => e.kind !== "audit", pageFile: "conformite.html", tab: "registre-conformite", label: (e) => (e.ref ? e.ref + " — " : "") + (e.title || ""), name: _L("Obligation", "Obligation") },
-  audit: { key: "/grc/compliance/registry", filter: (e) => e.kind === "audit", pageFile: "conformite.html", tab: "registre-conformite", label: (e) => e.title, name: _L("Audit", "Audit") },
-  processing: { key: "/grc/privacy/registry", filter: (e) => e.kind !== "dsr" && e.kind !== "breach", pageFile: "vie-privee.html", tab: "registre-vie-privee", label: (e) => e.name, name: _L("Traitement", "Processing") },
-  metric: { key: "/grc/metrics/registry", pageFile: "indicateurs.html", tab: "registre", label: (e) => e.name, name: _L("Indicateur", "Indicator") },
-  document: { key: "/grc/documents/registry", pageFile: "documentation.html", tab: "registre", label: (e) => e.title, name: _L("Document", "Document") },
+  // `list` = global exposant openWith() (bouton « + » des champs de lien, AV1).
+  asset: { key: "/grc/actifs/registry", pageFile: "actifs.html", tab: "registre", list: "renderGrcAssetList", label: (e) => e.name, name: _L("Actif", "Asset") },
+  risk: { key: "/grc/analyse-risques/registry", pageFile: "analyse-risques.html", tab: "registre", list: "renderGrcRiskRegistry", label: (e) => e.name, name: _L("Risque", "Risk") },
+  plan: { key: "/grc/traitement-risques/registry", pageFile: "traitement-risques.html", tab: "plans", list: "renderGrcTreatmentPlansList", label: (e) => e.name, name: _L("Plan de traitement", "Treatment plan") },
+  control: { key: "/grc/controles/registry", pageFile: "controles.html", tab: "registre", list: "renderGrcControlList", label: (e) => e.name, name: _L("Contrôle", "Control") },
+  incident: { key: "/grc/incidents/registry", pageFile: "incidents.html", tab: "suivi", list: "renderGrcIncidentList", label: (e) => e.title, name: _L("Incident", "Incident") },
+  continuity: { key: "/grc/continuity/registry", pageFile: "continuite.html", tab: "registre", list: "grcContinuityOpenWith", label: (e) => e.service, name: _L("Plan de continuité", "Continuity plan") },
+  supplier: { key: "/grc/fournisseurs/registry", pageFile: "fournisseurs.html", tab: "registre", list: "renderGrcSuppliersList", label: (e) => e.name, name: _L("Fournisseur", "Supplier") },
+  obligation: { key: "/grc/compliance/registry", filter: (e) => e.kind !== "audit", pageFile: "conformite.html", tab: "registre-conformite", list: "renderGrcObligationsList", label: (e) => (e.ref ? e.ref + " — " : "") + (e.title || ""), name: _L("Obligation", "Obligation") },
+  audit: { key: "/grc/compliance/registry", filter: (e) => e.kind === "audit", pageFile: "conformite.html", tab: "registre-conformite", list: "renderGrcAuditsList", label: (e) => e.title, name: _L("Audit", "Audit") },
+  processing: { key: "/grc/privacy/registry", filter: (e) => e.kind !== "dsr" && e.kind !== "breach", pageFile: "vie-privee.html", tab: "registre-vie-privee", list: "renderGrcProcessingsList", label: (e) => e.name, name: _L("Traitement", "Processing") },
+  metric: { key: "/grc/metrics/registry", pageFile: "indicateurs.html", tab: "registre", list: "renderGrcMetricsList", label: (e) => e.name, name: _L("Indicateur", "Indicator") },
+  document: { key: "/grc/documents/registry", pageFile: "documentation.html", tab: "registre", list: "renderGrcDocumentsList", label: (e) => e.title, name: _L("Document", "Document") },
   // Constat d'audit (entité virtuelle : audits[].findings[], id "auditId:findingId")
   finding: { virtual: "finding", pageFile: "conformite.html", tab: "ecarts", label: (e) => e.text || e.id, name: _L("Constat d'audit", "Audit finding") },
   // Catalogue Annexe A (statique) et décisions DDA
@@ -463,6 +464,9 @@ if (typeof I18N_DICT !== "undefined") {
   I18N_DICT["grc.links.act.lesson"] = _L("Tirer une leçon", "Draw a lesson");
   I18N_DICT["grc.links.act.createControl"] = _L("Créer un contrôle lié", "Create a linked control");
   I18N_DICT["grc.links.act.createAction"] = _L("Créer une action d’amélioration", "Create an improvement action");
+  // Bouton « + » des champs de lien (AV1) : créer l'élément cible.
+  I18N_DICT["grc.links.addNew"] = _L("Ajouter…", "Add…");
+  I18N_DICT["grc.links.addNewTitle"] = _L("Créer un nouvel élément (nouvel onglet) puis revenir ici pour le sélectionner", "Create a new item (new tab), then come back here to select it");
 }
 
 function _grcLinksSimple(from) {
@@ -474,7 +478,7 @@ function grcLinksFormFields(from, skip) {
   return _grcLinksSimple(from).filter((l) => !skip || skip.indexOf(l.path) === -1).map((l) => {
     const key = "grc.links.f." + from + "." + l.path;
     if (typeof I18N_DICT !== "undefined") I18N_DICT[key] = GRC_LINK_FIELD_LABELS[from + "." + l.path];
-    return { id: l.path, label: key, type: l.multi ? "multi" : "select", options: () => grcLinksKitOptions(l.to, !l.multi) };
+    return { id: l.path, label: key, type: l.multi ? "multi" : "select", options: () => grcLinksKitOptions(l.to, !l.multi), linkTo: l.to };
   });
 }
 
@@ -553,6 +557,44 @@ function grcLinksHref(type, id) {
   if (def.fiche || def.virtual) return base + "#fiche-" + def.tab;
   if (type === "soa") return base + "#fiche-soa";
   return base + "#" + encodeURIComponent(id);
+}
+
+/* ---------- AV1 : bouton « + Ajouter » des champs de lien ------------
+   Un champ multi/select de lien liste les éléments d'un autre registre /
+   fiche. S'il est vide, il fallait quitter le formulaire pour aller créer
+   la cible ailleurs. Le bouton « + » ouvre directement la page cible dans
+   un NOUVEL onglet, son formulaire d'ajout déjà ouvert ; au retour sur cet
+   onglet-ci, les options du champ sont rechargées (grc-registry-kit.js). */
+
+// Cible d'ouverture d'un type, ou null s'il n'est pas créable (catalogue
+// Annexe A statique, constat d'audit virtuel). `list` = global exposant
+// openWith() : renderGrc*List d'un registre, ou renderGrcFiche_* d'un
+// élément de fiche (grcFicheListGlobal, résolu à l'exécution).
+function grcLinksOpenTarget(type) {
+  const def = _grcLinksResolveType(type);
+  if (!def || def.virtual) return null;
+  const page = _grcLinksTypePage(type);
+  const list = def.fiche
+    ? (typeof grcFicheListGlobal === "function" ? grcFicheListGlobal(def.page, def.el) : null)
+    : def.list;
+  if (!page || !def.tab || !list) return null;
+  return { page: page, tab: def.tab, list: list, file: def.file || def.pageFile };
+}
+
+// Ouvre le formulaire d'ajout du type `type` dans un nouvel onglet.
+// L'intention passe par l'URL (?grcnew=<listGlobal> + #fiche-<tab>) et non
+// par localStorage : une nouvelle URL emporte toujours ses paramètres vers
+// l'onglet ouvert par window.open, alors que le partage de localStorage
+// entre onglets simultanés n'est pas garanti sous file://. Lu au chargement
+// par _grcFicheConsumePending() (grc-fiches.js), qui ouvre alors le
+// formulaire dès que son global openWith() est prêt.
+function grcLinksAddNew(type) {
+  const tgt = grcLinksOpenTarget(type);
+  if (!tgt) return false;
+  const base = (typeof grcLinksBase === "function" ? grcLinksBase() : "");
+  const url = base + tgt.file + "?grcnew=" + encodeURIComponent(tgt.list) + "#fiche-" + tgt.tab;
+  window.open(url, "_blank");
+  return true;
 }
 
 /* ---------- M2 : bloc « Dépend de / Utilisé par » ------------------- */

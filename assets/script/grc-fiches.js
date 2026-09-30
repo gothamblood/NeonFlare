@@ -434,6 +434,8 @@ function _grcFicheMountElement(page, el, host, onChange) {
         type = "multi";
       }
       const spec = { id: f.id, label: k + ".f." + f.id, type: type, required: !!f.required, options: options };
+      // Type cible d'un lien (ref/refs) : active le bouton « + » du kit (AV1).
+      if (f.linkTo && (f.type === "ref" || f.type === "refs")) spec.linkTo = f.linkTo;
       if (f._sgVocab || (f._sgFrom && f._sgFrom.length)) spec.suggest = () => grcFicheSuggestions(f);
       const ph = _grcFichePlaceholder(el, f);
       if (ph) spec.placeholder = ph;
@@ -563,18 +565,53 @@ function grcFicheCrossOpen(target, values) {
   location.href = (typeof grcLinksBase === "function" ? grcLinksBase() : "") + file + "#fiche-" + target.tab;
 }
 
+// Ouvre le formulaire d'ajout d'un registre / élément dès que son global
+// openWith() est prêt (l'init de la page cible peut se produire après nous) :
+// jusqu'à ~2 s de tentatives espacées, puis abandon silencieux. Nettoie
+// ensuite le paramètre ?grcnew de l'URL pour ne pas rerouvrir au refresh.
+function _grcOpenAddFormWhenReady(listGlobal, tab, tries) {
+  const fn = window[listGlobal];
+  if (fn && typeof fn.openWith === "function") {
+    if (tab && typeof grcFichesShow === "function") grcFichesShow(tab);
+    // show() reconstruit le corps de l'onglet (nouveau formulaire, nouveau
+    // global) : relire window[listGlobal] APRÈS, sinon openWith() s'applique
+    // au formulaire détaché de l'ancien rendu et rien ne s'affiche.
+    const cur = window[listGlobal];
+    (cur && typeof cur.openWith === "function" ? cur : fn).openWith({});
+    try { history.replaceState(null, "", location.pathname + (tab ? "#fiche-" + tab : "")); } catch (e) { /* ignore */ }
+    return;
+  }
+  if ((tries || 0) < 20) {
+    setTimeout(() => _grcOpenAddFormWhenReady(listGlobal, tab, (tries || 0) + 1), 100);
+  }
+}
+
 function _grcFicheConsumePending(page) {
   let p = null;
   try {
     p = JSON.parse(sessionStorage.getItem(_GRC_FICHE_PENDING) || "null");
     if (p && p.page === page) sessionStorage.removeItem(_GRC_FICHE_PENDING);
   } catch (e) { p = null; }
-  if (!p || p.page !== page) return;
-  setTimeout(() => {
-    if (grcFichesShow) grcFichesShow(p.tab);
-    const fn = window[p.list];
-    if (fn && fn.openWith) fn.openWith(p.values || {});
-  }, 0);
+  if (p && p.page === page) {
+    setTimeout(() => {
+      if (grcFichesShow) grcFichesShow(p.tab);
+      const fn = window[p.list];
+      if (fn && fn.openWith) fn.openWith(p.values || {});
+    }, 0);
+    return;
+  }
+  // Canal « nouvel onglet » via URL (?grcnew=<listGlobal>) : bouton « + » des
+  // champs de lien (grcLinksAddNew, grc-links.js). Robuste cross-onglet sous
+  // file:// (une nouvelle URL emporte toujours ses paramètres). Le hash
+  // #fiche-<tab> a déjà sélectionné le bon onglet ; on ouvre son formulaire
+  // d'ajout, vide, dès que le registre correspondant est initialisé.
+  try {
+    const gnew = new URLSearchParams(location.search || "").get("grcnew");
+    if (gnew) {
+      const tab = (location.hash || "").replace(/^#fiche-/, "");
+      _grcOpenAddFormWhenReady(gnew, tab, 0);
+    }
+  } catch (e) { /* URL illisible : on ignore */ }
 }
 
 /* ---------- statut du document (U7) -------------------------------- */
