@@ -379,6 +379,14 @@ body {
   animation: node-blink 1s ease-in-out infinite;
 }
 
+/* Surveillance désactivée (log !== true, réglage par défaut) : nœud affiché
+   mais jamais vérifié, aucune requête envoyée. Point gris sombre, sans halo
+   ni animation, pour le distinguer du « soon » et des états online/offline. */
+.node-status.idle {
+  background: #3a4149;
+  box-shadow: none;
+}
+
 @keyframes node-pulse {
   0%, 100% { box-shadow: 0 0 8px #2ecc71, 0 0 16px #2ecc71; }
   50% { box-shadow: 0 0 4px #2ecc71, 0 0 8px #2ecc71; }

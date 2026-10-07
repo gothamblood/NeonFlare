@@ -888,6 +888,11 @@
           <span data-i18n="settings.cfgNetwork.fieldEnabled">Actif</span>
           <label class="toggle-switch"><input type="checkbox" id="netcfgEnabled" checked><span class="slider"></span></label>
         </label>
+        <label class="netcfg-enabled-row">
+          <span data-i18n="settings.cfgNetwork.fieldLog">Surveiller (ping)</span>
+          <label class="toggle-switch"><input type="checkbox" id="netcfgLog"><span class="slider"></span></label>
+        </label>
+        <p class="netcfg-field-hint" data-i18n="settings.cfgNetwork.fieldLogHint">Désactivé par défaut : tant que c'est éteint, le nœud est affiché mais jamais contacté (aucune requête, aucune IP envoyée). Active pour vérifier sa disponibilité et le compter dans NODES ONLINE.</p>
         <div class="netcfg-form-actions">
           <button type="submit" class="dash-btn" data-i18n="grc.common.btnSave">Enregistrer</button>
           <button type="button" class="dash-btn" id="netcfgCancelBtn" data-i18n="grc.common.btnCancel">Annuler</button>
@@ -914,6 +919,8 @@
       card.querySelector("#netcfgCategory").value = node ? (node.category || "") : "";
       card.querySelector("#netcfgUrl").value = node ? (node.url || "") : "";
       card.querySelector("#netcfgEnabled").checked = node ? node.enabled !== false : true;
+      // Surveillance opt-in (Loi 25) : décoché par défaut pour un nouveau nœud.
+      card.querySelector("#netcfgLog").checked = node ? node.log === true : false;
       const preview = card.querySelector("#netcfgIconPreview");
       if (pendingIcon) { preview.src = pendingIcon; preview.style.display = ""; }
       else preview.style.display = "none";
@@ -953,6 +960,7 @@
         category: card.querySelector("#netcfgCategory").value.trim() || "Autres",
         url: card.querySelector("#netcfgUrl").value.trim(),
         enabled: card.querySelector("#netcfgEnabled").checked,
+        log: card.querySelector("#netcfgLog").checked,
       };
       if (pendingIcon) data.img = pendingIcon;
       if (editingId) updateNetworkNode(editingId, data);

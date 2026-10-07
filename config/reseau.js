@@ -6,6 +6,7 @@ const reseauConfig = {
   "background": "../assets/images/kali_xl_sharp.png",
   "cards": [
     {
+      "log": false,
       "id": "seed-neonflare",
       "url": "https://neonflare.ca/",
       "img": "../assets/images/dragon4_logo.png",
@@ -14,6 +15,7 @@ const reseauConfig = {
       "category": "NeonFlare"
     },
     {
+      "log": false,
       "id": "seed-github",
       "url": "https://github.com/gothamblood",
       "img": "../assets/images/icon-github.svg",
@@ -22,6 +24,7 @@ const reseauConfig = {
       "category": "NeonFlare"
     },
     {
+      "log": false,
       // Pas encore en ligne : affiché « coming soon », ni vérifié ni compté
       // (network-dashboard.js isSoonNode). Retirer "soon" à la mise en ligne.
       "id": "seed-gothamtech",

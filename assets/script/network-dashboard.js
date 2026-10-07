@@ -45,13 +45,24 @@ function isSoonNode(entry) {
   return !!(entry && entry.soon);
 }
 
+/* `log` : surveillance réseau (reachability check) de ce nœud. OPT-IN —
+   confidentialité maximale PAR DÉFAUT (Loi 25 art. 9.1). Tant que
+   l'utilisateur n'a pas mis `log: true`, le nœud est affiché mais JAMAIS
+   vérifié : aucune requête n'est envoyée, donc aucune IP/heure/navigateur
+   transmis à un tiers (neonflare.ca, github.com, etc.). Les seeds par
+   défaut (config/reseau.js) sont tous à `log: false`. Un nœud « soon » ou
+   non surveillé n'est ni vérifié ni compté dans le HUD (NODES ONLINE). */
+function isCheckNode(entry) {
+  return !!(entry && entry.log === true && !isSoonNode(entry));
+}
+
 function buildNodeCard(entry) {
   const card = document.createElement("div");
   card.className = "card node-card" + (isSoonNode(entry) ? " node-soon" : "");
   if (!isSoonNode(entry)) card.onclick = () => window.open(entry.url, "_blank", "noopener");
 
   const status = document.createElement("div");
-  status.className = "node-status " + (isSoonNode(entry) ? "soon" : "checking");
+  status.className = "node-status " + (isSoonNode(entry) ? "soon" : (isCheckNode(entry) ? "checking" : "idle"));
   card.appendChild(status);
 
   const img = document.createElement("img");
@@ -71,7 +82,7 @@ function buildNodeCard(entry) {
 
   const latency = document.createElement("div");
   latency.className = "node-latency";
-  latency.textContent = isSoonNode(entry) ? "coming soon" : "checking...";
+  latency.textContent = isSoonNode(entry) ? "coming soon" : (isCheckNode(entry) ? "checking..." : "surveillance off");
   card.appendChild(latency);
 
   card._status = status;
@@ -113,9 +124,9 @@ function startClock(clockSelector) {
 }
 
 function runNetworkChecks(entries, cards, gaugeSelector, logSelector, statusMap) {
-  const total = entries.filter((e) => !isSoonNode(e)).length;
+  const total = entries.filter(isCheckNode).length;
   entries.forEach((entry, i) => {
-    if (isSoonNode(entry)) return;
+    if (!isCheckNode(entry)) return;
     checkReachable(entry.url).then((result) => {
       statusMap[entry.url] = result;
       const card = cards[i];
@@ -178,7 +189,7 @@ function initNetworkDashboard(config, opts) {
     grid.appendChild(section);
   });
 
-  const checked = orderedEntries.filter((e) => !isSoonNode(e)).length;
+  const checked = orderedEntries.filter(isCheckNode).length;
   const countEl = document.querySelector(".status-group .hud-status-count");
   if (countEl) countEl.textContent = "0 / " + checked + " NODES ONLINE";
   updateGauge(opts.gaugeSelector, 0, checked);

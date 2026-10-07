@@ -161,6 +161,10 @@ function exportNetworkConfigAsJs() {
     card.sub = n.sub || "";
     card.category = n.category || "Autres";
     if (n.enabled === false) card.enabled = false;
+    // Surveillance opt-in (Loi 25) : par défaut log=false. On n'écrit log
+    // que lorsqu'il est explicitement activé, pour que l'export reste
+    // confidentiel-par-défaut comme les seeds.
+    card.log = n.log === true;
     return card;
   });
   const js = "const reseauConfig = " + JSON.stringify({ background: reseauConfig.background, cards: nodes }, null, 2) + ";\n";

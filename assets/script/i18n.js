@@ -230,6 +230,11 @@ const I18N_DICT = {
   "settings.cfgNetwork.formTitleEdit": { fr: "Modifier le nœud", en: "Edit node" },
   "settings.cfgNetwork.fieldCategory": { fr: "Catégorie", en: "Category" },
   "settings.cfgNetwork.fieldEnabled": { fr: "Actif", en: "Enabled" },
+  "settings.cfgNetwork.fieldLog": { fr: "Surveiller (ping)", en: "Monitor (ping)" },
+  "settings.cfgNetwork.fieldLogHint": {
+    fr: "Désactivé par défaut : tant que c'est éteint, le nœud est affiché mais jamais contacté (aucune requête, aucune IP envoyée). Active pour vérifier sa disponibilité et le compter dans NODES ONLINE.",
+    en: "Off by default: while off, the node is shown but never contacted (no request, no IP sent). Turn on to check its reachability and count it in NODES ONLINE."
+  },
   "settings.cfgNetwork.inactiveSuffix": { fr: " (inactif)", en: " (inactive)" },
   "settings.cfgNetwork.resetConfirm": {
     fr: "Rétablir la liste de nœuds Network par défaut ? Tes personnalisations seront perdues.",

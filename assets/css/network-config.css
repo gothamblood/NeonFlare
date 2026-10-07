@@ -13,6 +13,15 @@
   margin-bottom: 1rem;
 }
 
+/* Petite note sous un champ du formulaire (ex. l'option « Surveiller » :
+   opt-in, confidentialité par défaut). Plus discrète que .netcfg-desc. */
+.netcfg-field-hint {
+  font-size: 0.72rem;
+  color: #8a93ab;
+  line-height: 1.45;
+  margin: -0.2rem 0 0.6rem;
+}
+
 /* .dash-btn (dashboard-panels.css) themed pill button, but block-level
    and full-width -- for action buttons that read as a stacked list
    item (Renommer, Supprimer, + Ajouter...) rather than an inline
