@@ -52,9 +52,11 @@ if [ -z "${XDG_RUNTIME_DIR:-}" ] || [ ! -d "$XDG_RUNTIME_DIR" ] || [ ! -w "$XDG_
   export XDG_RUNTIME_DIR="$fallback"
 fi
 
-# 4) Dépendances + conseils (start seulement : stop/status doivent marcher
-#    même si une dépendance a disparu entre-temps).
-if [ "${1:-}" = "start" ]; then
+CMD="${1:-}"
+
+# 4) Dépendances + conseils (start / run seulement : stop/status doivent
+#    marcher même si une dépendance a disparu entre-temps).
+if [ "$CMD" = "start" ] || [ "$CMD" = "run" ]; then
   missing=()
   for bin in ttyd tmux python3; do
     command -v "$bin" >/dev/null 2>&1 || missing+=("$bin")
@@ -74,15 +76,67 @@ if [ "${1:-}" = "start" ]; then
   case "$REPO_ROOT" in
     /mnt/[a-z]/*) warn "dépôt sur un disque Windows ($REPO_ROOT) : fonctionne, mais plus lent qu'un clone sous ~." ;;
   esac
+  # Réseau : le forwarding localhost de WSL2 (NAT, défaut) relaie bien
+  # 127.0.0.1:768x vers la VM -- à condition que les shells restent vivants,
+  # d'où le mode « run » ci-dessous. Si (et seulement si) le navigateur
+  # Windows n'atteint toujours pas les ports alors que `run` tourne, le mode
+  # réseau « mirrored » (%USERPROFILE%\.wslconfig : [wsl2] / networkingMode=
+  # mirrored, puis `wsl --shutdown`) est l'alternative -- mais il peut
+  # échouer à s'initialiser (ConfigureNetworking 0x8007054f) selon la
+  # machine, donc on ne l'impose pas.
 fi
 
-"$MAIN" "$@"
-
-if [ "${1:-}" = "start" ]; then
-  win_path=""
+# URL à ouvrir côté Windows (après un start, ou au lancement d'un run).
+print_open_hint() {
+  local win_path=""
   command -v wslpath >/dev/null 2>&1 && win_path="$(wslpath -w "$REPO_ROOT" 2>/dev/null || true)"
   warn "ouvre le site depuis Windows :
       Chrome / Edge : ${win_path:-$REPO_ROOT}\\index.html
       Firefox       : dans WSL, à la racine du dépôt : python3 -m http.server 8000 --bind 127.0.0.1
                       puis http://127.0.0.1:8000"
+}
+
+# 5) Mode « run » (bloquant) -- indispensable sous WSL. Un `wsl.exe -e ...`
+#    qui lance les shells puis REVIENT voit WSL réclamer tous les process de
+#    sa session (ttyd, proxy) dès qu'elle se termine -- même détachés par
+#    setsid/nohup, même si la distro reste en vie pour une autre session.
+#    Les shells ne tiennent que tant que LEUR session reste attachée. `run`
+#    garde donc la session ouverte : il démarre, affiche l'URL, puis bloque
+#    jusqu'à Ctrl+C ou la fermeture de la fenêtre ; à la sortie (INT/TERM/HUP)
+#    il arrête les shells et révoque le jeton. C'est ce que lance le .cmd.
+if [ "$CMD" = "run" ]; then
+  "$MAIN" start ${2:+"$2"}
+  print_open_hint
+  stopped=""
+  cleanup() {
+    [ -n "$stopped" ] && return 0
+    stopped=1
+    trap - INT TERM HUP EXIT
+    warn "arrêt des shells et révocation du jeton..."
+    "$MAIN" stop || true
+  }
+  trap cleanup INT TERM HUP EXIT
+  warn "shells actifs. Laisse cette session ouverte ; Ctrl+C (ou ferme la fenêtre) pour ARRÊTER."
+  # On bloque sur le PROCESS du proxy, pas sur les ports TCP : ttyd n'écoute
+  # que sur des sockets UNIX privées ; ce sont les ports 127.0.0.1:768x qui
+  # apparaissent une fois que shell-proxy.py les a liés, et il démarre en
+  # dernier -- surveiller ss ferait sortir la boucle avant qu'ils soient là.
+  # On attend donc d'abord que le proxy soit visible, puis on boucle tant
+  # qu'il tourne. Un arrêt manuel (ttyd-shells.sh stop ailleurs) ou sur
+  # inactivité (idle-timeout) tue le proxy et termine la boucle ; un signal
+  # interrompt le sleep et déclenche cleanup.
+  for _ in $(seq 1 20); do
+    pgrep -f 'shell-proxy\.py' >/dev/null 2>&1 && break
+    sleep 0.5
+  done
+  while pgrep -f 'shell-proxy\.py' >/dev/null 2>&1; do
+    sleep 3
+  done
+  warn "proxy arrêté (stop ou inactivité) -- fin."
+  exit 0
 fi
+
+# start / status / stop : délégués tels quels au script principal.
+"$MAIN" "$@"
+[ "$CMD" = "start" ] && print_open_hint
+exit 0

@@ -170,11 +170,15 @@ sudo apt update && sudo apt install -y ttyd tmux python3   # inside Kali
 scripts/wsl/ttyd-shells.sh start|status|stop                # from the repo root
 ```
 
-Or double-click `scripts\wsl\start-shells.cmd` from Windows: it starts the
-shells and stops them when you press a key. Open the site from Windows
-(`index.html` in Chrome/Edge, or over http for Firefox — see above).
-`.gitattributes` keeps `*.sh` in LF even on a Windows clone; a clone made
-before it existed is detected and the fix is printed.
+Or double-click `scripts\wsl\start-shells.cmd` from Windows: it runs the
+blocking `run` mode, so **keep that window open** while you use the shells —
+it holds the WSL session attached (otherwise WSL stops ttyd and the proxy).
+Stop with Ctrl+C in that window, or double-click `scripts\wsl\stop-shells.cmd`.
+Open the site from Windows (`index.html` in Chrome/Edge, or over http for
+Firefox — see above). The default WSL2 networking mode (NAT) is enough — the
+Windows browser reaches `127.0.0.1:768x` with no `.wslconfig` (mirrored mode is
+a last resort only). `.gitattributes` keeps `*.sh` in LF even on a Windows
+clone; a clone made before it existed is detected and the fix is printed.
 
 ---
 
@@ -213,7 +217,7 @@ assets/
   css/  script/  images/
   cheatsheet/           extra reference docs linked from tool pages
 scripts/                ttyd-shells.sh (ttyd/tmux shell backend) + shell-proxy.py (token gate)
-                        wsl/ = Windows front-end (ttyd-shells.sh preflight + start-shells.cmd)
+                        wsl/ = Windows front-end (ttyd-shells.sh preflight + start-shells.cmd / stop-shells.cmd)
 Dockerfile  nginx.conf  web.config  Jenkinsfile   deployment
 ```
 

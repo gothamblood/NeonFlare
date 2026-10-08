@@ -184,12 +184,18 @@
     }
 
     .page-frame {
-      width: 100%;
+      /* Gouttière gauche pour que le contenu (panneaux du dashboard, pages
+         GRC...) ne colle pas au bord ni à la tagline verticale (.sidebar-edge,
+         visible à ~20px du bord quand la sidebar est fermée). On décale de
+         48px ET on réduit la largeur d'autant (calc) pour NE PAS rogner le
+         contenu à droite -- body a overflow:hidden, un simple left: rognait
+         la partie droite de l'iframe. */
+      width: calc(100% - 48px);
       height: 100%;
       border: none;
       background: transparent;
       position: relative;
-      left: 30px;
+      left: 48px;
     }
 
     .signature-footer {
