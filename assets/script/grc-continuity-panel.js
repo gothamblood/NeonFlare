@@ -21,6 +21,10 @@
 const GRC_CONT_TABS = [
   { key: "synthese", i18n: "grc.continuite.pca.tab.synthese" },
   { key: "bia", i18n: "grc.continuite.pca.tab.bia" },
+  // Contenu de référence PARTAGÉ PAR TYPE (spec/grc-continuity-plans-register/
+  // A1) : fiche (doc par élément) + checklist « Contenu à inclure ».
+  { key: "fiche", i18n: "grc.continuite.pca.tab.fiche" },
+  { key: "checklist", i18n: "grc.continuite.pca.tab.checklist" },
   { key: "dependances", i18n: "grc.continuite.pca.tab.dependances" },
   { key: "redondance", i18n: "grc.continuite.pca.tab.redondance" },
   { key: "pra", i18n: "grc.continuite.pca.tab.pra" },
@@ -114,6 +118,8 @@ function _contSyncTabs(panel, planId) {
 
   if (active === "synthese") _contRenderSynthese(content, ensured);
   else if (active === "bia") _contRenderBiaTime(content, ensured);
+  else if (active === "fiche") _contRenderFiche(content, ensured);
+  else if (active === "checklist") _contRenderChecklist(content, ensured);
   else if (active === "dependances") _contRenderDependencies(content, ensured);
   else if (active === "redondance") _contRenderRedundancy(content, ensured);
   else if (active === "pra") _contRenderDrp(content, ensured);
@@ -124,6 +130,43 @@ function _contSyncTabs(panel, planId) {
 function _contRefresh(node) {
   const panel = node.closest(".grc-cont-panel");
   if (panel) _contSyncTabs(panel, panel.dataset.planId);
+}
+
+/* ---------- onglets Fiche + Checklist (contenu PARTAGÉ PAR TYPE) ----
+   spec/grc-continuity-plans-register/ A1. Le contenu dépend du TYPE du plan,
+   pas de l'instance : deux plans du même type voient (et éditent) la même
+   fiche et la même checklist de référence. */
+
+function _contTypeNeededHint(root) {
+  const p = document.createElement("p");
+  p.className = "grc-ir-hint";
+  p.textContent = grcT("grc.continuite.checklist.needType");
+  root.appendChild(p);
+}
+
+function _contRenderFiche(root, plan) {
+  const meta = typeof grcContTypeMeta === "function" ? grcContTypeMeta(plan.type) : null;
+  if (!meta || !meta.fiche) { _contTypeNeededHint(root); return; }
+  if (typeof grcFichesRenderEmbedded !== "function") {
+    const p = document.createElement("p");
+    p.className = "grc-ir-hint";
+    p.textContent = grcT("grc.continuite.fiche.none");
+    root.appendChild(p);
+    return;
+  }
+  grcFichesRenderEmbedded(root, meta.fiche);
+}
+
+function _contRenderChecklist(root, plan) {
+  if (!plan.type) { _contTypeNeededHint(root); return; }
+  if (typeof grcContRenderTypeChecklist !== "function") {
+    const p = document.createElement("p");
+    p.className = "grc-ir-hint";
+    p.textContent = grcT("grc.continuite.checklist.none");
+    root.appendChild(p);
+    return;
+  }
+  grcContRenderTypeChecklist(root, plan.type);
 }
 
 /* ---------- onglet Synthèse / BIA -------------------------------- */
@@ -209,7 +252,7 @@ function _contRenderSynthese(root, plan) {
     const warn = document.createElement("p");
     warn.className = "grc-cont-warn grc-cont-coherence";
     warn.dataset.rule = c;
-    warn.textContent = grcT("grc.continuite.pca.warn." + c.replace(">", "Gt"));
+    warn.textContent = grcT(grcContCoherenceKey(c));
     biaSec.appendChild(warn);
   });
 
@@ -227,7 +270,10 @@ function _contRenderSynthese(root, plan) {
 
   root.appendChild(biaSec);
 
-  // 2 bis. Gestion de crise : SPOC + cellule de crise décisionnelle (CCD).
+  // 2 bis. BIA lié (registre BIA par processus, spec/grc-bia-register/ BP4).
+  _contRenderLinkedBia(root, plan);
+
+  // 2 ter. Gestion de crise : SPOC + cellule de crise décisionnelle (CCD).
   _contRenderCrisis(root, plan);
 
   // 3. Revue.
@@ -278,13 +324,14 @@ function _contRenderSynthese(root, plan) {
 
   // 4. Compteurs.
   const testedRed = plan.redundancy.filter((r) => r.tested).length;
-  const passTests = plan.tests.filter((t) => t.result === "pass").length;
+  const planReports = typeof grcContReports === "function" ? grcContReports(plan.id) : [];
+  const passTests = planReports.filter((r) => r.resultat === "reussi").length;
   const counters = [
     grcT("grc.continuite.pca.counters.deps").replace("{n}", plan.dependencies.length),
     grcT("grc.continuite.pca.summary.spof").replace("{n}", grcContSpofCount(plan)),
     grcT("grc.continuite.pca.counters.redundancy").replace("{n}", plan.redundancy.length).replace("{t}", testedRed),
     grcT("grc.continuite.pca.counters.steps").replace("{n}", plan.drp.length),
-    grcT("grc.continuite.pca.counters.tests").replace("{n}", plan.tests.length).replace("{p}", passTests),
+    grcT("grc.continuite.pca.counters.tests").replace("{n}", planReports.length).replace("{p}", passTests),
   ];
   const cSec = document.createElement("section");
   cSec.className = "grc-ir-sec";
@@ -301,6 +348,85 @@ function _contRenderSynthese(root, plan) {
   });
   cSec.appendChild(chips);
   root.appendChild(cSec);
+}
+
+/* BIA lié (spec/grc-bia-register/ C2) : objectifs du processus analysé,
+   écart si le plan vise un RTO / RPO plus long que le BIA, et reprise en un
+   clic des objectifs du BIA (DMIA, MAO, RTO, RPO, MBCO) dans le plan. */
+function _contRenderLinkedBia(root, plan) {
+  const sec = document.createElement("section");
+  sec.className = "grc-ir-sec grc-cont-linked-bia";
+  const h = document.createElement("h4");
+  h.textContent = grcT("grc.links.f.continuity.biaId");
+  sec.appendChild(h);
+  root.appendChild(sec);
+
+  const hint = (text) => {
+    const p = document.createElement("p");
+    p.className = "grc-ir-hint";
+    p.textContent = text;
+    sec.appendChild(p);
+  };
+  if (!plan.biaId) { hint(grcT("grc.continuite.pca.linkedBia.none")); return; }
+  const raw = typeof grcContLinkedBia === "function" ? grcContLinkedBia(plan) : null;
+  if (!raw) { hint(grcT("grc.fiche.ui.refMissing")); return; }
+  const b = typeof grcBiaEnsureShape === "function" ? grcBiaEnsureShape(raw) : raw;
+
+  const line = document.createElement("p");
+  const a = document.createElement("a");
+  a.className = "grc-cont-linked-bia-link";
+  a.textContent = b.label || b.id;
+  a.href = typeof grcLinksHref === "function" ? grcLinksHref("bia", raw.id) : "#" + encodeURIComponent(raw.id);
+  line.appendChild(a);
+  const crit = grcContCriticalityBadge(b.criticality);
+  const badge = document.createElement("span");
+  badge.className = "grc-cont-crit " + crit.cls;
+  badge.textContent = crit.text;
+  line.appendChild(document.createTextNode(" "));
+  line.appendChild(badge);
+  sec.appendChild(line);
+
+  const chips = document.createElement("div");
+  chips.className = "grc-ir-chips";
+  [["mtdMin", "mtd"], ["maoMin", "mao"], ["rtoMin", "rto"], ["rpoMin", "rpo"]].forEach(([k, l]) => {
+    const c = document.createElement("span");
+    c.className = "grc-ir-chip";
+    c.textContent = grcT("grc.continuite.pca.linkedBia." + l).replace("{d}", contFmtDuration(b.bia[k]));
+    chips.appendChild(c);
+  });
+  sec.appendChild(chips);
+
+  // Le plan doit tenir les objectifs du processus : RTO / RPO du plan ≤ BIA.
+  const gt = (x, y) => x != null && y != null && x > y;
+  [["rtoMin", "rtoGtBia"], ["rpoMin", "rpoGtBia"]].forEach(([k, key]) => {
+    if (!gt(plan.bia[k], b.bia[k])) return;
+    const w = document.createElement("p");
+    w.className = "grc-cont-warn grc-cont-bia-gap";
+    w.dataset.rule = key;
+    w.textContent = grcT("grc.continuite.pca.linkedBia." + key);
+    sec.appendChild(w);
+  });
+
+  const objectives = ["mtdMin", "maoMin", "rtoMin", "rpoMin", "mbco", "mbcoPct"];
+  const differs = objectives.some((k) => (b.bia[k] == null ? "" : b.bia[k]) !== (plan.bia[k] == null ? "" : plan.bia[k]));
+  if (differs) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "grc-registry-io-btn grc-cont-bia-pull";
+    btn.textContent = grcT("grc.continuite.pca.linkedBia.pull");
+    btn.addEventListener("click", () => {
+      const patch = {};
+      objectives.forEach((k) => { patch[k] = b.bia[k]; });
+      if (patch.mbco == null) patch.mbco = "";
+      grcContSetBia(plan.id, patch);
+      if (typeof grcChainChanged === "function") {
+        const saved = getGrcContinuity().find((p) => p.id === plan.id);
+        if (saved) grcChainChanged(GRC_CONTINUITY_KEY, saved);
+      }
+      if (typeof renderGrcContinuityList === "function") renderGrcContinuityList(); else _contRefresh(btn);
+    });
+    sec.appendChild(btn);
+  }
 }
 
 /* Gestion de crise (spec/grc-restructure/ Q4) : SPOC du plan + membres
@@ -327,6 +453,16 @@ function _contRenderCrisis(root, plan) {
   lh.className = "grc-ir-hint";
   lh.textContent = grcT("grc.continuite.pca.crisis.ccd");
   sec.appendChild(lh);
+  // Pas un doublon de Gouvernance : la CCD de l'ORGANISATION (mandat,
+  // membres permanents) y est définie ; ici, qui est mobilisé pour CE plan.
+  const org = document.createElement("p");
+  org.className = "grc-ir-hint grc-cont-ccd-org";
+  const a = document.createElement("a");
+  a.href = "gouvernance.html#fiche-comite-crise";
+  a.textContent = grcT("grc.continuite.pca.crisis.ccdOrgLink");
+  org.appendChild(document.createTextNode(grcT("grc.continuite.pca.crisis.ccdOrg") + " "));
+  org.appendChild(a);
+  sec.appendChild(org);
   sec.appendChild(list);
   plan.ccd.forEach((m) => {
     const row = document.createElement("div");
@@ -448,7 +584,7 @@ function _contRenderDependencies(root, plan) {
 
     const note = document.createElement("input");
     note.type = "text";
-    note.placeholder = grcT("grc.continuite.pca.inv.note");
+    note.placeholder = grcT("grc.continuite.pca.inv.reason");
     note.value = d.note || "";
     note.addEventListener("change", () => grcContUpdateDependency(id, d.id, { note: note.value.trim() }));
     row.appendChild(note);
@@ -478,7 +614,7 @@ function _contRenderDependencies(root, plan) {
   if (listId) ref.setAttribute("list", listId);
   const note = document.createElement("input");
   note.type = "text";
-  note.placeholder = grcT("grc.continuite.pca.inv.note");
+  note.placeholder = grcT("grc.continuite.pca.inv.reason");
   const spofLbl = document.createElement("label");
   spofLbl.className = "grc-sup-check";
   spofLbl.title = grcT("grc.continuite.pca.spofHint");
@@ -584,7 +720,7 @@ function _contRenderBiaTime(root, plan) {
       const tr = tbody.querySelector('tr[data-row="' + i + '"]');
       const v = { id: r.id || "", horizonMin: r.horizonMin, note: tr.querySelector('[data-kind="note"]').value.trim() };
       GRC_CONT_IMPACT_KINDS.forEach((k) => { v[k] = Number(tr.querySelector('[data-kind="' + k + '"]').value) || 0; });
-      v.level = Math.max(v.financier, v.operationnel, v.reputation, v.legal);
+      v.level = Math.max.apply(null, GRC_CONT_IMPACT_KINDS.map((k) => v[k]));
       return v;
     });
     grcContSetTimeline(id, out);
@@ -653,6 +789,16 @@ function _contRenderBiaTime(root, plan) {
   };
   kind.addEventListener("change", fillTgt);
   fillTgt();
+  // « + Ajouter » : crée le rôle / l'actif / le fournisseur choisi dans un
+  // nouvel onglet ; la liste est rechargée au retour (grcLinksAddButton).
+  const tgtType = () => (kind.value === "role" ? "role" : kind.value === "asset" ? "asset" : kind.value === "supplier" ? "supplier" : null);
+  const tgtAdd = typeof grcLinksAddButton === "function"
+    ? grcLinksAddButton(tgtType, tgt, (v) => { fillTgt(); tgt.value = v; }) : null;
+  if (tgtAdd) {
+    const syncAdd = () => { tgtAdd.hidden = !tgtType(); };
+    kind.addEventListener("change", syncAdd);
+    syncAdd();
+  }
   const lbl = document.createElement("input");
   lbl.type = "text";
   lbl.placeholder = grcT("grc.continuite.pca.biat.label");
@@ -664,7 +810,7 @@ function _contRenderBiaTime(root, plan) {
   btn.type = "submit";
   btn.className = "grc-registry-add-btn";
   btn.textContent = grcT("grc.continuite.pca.inv.add");
-  const form = _contAddForm([kind, tgt, lbl, qty, hz, btn], () => {
+  const form = _contAddForm([kind, tgt].concat(tgtAdd ? [tgtAdd] : []).concat([lbl, qty, hz, btn]), () => {
     const r = { kind: kind.value, label: lbl.value.trim(), quantity: qty.value.trim(), horizonMin: hz.value ? Number(hz.value) : null };
     if (kind.value === "role") r.roleId = tgt.value;
     if (kind.value === "asset") r.assetId = tgt.value;
@@ -846,9 +992,32 @@ function _contRenderDrp(root, plan) {
    ts (helper T1). « Prochain test conseillé » = dernier ts + cadence de
    revue. */
 
+// Libellés des rapports d'exercice (codes de la fiche) via les clés testKind/testResult.
+const _CONT_REPORT_KIND = { ttx: "tabletop", simulation: "simulation", restauration: "restore", bascule: "failover", evacuation: "evacuation", complet: "full" };
+const _CONT_REPORT_RES = { reussi: "pass", partiel: "partial", echec: "fail" };
+function _contReportKind(r) { return grcT("grc.continuite.pca.testKind." + (_CONT_REPORT_KIND[r.type] || "tabletop")); }
+function _contReportRes(r) { return _CONT_REPORT_RES[r.resultat] || "partial"; }
+
+// Ouvre l'onglet « Tests & exercices », sous-onglet Rapports, formulaire
+// d'ajout pré-rempli avec ce plan.
+function grcContLogExercise(planId) {
+  if (typeof grcContinuiteShowTab === "function") grcContinuiteShowTab("tests");
+  const host = document.getElementById("grcContTestsFiche");
+  const tab = host && host.querySelector('.grc-fiche-embed-tab[data-el="rapports"]');
+  if (tab) tab.click();
+  const g = typeof grcFicheListGlobal === "function" ? window[grcFicheListGlobal("continuite-tests-exercices", "rapports")] : null;
+  if (g && typeof g.openWith === "function") g.openWith({ plan: planId });
+  if (host && host.scrollIntoView) host.scrollIntoView({ block: "start" });
+}
+
+/* ---------- onglet Tests -------------------------------------------
+   Lecture des rapports d'exercice de ce plan (source unique : onglet
+   « Tests & exercices » de la page, grcContReports). « Prochain test
+   conseillé » = date du dernier rapport + cadence de revue. La saisie se
+   fait dans l'onglet de la page (bouton « Consigner un exercice »). */
+
 function _contRenderTests(root, plan) {
-  const id = plan.id;
-  const tests = plan.tests; // trié par ts croissant (grcContAddTest)
+  const reports = typeof grcContReports === "function" ? grcContReports(plan.id) : [];
 
   if (plan.linkedIncident) {
     const li = document.createElement("p");
@@ -859,9 +1028,9 @@ function _contRenderTests(root, plan) {
 
   const hint = document.createElement("p");
   hint.className = "grc-ir-hint";
-  const last = tests.length ? tests[tests.length - 1] : null;
-  const nextTest = last
-    ? contAddMonths(last.ts, plan.review.cadenceMonths || GRC_CONT_DEFAULT_CADENCE) : null;
+  const last = reports.length ? reports[reports.length - 1] : null;
+  const nextTest = last && last.date
+    ? contAddMonths(last.date, plan.review.cadenceMonths || GRC_CONT_DEFAULT_CADENCE) : null;
   hint.textContent = grcT("grc.continuite.pca.test.nextDue").replace(
     "{value}", nextTest ? _contFmtDateTime(nextTest) : grcT("grc.continuite.pca.test.never"));
   root.appendChild(hint);
@@ -869,77 +1038,38 @@ function _contRenderTests(root, plan) {
   const list = document.createElement("div");
   list.className = "grc-ir-inv-list";
   root.appendChild(list);
-
-  tests.slice().reverse().forEach((t) => { // plus récent en haut
+  reports.slice().reverse().forEach((r) => { // plus récent en haut
     const card = document.createElement("div");
     card.className = "grc-cont-test";
-
+    card.dataset.reportId = r.id;
     const head = document.createElement("div");
     head.className = "grc-cont-test-head";
-
-    const when = document.createElement("input");
-    when.type = "datetime-local";
-    when.value = _contIsoToLocalInput(t.ts);
-    when.addEventListener("change", () => { grcContUpdateTest(id, t.id, { ts: when.value }); _contRefresh(when); });
+    const when = document.createElement("span");
+    when.textContent = (r.date || "—") + " · " + _contReportKind(r);
     head.appendChild(when);
-
-    const kind = _contSelect(GRC_CONT_TEST_KINDS, t.kind, (k) => grcT("grc.continuite.pca.testKind." + k));
-    kind.addEventListener("change", () => grcContUpdateTest(id, t.id, { kind: kind.value }));
-    head.appendChild(kind);
-
-    const result = _contSelect(GRC_CONT_TEST_RESULTS, t.result, (r) => grcT("grc.continuite.pca.testResult." + r));
-    result.className = "grc-cont-test-result is-" + t.result;
-    result.addEventListener("change", () => { grcContUpdateTest(id, t.id, { result: result.value }); _contRefresh(result); });
-    head.appendChild(result);
-
-    head.appendChild(_contDelBtn(() => { grcContRemoveTest(id, t.id); _contRefresh(head); }));
+    const res = document.createElement("span");
+    res.className = "grc-cont-test-result is-" + _contReportRes(r);
+    res.textContent = grcT("grc.continuite.pca.testResult." + _contReportRes(r));
+    head.appendChild(res);
     card.appendChild(head);
-
-    [["notes", "grc.continuite.pca.test.notes"],
-     ["gaps", "grc.continuite.pca.test.gaps"],
-     ["actions", "grc.continuite.pca.test.actions"]].forEach((pair) => {
-      const field = pair[0];
-      const inp = document.createElement("input");
-      inp.type = "text";
-      inp.value = t[field] || "";
-      inp.addEventListener("change", () => {
-        const patch = {};
-        patch[field] = inp.value.trim();
-        grcContUpdateTest(id, t.id, patch);
-      });
-      card.appendChild(_contField(grcT(pair[1]), inp));
+    [["scenario", "grc.continuite.pca.test.scenario"], ["rtoObserve", "grc.continuite.pca.test.rtoObserve"],
+     ["observations", "grc.continuite.pca.test.observations"]].forEach(([k, key]) => {
+      if (!r[k]) return;
+      const p = document.createElement("p");
+      p.className = "grc-ir-hint";
+      p.textContent = grcT(key) + " : " + r[k];
+      card.appendChild(p);
     });
-
     list.appendChild(card);
   });
-  if (!tests.length) list.appendChild(_contEmptyLine());
+  if (!reports.length) list.appendChild(_contEmptyLine());
 
-  const kind = _contSelect(GRC_CONT_TEST_KINDS, "tabletop", (k) => grcT("grc.continuite.pca.testKind." + k));
-  const when = document.createElement("input");
-  when.type = "datetime-local";
-  when.value = _contIsoToLocalInput(new Date().toISOString());
-  const result = _contSelect(GRC_CONT_TEST_RESULTS, "partial", (r) => grcT("grc.continuite.pca.testResult." + r));
-  const notes = document.createElement("input");
-  notes.type = "text";
-  notes.placeholder = grcT("grc.continuite.pca.test.notes");
-  const gaps = document.createElement("input");
-  gaps.type = "text";
-  gaps.placeholder = grcT("grc.continuite.pca.test.gaps");
-  const actions = document.createElement("input");
-  actions.type = "text";
-  actions.placeholder = grcT("grc.continuite.pca.test.actions");
   const btn = document.createElement("button");
-  btn.type = "submit";
-  btn.className = "grc-registry-add-btn";
-  btn.textContent = grcT("grc.continuite.pca.inv.add");
-  const form = _contAddForm([kind, when, result, notes, gaps, actions, btn], () => {
-    grcContAddTest(id, {
-      kind: kind.value, ts: when.value, result: result.value,
-      notes: notes.value.trim(), gaps: gaps.value.trim(), actions: actions.value.trim(),
-    });
-    _contRefresh(form);
-  });
-  root.appendChild(form);
+  btn.type = "button";
+  btn.className = "grc-registry-add-btn grc-cont-log-exercise";
+  btn.textContent = grcT("grc.continuite.pca.test.log");
+  btn.addEventListener("click", () => grcContLogExercise(plan.id));
+  root.appendChild(btn);
 }
 
 /* ---------- onglet Export (T7) ----------------------------------------
@@ -977,6 +1107,8 @@ function continuityReportBody(scope) {
     h += "<h2>" + esc(p.service || "") + " — " + L("grc.continuite.pca.crit." + p.criticality) + "</h2>";
     if (p.description) h += "<p>" + nl2br(p.description) + "</p>";
     if (p.owner) h += "<p><strong>" + L("grc.continuite.pca.form.owner") + " :</strong> " + esc(p.owner) + "</p>";
+    const linkedBia = typeof grcContLinkedBia === "function" ? grcContLinkedBia(p) : null;
+    if (linkedBia) h += "<p><strong>" + L("grc.links.f.continuity.biaId") + " :</strong> " + esc(linkedBia.label || "") + "</p>";
 
     // BIA
     h += "<h3>" + L("grc.continuite.pca.bia.title") + "</h3><table border='1' cellspacing='0' cellpadding='4'><tbody>";
@@ -989,7 +1121,7 @@ function continuityReportBody(scope) {
     h += "</tbody></table>";
     if (grcContRtoGap(p) != null) h += "<p><em>" + L("grc.continuite.pca.warn.rtoGtMtd") + "</em></p>";
     grcContCoherence(p).filter((c) => c !== "rto>dmia").forEach((c) => {
-      h += "<p><em>" + L("grc.continuite.pca.warn." + c.replace(">", "Gt")) + "</em></p>";
+      h += "<p><em>" + L(grcContCoherenceKey(c)) + "</em></p>";
     });
     if (p.spoc || p.ccd.length) {
       h += "<h3>" + L("grc.continuite.pca.crisis.title") + "</h3>";
@@ -1008,7 +1140,7 @@ function continuityReportBody(scope) {
     h += "<h3>" + L("grc.continuite.pca.tab.dependances") + " (" + p.dependencies.length + ")</h3>";
     if (p.dependencies.length) {
       h += "<table border='1' cellspacing='0' cellpadding='4'><thead><tr><th>" + L("grc.continuite.pca.report.type") +
-        "</th><th>" + L("grc.continuite.pca.report.ref") + "</th><th>" + L("grc.continuite.pca.inv.note") + "</th><th>SPOF</th></tr></thead><tbody>";
+        "</th><th>" + L("grc.continuite.pca.report.ref") + "</th><th>" + L("grc.continuite.pca.inv.reason") + "</th><th>SPOF</th></tr></thead><tbody>";
       p.dependencies.forEach((d) => {
         h += "<tr><td>" + L("grc.continuite.pca.depType." + d.type) + "</td><td>" + esc(d.ref || "") + "</td><td>" + esc(d.note || "") +
           "</td><td>" + yn(!!d.spof) + "</td></tr>";
@@ -1040,16 +1172,18 @@ function continuityReportBody(scope) {
       h += "</ol>";
     } else h += none;
 
-    // Tests
-    h += "<h3>" + L("grc.continuite.pca.tab.tests") + " (" + p.tests.length + ")</h3>";
-    if (p.tests.length) {
+    // Tests (rapports d'exercice du plan)
+    const reps = typeof grcContReports === "function" ? grcContReports(p.id) : [];
+    h += "<h3>" + L("grc.continuite.pca.tab.tests") + " (" + reps.length + ")</h3>";
+    if (reps.length) {
       h += "<table border='1' cellspacing='0' cellpadding='4'><thead><tr><th>" + L("grc.continuite.pca.test.when") +
         "</th><th>" + L("grc.continuite.pca.report.type") + "</th><th>" + L("grc.continuite.pca.test.result") +
-        "</th><th>" + L("grc.continuite.pca.test.gaps") + "</th><th>" + L("grc.continuite.pca.test.actions") + "</th></tr></thead><tbody>";
-      p.tests.forEach((t) => {
-        h += "<tr><td>" + esc(_contFmtDateTime(t.ts)) + "</td><td>" + L("grc.continuite.pca.testKind." + t.kind) +
-          "</td><td>" + L("grc.continuite.pca.testResult." + t.result) + "</td><td>" + esc(t.gaps || "") +
-          "</td><td>" + esc(t.actions || "") + "</td></tr>";
+        "</th><th>" + L("grc.continuite.pca.test.scenario") + "</th><th>" + L("grc.continuite.pca.test.rtoObserve") +
+        "</th><th>" + L("grc.continuite.pca.test.observations") + "</th></tr></thead><tbody>";
+      reps.forEach((r) => {
+        h += "<tr><td>" + esc(r.date || "") + "</td><td>" + esc(_contReportKind(r)) +
+          "</td><td>" + L("grc.continuite.pca.testResult." + _contReportRes(r)) + "</td><td>" + esc(r.scenario || "") +
+          "</td><td>" + esc(r.rtoObserve || "") + "</td><td>" + esc(r.observations || "") + "</td></tr>";
       });
       h += "</tbody></table>";
     } else h += none;

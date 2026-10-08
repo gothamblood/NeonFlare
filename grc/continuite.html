@@ -28,18 +28,39 @@
         Cette section assure la résilience de l’organisation.
     </p>
 
-    <section class="grc-fiche-root" id="grcFichesRoot"></section>
-
-    <section class="grc-registry-block">
-        <h2 data-i18n="grc.continuite.pca.registryTitle">Registre PCA/PRA</h2>
+    <!-- BIA · Faire un plan · Tests & exercices = éléments `register` de la
+         fiche (grc-fiches-continuite.js, `block`) : grc-fiches.js déplace ces
+         sections dans leur onglet, à côté de l'analyse de risques PCA, des
+         ressources, stratégies, formation et amélioration. Une seule rangée
+         d'onglets ; plus d'onglet « Documentation » séparé. -->
+    <section class="grc-cont-block" id="faire-plan">
+        <div id="grcContPlanChooser"></div>
         <div id="grcContinuitySummary"></div>
         <div id="grcContinuityRegistry"></div>
     </section>
 
-    <section class="grc-subsections" id="continuite-sous-sections">
-        <h2 data-i18n="grc.continuite.subsTitle">Sous-sections : les plans de continuité</h2>
-        <div class="grid-3" id="continuite-sub-grid"></div>
+    <section class="grc-cont-block" id="bia">
+        <p class="page-subtitle" data-i18n="grc.continuite.bia.subtitle">Le bilan d’impact sur l’activité identifie les processus critiques, leurs dépendances et fixe les objectifs de reprise qui dimensionnent tous les plans.</p>
+        <div id="grcBiaSummary"></div>
+        <div id="grcBiaRegistry"></div>
+        <div class="grc-cont-section" id="bia-checklist">
+            <h3 data-i18n="grc.common.contentInclude">Contenu à inclure</h3>
+            <div id="grcContBiaChecklist"></div>
+        </div>
     </section>
+
+    <section class="grc-cont-block" id="tests">
+        <p class="page-subtitle" data-i18n="grc.continuite.tests-exercices.subtitle">Un plan non testé n’est qu’une hypothèse : le programme d’exercices vérifie les plans, entraîne les équipes et alimente l’amélioration continue.</p>
+        <!-- Fiche « continuite-tests-exercices » (Programme + Rapports) montée
+             ici par inline/continuite-tabs.js (grcFichesRenderEmbedded). -->
+        <div id="grcContTestsFiche"></div>
+        <div class="grc-cont-section" id="tests-checklist">
+            <h3 data-i18n="grc.common.contentInclude">Contenu à inclure</h3>
+            <div id="grcContTestsChecklist"></div>
+        </div>
+    </section>
+
+    <section class="grc-fiche-root" id="grcFichesRoot"></section>
 
     <section class="content-block">
         <h2 data-i18n="grc.common.contentInclude">Contenu à inclure</h2>
@@ -89,22 +110,33 @@
 <script src="../assets/script/grc-registry-kit.js"></script>
 <script src="../assets/script/grc-continuity.js"></script>
 <script src="../assets/script/grc-continuity-panel.js"></script>
+<!-- Registre BIA par processus (spec/grc-bia-register/ BP2) -->
+<script src="../assets/script/grc-bia.js"></script>
+<script src="../assets/script/grc-bia-panel.js"></script>
 <script src="../assets/script/inline/continuite.js"></script>
 
 <script src="../assets/script/inline/apply-i18n.js"></script>
 
 <script src="../assets/script/grc-checklist-migrate.js"></script>
 <script src="../assets/script/grc-checklist.js"></script>
+<!-- Checklists de référence par type de plan (onglet Checklist du registre) -->
+<script src="../assets/script/grc-continuite-checklists.js"></script>
 <script src="../assets/script/inline/init-grc-checklist.js"></script>
 <script src="continuite/index.js"></script>
-<script src="../assets/script/inline/continuite-subsections.js"></script>
+<!-- Sections BIA & Tests remontées (spec/grc-continuity-plans-register/ C) -->
+<script src="../assets/script/inline/continuite-sections.js"></script>
 
 
 <!-- Documentation de l'organisation par élément (spec/grc-fiches/) -->
 <script src="../assets/script/grc-vocab.js"></script>
 <script src="../assets/script/grc-fiches.js"></script>
 <script src="../assets/script/grc-fiches-continuite.js"></script>
+<!-- Fiches par type de plan (onglet Fiche du registre, contenu partagé par type) -->
+<script src="../assets/script/grc-fiches-continuite-sub.js"></script>
 <script src="../assets/script/inline/init-grc-fiches.js"></script>
+
+<!-- Anciennes ancres (#registre, #fiche-registre…) + grcContinuiteShowTab -> onglets de la fiche -->
+<script src="../assets/script/inline/continuite-tabs.js"></script>
 
 </body>
 </html>

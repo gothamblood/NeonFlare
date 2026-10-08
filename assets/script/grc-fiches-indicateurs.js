@@ -88,7 +88,7 @@
           "Progress on the security objectives set in Governance › ISMS: target, measure, due date, status. One entry per checkpoint."),
         header: ["objectif", "etat"],
         fields: [
-          { id: "objectif", type: "ref", required: true, label: L("Objectif (Gouvernance › SGSI)", "Objective (Governance › ISMS)"),
+          { id: "objectif", type: "ref", linkTo: "objectif", required: true, label: L("Objectif (Gouvernance › SGSI)", "Objective (Governance › ISMS)"),
             source: () => grcFicheRefFrom(grcFicheEntries("gouvernance", "sgsi").filter((e) => e.aspect === "objectif"), (e) => e.enonce) },
           { id: "cible", type: "text", label: L("Cible", "Target") },
           { id: "mesure", type: "text", label: L("Mesure actuelle", "Current measure") },

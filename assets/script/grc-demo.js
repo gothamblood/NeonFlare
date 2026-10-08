@@ -5,7 +5,7 @@
    aucun nom réel d'organisation ou de personne) formant une chaîne
    complète — portée -> actifs -> risques -> plans -> contrôles -> DDA ->
    obligations, processus -> plans de continuité -> arbre d'appel,
-   objectifs -> indicateurs, revue -> actions… Critère : 0 rupture T1–T21
+   objectifs -> indicateurs, revue -> actions… Critère : 0 rupture T1–T23
    une fois chargé (test DM.a).
    - Chargeable seulement si la documentation et les registres GRC sont
      vides (décision D3).
@@ -25,6 +25,7 @@ const _DEMO_REG = {
   control: "/grc/controles/registry", incident: "/grc/incidents/registry", continuity: "/grc/continuity/registry",
   supplier: "/grc/fournisseurs/registry", compliance: "/grc/compliance/registry", privacy: "/grc/privacy/registry",
   metric: "/grc/metrics/registry", document: "/grc/documents/registry", soa: "/grc/soa/registry",
+  bia: "/grc/bia/registry",
 };
 
 const _GRC_DEMO_I18N = {
@@ -186,7 +187,13 @@ function _demoData() {
   f("incidents", "lecons", { id: "demo-le1", lecon: t("Le signalement rapide a évité la compromission", "Fast reporting prevented compromise"), incident: "demo-i1", action: t("Rappeler le canal de signalement", "Remind the reporting channel"), actionId: "demo-am1", statut: "close" });
 
   // --- Continuité
-  r("continuity", { id: "demo-c1", schema: 2, service: t("Paie des clients", "Client payroll"), description: t("Calcul et versement de la paie", "Payroll computation and payment"), owner: t("Directrice des opérations", "Operations director"), criticality: "vital", processId: "demo-pr1",
+  // BIA par processus (spec/grc-bia-register/) : le plan demo-c1 s'y relie (biaId).
+  r("bia", { id: "demo-b1", schema: 1, label: t("Paie des clients", "Client payroll"), processId: "demo-pr1", owner: t("Directrice des opérations", "Operations director"), criticality: "vital",
+    bia: { mtdMin: 1440, rtoMin: 240, rpoMin: 60, maoMin: 1440, mbco: t("20 plus gros clients", "20 largest clients"), mbcoPct: 60, impacts: t("Pénalités et perte de clients si la paie est versée en retard", "Penalties and lost clients if payroll is late"), peakPeriods: t("Fin de mois", "Month end"),
+      timeline: [{ id: "demo-bhz1", horizonMin: 240, financier: 2, operationnel: 3, reputation: 2, legal: 1, level: 3, note: "" }, { id: "demo-bhz2", horizonMin: 1440, financier: 4, operationnel: 4, reputation: 4, legal: 3, level: 4, note: t("Salaires non versés", "Salaries not paid") }],
+      resources: [{ id: "demo-bres1", kind: "role", roleId: "demo-ro2", label: "", quantity: "2", horizonMin: 240 }] },
+    dependencies: [{ id: "demo-bdep1", type: "asset", ref: t("Application de paie", "Payroll application"), targetId: "demo-a2", note: "", spof: false }, { id: "demo-bdep2", type: "supplier", ref: "FSociety Cloud", targetId: "demo-s1", note: "", spof: true }] });
+  r("continuity", { id: "demo-c1", schema: 2, service: t("Paie des clients", "Client payroll"), description: t("Calcul et versement de la paie", "Payroll computation and payment"), owner: t("Directrice des opérations", "Operations director"), criticality: "vital", processId: "demo-pr1", biaId: "demo-b1",
     bia: { mtdMin: 1440, rtoMin: 240, rpoMin: 60, maoMin: 1440, mbco: t("20 plus gros clients", "20 largest clients"), mbcoPct: 60, impacts: "", peakPeriods: t("Fin de mois", "Month end"),
       timeline: [{ id: "demo-hz1", horizonMin: 240, financier: 2, operationnel: 3, reputation: 2, legal: 1, level: 3, note: "" }, { id: "demo-hz2", horizonMin: 1440, financier: 4, operationnel: 4, reputation: 4, legal: 3, level: 4, note: "" }],
       resources: [{ id: "demo-res1", kind: "role", roleId: "demo-ro2", label: "", quantity: "2", horizonMin: 240 }] },

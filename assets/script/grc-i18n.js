@@ -611,7 +611,7 @@ Object.assign(I18N_DICT, {
     fr: "Format invalide : un tableau de plans, ou un plan unique ({id, service}), est attendu.",
     en: "Invalid format: an array of plans, or a single plan ({id, service}), is expected."
   },
-  "grc.continuite.pca.registryTitle": { fr: "Registre PCA/PRA", en: "BCP/DRP register" },
+  "grc.continuite.pca.registryTitle": { fr: "Faire un plan", en: "Create a plan" },
   "grc.continuite.pca.panelStub": {
     fr: "Panneau du plan — les onglets arrivent à l'étape suivante.",
     en: "Plan panel — tabs land in the next step."
@@ -620,6 +620,100 @@ Object.assign(I18N_DICT, {
   "grc.continuite.pca.form.addBtn": { fr: "+ Ajouter un plan", en: "+ Add a plan" },
   "grc.continuite.pca.form.title": { fr: "Nouveau plan de continuité", en: "New continuity plan" },
   "grc.continuite.pca.form.titleEdit": { fr: "Modifier le plan", en: "Edit plan" },
+
+  // Taxonomie des plans (spec/grc-continuity-plans-register/, décision B).
+  "grc.continuite.tab.bia": { fr: "BIA", en: "BIA" },
+  // Registre BIA par processus (spec/grc-bia-register/).
+  "grc.bia.form.addBtn": { fr: "+ Ajouter un processus", en: "+ Add a process" },
+  "grc.bia.form.title": { fr: "Nouveau processus (BIA)", en: "New process (BIA)" },
+  "grc.bia.form.titleEdit": { fr: "Modifier le processus", en: "Edit process" },
+  "grc.bia.form.label": { fr: "Processus / activité", en: "Process / activity" },
+  "grc.bia.summary.none": { fr: "Aucun processus dans le BIA pour l'instant.", en: "No process in the BIA yet." },
+  "grc.bia.summary.count": { fr: "{n} processus", en: "{n} process(es)" },
+  "grc.bia.summary.spof": { fr: "SPOF {n}", en: "SPOF {n}" },
+  "grc.bia.summary.incoherent": { fr: "objectifs incohérents {n}", en: "inconsistent objectives {n}" },
+  "grc.bia.summary.worstGaps": { fr: "Écarts RTO–DMIA :", en: "RTO–MTPD gaps:" },
+  "grc.bia.spofBadge": { fr: "SPOF {n}", en: "SPOF {n}" },
+  // BIA lié d'un plan (spec/grc-bia-register/ BP4).
+  "grc.continuite.pca.linkedBia.none": {
+    fr: "Aucun BIA lié. Choisis-le via « Modifier » (champ « BIA lié ») pour reprendre les objectifs du processus.",
+    en: "No linked BIA. Pick one via “Edit” (“Linked BIA” field) to reuse the process objectives."
+  },
+  "grc.continuite.pca.linkedBia.mtd": { fr: "DMIA {d}", en: "MTPD {d}" },
+  "grc.continuite.pca.linkedBia.mao": { fr: "MAO {d}", en: "MAO {d}" },
+  "grc.continuite.pca.linkedBia.rto": { fr: "RTO {d}", en: "RTO {d}" },
+  "grc.continuite.pca.linkedBia.rpo": { fr: "RPO {d}", en: "RPO {d}" },
+  "grc.continuite.pca.linkedBia.rtoGtBia": {
+    fr: "Le RTO du plan dépasse celui exigé par le BIA du processus.",
+    en: "The plan RTO exceeds the one required by the process BIA."
+  },
+  "grc.continuite.pca.linkedBia.rpoGtBia": {
+    fr: "Le RPO du plan dépasse celui exigé par le BIA du processus.",
+    en: "The plan RPO exceeds the one required by the process BIA."
+  },
+  "grc.continuite.pca.linkedBia.pull": { fr: "Reprendre les objectifs du BIA", en: "Use the BIA objectives" },
+  // Couverture + exports du registre BIA (BP4).
+  "grc.bia.summary.coverage": { fr: "Processus vitaux / critiques avec BIA : {c} / {t}.", en: "Vital / critical processes with a BIA: {c} / {t}." },
+  "grc.bia.summary.missing": { fr: "Sans BIA :", en: "Without BIA:" },
+  "grc.bia.export.word": { fr: "⬇ Rapport Word", en: "⬇ Word report" },
+  "grc.bia.export.pdf": { fr: "⬇ Rapport PDF", en: "⬇ PDF report" },
+  "grc.bia.report.title": { fr: "Bilan d'impact sur l'activité (BIA) par processus", en: "Business impact analysis (BIA) by process" },
+  "grc.bia.report.linkedPlans": { fr: "Plans de continuité liés", en: "Linked continuity plans" },
+  // Panneau d'un processus BIA (spec/grc-bia-register/ BP3).
+  "grc.bia.tab.synthese": { fr: "Synthèse", en: "Summary" },
+  "grc.bia.tab.impacts": { fr: "Impacts dans le temps", en: "Impacts over time" },
+  "grc.bia.synthese.objectives": { fr: "Objectifs de reprise", en: "Recovery objectives" },
+  "grc.bia.synthese.editHint": {
+    fr: "Le nom, le processus lié et le responsable se modifient via « Modifier ».",
+    en: "Name, linked process and owner are edited via “Edit”."
+  },
+  "grc.bia.rationale": { fr: "Justification des chiffres", en: "Rationale for the figures" },
+  "grc.bia.rationale.hint": {
+    fr: "Pourquoi ces DMIA / MAO / RTO / RPO / MBCO : entretien avec le métier, contrat ou SLA, contrainte réglementaire, historique d'incidents…",
+    en: "Why these MTPD / MAO / RTO / RPO / MBCO: interview with the business, contract or SLA, regulatory constraint, incident history…"
+  },
+  "grc.bia.form.nextHint": {
+    fr: "Après l'enregistrement, le processus s'ouvre : saisis ses impacts (financier, opérationnel, réputation, réglementaire, humain), ses dépendances et la justification des chiffres dans ses onglets.",
+    en: "Once saved, the process opens: enter its impacts (financial, operational, reputation, regulatory, human), its dependencies and the rationale for the figures in its tabs."
+  },
+  "grc.bia.counters.horizons": { fr: "{n} horizons évalués", en: "{n} horizons rated" },
+  "grc.bia.counters.resources": { fr: "{n} ressources", en: "{n} resources" },
+  "grc.bia.panelStub": { fr: "Détails du BIA (impacts dans le temps, dépendances et SPOF) — à venir.", en: "BIA details (impacts over time, dependencies and SPOF) — coming soon." },
+  "grc.continuite.tab.tests": { fr: "Tests & exercices", en: "Tests & exercises" },
+  "grc.continuite.tab.doc": { fr: "Documentation", en: "Documentation" },
+  "grc.continuite.form.type": { fr: "Type de plan", en: "Plan type" },
+  "grc.continuite.type.none": { fr: "— Non classé —", en: "— Unclassified —" },
+  "grc.continuite.type.PUI": { fr: "Plan d'urgence interne", en: "Internal emergency plan" },
+  "grc.continuite.type.PCA": { fr: "Plan de continuité des activités", en: "Business continuity plan" },
+  "grc.continuite.type.PGC": { fr: "Plan de gestion de crise", en: "Crisis management plan" },
+  "grc.continuite.type.PCO": { fr: "Plan de continuité des opérations", en: "Continuity of operations plan" },
+  "grc.continuite.type.PSI": { fr: "Plan de continuité des services informatiques", en: "IT service continuity plan" },
+  "grc.continuite.type.PCC": { fr: "Plan de communication de crise", en: "Crisis communication plan" },
+  "grc.continuite.type.PRH": { fr: "Plan RH de crise", en: "Crisis HR plan" },
+  "grc.continuite.type.PRL": { fr: "Plan de repli / hébergement", en: "Relocation / fallback plan" },
+  "grc.continuite.type.PLOG": { fr: "Plan logistique", en: "Logistics plan" },
+  "grc.continuite.type.PDEP": { fr: "Plan de gestion des dépenses", en: "Expense management plan" },
+  "grc.continuite.type.PRII": { fr: "Plan de réponse aux incidents informatiques", en: "IT incident response plan" },
+  "grc.continuite.type.PRI": { fr: "Plan de reprise informatique", en: "IT recovery plan" },
+  "grc.continuite.type.DRP": { fr: "Plan de reprise après sinistre (DRP)", en: "Disaster recovery plan (DRP)" },
+  "grc.continuite.type.PRA": { fr: "Plan de reprise des activités", en: "Business resumption plan" },
+
+  "grc.continuite.plevel.1": { fr: "Niveau 1 — Urgence", en: "Level 1 — Emergency" },
+  "grc.continuite.plevel.2": { fr: "Niveau 2 — Pilotage", en: "Level 2 — Steering" },
+  "grc.continuite.plevel.3": { fr: "Niveau 3 — Continuité", en: "Level 3 — Continuity" },
+  "grc.continuite.plevel.4": { fr: "Niveau 4 — Réponse", en: "Level 4 — Response" },
+  "grc.continuite.plevel.5": { fr: "Niveau 5 — Reprise TI", en: "Level 5 — IT recovery" },
+  "grc.continuite.plevel.6": { fr: "Niveau 6 — Reprise métier", en: "Level 6 — Business resumption" },
+
+  "grc.continuite.pcat.urgence": { fr: "Urgence", en: "Emergency" },
+  "grc.continuite.pcat.pilotage": { fr: "Pilotage", en: "Steering" },
+  "grc.continuite.pcat.continuite-metier": { fr: "Continuité métier", en: "Business continuity" },
+  "grc.continuite.pcat.continuite-ti": { fr: "Continuité TI", en: "IT continuity" },
+  "grc.continuite.pcat.transversal": { fr: "Transversal", en: "Cross-cutting" },
+  "grc.continuite.pcat.reponse-ti": { fr: "Réponse TI", en: "IT response" },
+  "grc.continuite.pcat.reprise-ti": { fr: "Reprise TI", en: "IT recovery" },
+  "grc.continuite.pcat.reprise-metier": { fr: "Reprise métier", en: "Business resumption" },
+
   "grc.continuite.pca.form.service": { fr: "Service / activité", en: "Service / activity" },
   "grc.continuite.pca.form.description": { fr: "Description", en: "Description" },
   "grc.continuite.pca.form.owner": { fr: "Responsable", en: "Owner" },
@@ -674,6 +768,24 @@ Object.assign(I18N_DICT, {
   // -- Panneau du plan : onglets (T3) --
   "grc.continuite.pca.tab.synthese": { fr: "Synthèse / BIA", en: "Summary / BIA" },
   "grc.continuite.pca.tab.bia": { fr: "BIA dans le temps", en: "BIA over time" },
+  "grc.continuite.pca.tab.fiche": { fr: "Fiche", en: "Documentation" },
+  "grc.continuite.pca.tab.checklist": { fr: "Checklist", en: "Checklist" },
+  "grc.continuite.fiche.none": {
+    fr: "Documentation indisponible pour ce type de plan.",
+    en: "No documentation available for this plan type."
+  },
+  "grc.continuite.checklist.none": {
+    fr: "Pas encore de checklist de référence pour ce type de plan.",
+    en: "No reference checklist yet for this plan type."
+  },
+  "grc.continuite.checklist.needType": {
+    fr: "Choisissez le type du plan (« Modifier ») pour afficher sa fiche et sa checklist de référence.",
+    en: "Set the plan type (\"Edit\") to show its reference documentation and checklist."
+  },
+  "grc.continuite.checklist.lead": {
+    fr: "Checklist de référence partagée par tous les plans de ce type. La coche sert au suivi d'avancement et compte dans la couverture du domaine Continuité.",
+    en: "Reference checklist shared by all plans of this type. Ticking tracks progress and counts toward the Continuity domain coverage."
+  },
   "grc.continuite.pca.inv.target": { fr: "Élément lié", en: "Linked item" },
   "grc.continuite.pca.biat.title": { fr: "Impacts dans le temps", en: "Impacts over time" },
   "grc.continuite.pca.biat.hint": {
@@ -684,7 +796,8 @@ Object.assign(I18N_DICT, {
   "grc.continuite.pca.biat.financier": { fr: "Financier", en: "Financial" },
   "grc.continuite.pca.biat.operationnel": { fr: "Opérationnel", en: "Operational" },
   "grc.continuite.pca.biat.reputation": { fr: "Réputation", en: "Reputation" },
-  "grc.continuite.pca.biat.legal": { fr: "Légal / contractuel", en: "Legal / contractual" },
+  "grc.continuite.pca.biat.legal": { fr: "Réglementaire / légal", en: "Regulatory / legal" },
+  "grc.continuite.pca.biat.humain": { fr: "Humain", en: "Human" },
   "grc.continuite.pca.biat.note": { fr: "Note", en: "Note" },
   "grc.continuite.pca.biat.l1": { fr: "négligeable", en: "negligible" },
   "grc.continuite.pca.biat.l2": { fr: "mineur", en: "minor" },
@@ -719,8 +832,8 @@ Object.assign(I18N_DICT, {
   },
   "grc.continuite.pca.bia.title": { fr: "Bilan d'impact (BIA)", en: "Business impact (BIA)" },
   "grc.continuite.pca.bia.impacts": {
-    fr: "Impacts (financier / opérationnel / réglementaire / réputation)",
-    en: "Impacts (financial / operational / regulatory / reputation)"
+    fr: "Impacts (financier / opérationnel / réglementaire / réputation / humain)",
+    en: "Impacts (financial / operational / regulatory / reputation / human)"
   },
   "grc.continuite.pca.bia.peakPeriods": { fr: "Périodes de pointe", en: "Peak periods" },
   "grc.continuite.pca.review.title": { fr: "Revue du plan", en: "Plan review" },
@@ -738,11 +851,14 @@ Object.assign(I18N_DICT, {
   "grc.continuite.pca.inv.empty": { fr: "Aucun élément.", en: "Nothing yet." },
   "grc.continuite.pca.inv.add": { fr: "Ajouter", en: "Add" },
   "grc.continuite.pca.inv.note": { fr: "Note", en: "Note" },
+  "grc.continuite.pca.inv.reason": { fr: "Raison : pourquoi le processus en dépend", en: "Reason: why the process depends on it" },
   "grc.continuite.pca.inv.tested": { fr: "testé", en: "tested" },
   "grc.continuite.pca.inv.depRef": { fr: "Actif / service / fournisseur…", en: "Asset / service / supplier…" },
   "grc.continuite.pca.inv.redRef": { fr: "Description de la mesure", en: "Measure description" },
 
-  "grc.continuite.pca.depType.asset": { fr: "Actif", en: "Asset" },
+  "grc.continuite.pca.depType.asset": { fr: "Actif (serveur, équipement)", en: "Asset (server, equipment)" },
+  "grc.continuite.pca.depType.application": { fr: "Application / logiciel", en: "Application / software" },
+  "grc.continuite.pca.depType.data": { fr: "Données", en: "Data" },
   "grc.continuite.pca.depType.service": { fr: "Service", en: "Service" },
   "grc.continuite.pca.depType.supplier": { fr: "Fournisseur", en: "Supplier" },
   "grc.continuite.pca.depType.site": { fr: "Site", en: "Site" },
@@ -767,10 +883,40 @@ Object.assign(I18N_DICT, {
   "grc.continuite.pca.test.notes": { fr: "Notes", en: "Notes" },
   "grc.continuite.pca.test.gaps": { fr: "Écarts constatés", en: "Gaps found" },
   "grc.continuite.pca.test.actions": { fr: "Actions correctives", en: "Corrective actions" },
+  "grc.continuite.pca.test.scenario": { fr: "Scénario", en: "Scenario" },
+  "grc.continuite.pca.test.rtoObserve": { fr: "RTO observé", en: "Observed RTO" },
+  "grc.continuite.pca.test.log": { fr: "Consigner un exercice", en: "Log an exercise" },
+  // Aide « Choisir le bon plan en quatre questions » (renderGrcContPlanChooser).
+  "grc.cont.choose.title": { fr: "Choisir le bon plan en quatre questions", en: "Pick the right plan in four questions" },
+  "grc.cont.choose.lead": { fr: "Posées dans cet ordre, ces quatre questions suffisent à qualifier presque n'importe quelle situation.", en: "Asked in this order, these four questions are enough to qualify almost any situation." },
+  "grc.cont.choose.q.people": { fr: "Des personnes sont-elles menacées ?", en: "Are people threatened?" },
+  "grc.cont.choose.q.service": { fr: "Le service est-il dégradé ou arrêté ?", en: "Is the service degraded or stopped?" },
+  "grc.cont.choose.q.compromise": { fr: "L'origine est-elle une compromission ?", en: "Is the cause a compromise?" },
+  "grc.cont.choose.q.who": { fr: "Qui doit décider ?", en: "Who must decide?" },
+  "grc.cont.choose.a.people.yes": { fr: "Oui", en: "Yes" },
+  "grc.cont.choose.a.people.no": { fr: "Non", en: "No" },
+  "grc.cont.choose.a.service.degraded": { fr: "Dégradé", en: "Degraded" },
+  "grc.cont.choose.a.service.stopped": { fr: "Arrêté", en: "Stopped" },
+  "grc.cont.choose.a.compromise.yes": { fr: "Oui", en: "Yes" },
+  "grc.cont.choose.a.compromise.no": { fr: "Non", en: "No" },
+  "grc.cont.choose.a.who.n1": { fr: "Niveau I — le SPOC", en: "Level I — the SPOC" },
+  "grc.cont.choose.a.who.n2": { fr: "Niveau II — les directeurs et le RPCA", en: "Level II — directors and the BCP manager" },
+  "grc.cont.choose.a.who.n3": { fr: "Niveau III — la cellule de crise", en: "Level III — the crisis cell" },
+  "grc.cont.choose.r.people": { fr: "Le PUI passe avant tout : aucun plan de continuité ne démarre avant l'évacuation et le comptage.", en: "The internal emergency plan comes first: no continuity plan starts before evacuation and head count." },
+  "grc.cont.choose.r.compromise": { fr: "Le PRII agit d'abord : confiner et identifier une copie saine avant toute restauration.", en: "Incident response acts first: contain and identify a clean copy before any restore." },
+  "grc.cont.choose.r.degraded": { fr: "Service dégradé : plans de continuité.", en: "Degraded service: continuity plans." },
+  "grc.cont.choose.r.stopped": { fr: "Service arrêté : plans de reprise.", en: "Stopped service: recovery plans." },
+  "grc.cont.choose.r.who.n1": { fr: "Décision au niveau I : le SPOC traite et escalade si les critères sont atteints.", en: "Level I decision: the SPOC handles it and escalates if criteria are met." },
+  "grc.cont.choose.r.who.n2": { fr: "Décision au niveau II : directeurs et RPCA, pré-alerte.", en: "Level II decision: directors and the BCP manager, pre-alert." },
+  "grc.cont.choose.r.who.n3": { fr: "Décision au niveau III : la cellule de crise, avec gestion de crise et communication.", en: "Level III decision: the crisis cell, with crisis management and communication." },
+  "grc.continuite.pca.test.observations": { fr: "Observations et écarts", en: "Observations and gaps" },
   "grc.continuite.pca.testKind.tabletop": { fr: "Exercice sur table (TTX)", en: "Tabletop exercise (TTX)" },
   "grc.continuite.pca.testKind.walkthrough": { fr: "Revue guidée", en: "Walkthrough" },
   "grc.continuite.pca.testKind.failover": { fr: "Bascule", en: "Failover" },
   "grc.continuite.pca.testKind.full": { fr: "Grandeur nature", en: "Full" },
+  "grc.continuite.pca.testKind.simulation": { fr: "Simulation de crise", en: "Crisis simulation" },
+  "grc.continuite.pca.testKind.restore": { fr: "Test de restauration", en: "Restore test" },
+  "grc.continuite.pca.testKind.evacuation": { fr: "Exercice d'évacuation", en: "Evacuation drill" },
   "grc.continuite.pca.testResult.pass": { fr: "Réussi", en: "Pass" },
   "grc.continuite.pca.testResult.partial": { fr: "Partiel", en: "Partial" },
   "grc.continuite.pca.testResult.fail": { fr: "Échec", en: "Fail" },
@@ -1915,6 +2061,8 @@ Object.assign(I18N_DICT, {
   "grc.continuite.pca.crisis.title": { fr: "Gestion de crise", en: "Crisis management" },
   "grc.continuite.pca.crisis.spoc": { fr: "SPOC (point de contact unique)", en: "SPOC (single point of contact)" },
   "grc.continuite.pca.crisis.ccd": { fr: "Cellule de crise décisionnelle (CCD)", en: "Crisis decision cell (CCD)" },
+  "grc.continuite.pca.crisis.ccdOrg": { fr: "Membres mobilisés pour ce plan. La CCD de l'organisation (mandat, membres permanents, activation) est définie dans", en: "Members mobilised for this plan. The organization's crisis cell (mandate, permanent members, activation) is defined in" },
+  "grc.continuite.pca.crisis.ccdOrgLink": { fr: "Gouvernance › Comité de gestion de crise", en: "Governance › Crisis management committee" },
   "grc.continuite.pca.crisis.role": { fr: "Rôle", en: "Role" },
   "grc.continuite.pca.crisis.name": { fr: "Nom", en: "Name" },
   "grc.continuite.pca.crisis.contact": { fr: "Contact", en: "Contact" },

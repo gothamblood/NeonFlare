@@ -545,6 +545,7 @@ const I18N_DICT = {
   "settings.registryName.controls": { fr: "Registre de contrôles", en: "Control registry" },
   "settings.registryName.incidents": { fr: "Journal d'incidents", en: "Incident log" },
   "settings.registryName.continuity": { fr: "Registre PCA/PRA", en: "BCP/DRP registry" },
+  "settings.registryName.bia": { fr: "Registre BIA (processus)", en: "BIA registry (processes)" },
   "settings.registryName.suppliers": { fr: "Registre des fournisseurs", en: "Supplier registry" },
   "settings.registryName.vulns": { fr: "Suivi des vulnérabilités", en: "Vulnerability tracker" },
   "settings.registryName.privacy": { fr: "Registre vie privée (ROPA + demandes)", en: "Privacy registry (ROPA + requests)" },

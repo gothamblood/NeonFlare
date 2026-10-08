@@ -119,8 +119,9 @@ const GRC_REQUIRED_DOCS = [
     where: ["continuite", "formation"],
     test: (c) => _exRule(_exFiche(c, "continuite", "formation").length + _exFiche(c, "ressources-humaines", "competences").length, true) },
   { id: "22301-8.2", std: "22301", ref: "8.2.1 – 8.2.3", label: _EX_L("BIA avec impacts et ressources dans le temps, appréciation des risques", "BIA with impacts and resources over time, risk assessment"),
-    where: ["continuite", "registre"], block: ["T9", "T18"],
-    test: (c) => { const p = c.list("continuity"); const sc = _exFiche(c, "continuite", "analyse-risques-pca").length; return _exRule(p.length + sc, p.some((x) => x.bia && Array.isArray(x.bia.timeline) && x.bia.timeline.some((t) => t.level)) && sc > 0); } },
+    where: ["continuite", "registre"], block: ["T9", "T18", "T22", "T23"],
+    // BIA = registre par processus (spec/grc-bia-register/) ou, à défaut, BIA d'un plan.
+    test: (c) => { const p = c.list("continuity").concat(c.list("bia")); const sc = _exFiche(c, "continuite", "analyse-risques-pca").length; return _exRule(p.length + sc, p.some((x) => x.bia && Array.isArray(x.bia.timeline) && x.bia.timeline.some((t) => t.level)) && sc > 0); } },
   { id: "22301-8.3", std: "22301", ref: "8.3", label: _EX_L("Stratégies et solutions", "Strategies and solutions"),
     where: ["continuite", "strategies"],
     test: (c) => _exRule(_exFiche(c, "continuite", "strategies").length, true) },

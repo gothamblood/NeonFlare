@@ -64,13 +64,16 @@
         id: "contexte",
         example: { perimetre: L("Services de paie et de comptabilité, siège et infonuagique", "Payroll and accounting services, head office and cloud"), participants: L("RSSI, directrice des opérations, TI", "CISO, operations director, IT") },
         essential: true,
-        title: L("Établissement du contexte", "Context establishment"),
+        // Renommé (2026-10-08) : contexte DE L'APPRÉCIATION (ISO 27005 cl. 6),
+        // à ne pas confondre avec le Contexte organisationnel (ISO 27001 cl. 4).
+        title: L("Contexte de l’appréciation", "Assessment context"),
         ref: L("ISO 27005 cl. 6 · ISO 27001 cl. 6.1.2 a)", "ISO 27005 cl. 6 · ISO 27001 cl. 6.1.2 a)"),
-        desc: L("Avant chaque appréciation : son périmètre, les critères d’impact et de vraisemblance utilisés, les participants. Les critères d’acceptation se définissent dans Gouvernance.",
-          "Before each assessment: its scope, the impact and likelihood criteria used, the participants. Acceptance criteria are defined in Governance."),
+        desc: L("Établissement du contexte ISO 27005 pour CHAQUE appréciation : son périmètre (relié aux éléments de la portée du SGSI), les critères d’impact et de vraisemblance utilisés, les participants. Le contexte de l’organisation se documente dans Contexte organisationnel ; les niveaux 1 à 5 dans « Échelles de cotation » ; les critères d’acceptation dans Gouvernance.",
+          "ISO 27005 context establishment for EACH assessment: its scope (linked to the ISMS scope items), the impact and likelihood criteria used, the participants. The organization's context is documented in Organizational context; levels 1 to 5 in \"Rating scales\"; acceptance criteria in Governance."),
         header: ["perimetre", "date"],
         fields: [
           { id: "perimetre", type: "textarea", required: true, label: L("Périmètre de l’appréciation", "Assessment scope") },
+          { id: "porteeIds", linkTo: "portee", multi: true, label: L("Éléments de portée couverts", "Scope items covered") },
           { id: "criteresImpact", type: "textarea", hint: L("Ce qui rend un impact faible, moyen, élevé (argent, clients, loi…)", "What makes an impact low, medium, high (money, customers, law…)"), label: L("Critères d’impact", "Impact criteria") },
           { id: "criteresVraisemblance", type: "textarea", hint: L("Ce qui rend un scénario rare, possible, probable", "What makes a scenario rare, possible, likely"), label: L("Critères de vraisemblance", "Likelihood criteria") },
           { id: "participants", type: "text", suggest: { vocab: "roles", from: ["role"] }, label: L("Participants", "Participants") },
@@ -270,6 +273,67 @@
         },
         count: () => grcFicheSrc.risks().length,
         manage: "registre",
+      },
+      {
+        // Nœud papillon (note de cours) : l'événement redouté au centre ; à
+        // gauche causes et prévention, à droite limitation et conséquences.
+        id: "noeud-papillon",
+        example: { evenement: L("Système de commande indisponible", "Order system unavailable"),
+          causes: L("Rançongiciel\nPanne électrique\nErreur de changement\nPanne du fournisseur infonuagique\nRupture réseau", "Ransomware\nPower outage\nChange error\nCloud provider outage\nNetwork failure"),
+          prevention: L("Segmentation\nRedondance électrique\nContrôle des changements\nSurveillance\nProtection des accès", "Segmentation\nPower redundancy\nChange control\nMonitoring\nAccess protection"),
+          limitation: L("Mode manuel\nSite secondaire\nCommunication clients\nSauvegarde immuable\nProcédure de reprise", "Manual mode\nSecondary site\nCustomer communication\nImmutable backup\nRecovery procedure"),
+          consequences: L("Arrêt des commandes\nPerte de revenus\nPlaintes clients\nAccumulation du travail\nAtteinte à la réputation", "Orders stopped\nLost revenue\nCustomer complaints\nWork backlog\nReputational damage") },
+        title: L("Nœud papillon", "Bow-tie analysis"),
+        ref: L("ISO 31010 · ISO 27005 §7", "ISO 31010 · ISO 27005 §7"),
+        desc: L("Une entrée par événement redouté : au centre l’événement, à gauche ses causes et les mesures de prévention qui les bloquent, à droite les mesures de limitation et les conséquences qu’elles réduisent. Une ligne par cause, mesure ou conséquence. Relie les contrôles et les plans existants pour garder la chaîne.",
+          "One entry per feared event: the event in the middle, its causes and the prevention measures that block them on the left, the limitation measures and the consequences they reduce on the right. One line per cause, measure or consequence. Link existing controls and plans to keep the chain."),
+        header: ["evenement"],
+        fields: [
+          { id: "evenement", type: "text", required: true, label: L("Événement redouté (centre)", "Feared event (centre)") },
+          { id: "riskId", linkTo: "risk", label: L("Risque du registre", "Register risk") },
+          { id: "causes", type: "textarea", label: L("Causes (une par ligne)", "Causes (one per line)") },
+          { id: "prevention", type: "textarea", label: L("Prévention (une par ligne)", "Prevention (one per line)") },
+          { id: "controleIds", linkTo: "control", multi: true, label: L("Contrôles de prévention", "Prevention controls") },
+          { id: "limitation", type: "textarea", label: L("Limitation (une par ligne)", "Limitation (one per line)") },
+          { id: "planIds", linkTo: "continuity", multi: true, label: L("Plans de limitation", "Limitation plans") },
+          { id: "consequences", type: "textarea", label: L("Conséquences (une par ligne)", "Consequences (one per line)") },
+        ],
+        render: (host) => {
+          const draw = () => {
+            let box = host.querySelector(".grc-bowtie-box");
+            if (!box) { box = document.createElement("div"); box.className = "grc-bowtie-box"; host.insertBefore(box, host.firstChild); }
+            box.innerHTML = "";
+            const lines = (v) => String(v || "").split(/\n+/).map((x) => x.trim()).filter(Boolean);
+            grcFicheEntries("analyse-risques", "noeud-papillon").forEach((e) => {
+              const bt = document.createElement("div");
+              bt.className = "grc-bowtie";
+              const col = (cls, title, items) => {
+                const c = document.createElement("div");
+                c.className = "grc-bowtie-col " + cls;
+                const h = document.createElement("div");
+                h.className = "grc-bowtie-h";
+                h.textContent = grcFicheL(title);
+                c.appendChild(h);
+                items.forEach((t) => { const d = document.createElement("div"); d.className = "grc-bowtie-item"; d.textContent = t; c.appendChild(d); });
+                return c;
+              };
+              bt.appendChild(col("is-causes", L("Causes", "Causes"), lines(e.causes)));
+              bt.appendChild(col("is-prev", L("Prévention", "Prevention"), lines(e.prevention)));
+              const mid = document.createElement("div");
+              mid.className = "grc-bowtie-event";
+              mid.textContent = e.evenement || "";
+              bt.appendChild(mid);
+              bt.appendChild(col("is-limit", L("Limitation", "Limitation"), lines(e.limitation)));
+              bt.appendChild(col("is-cons", L("Conséquences", "Consequences"), lines(e.consequences)));
+              box.appendChild(bt);
+            });
+          };
+          draw();
+          if (!host.dataset.bowtieHook) {
+            host.dataset.bowtieHook = "1";
+            ["submit", "click"].forEach((ev) => host.addEventListener(ev, () => setTimeout(draw, 0)));
+          }
+        },
       },
     ],
   });

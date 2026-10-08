@@ -158,7 +158,7 @@
         header: ["lecon", "statut"],
         fields: [
           { id: "lecon", type: "textarea", required: true, label: L("Leçon", "Lesson") },
-          { id: "incident", type: "ref", label: L("Incident source", "Source incident"),
+          { id: "incident", type: "ref", linkTo: "incident", label: L("Incident source", "Source incident"),
             source: () => grcFicheRefFrom(incidents(), (i) => i.title) },
           { id: "action", type: "textarea", label: L("Action d’amélioration", "Improvement action") },
           { id: "responsable", type: "text", suggest: { vocab: "roles", from: ["role"] }, label: L("Responsable", "Owner") },

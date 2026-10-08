@@ -3,85 +3,17 @@
 <head>
     <meta charset="UTF-8" />
     <meta http-equiv="Content-Security-Policy" content="script-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'">
+    <meta http-equiv="refresh" content="0; url=../continuite.html#bia">
+    <link rel="canonical" href="../continuite.html#bia">
     <link rel="icon" type="image/svg+xml" href="../../assets/images/dragon-logo.svg">
-    <link rel="icon" type="image/png" href="../../assets/images/dragon-favicon.png">
-    <title>BIA et dépendances métier – GRC Cybersecurity</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" type="text/css" href="../../assets/css/grc.css">
+    <title>BIA — Continuité</title>
 </head>
-<body data-fiche-page="continuite-bia">
-<header>
-    <nav class="nav">
-        <div class="logo">
-            <div class="logo-mark">C</div>
-            <div>Continuité</div>
-        </div>
-        <div class="nav-links">
-            <a href="../continuite.html" data-i18n="grc.common.backToContinuite">&larr; Retour à Continuité</a>
-        </div>
-    </nav>
-</header>
-
-<main>
-    <h1 class="page-title" data-i18n="grc.continuite.bia.title">BIA et dépendances métier</h1>
-    <p class="page-subtitle" data-i18n="grc.continuite.bia.subtitle">
-        Le bilan d’impact sur l’activité identifie les processus critiques, leurs dépendances et fixe les objectifs de reprise qui dimensionnent tous les plans.
-    </p>
-
-    <section class="grc-fiche-root" id="grcFichesRoot"></section>
-
-    <section class="content-block">
-        <h2 data-i18n="grc.common.contentInclude">Contenu à inclure</h2>
-        <ul>
-            <li data-item-id="processus-critiques"><strong data-i18n="grc.continuite.bia.c.processus-critiques.label">Processus critiques</strong> : <span data-i18n="grc.continuite.bia.c.processus-critiques.desc">processus dont l’arrêt menace la mission d’affaires.</span> <span class="grc-control-tags">ISO 22301 cl. 8.2.2 · NIST ID.AM</span></li>
-            <li data-item-id="criticite"><strong data-i18n="grc.continuite.bia.c.criticite.label">Criticité</strong> : <span data-i18n="grc.continuite.bia.c.criticite.desc">vital, critique, important, différable.</span> <span class="grc-control-tags">ISO 22301 cl. 8.2.2</span></li>
-            <li data-item-id="dmia"><strong data-i18n="grc.continuite.bia.c.dmia.label">DMIA / MTPD</strong> : <span data-i18n="grc.continuite.bia.c.dmia.desc">durée au-delà de laquelle le préjudice devient irréversible.</span> <span class="grc-control-tags">ISO 22301 cl. 8.2.2 · ISO A.5.30</span></li>
-            <li data-item-id="mao"><strong data-i18n="grc.continuite.bia.c.mao.label">MAO</strong> : <span data-i18n="grc.continuite.bia.c.mao.desc">indisponibilité tolérée par les contrats et les SLA.</span> <span class="grc-control-tags">ISO 22301 cl. 8.2.2 · ISO A.5.20</span></li>
-            <li data-item-id="rto" data-legacy="@../continuite.html#2"><strong data-i18n="grc.continuite.bia.c.rto.label">RTO</strong> : <span data-i18n="grc.continuite.bia.c.rto.desc">délai de reprise visé, inférieur à la MAO.</span> <span class="grc-control-tags">ISO 22301 cl. 8.2.2 · ISO A.5.30 · NIST RC.RP</span></li>
-            <li data-item-id="rpo" data-legacy="@../continuite.html#2"><strong data-i18n="grc.continuite.bia.c.rpo.label">RPO</strong> : <span data-i18n="grc.continuite.bia.c.rpo.desc">perte de données maximale, cohérente avec la fréquence des sauvegardes.</span> <span class="grc-control-tags">ISO 22301 cl. 8.2.2 · ISO A.8.13 · CIS 11</span></li>
-            <li data-item-id="mbco"><strong data-i18n="grc.continuite.bia.c.mbco.label">MBCO</strong> : <span data-i18n="grc.continuite.bia.c.mbco.desc">niveau de service plancher à maintenir pendant la crise.</span> <span class="grc-control-tags">ISO 22301 cl. 8.2.2 · 8.3</span></li>
-            <li data-item-id="impacts"><strong data-i18n="grc.continuite.bia.c.impacts.label">Impacts</strong> : <span data-i18n="grc.continuite.bia.c.impacts.desc">financiers, opérationnels, légaux, réputationnels et humains, évalués dans le temps.</span> <span class="grc-control-tags">ISO 22301 cl. 8.2.2 · NIST ID.RA</span></li>
-            <li data-item-id="dependances"><strong data-i18n="grc.continuite.bia.c.dependances.label">Dépendances métier</strong> : <span data-i18n="grc.continuite.bia.c.dependances.desc">actifs, services, fournisseurs, sites et personnes dont dépend chaque processus.</span> <span class="grc-control-tags">ISO 22301 cl. 8.2.2 · NIST ID.AM · GV.SC</span></li>
-            <li data-item-id="spof"><strong data-i18n="grc.continuite.bia.c.spof.label">SPOF</strong> : <span data-i18n="grc.continuite.bia.c.spof.desc">points uniques de défaillance identifiés et traités.</span> <span class="grc-control-tags">ISO A.8.14 · NIST ID.RA</span></li>
-        </ul>
-
-        <h2 data-i18n="grc.common.roleTitle">Rôle en GRC</h2>
-        <p data-i18n="grc.continuite.bia.role">Le BIA est le prérequis commun : sans lui, les plans protègent les systèmes les plus visibles plutôt que la mission d’affaires. Cohérence attendue : RTO ≤ MAO ≤ DMIA.</p>
-    </section>
-</main>
-
-
-<script src="../../assets/script/page-boot.js"></script>
-
-<script src="../../assets/script/i18n.js"></script>
-<script src="../../assets/script/grc-i18n.js"></script>
-<script src="../../assets/script/grc-i18n-components.js"></script>
-
-<script src="../../config/grc-author.js"></script>
-
-<script src="../../config/encryption.js"></script>
-
-<script src="../../assets/script/vault-crypto.js"></script>
-<script src="../../assets/script/theme-accent.js"></script>
-
-<script src="../../assets/script/vault.js"></script>
-<script src="../../assets/script/vault-ui.js"></script>
-
-<script src="../../assets/script/inline/apply-i18n.js"></script>
-
-<script src="../../assets/script/grc-checklist-migrate.js"></script>
-<script src="../../assets/script/grc-checklist.js"></script>
-<script src="../../assets/script/config-io.js"></script>
-<!-- Chaîne GRC + documentation par élément (spec/grc-fiches/, grc-normes N4) -->
-<script src="../../assets/script/grc-annexe-a.js"></script>
-<script src="../../assets/script/grc-links.js"></script>
-<script src="../../assets/script/grc-registry-kit.js"></script>
-<script src="../../assets/script/grc-continuity.js"></script>
-<script src="../../assets/script/grc-vocab.js"></script>
-<script src="../../assets/script/grc-fiches.js"></script>
-<script src="../../assets/script/grc-fiches-continuite-sub.js"></script>
-<script src="../../assets/script/inline/init-grc-checklist.js"></script>
-<script src="../../assets/script/inline/init-grc-fiches.js"></script>
-
+<body>
+    <!-- Page déplacée (spec/grc-continuity-plans-register/ décision C) :
+         le contenu des plans vit maintenant dans le registre de
+         grc/continuite.html ; BIA et Tests y sont des sections. Cette page
+         ne subsiste que pour rediriger les anciens liens / signets. -->
+    <p>Cette page a été intégrée à la <a href="../continuite.html#bia">Continuité des activités</a>.</p>
+    <p lang="en">This page has moved to <a href="../continuite.html#bia">Business continuity</a>.</p>
 </body>
 </html>

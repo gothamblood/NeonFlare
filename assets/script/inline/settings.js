@@ -92,6 +92,7 @@
     resetGrcControls();
     resetGrcIncidents();
     resetGrcContinuity();
+    resetGrcBia();
     resetGrcSuppliers();
     resetGrcVulns();
     resetGrcPrivacy();
@@ -190,6 +191,7 @@
       grcControls: getGrcControls(),
       grcIncidents: getGrcIncidents(),
       grcContinuity: getGrcContinuity(),
+      grcBia: getGrcBia(),
       grcSuppliers: getGrcSuppliers(),
       grcVulns: getGrcVulns(),
       grcPrivacy: getGrcPrivacy(),
@@ -276,6 +278,7 @@
     if (Array.isArray(data.grcControls)) saveGrcControls(data.grcControls);
     if (Array.isArray(data.grcIncidents)) saveGrcIncidents(data.grcIncidents);
     if (Array.isArray(data.grcContinuity)) saveGrcContinuity(data.grcContinuity);
+    if (Array.isArray(data.grcBia)) saveGrcBia(data.grcBia);
     if (Array.isArray(data.grcSuppliers)) saveGrcSuppliers(data.grcSuppliers);
     if (Array.isArray(data.grcVulns)) saveGrcVulns(data.grcVulns);
     if (Array.isArray(data.grcPrivacy)) saveGrcPrivacy(data.grcPrivacy);
@@ -2644,6 +2647,7 @@
   document.getElementById("resetGrcControlsBtn").addEventListener("click", () => settingsConfirmReset(grcT("settings.registryName.controls"), resetGrcControls));
   document.getElementById("resetGrcIncidentsBtn").addEventListener("click", () => settingsConfirmReset(grcT("settings.registryName.incidents"), resetGrcIncidents));
   document.getElementById("resetGrcContinuityBtn").addEventListener("click", () => settingsConfirmReset(grcT("settings.registryName.continuity"), resetGrcContinuity));
+  document.getElementById("resetGrcBiaBtn").addEventListener("click", () => settingsConfirmReset(grcT("settings.registryName.bia"), resetGrcBia));
   document.getElementById("resetGrcSuppliersBtn").addEventListener("click", () => settingsConfirmReset(grcT("settings.registryName.suppliers"), resetGrcSuppliers));
   document.getElementById("resetGrcVulnsBtn").addEventListener("click", () => settingsConfirmReset(grcT("settings.registryName.vulns"), resetGrcVulns));
   document.getElementById("resetGrcPrivacyBtn").addEventListener("click", () => settingsConfirmReset(grcT("settings.registryName.privacy"), resetGrcPrivacy));

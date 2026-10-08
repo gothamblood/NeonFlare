@@ -61,7 +61,9 @@ const GRC_LINK_TYPES = {
   plan: { key: "/grc/traitement-risques/registry", pageFile: "traitement-risques.html", tab: "plans", list: "renderGrcTreatmentPlansList", label: (e) => e.name, name: _L("Plan de traitement", "Treatment plan") },
   control: { key: "/grc/controles/registry", pageFile: "controles.html", tab: "registre", list: "renderGrcControlList", label: (e) => e.name, name: _L("Contrôle", "Control") },
   incident: { key: "/grc/incidents/registry", pageFile: "incidents.html", tab: "suivi", list: "renderGrcIncidentList", label: (e) => e.title, name: _L("Incident", "Incident") },
-  continuity: { key: "/grc/continuity/registry", pageFile: "continuite.html", tab: "registre", list: "grcContinuityOpenWith", label: (e) => e.service, name: _L("Plan de continuité", "Continuity plan") },
+  continuity: { key: "/grc/continuity/registry", pageFile: "continuite.html", tab: "faire-plan", list: "grcContinuityOpenWith", label: (e) => e.service, name: _L("Plan de continuité", "Continuity plan") },
+  // Registre BIA par processus (spec/grc-bia-register/ BP4) -- onglet « BIA » de continuite.html.
+  bia: { key: "/grc/bia/registry", pageFile: "continuite.html", tab: "bia", list: "grcBiaOpenWith", label: (e) => e.label, name: _L("Processus (BIA)", "Process (BIA)") },
   supplier: { key: "/grc/fournisseurs/registry", pageFile: "fournisseurs.html", tab: "registre", list: "renderGrcSuppliersList", label: (e) => e.name, name: _L("Fournisseur", "Supplier") },
   obligation: { key: "/grc/compliance/registry", filter: (e) => e.kind !== "audit", pageFile: "conformite.html", tab: "registre-conformite", list: "renderGrcObligationsList", label: (e) => (e.ref ? e.ref + " — " : "") + (e.title || ""), name: _L("Obligation", "Obligation") },
   audit: { key: "/grc/compliance/registry", filter: (e) => e.kind === "audit", pageFile: "conformite.html", tab: "registre-conformite", list: "renderGrcAuditsList", label: (e) => e.title, name: _L("Audit", "Audit") },
@@ -167,6 +169,13 @@ const GRC_LINKS = [
   { from: "continuity", path: "bia.resources[].roleId", to: "role", multi: true },
   { from: "continuity", path: "bia.resources[].assetId", to: "asset", multi: true },
   { from: "continuity", path: "bia.resources[].supplierId", to: "supplier", multi: true },
+  { from: "continuity", path: "biaId", to: "bia" },
+  { from: "bia", path: "processId", to: "processus", required: true },
+  { from: "bia", path: "dependencies[type=asset].targetId", to: "asset", multi: true },
+  { from: "bia", path: "dependencies[type=supplier].targetId", to: "supplier", multi: true },
+  { from: "bia", path: "bia.resources[].roleId", to: "role", multi: true },
+  { from: "bia", path: "bia.resources[].assetId", to: "asset", multi: true },
+  { from: "bia", path: "bia.resources[].supplierId", to: "supplier", multi: true },
   { from: "obligation", path: "controlIds", to: "control", multi: true },
   { from: "obligation", path: "sourceExigenceId", to: "exigence" },
   { from: "obligation", path: "sourceFacteurId", to: "facteurExt" },
@@ -226,6 +235,24 @@ const GRC_LINKS = [
   { from: "lecon", path: "actionId", to: "amelioration" },
   // Continuité
   { from: _ficheTypeName("continuite", "ressources-critiques"), path: "processus", to: "processus" },
+  { from: _ficheTypeName("continuite", "ressources-critiques"), path: "assetId", to: "asset" },
+  { from: _ficheTypeName("continuite", "ressources-critiques"), path: "supplierId", to: "supplier" },
+  { from: _ficheTypeName("continuite", "ressources-critiques"), path: "roleId", to: "role" },
+  { from: _ficheTypeName("continuite", "analyse-risques-pca"), path: "processusIds", to: "processus", multi: true },
+  { from: _ficheTypeName("continuite", "strategies"), path: "processusIds", to: "processus", multi: true },
+  { from: _ficheTypeName("continuite", "sauvegardes"), path: "processusIds", to: "processus", multi: true },
+  { from: _ficheTypeName("continuite", "disponibilite"), path: "assetId", to: "asset" },
+  { from: _ficheTypeName("continuite", "dependances-tech"), path: "assetId", to: "asset" },
+  { from: _ficheTypeName("continuite", "dependances-tech"), path: "supplierId", to: "supplier" },
+  { from: _ficheTypeName("continuite", "dependances-tech"), path: "declencheur", to: "role" },
+  { from: _ficheTypeName("continuite", "outils-crise"), path: "responsable", to: "role" },
+  { from: _ficheTypeName("analyse-risques", "noeud-papillon"), path: "riskId", to: "risk" },
+  { from: _ficheTypeName("analyse-risques", "noeud-papillon"), path: "controleIds", to: "control", multi: true },
+  { from: _ficheTypeName("analyse-risques", "noeud-papillon"), path: "planIds", to: "continuity", multi: true },
+  { from: _ficheTypeName("gouvernance", "raci"), path: "a", to: "role" },
+  { from: _ficheTypeName("gouvernance", "raci"), path: "r", to: "role", multi: true },
+  { from: _ficheTypeName("gouvernance", "raci"), path: "c", to: "role", multi: true },
+  { from: _ficheTypeName("gouvernance", "raci"), path: "i", to: "role", multi: true },
   { from: "arbreAppel", path: "roleId", to: "role" },
   { from: "arbreAppel", path: "plans", to: "continuity", multi: true },
   { from: _ficheTypeName("continuite-pcm", "journal"), path: "destinataire", to: "pp" },
@@ -453,6 +480,8 @@ const GRC_LINK_FIELD_LABELS = {
   "metric.controlId": _L("Contrôle mesuré", "Measured control"),
   "processing.recipientSupplierIds": _L("Fournisseurs destinataires", "Recipient suppliers"),
   "continuity.processId": _L("Processus couvert (cartographie)", "Covered process (process map)"),
+  "continuity.biaId": _L("BIA lié", "Linked BIA"),
+  "bia.processId": _L("Processus analysé (cartographie)", "Analysed process (process map)"),
 };
 
 if (typeof I18N_DICT !== "undefined") {
@@ -595,6 +624,36 @@ function grcLinksAddNew(type) {
   const url = base + tgt.file + "?grcnew=" + encodeURIComponent(tgt.list) + "#fiche-" + tgt.tab;
   window.open(url, "_blank");
   return true;
+}
+
+// Variante pour les <select> de lien construits à la main (formulaires BIA et
+// plans de continuité, hors grc-registry-kit) : renvoie le bouton « + Ajouter »
+// (ou null si le type n'est pas créable) et recharge les options au retour sur
+// l'onglet via refill(valeurCourante). Un seul écouteur par select. La cible
+// est résolue au clic : ces registres s'initialisent avant grc-fiches.js
+// (grcFicheListGlobal), donc grcLinksOpenTarget() vaudrait encore null ici.
+// `type` peut être une fonction (type choisi dans un autre select, ex. nature
+// d'une ressource) : résolu au clic ; le bouton se masque via grcLinksAddSync.
+function grcLinksAddButton(type, sel, refill) {
+  if (typeof type !== "function") {
+    const def = _grcLinksResolveType(type);
+    if (!def || def.virtual) return null;
+  }
+  const b = document.createElement("button");
+  b.type = "button";
+  b.className = "grk-link-add";
+  b.textContent = "+ " + grcT("grc.links.addNew");
+  b.title = grcT("grc.links.addNewTitle");
+  b.addEventListener("click", () => {
+    const t = typeof type === "function" ? type() : type;
+    if (t) grcLinksAddNew(t);
+  });
+  if (typeof refill === "function" && !sel._grcAddRefresh) {
+    sel._grcAddRefresh = () => { if (!document.hidden) refill(sel.value); };
+    window.addEventListener("focus", sel._grcAddRefresh);
+    document.addEventListener("visibilitychange", sel._grcAddRefresh);
+  }
+  return b;
 }
 
 /* ---------- M2 : bloc « Dépend de / Utilisé par » ------------------- */
@@ -814,7 +873,7 @@ function grcLinksRiskToTreat(risk, ctx) {
   return false;
 }
 
-/* ---------- M4 : ruptures T1–T21 ------------------------------------- */
+/* ---------- M4 : ruptures T1–T23 ------------------------------------- */
 
 const GRC_RUPTURES = [
   { code: "T1", sev: "high", label: _L("Enjeu de priorité haute sans risque", "High-priority stake without risk"), type: "enjeu",
@@ -867,15 +926,26 @@ const GRC_RUPTURES = [
       return missing.length ? [{ id: prog[0].id, cycle: grcLinksT(_L("Clauses manquantes : ", "Missing clauses: ")) + missing.join(", ") }] : [];
     } },
   { code: "T18", sev: "high", label: _L("Processus vital ou critique sans impacts dans le temps au BIA", "Vital or critical process without time-based impacts in the BIA"), type: "continuity",
+    // Couvert aussi par le BIA lié (spec/grc-bia-register/ BP4, champ biaId).
     test: (ctx) => ctx.list("continuity").filter((p) => (p.criticality === "vital" || p.criticality === "critique")
-      && !((p.bia && Array.isArray(p.bia.timeline)) ? p.bia.timeline : []).some((x) => x && x.level)) },
+      && !_grcLinksHasTimeline(p) && !_grcLinksHasTimeline(p.biaId ? ctx.get("bia", p.biaId) : null)) },
   { code: "T19", sev: "high", label: _L("Plan de continuité sans arbre d'appel", "Continuity plan without call tree"), type: "continuity",
     test: (ctx, idx) => ctx.list("continuity").filter((p) => !(idx["continuity:" + p.id] || []).some((r) => r.fromType === "arbreAppel")) },
   { code: "T20", sev: "low", label: _L("Source de risque retenue sans scénario", "Retained risk source without scenario"), type: "sourceRisque",
     test: (ctx, idx) => ctx.list("sourceRisque").filter((s) => s.retenue === "oui" && !(idx["sourceRisque:" + s.id] || []).some((r) => r.fromType === "scenario")) },
   { code: "T21", sev: "medium", label: _L("Revue de direction sans toutes les entrées obligatoires", "Management review missing mandatory inputs"), type: "revue",
     test: (ctx) => ctx.list("revue").filter((r) => GRC_REVIEW_INPUTS.some((k) => !(r[k] || "").trim())) },
+  // Registre BIA par processus (spec/grc-bia-register/ BP4).
+  { code: "T22", sev: "high", label: _L("Processus vital ou critique sans BIA", "Vital or critical process without BIA"), type: "processus",
+    test: (ctx, idx) => ctx.list("processus").filter((p) => (p.criticite === "vital" || p.criticite === "critique") && !(idx["processus:" + p.id] || []).some((r) => r.fromType === "bia")) },
+  { code: "T23", sev: "medium", label: _L("BIA d'un processus vital ou critique sans impacts dans le temps", "BIA of a vital or critical process without time-based impacts"), type: "bia",
+    test: (ctx) => ctx.list("bia").filter((p) => (p.criticality === "vital" || p.criticality === "critique") && !_grcLinksHasTimeline(p)) },
 ];
+
+// Au moins un horizon d'impact noté (BIA dans le temps, grc-normes N2).
+function _grcLinksHasTimeline(e) {
+  return !!(e && e.bia && Array.isArray(e.bia.timeline) && e.bia.timeline.some((x) => x && x.level));
+}
 
 // Entrées obligatoires d'une revue de direction (27001 9.3.2 / 22301 9.3.2).
 const GRC_REVIEW_INPUTS = ["inActions", "inChangements", "inRetours", "inNc", "inSurveillance", "inAudits", "inObjectifs", "inRisques", "inAmelioration"];
@@ -890,7 +960,8 @@ const GRC_RUPTURE_FIX = {
   T5: { label: _L("Ajouter la preuve", "Add evidence"), page: "documentation", tab: "preuves-audit", list: "renderGrcFiche_documentation_preuves_audit", values: (e) => ({ controle: e.id }) },
   T7: { label: _L("Suivre en conformité", "Track in compliance"), page: "conformite", tab: "registre-conformite", list: "renderGrcObligationsList", values: (e) => ({ title: e.exigence || "", sourceExigenceId: e.id }) },
   T8: { label: _L("Créer un contrôle", "Create a control"), page: "controles", tab: "registre", list: "renderGrcControlList", values: (e) => ({ name: e.title || "", obligationIds: [e.id] }) },
-  T9: { label: _L("Créer le plan de continuité", "Create the continuity plan"), page: "continuite", tab: "registre", list: "grcContinuityOpenWith", values: (e) => ({ service: e.nom || "", processId: e.id }) },
+  T9: { label: _L("Créer le plan de continuité", "Create the continuity plan"), page: "continuite", tab: "faire-plan", list: "grcContinuityOpenWith", values: (e) => ({ service: e.nom || "", processId: e.id }) },
+  T22: { label: _L("Créer le BIA du processus", "Create the process BIA"), page: "continuite", tab: "bia", list: "grcBiaOpenWith", values: (e) => ({ label: e.nom || "", processId: e.id, criticality: e.criticite }) },
   T10: { label: _L("Créer l'indicateur", "Create the indicator"), page: "indicateurs", tab: "registre", list: "renderGrcMetricsList", values: (e) => ({ name: e.enonce || "", objectifId: e.id }) },
   T12: { label: _L("Ajouter une exigence de sécurité", "Add a security requirement"), page: "fournisseurs", tab: "exigences-securite", list: "renderGrcFiche_fournisseurs_exigences_securite", values: (e) => ({ fournisseur: e.id }) },
   T13: { label: _L("Décider dans la DDA", "Decide in the SoA"), page: "controles", tab: "soa", list: null, values: () => ({}) },

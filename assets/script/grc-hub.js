@@ -6,7 +6,7 @@
    - B5  : carte 0 « Démarrer ici » (réduite dès 50 % documenté, D6).
    - B4  : vue compacte « Documents exigés ».
    - U6  : panneau « À faire ».
-   - CH5 : panneau « Chaîne » (ruptures T1–T21, réparation en un clic,
+   - CH5 : panneau « Chaîne » (ruptures T1–T23, réparation en un clic,
            rapprochements des anciens textes).
    - U9  : recherche globale (documentation + registres).
    Tout est calculé localement, sans fetch() ; les définitions des fiches

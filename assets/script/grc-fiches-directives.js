@@ -18,7 +18,7 @@
     ] },
     { id: "texte", type: "textarea", required: true, label: L("Texte de l’article", "Article text") },
     // Ancien champ `controle` (un seul contrôle) repris via `legacy`.
-    { id: "controles", type: "refs", legacy: "controle", label: L("Contrôles mis en œuvre", "Controls implemented"),
+    { id: "controles", type: "refs", linkTo: "control", legacy: "controle", label: L("Contrôles mis en œuvre", "Controls implemented"),
       source: () => grcFicheRefFrom(grcFicheSrc.controls(), (c) => (c.isoRef ? c.isoRef + " — " : "") + (c.name || "")) },
   ];
 
@@ -53,6 +53,10 @@
       policy("teletravail", "Politique télétravail", "Remote work policy", "ISO 27001 A.6.7",
         "Travailler hors des locaux en sécurité : accès distant, équipements, confidentialité à domicile. Exemple : « L’accès distant se fait uniquement par le VPN de l’organisation, avec MFA ».",
         "Working securely outside the premises: remote access, equipment, confidentiality at home. Example: \"Remote access only through the organization’s VPN, with MFA\"."),
+      // BYOD (note de cours) : sources officielles + Loi 25 art. 10.
+      policy("byod", "Politique BYOD (appareils personnels)", "BYOD policy (personal devices)", "ISO 27001 A.6.7 · A.8.1 · Loi 25 art. 10",
+        "Si et comment un appareil personnel peut servir au travail. Le Centre canadien pour la cybersécurité, le guide québécois Télétravail 101 et l’ANSSI recommandent tous d’utiliser les appareils fournis par l’organisation. La Loi 25 ne parle pas du BYOD — « la Loi 25 interdit le BYOD » est faux — mais son article 10 exige des mesures raisonnables selon la sensibilité, la quantité, la répartition et le support des renseignements : autoriser le BYOD ne transfère rien à l’employé (un appareil perdu, volé ou chiffré reste un incident de confidentialité de l’organisation : avis à la CAI et aux personnes si risque de préjudice sérieux, inscription au registre). Réponse professionnelle : ni refus sec ni oui complaisant — proposer le bureau virtuel (aucune donnée sur l’appareil, session détruite à la déconnexion). Exemple de règle : « Un appareil personnel n’accède aux données de l’organisation que par le bureau virtuel ».",
+        "Whether and how a personal device may be used for work. The Canadian Centre for Cyber Security, Québec's Télétravail 101 guide and ANSSI all recommend using organization-issued devices. Québec's Law 25 does not mention BYOD — \"Law 25 forbids BYOD\" is false — but its section 10 requires reasonable measures given the sensitivity, quantity, distribution and medium of the information: allowing BYOD transfers nothing to the employee (a lost, stolen or encrypted device is still the organization's confidentiality incident: notice to the CAI and the individuals if there is a risk of serious injury, entry in the register). Professional answer: neither a flat no nor a lax yes — offer a virtual desktop (no data on the device, session destroyed at logout). Example rule: \"A personal device reaches organization data only through the virtual desktop\"."),
       policy("transfert-information", "Politique de transfert de l’information", "Information transfer policy", "ISO 27001 A.5.14",
         "Comment l’information sort de l’organisation ou circule entre systèmes : courriel, partage de fichiers, supports amovibles, ententes avec les tiers. Exemple : « Tout envoi de renseignements confidentiels à l’externe passe par le portail de partage chiffré ».",
         "How information leaves the organization or moves between systems: email, file sharing, removable media, agreements with third parties. Example: \"Any external transmission of confidential information goes through the encrypted sharing portal\"."),
@@ -64,10 +68,10 @@
         kind: "link",
         title: L("Politique de continuité", "Continuity policy"),
         ref: L("ISO 27001 A.5.29 · ISO 22301 cl. 5.2", "ISO 27001 A.5.29 · ISO 22301 cl. 5.2"),
-        desc: L("La politique de continuité se rédige avec le PCA, dans Continuité › PCA — Plan de continuité des activités.",
-          "The continuity policy is written with the BCP, in Continuity › BCP — Business Continuity Plan."),
-        href: "continuite/pca.html",
-        links: [{ label: L("Continuité › PCA", "Continuity › BCP") }],
+        desc: L("Pas de seconde copie ici : la politique de continuité se rédige une seule fois, dans Continuité › Faire un plan, en ouvrant un plan de type PCA, onglet « Fiche » (contenu partagé par tous les plans PCA).",
+          "No second copy here: the continuity policy is written once, in Continuity › Create a plan, by opening a BCP-type plan, \"Sheet\" tab (content shared by all BCP plans)."),
+        href: "continuite.html#fiche-faire-plan",
+        links: [{ label: L("Continuité › Faire un plan (plan PCA › Fiche)", "Continuity › Create a plan (BCP plan › Sheet)") }],
       },
       {
         id: "registre",

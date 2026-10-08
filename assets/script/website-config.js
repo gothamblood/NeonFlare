@@ -92,8 +92,28 @@ const DEFAULT_WEBSITE_CATEGORIES = [
     { name: "GTFOBins", url: "https://gtfobins.github.io" },
     { name: "LOLBAS", url: "https://lolbas-project.github.io" },
   ] },
-  { id: "more", title: "More", sub: "Security Certification Roadmap", links: [
+  // « More » reprend aussi les anciennes « Ressources externes » du menu GRC
+  // (grc/ressources.html, retirée du menu le 2026-10-08) : Loi 25, modèles de
+  // politiques, clauses fournisseurs, retainer IR, normes. Liens vers des
+  // sites tiers, pas un avis juridique.
+  { id: "more", title: "More", sub: "Certification roadmap, Loi 25, GRC templates, standards", links: [
     { name: "Paul Jerimy — Security Certification Roadmap", url: "https://pauljerimy.com/security-certification-roadmap/" },
+    { name: "Légis Québec — Loi 25 (P-39.1)", url: "https://www.legisquebec.gouv.qc.ca/fr/document/lc/p-39.1" },
+    { name: "CAI — Principaux changements de la Loi 25", url: "https://www.cai.gouv.qc.ca/protection-renseignements-personnels/sujets-et-domaines-dinteret/principaux-changements-loi-25" },
+    { name: "CAI — Incidents de confidentialité et mesures de sécurité", url: "https://www.cai.gouv.qc.ca/protection-renseignements-personnels/information-entreprises-privees/incidents-confidentialite-mesures-securite-entreprises" },
+    { name: "CAI — Formulaire de déclaration d'incident (PDF)", url: "https://www.cai.gouv.qc.ca/uploads/pdfs/CAI_FO_Incident_Conf.pdf" },
+    { name: "CAI — Guide « Prévenir les incidents » (PDF)", url: "https://www.cai.gouv.qc.ca/uploads/pdfs/CAI_GU_ENTR_Prevention_incidents.pdf" },
+    { name: "CAI — Guides et fiches d'information", url: "https://www.cai.gouv.qc.ca/commission-acces-information/guide-fiches-information" },
+    { name: "SANS — Security Policy Templates", url: "https://www.sans.org/information-security-policy" },
+    { name: "SANS — Free Security Resources", url: "https://www.sans.org/security-resources/download" },
+    { name: "Aspen Tech Policy Hub — Vendor Cybersecurity Contract Language", url: "https://www.aspentechpolicyhub.org/wp-content/uploads/2020/06/Vendor-Cybersecurity-Contract-Language.pdf" },
+    { name: "Law Insider — Cybersecurity Clauses", url: "https://www.lawinsider.com/clause/cybersecurity" },
+    { name: "Law Insider — Incident Response Retainer Agreements", url: "https://www.lawinsider.com/contracts/tagged/incident-response-retainer-agreement" },
+    { name: "Mandiant — Incident Response Retainer", url: "https://services.google.com/fh/files/misc/incident-response-retainer-ds-en.pdf" },
+    { name: "Trustwave — DFIR Incident Response Retainer", url: "https://www.trustwave.com/hubfs/Web/Library/Legal_PDF/MSS-DFIR-Incident-Response-Retainer-%2824MAY2024%29.pdf" },
+    { name: "ISO — Technologies de l'information", url: "https://www.iso.org/sectors/it-technologies" },
+    { name: "NIST — Cybersecurity Framework", url: "https://www.nist.gov/cyberframework" },
+    { name: "CIS Controls v8", url: "https://www.cisecurity.org/controls/v8" },
   ] },
 ];
 
@@ -104,13 +124,16 @@ const DEFAULT_WEBSITE_CATEGORIES = [
    afterwards is respected (it never comes back). */
 const WEBSITE_ADDED_DEFAULTS = ["more"];
 const WEBSITE_DEFAULTS_SEEN_KEY = "/settings.html/websiteCategoriesDefaultsSeen";
+// { token, category, from } : liens de `category` à partir de l'index `from`
+// des défauts, à reporter une fois dans un registre déjà personnalisé.
+const WEBSITE_ADDED_LINKS = [{ token: "more:grc-resources", category: "more", from: 1 }];
 
 function _migrateWebsiteDefaults(raw) {
   let seen = [];
   try { seen = JSON.parse(localStorage.getItem(WEBSITE_DEFAULTS_SEEN_KEY) || "[]"); } catch (e) { seen = []; }
   if (!Array.isArray(seen)) seen = [];
   const todo = WEBSITE_ADDED_DEFAULTS.filter((id) => seen.indexOf(id) === -1);
-  if (!todo.length) return raw;
+  if (!todo.length && WEBSITE_ADDED_LINKS.every((t) => seen.indexOf(t.token) !== -1)) return raw;
   let changed = false;
   todo.forEach((id) => {
     if (!raw.some((c) => c && c.id === id)) {
@@ -123,6 +146,25 @@ function _migrateWebsiteDefaults(raw) {
       }
     }
     seen.push(id);
+  });
+  // Liens ajoutés après coup à une catégorie par défaut (ex. les anciennes
+  // « Ressources externes » dans « More ») : ajoutés UNE fois à la catégorie
+  // enregistrée si elle existe, URL déjà présentes ignorées ; un lien supprimé
+  // ensuite ne revient pas (jeton mémorisé dans `seen`).
+  WEBSITE_ADDED_LINKS.forEach((tok) => {
+    if (seen.indexOf(tok.token) !== -1) return;
+    const cat = raw.find((c) => c && c.id === tok.category);
+    const def = DEFAULT_WEBSITE_CATEGORIES.find((c) => c.id === tok.category);
+    if (cat && def) {
+      if (!Array.isArray(cat.links)) cat.links = [];
+      const have = cat.links.map((l) => l && l.url);
+      def.links.forEach((link, i) => {
+        if (i < tok.from || have.indexOf(link.url) !== -1) return;
+        cat.links.push(Object.assign({ id: def.id + "-l" + i }, link));
+        changed = true;
+      });
+    }
+    seen.push(tok.token);
   });
   try {
     if (changed) localStorage.setItem(WEBSITE_CATEGORIES_KEY, JSON.stringify(raw));

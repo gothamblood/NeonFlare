@@ -3,83 +3,17 @@
 <head>
     <meta charset="UTF-8" />
     <meta http-equiv="Content-Security-Policy" content="script-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'">
+    <meta http-equiv="refresh" content="0; url=../continuite.html#faire-plan">
+    <link rel="canonical" href="../continuite.html#faire-plan">
     <link rel="icon" type="image/svg+xml" href="../../assets/images/dragon-logo.svg">
-    <link rel="icon" type="image/png" href="../../assets/images/dragon-favicon.png">
-    <title>PGC — Plan de gestion de crise – GRC Cybersecurity</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" type="text/css" href="../../assets/css/grc.css">
+    <title>PGC — Continuité</title>
 </head>
-<body data-fiche-page="continuite-pgc">
-<header>
-    <nav class="nav">
-        <div class="logo">
-            <div class="logo-mark">C</div>
-            <div>Continuité</div>
-        </div>
-        <div class="nav-links">
-            <a href="../continuite.html" data-i18n="grc.common.backToContinuite">&larr; Retour à Continuité</a>
-        </div>
-    </nav>
-</header>
-
-<main>
-    <h1 class="page-title" data-i18n="grc.continuite.pgc.title">PGC — Plan de gestion de crise</h1>
-    <p class="page-subtitle" data-i18n="grc.continuite.pgc.subtitle">
-        Le PGC organise la réponse de la direction : déclenchement, cellule de crise décisionnelle, décisions et sortie de crise.
-    </p>
-
-    <section class="grc-fiche-root" id="grcFichesRoot"></section>
-
-    <section class="content-block">
-        <h2 data-i18n="grc.common.contentInclude">Contenu à inclure</h2>
-        <ul>
-            <li data-item-id="declenchement"><strong data-i18n="grc.continuite.pgc.c.declenchement.label">Déclenchement</strong> : <span data-i18n="grc.continuite.pgc.c.declenchement.desc">critères, seuils d’escalade depuis la gestion des incidents, autorité.</span> <span class="grc-control-tags">ISO 22301 cl. 8.4.2 · NIST RS.MA</span></li>
-            <li data-item-id="ccd"><strong data-i18n="grc.continuite.pgc.c.ccd.label">Cellule de crise décisionnelle (CCD)</strong> : <span data-i18n="grc.continuite.pgc.c.ccd.desc">composition, suppléants, mandat, modalités de réunion.</span> <span class="grc-control-tags">ISO 22301 cl. 8.4.2 · NIST GV.RR</span></li>
-            <li data-item-id="cellules"><strong data-i18n="grc.continuite.pgc.c.cellules.label">Cellules opérationnelles</strong> : <span data-i18n="grc.continuite.pgc.c.cellules.desc">TI, métier, communication, juridique : liens avec la CCD.</span> <span class="grc-control-tags">ISO 22301 cl. 8.4.2</span></li>
-            <li data-item-id="spoc"><strong data-i18n="grc.continuite.pgc.c.spoc.label">SPOC</strong> : <span data-i18n="grc.continuite.pgc.c.spoc.desc">point de contact unique pour la crise, par partie (interne, fournisseur, autorité).</span> <span class="grc-control-tags">ISO 22301 cl. 8.4.3 · NIST RS.CO</span></li>
-            <li data-item-id="main-courante"><strong data-i18n="grc.continuite.pgc.c.main-courante.label">Main courante</strong> : <span data-i18n="grc.continuite.pgc.c.main-courante.desc">journal horodaté des faits, décisions et actions.</span> <span class="grc-control-tags">ISO 22301 cl. 8.4.2 · ISO A.5.28</span></li>
-            <li data-item-id="salle-crise"><strong data-i18n="grc.continuite.pgc.c.salle-crise.label">Salle de crise et outils</strong> : <span data-i18n="grc.continuite.pgc.c.salle-crise.desc">lieux physiques et virtuels, moyens de communication hors bande.</span> <span class="grc-control-tags">ISO 22301 cl. 8.4.2</span></li>
-            <li data-item-id="aide-decision"><strong data-i18n="grc.continuite.pgc.c.aide-decision.label">Aide à la décision</strong> : <span data-i18n="grc.continuite.pgc.c.aide-decision.desc">tableau de situation, scénarios, options et arbitrages.</span> <span class="grc-control-tags">ISO 22301 cl. 8.4.2</span></li>
-            <li data-item-id="sortie"><strong data-i18n="grc.continuite.pgc.c.sortie.label">Sortie de crise</strong> : <span data-i18n="grc.continuite.pgc.c.sortie.desc">critères de désactivation, passage au PRA / PRI.</span> <span class="grc-control-tags">ISO 22301 cl. 8.4.5</span></li>
-            <li data-item-id="retex"><strong data-i18n="grc.continuite.pgc.c.retex.label">Retour d’expérience</strong> : <span data-i18n="grc.continuite.pgc.c.retex.desc">RETEX à chaud et à froid, plan d’actions.</span> <span class="grc-control-tags">ISO 22301 cl. 10 · NIST ID.IM</span></li>
-        </ul>
-
-        <h2 data-i18n="grc.common.roleTitle">Rôle en GRC</h2>
-        <p data-i18n="grc.continuite.pgc.role">Le PGC coordonne tous les autres plans : c’est la CCD qui décide de les activer et d’en sortir.</p>
-    </section>
-</main>
-
-
-<script src="../../assets/script/page-boot.js"></script>
-
-<script src="../../assets/script/i18n.js"></script>
-<script src="../../assets/script/grc-i18n.js"></script>
-<script src="../../assets/script/grc-i18n-components.js"></script>
-
-<script src="../../config/grc-author.js"></script>
-
-<script src="../../config/encryption.js"></script>
-
-<script src="../../assets/script/vault-crypto.js"></script>
-<script src="../../assets/script/theme-accent.js"></script>
-
-<script src="../../assets/script/vault.js"></script>
-<script src="../../assets/script/vault-ui.js"></script>
-
-<script src="../../assets/script/inline/apply-i18n.js"></script>
-
-<script src="../../assets/script/grc-checklist-migrate.js"></script>
-<script src="../../assets/script/grc-checklist.js"></script>
-<script src="../../assets/script/config-io.js"></script>
-<!-- Chaîne GRC + documentation par élément (spec/grc-fiches/, grc-normes N4) -->
-<script src="../../assets/script/grc-annexe-a.js"></script>
-<script src="../../assets/script/grc-links.js"></script>
-<script src="../../assets/script/grc-registry-kit.js"></script>
-<script src="../../assets/script/grc-vocab.js"></script>
-<script src="../../assets/script/grc-fiches.js"></script>
-<script src="../../assets/script/grc-fiches-continuite-sub.js"></script>
-<script src="../../assets/script/inline/init-grc-checklist.js"></script>
-<script src="../../assets/script/inline/init-grc-fiches.js"></script>
-
+<body>
+    <!-- Page déplacée (spec/grc-continuity-plans-register/ décision C) :
+         le contenu des plans vit maintenant dans le registre de
+         grc/continuite.html (onglet registre). Cette page ne subsiste que
+         pour rediriger les anciens liens / signets. -->
+    <p>Cette page a été intégrée au <a href="../continuite.html#faire-plan">registre de Continuité des activités</a>.</p>
+    <p lang="en">This page has moved to the <a href="../continuite.html#faire-plan">Business continuity register</a>.</p>
 </body>
 </html>

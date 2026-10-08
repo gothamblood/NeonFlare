@@ -1402,6 +1402,9 @@ function grcFichesInit() {
   }
 
   function show(id, focus) {
+    // Onglet hors fiche (ex. « bia » : registre de la page Continuité, ouvert
+    // par une ouverture croisée ou « + Ajouter ») : rien à afficher ici.
+    if (!def.elements.some((x) => x.id === id)) return;
     active = id;
     try { sessionStorage.setItem(tabKey, id); } catch (e) { /* stockage indisponible */ }
     def.elements.forEach((el) => {
@@ -1587,6 +1590,121 @@ function grcFichesInit() {
     root.addEventListener("click", () => setTimeout(() => { renderToc(); renderProgress(); renderChecklistLinks(); }, 0));
     root.addEventListener("submit", () => setTimeout(() => { renderToc(); renderProgress(); renderChecklistLinks(); }, 0));
   }
+}
+
+/* ---------- rendu embarqué d'une fiche (hors page singleton) --------
+   Monte la documentation d'une PAGE de fiche (ex. "continuite-pca") dans un
+   conteneur arbitraire, sans le chrome de grcFichesInit (en-tête repliable,
+   barre d'outils, hash, checklist globale). Réutilise exactement les mêmes
+   primitives de stockage (_grcFicheMountElement / grcFicheRenderTable) : le
+   contenu est donc PARTAGÉ (clés /grc/fiches/<page>/*), conforme à la
+   décision A1 « contenu par type ». Utilisé par le panneau d'un plan de
+   continuité (grc-continuity-panel.js, onglet « Fiche »). */
+const _GRC_FICHE_EMBED_TAB = Object.create(null); // page -> id d'élément actif
+
+function grcFichesRenderEmbedded(container, page) {
+  container.innerHTML = "";
+  const def = GRC_FICHE_DEFS[page];
+  if (!def || !Array.isArray(def.elements) || !def.elements.length) {
+    const p = document.createElement("p");
+    p.className = "grc-ir-hint";
+    p.textContent = grcT("grc.continuite.fiche.none");
+    container.appendChild(p);
+    return;
+  }
+  if (typeof vaultShouldGate === "function" && vaultShouldGate() &&
+      typeof vaultGateOr === "function" && vaultGateOr(container, () => grcFichesRenderEmbedded(container, page))) {
+    return;
+  }
+
+  const head = document.createElement("div");
+  head.className = "grc-fiche-embed-head";
+  const h = document.createElement("h4");
+  h.textContent = grcT("grc.fiche." + page + ".docTitle");
+  head.appendChild(h);
+  if (def.docRef) {
+    const r = document.createElement("p");
+    r.className = "grc-fiche-embed-ref";
+    r.textContent = def.docRef;
+    head.appendChild(r);
+  }
+  container.appendChild(head);
+
+  const elements = def.elements.slice();
+  let active = _GRC_FICHE_EMBED_TAB[page];
+  if (!elements.some((el) => el.id === active)) active = elements[0].id;
+
+  const tabbar = document.createElement("div");
+  tabbar.className = "grc-fiche-embed-tabs";
+  tabbar.setAttribute("role", "tablist");
+  const body = document.createElement("div");
+  body.className = "grc-fiche-embed-body";
+
+  function renderActive() {
+    body.innerHTML = "";
+    const el = elements.find((x) => x.id === active) || elements[0];
+    const k = grcFicheKeyPrefix(page, el.id);
+    const lead = grcT(k + ".lead");
+    const desc = grcT(k + ".desc");
+    const intro = (lead && lead !== k + ".lead") ? lead : ((desc && desc !== k + ".desc") ? desc : "");
+    if (intro) {
+      const p = document.createElement("p");
+      p.className = "grc-ir-hint grc-fiche-embed-lead";
+      p.textContent = intro;
+      body.appendChild(p);
+    }
+    if (el.kind === "view" || el.table || el.render) {
+      if (typeof el.render === "function") el.render(body);
+      else grcFicheRenderTable(body, _grcFicheSafeTable(el));
+    }
+    if (_grcFicheIsForm(el)) {
+      _grcFicheMountElement(page, el, body, syncTabs);
+    }
+  }
+
+  function syncTabs() {
+    tabbar.querySelectorAll(".grc-fiche-embed-tab").forEach((b) => {
+      const on = b.dataset.el === active;
+      b.classList.toggle("is-active", on);
+      b.setAttribute("aria-selected", on ? "true" : "false");
+      const el = elements.find((x) => x.id === b.dataset.el);
+      const badge = b.querySelector(".grc-fiche-embed-count");
+      if (badge && el) {
+        const c = grcFicheCount(page, el);
+        badge.textContent = c == null ? "" : String(c);
+      }
+    });
+  }
+
+  elements.forEach((el) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "grc-fiche-embed-tab";
+    btn.dataset.el = el.id;
+    btn.setAttribute("role", "tab");
+    const t = document.createElement("span");
+    t.textContent = grcT(grcFicheKeyPrefix(page, el.id) + ".title");
+    btn.appendChild(t);
+    const c = grcFicheCount(page, el);
+    if (c != null) {
+      const badge = document.createElement("span");
+      badge.className = "grc-fiche-embed-count";
+      badge.textContent = String(c);
+      btn.appendChild(badge);
+    }
+    btn.addEventListener("click", () => {
+      active = el.id;
+      _GRC_FICHE_EMBED_TAB[page] = el.id;
+      renderActive();
+      syncTabs();
+    });
+    tabbar.appendChild(btn);
+  });
+
+  container.appendChild(tabbar);
+  container.appendChild(body);
+  renderActive();
+  syncTabs();
 }
 
 // Ouvre l'onglet d'un élément (disponible après grcFichesInit).

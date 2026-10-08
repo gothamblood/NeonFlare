@@ -3,81 +3,17 @@
 <head>
     <meta charset="UTF-8" />
     <meta http-equiv="Content-Security-Policy" content="script-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'self'">
+    <meta http-equiv="refresh" content="0; url=../continuite.html#faire-plan">
+    <link rel="canonical" href="../continuite.html#faire-plan">
     <link rel="icon" type="image/svg+xml" href="../../assets/images/dragon-logo.svg">
-    <link rel="icon" type="image/png" href="../../assets/images/dragon-favicon.png">
-    <title>PRI — Plan de rétablissement informatique – GRC Cybersecurity</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" type="text/css" href="../../assets/css/grc.css">
+    <title>PRI — Continuité</title>
 </head>
-<body data-fiche-page="continuite-pri">
-<header>
-    <nav class="nav">
-        <div class="logo">
-            <div class="logo-mark">C</div>
-            <div>Continuité</div>
-        </div>
-        <div class="nav-links">
-            <a href="../continuite.html" data-i18n="grc.common.backToContinuite">&larr; Retour à Continuité</a>
-        </div>
-    </nav>
-</header>
-
-<main>
-    <h1 class="page-title" data-i18n="grc.continuite.pri.title">PRI — Plan de rétablissement informatique</h1>
-    <p class="page-subtitle" data-i18n="grc.continuite.pri.subtitle">
-        Le PRI organise le rétablissement APRÈS l’incident : restauration ou reconstruction des systèmes d’information et retour à l’état nominal.
-    </p>
-
-    <section class="grc-fiche-root" id="grcFichesRoot"></section>
-
-    <section class="content-block">
-        <h2 data-i18n="grc.common.contentInclude">Contenu à inclure</h2>
-        <ul>
-            <li data-item-id="ordre"><strong data-i18n="grc.continuite.pri.c.ordre.label">Ordre de rétablissement</strong> : <span data-i18n="grc.continuite.pri.c.ordre.desc">systèmes d’infrastructure d’abord (identité, réseau), puis applications selon les RTO.</span> <span class="grc-control-tags">ISO A.5.30 · NIST RC.RP</span></li>
-            <li data-item-id="restauration"><strong data-i18n="grc.continuite.pri.c.restauration.label">Restauration</strong> : <span data-i18n="grc.continuite.pri.c.restauration.desc">à partir des sauvegardes et images de référence, cohérente avec le RPO.</span> <span class="grc-control-tags">ISO A.8.13 · NIST RC.RP · CIS 11</span></li>
-            <li data-item-id="integrite"><strong data-i18n="grc.continuite.pri.c.integrite.label">Validation d’intégrité</strong> : <span data-i18n="grc.continuite.pri.c.integrite.desc">sauvegardes saines, absence de compromission, analyse avant remise en service.</span> <span class="grc-control-tags">ISO A.5.26 · NIST RC.RP · RS.AN</span></li>
-            <li data-item-id="reconstruction"><strong data-i18n="grc.continuite.pri.c.reconstruction.label">Reconstruction</strong> : <span data-i18n="grc.continuite.pri.c.reconstruction.desc">reconstruction sur base saine après cyberattaque, rotation des secrets.</span> <span class="grc-control-tags">ISO A.5.26 · NIST RC.RP</span></li>
-            <li data-item-id="bascule-retour"><strong data-i18n="grc.continuite.pri.c.bascule-retour.label">Bascule retour</strong> : <span data-i18n="grc.continuite.pri.c.bascule-retour.desc">retour du site de secours vers le site nominal, synchronisation des données.</span> <span class="grc-control-tags">ISO A.5.30 · NIST RC.RP</span></li>
-            <li data-item-id="validation"><strong data-i18n="grc.continuite.pri.c.validation.label">Validation technique</strong> : <span data-i18n="grc.continuite.pri.c.validation.desc">tests fonctionnels et de sécurité, supervision renforcée.</span> <span class="grc-control-tags">ISO A.8.29 · NIST RC.RP · DE.CM</span></li>
-            <li data-item-id="documentation"><strong data-i18n="grc.continuite.pri.c.documentation.label">Documentation</strong> : <span data-i18n="grc.continuite.pri.c.documentation.desc">journal des opérations, écarts aux RTO/RPO, mises à jour du plan.</span> <span class="grc-control-tags">ISO 22301 cl. 7.5 · NIST RC.RP</span></li>
-        </ul>
-
-        <h2 data-i18n="grc.common.roleTitle">Rôle en GRC</h2>
-        <p data-i18n="grc.continuite.pri.role">Après une cyberattaque, le PRI inclut la reconstruction sur une base saine : restaurer à l’identique peut réintroduire l’attaquant.</p>
-    </section>
-</main>
-
-
-<script src="../../assets/script/page-boot.js"></script>
-
-<script src="../../assets/script/i18n.js"></script>
-<script src="../../assets/script/grc-i18n.js"></script>
-<script src="../../assets/script/grc-i18n-components.js"></script>
-
-<script src="../../config/grc-author.js"></script>
-
-<script src="../../config/encryption.js"></script>
-
-<script src="../../assets/script/vault-crypto.js"></script>
-<script src="../../assets/script/theme-accent.js"></script>
-
-<script src="../../assets/script/vault.js"></script>
-<script src="../../assets/script/vault-ui.js"></script>
-
-<script src="../../assets/script/inline/apply-i18n.js"></script>
-
-<script src="../../assets/script/grc-checklist-migrate.js"></script>
-<script src="../../assets/script/grc-checklist.js"></script>
-<script src="../../assets/script/config-io.js"></script>
-<!-- Chaîne GRC + documentation par élément (spec/grc-fiches/, grc-normes N4) -->
-<script src="../../assets/script/grc-annexe-a.js"></script>
-<script src="../../assets/script/grc-links.js"></script>
-<script src="../../assets/script/grc-registry-kit.js"></script>
-<script src="../../assets/script/grc-vocab.js"></script>
-<script src="../../assets/script/grc-fiches.js"></script>
-<script src="../../assets/script/grc-fiches-continuite-sub.js"></script>
-<script src="../../assets/script/inline/init-grc-checklist.js"></script>
-<script src="../../assets/script/inline/init-grc-fiches.js"></script>
-
+<body>
+    <!-- Page déplacée (spec/grc-continuity-plans-register/ décision C) :
+         le contenu des plans vit maintenant dans le registre de
+         grc/continuite.html (onglet registre). Cette page ne subsiste que
+         pour rediriger les anciens liens / signets. -->
+    <p>Cette page a été intégrée au <a href="../continuite.html#faire-plan">registre de Continuité des activités</a>.</p>
+    <p lang="en">This page has moved to the <a href="../continuite.html#faire-plan">Business continuity register</a>.</p>
 </body>
 </html>

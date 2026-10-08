@@ -71,36 +71,9 @@
     ],
   });
 
-  grcFicheRegister("continuite-bia", {
-    docTitle: L("Bilan d’impact sur les activités (BIA)", "Business impact analysis (BIA)"),
-    docRef: "ISO 22301:2019 clause 8.2.2 · ISO/TS 22317",
-    elements: [
-      {
-        id: "synthese",
-        kind: "view",
-        essential: true,
-        title: L("Synthèse du BIA", "BIA summary"),
-        ref: L("ISO 22301 cl. 8.2.2", "ISO 22301 cl. 8.2.2"),
-        desc: L("Tiré du registre PCA/PRA : processus couvert, criticité, DMIA, DMIA suggérée par les impacts dans le temps, RTO, RPO. Les impacts par horizon se saisissent dans le registre, onglet « BIA dans le temps ».",
-          "Taken from the BCP/DRP register: covered process, criticality, MTPD, MTPD suggested by impacts over time, RTO, RPO. Impacts per horizon are entered in the register, \"BIA over time\" tab."),
-        table: () => {
-          const fmt = (m) => (typeof contFmtDuration === "function" ? contFmtDuration(m) : (m == null ? "" : String(m)));
-          const plans = grcFicheSrc.continuity();
-          return {
-            columns: [L("Service", "Service"), L("Processus", "Process"), L("Criticité", "Criticality"), L("DMIA", "MTPD"), L("DMIA suggérée", "Suggested MTPD"), L("RTO", "RTO"), L("RPO", "RPO")],
-            rows: plans.map((p) => {
-              const b = p.bia || {};
-              const sug = typeof grcContSuggestedMtd === "function" && typeof grcContinuityEnsureShape === "function" ? grcContSuggestedMtd(grcContinuityEnsureShape(p)) : null;
-              return [p.service || "", p.processId && typeof grcLinksLabel === "function" ? grcLinksLabel("processus", p.processId) : "",
-                p.criticality || "", fmt(b.mtdMin), fmt(sug), fmt(b.rtoMin), fmt(b.rpoMin)];
-            }),
-            empty: L("Aucun plan dans le registre (Continuité › Registre PCA/PRA).", "No plan in the register (Continuity › BCP/DRP register)."),
-          };
-        },
-        manage: "../continuite.html#fiche-registre",
-      },
-    ],
-  });
+  // (Fiche « continuite-bia » — vue « Synthèse du BIA » tirée des plans —
+  // retirée le 2026-10-08 : orpheline depuis la suppression de la sous-page
+  // et remplacée par le registre BIA par processus, onglet « BIA ».)
 
   grcFicheRegister("continuite-pco", {
     docTitle: L("Plan de continuité des opérations (PCO)", "Continuity of operations plan (COOP)"),
@@ -142,7 +115,7 @@
 
   grcFicheRegister("continuite-pgc", {
     docTitle: L("Plan de gestion de crise (PGC)", "Crisis management plan"),
-    docRef: "ISO 22301:2019 clauses 8.4.2, 8.4.3",
+    docRef: "ISO 22301:2019 clauses 8.4.2, 8.4.3 · ISO 22320 (gestion de crise)",
     elements: [
       {
         id: "arbre-appel",
@@ -167,14 +140,16 @@
       {
         id: "declenchement",
         title: L("Déclenchement et niveaux de crise", "Triggering and crisis levels"),
-        ref: L("ISO 22301 cl. 8.4.2", "ISO 22301 cl. 8.4.2"),
-        desc: L("Les seuils qui font passer d’un incident à une crise, et qui décide. Exemple : niveau 2 — plusieurs services clients arrêtés — le directeur général convoque la cellule.",
-          "The thresholds that turn an incident into a crisis, and who decides. Example: level 2 — several customer services down — the CEO convenes the cell."),
+        ref: L("ISO 22301 cl. 8.4.2 · ISO 22320", "ISO 22301 cl. 8.4.2 · ISO 22320"),
+        desc: L("Les seuils qui font passer d’un incident à une crise, qui décide et ce qui se déclenche. Échelle : pré-alerte (on évalue) → mineur (quelques unités touchées) → majeur (plusieurs unités) → crise (une grande partie de l’organisation). Exemple : majeur — plusieurs services clients arrêtés — la DG active le PCA et le RPCA convoque la cellule.",
+          "The thresholds that turn an incident into a crisis, who decides and what is triggered. Scale: pre-alert (assess) → minor (a few units hit) → major (several units) → crisis (a large part of the organization). Example: major — several customer services down — the CEO activates the BCP and the BCP manager convenes the cell."),
         header: ["niveau", "critere"],
         fields: [
-          { id: "niveau", type: "select", label: L("Niveau", "Level"), options: [O("1", "1 — Alerte", "1 — Alert"), O("2", "2 — Crise", "2 — Crisis"), O("3", "3 — Crise majeure", "3 — Major crisis")] },
+          // Valeurs 1-3 conservées (données existantes) ; 0 = pré-alerte ajoutée.
+          { id: "niveau", type: "select", label: L("Niveau", "Level"), options: [O("0", "0 — Pré-alerte (évaluation)", "0 — Pre-alert (assessment)"), O("1", "1 — Incident mineur / alerte (quelques unités)", "1 — Minor incident / alert (a few units)"), O("2", "2 — Incident majeur (plusieurs unités)", "2 — Major incident (several units)"), O("3", "3 — Crise (grande partie de l’organisation)", "3 — Crisis (large part of the organization)")] },
           { id: "critere", type: "textarea", required: true, label: L("Critères", "Criteria") },
           { id: "autorite", linkTo: "role", label: L("Qui décide", "Who decides") },
+          { id: "declenche", type: "textarea", hint: L("Ex. aviser le responsable désigné ; activer le PCA ; convoquer la cellule de crise ; déclencher le PRA", "E.g. notify the designated manager; activate the BCP; convene the crisis cell; trigger the DRP"), label: L("Ce qui se déclenche", "What is triggered") },
         ],
         example: { niveau: "2", critere: L("Plusieurs services clients arrêtés plus de 2 h", "Several customer services down for more than 2 h") },
       },
@@ -197,7 +172,7 @@
   });
 
   grcFicheRegister("continuite-pcm", {
-    docTitle: L("Plan de communication de crise (PCM)", "Crisis communication plan"),
+    docTitle: L("Plan de communication de crise (PCC)", "Crisis communication plan (PCC)"),
     docRef: "ISO 22301:2019 clause 8.4.3",
     elements: [
       {
@@ -265,7 +240,7 @@
 
   grcFicheRegister("continuite-pra", {
     docTitle: L("Plan de reprise des activités (PRA)", "Disaster recovery plan (DRP)"),
-    docRef: "ISO 22301:2019 clause 8.4.4 · ISO 27031",
+    docRef: "ISO 22301:2019 clause 8.4.4 · ISO/IEC 27031",
     elements: [
       {
         id: "sequence",
@@ -303,7 +278,7 @@
 
   grcFicheRegister("continuite-psi", {
     docTitle: L("Plan de secours informatique (PSI)", "IT contingency plan"),
-    docRef: "ISO 22301:2019 clause 8.3 · ISO 27031",
+    docRef: "ISO 22301:2019 clause 8.3 · ISO/IEC 27031",
     elements: [
       {
         id: "moyens",
@@ -341,7 +316,7 @@
 
   grcFicheRegister("continuite-pri", {
     docTitle: L("Plan de rétablissement informatique (PRI)", "IT recovery plan"),
-    docRef: "ISO 22301:2019 clause 8.4.4 · ISO 27031",
+    docRef: "ISO 22301:2019 clause 8.4.4 · ISO/IEC 27031",
     elements: [
       {
         id: "ordre",
@@ -378,7 +353,7 @@
 
   grcFicheRegister("continuite-tests-exercices", {
     docTitle: L("Tests et exercices", "Tests and exercises"),
-    docRef: "ISO 22301:2019 clause 8.5",
+    docRef: "ISO 22301:2019 clause 8.5 · ISO 22398 (exercices)",
     elements: [
       {
         id: "programme",
@@ -391,7 +366,7 @@
         header: ["exercice", "date"],
         fields: [
           { id: "exercice", type: "text", required: true, suggest: "exercice", label: L("Exercice", "Exercise") },
-          { id: "type", type: "select", label: L("Type", "Type"), options: [O("ttx", "Sur table (TTX)", "Tabletop (TTX)"), O("simulation", "Simulation", "Simulation"), O("bascule", "Bascule réelle", "Real failover"), O("complet", "Exercice complet", "Full exercise")] },
+          { id: "type", type: "select", label: L("Type", "Type"), options: [O("ttx", "Sur table (TTX)", "Tabletop (TTX)"), O("simulation", "Simulation", "Simulation"), O("restauration", "Test de restauration", "Restore test"), O("bascule", "Bascule réelle", "Real failover"), O("evacuation", "Exercice d’évacuation", "Evacuation drill"), O("complet", "Exercice complet", "Full exercise")] },
           PLAN,
           { id: "date", type: "date", label: L("Date prévue", "Planned date") },
           { id: "objectif", type: "text", label: L("Objectif", "Objective") },
@@ -409,6 +384,12 @@
         fields: [
           PLAN,
           { id: "date", type: "date", label: L("Date", "Date") },
+          // Ajoutés quand la fiche est devenue l'onglet « Tests & exercices »
+          // de continuite.html : type joué, scénario, participants, RTO observé.
+          { id: "type", type: "select", label: L("Type", "Type"), options: [O("ttx", "Sur table (TTX)", "Tabletop (TTX)"), O("simulation", "Simulation de crise", "Crisis simulation"), O("restauration", "Test de restauration", "Restore test"), O("bascule", "Bascule réelle", "Real failover"), O("evacuation", "Exercice d’évacuation", "Evacuation drill"), O("complet", "Exercice complet", "Full exercise")] },
+          { id: "scenario", type: "textarea", label: L("Scénario joué", "Scenario played") },
+          { id: "participants", type: "text", suggest: { vocab: "roles", from: ["role"] }, label: L("Participants", "Participants") },
+          { id: "rtoObserve", type: "text", hint: L("Temps réel de reprise constaté, à comparer au RTO visé du plan (ex. 5 h)", "Actual recovery time observed, to compare with the plan's target RTO (e.g. 5 h)"), label: L("RTO observé", "Observed RTO") },
           { id: "resultat", type: "select", label: L("Résultat", "Result"), options: [O("reussi", "Réussi", "Passed"), O("partiel", "Partiel", "Partial"), O("echec", "Échec", "Failed")] },
           { id: "observations", type: "textarea", label: L("Observations et écarts", "Observations and gaps") },
           { id: "actions", linkTo: "amelioration", multi: true, label: L("Actions (registre d’amélioration)", "Actions (improvement register)") },
@@ -416,6 +397,248 @@
         example: { resultat: "partiel", observations: L("Le suppléant du RSSI n’avait pas accès à l’arbre d’appel", "The CISO’s deputy had no access to the call tree") },
         cross: [{ label: L("Créer l’action", "Create the action"), page: "gouvernance", tab: "amelioration", list: "renderGrcFiche_gouvernance_amelioration",
           values: (e) => ({ nature: "amelioration", origine: "continuite", description: e.observations || "" }) }],
+      },
+    ],
+  });
+
+  /* ================================================================= *
+   *  Nouveaux types de plan (spec/grc-continuity-plans-register/ P3).
+   *  Même patron que ci-dessus ; i18n FR/EN installé par grcFicheRegister.
+   * ================================================================= */
+
+  grcFicheRegister("continuite-pui", {
+    docTitle: L("Plan d’urgence interne (PUI)", "Internal emergency plan"),
+    docRef: "ISO 22301:2019 clause 8.4.2 · sécurité des personnes",
+    elements: [
+      {
+        id: "consignes",
+        essential: true,
+        title: L("Consignes d’urgence", "Emergency instructions"),
+        ref: L("ISO 22301 cl. 8.4.2 · ISO A.7.11", "ISO 22301 cl. 8.4.2 · ISO A.7.11"),
+        lead: L("Les gestes immédiats pour protéger les personnes avant toute considération d’activité.", "The immediate actions to protect people, before any business consideration."),
+        desc: L("Une entrée par situation (incendie, intrusion, fuite…), avec le geste à faire et qui le déclenche. Exemple : incendie — évacuer par les issues de secours — déclenché par toute personne.",
+          "One entry per situation (fire, intrusion, leak…), with the action and who triggers it. Example: fire — evacuate through emergency exits — triggered by anyone."),
+        header: ["situation", "consigne"],
+        fields: [
+          { id: "situation", type: "select", label: L("Situation", "Situation"), options: [
+            O("incendie", "Incendie", "Fire"), O("intrusion", "Intrusion / malveillance", "Intrusion / malicious act"),
+            O("fuite", "Fuite / produit dangereux", "Leak / hazardous material"), O("medical", "Urgence médicale", "Medical emergency"),
+            O("meteo", "Événement météo / naturel", "Weather / natural event"),
+          ] },
+          { id: "consigne", type: "textarea", required: true, label: L("Consigne", "Instruction") },
+          { id: "responsable", type: "text", suggest: { vocab: "roles", from: ["role"] }, label: L("Qui déclenche", "Who triggers") },
+        ],
+        example: { situation: "incendie", consigne: L("Évacuer immédiatement par les issues de secours, ne pas prendre l’ascenseur", "Evacuate immediately through emergency exits, do not use the lift") },
+      },
+      {
+        id: "rassemblement",
+        title: L("Points de rassemblement", "Assembly points"),
+        ref: L("ISO 22301 cl. 8.4.2", "ISO 22301 cl. 8.4.2"),
+        desc: L("Où les personnes se regroupent et qui fait le comptage. Exemple : stationnement nord — comptage par le responsable d’étage.",
+          "Where people gather and who does the headcount. Example: north car park — headcount by the floor warden."),
+        header: ["lieu", "responsable"],
+        fields: [
+          { id: "lieu", type: "text", required: true, label: L("Lieu", "Location") },
+          { id: "responsable", type: "text", suggest: { vocab: "roles", from: ["role"] }, label: L("Responsable du comptage", "Headcount owner") },
+          { id: "capacite", type: "text", label: L("Capacité / notes", "Capacity / notes") },
+        ],
+        example: { lieu: L("Stationnement nord", "North car park"), responsable: L("Responsable d’étage", "Floor warden") },
+      },
+    ],
+  });
+
+  grcFicheRegister("continuite-prh", {
+    docTitle: L("Plan RH de crise (PRH)", "Crisis HR plan"),
+    docRef: "ISO 22301:2019 clause 8.3.2 · ressources humaines",
+    elements: [
+      {
+        id: "mobilisation",
+        essential: true,
+        title: L("Mobilisation et astreinte", "Mobilization and on-call"),
+        ref: L("ISO 22301 cl. 8.3.2 · 8.4.2", "ISO 22301 cl. 8.3.2 · 8.4.2"),
+        lead: L("Qui doit être disponible en crise, avec quelle astreinte et quel suppléant.", "Who must be available in a crisis, with what on-call rota and deputy."),
+        desc: L("Une entrée par fonction critique, avec les personnes et le suppléant. Exemple : paie — 2 gestionnaires + 1 suppléant — astreinte week-end.",
+          "One entry per critical function, with people and deputy. Example: payroll — 2 officers + 1 deputy — weekend on-call."),
+        header: ["fonction", "personnes"],
+        fields: [
+          { id: "fonction", type: "text", required: true, suggest: { vocab: "roles", from: ["role"] }, label: L("Fonction critique", "Critical function") },
+          { id: "roleId", linkTo: "role", label: L("Rôle", "Role") },
+          { id: "personnes", type: "text", suggest: { vocab: "roles", from: ["role"] }, label: L("Personnes", "People") },
+          { id: "suppleant", type: "text", suggest: { vocab: "roles", from: ["role"] }, label: L("Suppléant", "Deputy") },
+          { id: "astreinte", type: "text", label: L("Astreinte", "On-call") },
+        ],
+        example: { fonction: L("Paie", "Payroll"), personnes: L("2 gestionnaires", "2 officers"), astreinte: L("Week-end", "Weekend") },
+      },
+      {
+        id: "soutien",
+        title: L("Soutien aux personnes", "Support to people"),
+        ref: L("ISO 22301 cl. 7.3 · 8.4.2", "ISO 22301 cl. 7.3 · 8.4.2"),
+        desc: L("L’accompagnement des employés et de leurs familles pendant et après la crise. Exemple : cellule d’écoute psychologique — activée à la sortie de crise.",
+          "Support for employees and their families during and after the crisis. Example: psychological support line — activated when leaving crisis mode."),
+        header: ["mesure", "declencheur"],
+        fields: [
+          { id: "mesure", type: "textarea", required: true, label: L("Mesure de soutien", "Support measure") },
+          { id: "declencheur", type: "text", label: L("Déclencheur", "Trigger") },
+          { id: "responsable", type: "text", suggest: { vocab: "roles", from: ["role"] }, label: L("Responsable", "Owner") },
+        ],
+        example: { mesure: L("Cellule d’écoute psychologique pour le personnel", "Psychological support line for staff"), declencheur: L("Sortie de crise", "Leaving crisis mode") },
+      },
+    ],
+  });
+
+  grcFicheRegister("continuite-prl", {
+    docTitle: L("Plan de repli / hébergement (PRL)", "Relocation / fallback plan"),
+    docRef: "ISO 22301:2019 clause 8.4.4 · ISO A.7.11",
+    elements: [
+      {
+        id: "sites-repli",
+        essential: true,
+        title: L("Sites de repli", "Fallback sites"),
+        ref: L("ISO 22301 cl. 8.4.4 · ISO A.7.11", "ISO 22301 cl. 8.4.4 · ISO A.7.11"),
+        lead: L("Où les équipes travaillent si les locaux habituels sont inaccessibles.", "Where teams work if the usual premises are inaccessible."),
+        desc: L("Une entrée par site, avec sa capacité, son délai d’activation et le fournisseur/hébergeur. Exemple : bureau partagé de Laval — 10 postes — activable en 4 h.",
+          "One entry per site, with capacity, activation time and provider/host. Example: Laval shared office — 10 desks — activatable in 4 h."),
+        header: ["site", "capacite"],
+        fields: [
+          { id: "site", type: "text", required: true, label: L("Site de repli", "Fallback site") },
+          { id: "capacite", type: "text", label: L("Capacité", "Capacity") },
+          { id: "delai", type: "text", suggest: "delai", label: L("Délai d’activation", "Activation time") },
+          { id: "fournisseurs", linkTo: "supplier", multi: true, label: L("Hébergeur / fournisseur", "Host / supplier") },
+        ],
+        example: { site: L("Bureau partagé de Laval", "Laval shared office"), capacite: L("10 postes", "10 desks"), delai: L("4 h", "4 h") },
+      },
+      {
+        id: "activation",
+        title: L("Activation et accès", "Activation and access"),
+        ref: L("ISO 22301 cl. 8.4.4", "ISO 22301 cl. 8.4.4"),
+        desc: L("Comment on ouvre et sécurise le site de repli, et qui y a accès. Exemple : clés chez le gardien — accès validé par le responsable des opérations.",
+          "How the fallback site is opened and secured, and who has access. Example: keys held by the caretaker — access approved by the operations manager."),
+        header: ["etape", "responsable"],
+        fields: [
+          { id: "etape", type: "textarea", required: true, label: L("Étape d’activation", "Activation step") },
+          { id: "responsable", type: "text", suggest: { vocab: "roles", from: ["role"] }, label: L("Responsable", "Owner") },
+        ],
+        example: { etape: L("Récupérer les clés chez le gardien et ouvrir le site", "Collect the keys from the caretaker and open the site"), responsable: L("Responsable des opérations", "Operations manager") },
+      },
+    ],
+  });
+
+  grcFicheRegister("continuite-plog", {
+    docTitle: L("Plan logistique (PLOG)", "Logistics plan"),
+    docRef: "ISO 22301:2019 clause 8.3.2",
+    elements: [
+      {
+        id: "ressources-materielles",
+        essential: true,
+        title: L("Matériel et approvisionnement", "Equipment and supplies"),
+        ref: L("ISO 22301 cl. 8.3.2", "ISO 22301 cl. 8.3.2"),
+        lead: L("Le matériel indispensable pour fonctionner en mode dégradé, et comment le réapprovisionner.", "The equipment essential to run in degraded mode, and how to resupply it."),
+        desc: L("Une entrée par ressource matérielle critique, avec le stock de secours et le fournisseur. Exemple : groupe électrogène — 48 h de carburant — fournisseur X.",
+          "One entry per critical material resource, with contingency stock and supplier. Example: generator — 48 h of fuel — supplier X."),
+        header: ["ressource", "stock"],
+        fields: [
+          { id: "ressource", type: "text", required: true, label: L("Ressource matérielle", "Material resource") },
+          { id: "actifs", linkTo: "asset", multi: true, label: L("Actifs liés", "Linked assets") },
+          { id: "stock", type: "text", label: L("Stock de secours", "Contingency stock") },
+          { id: "fournisseurs", linkTo: "supplier", multi: true, label: L("Fournisseurs", "Suppliers") },
+        ],
+        example: { ressource: L("Groupe électrogène", "Generator"), stock: L("48 h de carburant", "48 h of fuel") },
+      },
+      {
+        id: "transport",
+        title: L("Transport et acheminement", "Transport and delivery"),
+        ref: L("ISO 22301 cl. 8.3.2", "ISO 22301 cl. 8.3.2"),
+        desc: L("Comment les personnes et le matériel sont acheminés vers les sites en crise. Exemple : navette vers le site de repli — transporteur Y — sur appel.",
+          "How people and equipment reach the sites during a crisis. Example: shuttle to the fallback site — carrier Y — on call."),
+        header: ["besoin", "moyen"],
+        fields: [
+          { id: "besoin", type: "text", required: true, label: L("Besoin", "Need") },
+          { id: "moyen", type: "text", label: L("Moyen", "Means") },
+          { id: "fournisseurs", linkTo: "supplier", multi: true, label: L("Transporteur", "Carrier") },
+        ],
+        example: { besoin: L("Navette vers le site de repli", "Shuttle to the fallback site"), moyen: L("Transporteur sur appel", "Carrier on call") },
+      },
+    ],
+  });
+
+  grcFicheRegister("continuite-pdep", {
+    docTitle: L("Plan de gestion des dépenses (PDEP)", "Expense management plan"),
+    docRef: "ISO 22301:2019 clause 7.1 · délégations financières",
+    elements: [
+      {
+        id: "delegations",
+        essential: true,
+        title: L("Délégations de dépense d’urgence", "Emergency spending delegations"),
+        ref: L("ISO 22301 cl. 7.1 · 8.4.2", "ISO 22301 cl. 7.1 · 8.4.2"),
+        lead: L("Qui peut engager des dépenses en crise, jusqu’à quel montant, sans la procédure habituelle.", "Who may commit spending in a crisis, up to what amount, outside the usual process."),
+        desc: L("Une entrée par délégation, avec le seuil et le signataire. Exemple : directrice des opérations — jusqu’à 25 k$ — par courriel confirmé.",
+          "One entry per delegation, with the threshold and signatory. Example: operations director — up to $25k — by confirmed email."),
+        header: ["signataire", "seuil"],
+        fields: [
+          { id: "signataire", type: "text", required: true, suggest: { vocab: "roles", from: ["role"] }, label: L("Signataire", "Signatory") },
+          { id: "roleId", linkTo: "role", label: L("Rôle", "Role") },
+          { id: "seuil", type: "text", label: L("Seuil / montant", "Threshold / amount") },
+          { id: "modalite", type: "text", label: L("Modalité d’approbation", "Approval method") },
+        ],
+        example: { signataire: L("Directrice des opérations", "Operations director"), seuil: L("Jusqu’à 25 k$", "Up to $25k"), modalite: L("Courriel confirmé", "Confirmed email") },
+      },
+      {
+        id: "suivi",
+        title: L("Suivi des dépenses de crise", "Crisis spending log"),
+        ref: L("ISO 22301 cl. 7.5 · 9.1", "ISO 22301 cl. 7.5 · 9.1"),
+        desc: L("Le journal des dépenses engagées en crise, pour la justification, l’assurance et le RETEX. Une entrée par dépense.",
+          "The log of spending committed during the crisis, for justification, insurance and lessons learned. One entry per expense."),
+        header: ["depense", "montant"],
+        fields: [
+          { id: "date", type: "date", label: L("Date", "Date") },
+          { id: "depense", type: "text", required: true, label: L("Dépense", "Expense") },
+          { id: "montant", type: "text", label: L("Montant", "Amount") },
+          { id: "justificatif", type: "text", label: L("Justificatif", "Supporting document") },
+        ],
+        example: { depense: L("Location de 10 postes au site de repli", "Rental of 10 desks at the fallback site"), montant: "8 000 $" },
+      },
+    ],
+  });
+
+  grcFicheRegister("continuite-prii", {
+    docTitle: L("Plan de réponse aux incidents informatiques (PRII)", "IT incident response plan (CIRP)"),
+    docRef: "ISO/IEC 27035 · ISO 27001 A.5.24–A.5.28",
+    elements: [
+      {
+        id: "detection",
+        essential: true,
+        title: L("Détection et qualification", "Detection and triage"),
+        ref: L("ISO 27035 · ISO A.5.24 · A.5.25", "ISO 27035 · ISO A.5.24 · A.5.25"),
+        lead: L("Comment un incident informatique est repéré, qualifié et classé en gravité.", "How an IT incident is detected, triaged and rated for severity."),
+        desc: L("Une entrée par source de détection ou critère de qualification. Exemple : alerte EDR — gravité élevée — escalade à l’astreinte sécurité.",
+          "One entry per detection source or triage criterion. Example: EDR alert — high severity — escalate to the security on-call."),
+        header: ["source", "gravite"],
+        fields: [
+          { id: "source", type: "text", required: true, label: L("Source / critère", "Source / criterion") },
+          { id: "gravite", type: "select", label: L("Gravité", "Severity"), options: [
+            O("faible", "Faible", "Low"), O("moyenne", "Moyenne", "Medium"), O("elevee", "Élevée", "High"), O("critique", "Critique", "Critical")] },
+          { id: "escalade", type: "text", suggest: { vocab: "roles", from: ["role"] }, label: L("Escalade vers", "Escalate to") },
+        ],
+        example: { source: L("Alerte EDR", "EDR alert"), gravite: "elevee", escalade: L("Astreinte sécurité", "Security on-call") },
+      },
+      {
+        id: "reponse",
+        essential: true,
+        title: L("Endiguement, éradication, reprise", "Containment, eradication, recovery"),
+        ref: L("ISO 27035 · ISO A.5.26 · NIST RS/RC", "ISO 27035 · ISO A.5.26 · NIST RS/RC"),
+        lead: L("Les étapes pour limiter, supprimer puis se remettre de l’incident, en lien avec le PRI.", "The steps to limit, remove then recover from the incident, linked to the IT recovery plan."),
+        desc: L("Une entrée par étape, dans l’ordre. Exemple : 1. isoler les postes touchés du réseau. Les preuves sont conservées avant toute remise en état.",
+          "One entry per step, in order. Example: 1. isolate affected hosts from the network. Evidence is preserved before any restoration."),
+        header: ["etape", "ordre"],
+        fields: [
+          ORDRE,
+          { id: "etape", type: "textarea", required: true, label: L("Étape", "Step") },
+          { id: "phase", type: "select", label: L("Phase", "Phase"), options: [
+            O("endiguement", "Endiguement", "Containment"), O("eradication", "Éradication", "Eradication"),
+            O("reprise", "Reprise", "Recovery"), O("preuves", "Préservation des preuves", "Evidence preservation")] },
+          { id: "responsable", type: "text", suggest: { vocab: "roles", from: ["role"] }, label: L("Responsable", "Owner") },
+        ],
+        example: { ordre: "1", etape: L("Isoler les postes touchés du réseau", "Isolate affected hosts from the network"), phase: "endiguement" },
       },
     ],
   });

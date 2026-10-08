@@ -693,12 +693,20 @@ function grcBuildExportPayload(sections, opts) {
    have nothing to refresh (they'd still read as unvisited either way). */
 function grcCollectRefreshTargets(sections) {
   const targets = [];
+  const seen = Object.create(null);
   sections.forEach((section) => {
     grcExpandDomains(section.domains)
       .forEach((d) => {
-        const url = section.basePath + d.link;
-        const path = new URL(url, location.href).pathname;
-        if (vaultGetItem(grcChecklistKeyFor(path))) targets.push({ url, path });
+        // La checklist vit sous la clé de `d.link` ; mais certains enfants
+        // n'ont plus de page propre (ex. plans de continuité : stubs de
+        // redirection) et déclarent `refreshVia` -> on charge CETTE page-là
+        // (qui re-persiste leur état), pas le stub. spec/grc-continuity-plans-register/.
+        const path = new URL(section.basePath + d.link, location.href).pathname;
+        if (!vaultGetItem(grcChecklistKeyFor(path))) return;
+        const url = section.basePath + (d.refreshVia || d.link);
+        if (seen[url]) return;
+        seen[url] = 1;
+        targets.push({ url, path });
       });
   });
   return targets;

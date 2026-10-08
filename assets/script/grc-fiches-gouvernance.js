@@ -208,6 +208,25 @@ function grcGovReviewPrefill() {
           { id: "autorite", type: "textarea", label: L("Autorité (ce qu’il approuve)", "Authority (what it approves)") },
         ],
       },
+      {
+        // Matrice RACI (note de cours « Qui fait quoi dans l’élaboration de la
+        // stratégie ») : une décision par ligne, UN seul A (champ simple).
+        id: "raci",
+        example: { decision: L("Niveaux de service minimaux (MBCO)", "Minimum service levels (MBCO)"), domaine: "continuite" },
+        title: L("Matrice RACI", "RACI matrix"),
+        ref: L("ISO 27001 cl. 5.3 · ISO 22301 cl. 5.3", "ISO 27001 cl. 5.3 · ISO 22301 cl. 5.3"),
+        desc: L("Qui Réalise, qui Approuve (un seul A par ligne), qui est Consulté, qui est Informé, pour chaque décision clé. Les rôles viennent de « Rôles et responsabilités ». Signal d’alerte : l’informatique qui porte le A sur les niveaux de service décide seule de la promesse faite aux clients. Exemple : « Niveaux de service minimaux (MBCO) » — R directions métier, A direction générale, C RPCA, I DSI.",
+          "Who is Responsible, who Approves (a single A per row), who is Consulted, who is Informed, for each key decision. Roles come from \"Roles and responsibilities\". Red flag: IT holding the A on service levels decides alone on the promise made to customers. Example: \"Minimum service levels (MBCO)\" — R business units, A executive management, C BCP manager, I IT."),
+        header: ["decision", "domaine"],
+        fields: [
+          { id: "decision", type: "text", required: true, label: L("Décision / activité", "Decision / activity") },
+          { id: "domaine", type: "select", label: L("Domaine", "Area"), options: [O("continuite", "Continuité", "Continuity"), O("securite", "Sécurité / SGSI", "Security / ISMS"), O("risques", "Risques", "Risk"), O("crise", "Gestion de crise", "Crisis management"), O("autre", "Autre", "Other")] },
+          { id: "r", linkTo: "role", multi: true, label: L("R — Réalise", "R — Responsible") },
+          { id: "a", linkTo: "role", required: true, label: L("A — Approuve et rend des comptes (un seul)", "A — Accountable (only one)") },
+          { id: "c", linkTo: "role", multi: true, label: L("C — Consulté", "C — Consulted") },
+          { id: "i", linkTo: "role", multi: true, label: L("I — Informé", "I — Informed") },
+        ],
+      },
 {
   id: "communication",
   title: L("Communication", "Communication"),

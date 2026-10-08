@@ -30,6 +30,7 @@ const VAULT_PROTECTED_EXACT_KEYS = [
   "/grc/incidents/registry",
   "/grc/controles/registry",
   "/grc/continuity/registry",
+  "/grc/bia/registry",
   "/grc/fournisseurs/registry",
   "/grc/vulns/registry",
   "/grc/privacy/registry",

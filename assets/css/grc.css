@@ -1778,6 +1778,119 @@ body.theme-tron .grc-ir-panel { --ir-kind-detection: #37c8e0; }
 .grc-cont-crit.important { color: var(--cont-crit-important); }
 .grc-cont-crit.differable { color: var(--cont-crit-differable); }
 
+/* Blocs BIA / Faire un plan / Tests de la page Continuité : déplacés dans
+   leur onglet de fiche (grc-fiches-continuite.js) ; masqués avant ce
+   déplacement pour éviter un flash en haut de page. */
+.grc-cont-block:not(.grc-fiche-moved) { display: none; }
+
+/* Taxonomie des plans (spec/grc-continuity-plans-register/). */
+.grc-cont-type-derived {
+  margin: 0.15rem 0 0.4rem;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+.grc-cont-type-chip {
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 0.12rem 0.45rem;
+  border-radius: 6px;
+  white-space: nowrap;
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  color: var(--accent);
+}
+.grc-cont-type-chip.grc-cont-type-none {
+  background: color-mix(in srgb, var(--muted) 14%, transparent);
+  border-color: color-mix(in srgb, var(--muted) 35%, transparent);
+  color: var(--muted);
+}
+/* En-tête de groupe du registre (une catégorie). */
+.grc-cont-group-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.9rem 0 0.25rem;
+  padding: 0.2rem 0;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text);
+  list-style: none;
+  border: none;
+}
+.grc-cont-group-head:first-child { margin-top: 0; }
+.grc-cont-group-level {
+  font-weight: 500;
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+.grc-cont-niv-dot {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 999px;
+  flex: 0 0 auto;
+  background: var(--muted);
+}
+/* Pastilles de niveau : 1🔴 2🟠 3🟡 4🔴 5🟢 6🟢. */
+.grc-cont-niv-1 .grc-cont-niv-dot,
+.grc-cont-niv-4 .grc-cont-niv-dot { background: #e5484d; }
+.grc-cont-niv-2 .grc-cont-niv-dot { background: #f5a524; }
+.grc-cont-niv-3 .grc-cont-niv-dot { background: #f2d600; }
+.grc-cont-niv-5 .grc-cont-niv-dot,
+.grc-cont-niv-6 .grc-cont-niv-dot { background: #46a758; }
+
+/* Onglets Fiche + Checklist embarqués (contenu partagé par type). */
+.grc-fiche-embed-head { margin-bottom: 0.5rem; }
+.grc-fiche-embed-head h4 { margin: 0 0 0.15rem; font-size: 0.95rem; }
+.grc-fiche-embed-ref { margin: 0; font-size: 0.72rem; color: var(--muted); }
+.grc-fiche-embed-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-bottom: 0.6rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.4rem;
+}
+.grc-fiche-embed-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.55rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--card-bg, transparent);
+  color: var(--text);
+  cursor: pointer;
+}
+.grc-fiche-embed-tab:hover { border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); }
+.grc-fiche-embed-tab.is-active {
+  background: color-mix(in srgb, var(--accent) 16%, transparent);
+  border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+  color: var(--accent);
+  font-weight: 600;
+}
+.grc-fiche-embed-count {
+  font-size: 0.66rem;
+  font-variant-numeric: tabular-nums;
+  padding: 0 0.3rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, currentColor 18%, transparent);
+}
+.grc-fiche-embed-lead { margin-top: 0; }
+/* Checklist de référence embarquée. */
+ul.grc-cont-checklist { list-style: none; margin: 0.4rem 0 0; padding: 0; }
+ul.grc-cont-checklist li.grc-checklist-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.35rem 0;
+  border-top: 1px solid var(--border);
+  line-height: 1.4;
+}
+ul.grc-cont-checklist li.grc-checklist-item .grc-item-checkbox { margin-top: 0.2rem; flex: 0 0 auto; }
+ul.grc-cont-checklist li.checked { opacity: 0.6; }
+
 .grc-cont-rto {
   font-size: 0.75rem;
   color: var(--muted);
@@ -3247,3 +3360,48 @@ body.theme-tron .grc-ir-panel { --ir-kind-detection: #37c8e0; }
     color: var(--cont-crit-important);
     font-weight: 600;
 }
+
+
+/* Disponibilité (Continuité) : chaîne sous la cible. */
+.grc-avail-box { margin: 0 0 1rem; }
+.grc-avail-table tr.grc-avail-miss td { color: var(--cont-crit-vital, #f85149); }
+
+/* Nœud papillon (Analyse de risques). */
+.grc-bowtie-box { display: grid; gap: 1rem; margin: 0 0 1rem; }
+.grc-bowtie {
+  display: grid;
+  grid-template-columns: 1fr 1fr minmax(8rem, 0.9fr) 1fr 1fr;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.75rem;
+  border: 1px solid rgba(127, 127, 127, 0.35);
+  border-radius: 10px;
+}
+.grc-bowtie-col { display: flex; flex-direction: column; gap: 0.3rem; }
+.grc-bowtie-h { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+.grc-bowtie-item { font-size: 0.82rem; padding: 0.3rem 0.5rem; border-radius: 6px; border: 1px solid rgba(127, 127, 127, 0.35); }
+.is-causes .grc-bowtie-item { border-color: rgba(248, 81, 73, 0.6); }
+.is-prev .grc-bowtie-item { background: rgba(46, 160, 67, 0.18); }
+.is-limit .grc-bowtie-item { background: rgba(31, 136, 161, 0.2); }
+.is-cons .grc-bowtie-item { border-color: rgba(210, 153, 34, 0.7); }
+.grc-bowtie-event {
+  text-align: center;
+  font-weight: 700;
+  padding: 1rem 0.6rem;
+  border-radius: 50%;
+  background: rgba(248, 81, 73, 0.25);
+  border: 1px solid rgba(248, 81, 73, 0.7);
+}
+@media (max-width: 760px) {
+  .grc-bowtie { grid-template-columns: 1fr; }
+  .grc-bowtie-event { border-radius: 10px; }
+}
+
+/* « Choisir le bon plan en quatre questions » (Continuité › Faire un plan). */
+.grc-cont-chooser { margin: 0 0 1rem; padding: 0.6rem 0.9rem; border: 1px solid rgba(127, 127, 127, 0.35); border-radius: 10px; }
+.grc-cont-chooser summary { cursor: pointer; font-weight: 600; }
+.grc-cont-chooser-q { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0.6rem 1rem; padding-left: 1.2rem; }
+.grc-cont-chooser-q p { margin: 0.2rem 0; font-weight: 600; }
+.grc-cont-chooser-opt { display: block; font-size: 0.88rem; cursor: pointer; }
+.grc-cont-chooser-out ul { margin: 0.4rem 0 0; padding-left: 1.2rem; }
+.grc-cont-chooser-out li { margin: 0.3rem 0; }

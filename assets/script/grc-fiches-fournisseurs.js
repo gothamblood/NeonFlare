@@ -11,7 +11,7 @@
 
   const sups = () => grcFicheSrc.suppliers();
   const crit = (v) => (["vital", "critique", "important", "mineur"].indexOf(v) !== -1 ? grcT("grc.fournisseurs.crit." + v) : (v || ""));
-  const supRef = { id: "fournisseur", type: "ref", label: L("Fournisseur", "Supplier"),
+  const supRef = { id: "fournisseur", type: "ref", linkTo: "supplier", label: L("Fournisseur", "Supplier"),
     source: () => grcFicheRefFrom(sups(), (s) => s.name) };
   const yn = (b) => (b ? grcFicheL(L("Oui", "Yes")) : grcFicheL(L("Non", "No")));
 
@@ -225,7 +225,7 @@
           };
         },
         manage: "registre",
-        links: [{ href: "continuite.html#fiche-registre", label: L("Registre PCA/PRA", "BCP/DRP register") }],
+        links: [{ href: "continuite.html#fiche-faire-plan", label: L("Registre PCA/PRA", "BCP/DRP register") }],
       },
     ],
   });

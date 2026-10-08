@@ -699,6 +699,13 @@ function grkDeepLinkOpener(hrefBase, id) {
    -form-row / -form-actions / -add-btn / -io-btn / -list / -item /
    -header / -body. Aucun CSS nouveau. */
 
+// Type de lien créable via « + Ajouter » (voir AV1 dans _grkForm).
+function _grkLinkCreatable(type) {
+  if (typeof _grcLinksResolveType !== "function") return false;
+  const def = _grcLinksResolveType(type);
+  return !!(def && !def.virtual && def.tab);
+}
+
 function _grkBtn(cls, text) {
   const b = document.createElement("button");
   b.type = "button";
@@ -1033,9 +1040,11 @@ function grkRegistry(cfg) {
         }
         // AV1 : bouton « + Ajouter » pour créer la cible du lien à la volée
         // (nouvel onglet), quand le type est créable (pas l'Annexe A statique
-        // ni un constat d'audit virtuel).
-        if (f.linkTo && typeof grcLinksAddNew === "function" &&
-            typeof grcLinksOpenTarget === "function" && grcLinksOpenTarget(f.linkTo)) {
+        // ni un constat d'audit virtuel). Créable = type connu et non virtuel,
+        // PAS grcLinksOpenTarget() : les registres s'initialisent avant
+        // grc-fiches.js, donc une cible « fiche » (processus, portée, objectif,
+        // enjeu…) y valait encore null et le bouton manquait.
+        if (f.linkTo && typeof grcLinksAddNew === "function" && _grkLinkCreatable(f.linkTo)) {
           const addBtn = _grkBtn("grk-link-add", "+ " + grcT("grc.links.addNew"));
           addBtn.title = grcT("grc.links.addNewTitle");
           addBtn.addEventListener("click", () => grcLinksAddNew(f.linkTo));

@@ -112,7 +112,7 @@
         header: ["preuve", "controle"],
         fields: [
           { id: "preuve", type: "text", required: true, label: L("Preuve", "Evidence") },
-          { id: "controle", type: "ref", label: L("Contrôle ou clause", "Control or clause"),
+          { id: "controle", type: "ref", linkTo: "control", label: L("Contrôle ou clause", "Control or clause"),
             source: () => grcFicheRefFrom(grcFicheSrc.controls(), (c) => (c.isoRef ? c.isoRef + " — " : "") + (c.name || "")) },
           { id: "emplacement", type: "text", label: L("Emplacement", "Location") },
           { id: "responsable", type: "text", suggest: { vocab: "roles", from: ["role"] }, label: L("Responsable", "Owner") },

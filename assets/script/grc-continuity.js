@@ -23,19 +23,58 @@
 const GRC_CONTINUITY_KEY = "/grc/continuity/registry";
 
 const GRC_CONT_CRITICALITY = ["vital", "critique", "important", "differable"];
-const GRC_CONT_DEP_TYPES = ["asset", "service", "supplier", "site", "people"];
+const GRC_CONT_DEP_TYPES = ["asset", "application", "data", "service", "supplier", "site", "people"];
 const GRC_CONT_REDUNDANCY_KINDS = ["backup", "ha", "failover-site", "cold-spare", "manual-workaround"];
-const GRC_CONT_TEST_KINDS = ["tabletop", "walkthrough", "failover", "full"];
+// Types d'exercice (note de cours / ISO 22398) : TTX, revue guidée,
+// simulation de crise, test de restauration, bascule, évacuation, grandeur nature.
+const GRC_CONT_TEST_KINDS = ["tabletop", "walkthrough", "simulation", "restore", "failover", "evacuation", "full"];
 const GRC_CONT_TEST_RESULTS = ["pass", "partial", "fail"];
 const GRC_CONT_DURATION_UNITS = ["min", "h", "j"];
 const GRC_CONT_DEFAULT_CADENCE = 12;
 // BIA dans le temps (grc-normes N2, décision E2) : horizons par défaut, en
 // minutes ; niveaux d'impact 1 (négligeable) à 5 (catastrophique).
 const GRC_CONT_BIA_HORIZONS = [240, 1440, 4320, 10080, 43200];
-const GRC_CONT_IMPACT_KINDS = ["financier", "operationnel", "reputation", "legal"];
+// Natures d'impact du BIA (note de cours : financier, opérationnel,
+// réputationnel, réglementaire, humain). `legal` = réglementaire / légal.
+const GRC_CONT_IMPACT_KINDS = ["financier", "operationnel", "reputation", "legal", "humain"];
 const GRC_CONT_RES_KINDS = ["role", "asset", "supplier", "other"];
 // Niveau à partir duquel l'impact est jugé inacceptable (DMIA suggérée).
 const GRC_CONT_UNACCEPTABLE = 4;
+
+// Taxonomie des plans de continuité (spec/grc-continuity-plans-register/,
+// décision B 2026-10-07). Un plan stocke `type` ; `niveau` (1–6) et
+// `categorie` en DÉRIVENT via cette table (pas de saisie redondante).
+// `fiche` = page de fiche de référence PARTAGÉE par ce type (décision A1 :
+// contenu par type, pas par instance). DRP partage la fiche du PRI (sous-cas).
+// Niveau → pastille couleur du registre (1🔴 2🟠 3🟡 4🔴 5🟢 6🟢).
+const GRC_CONT_PLAN_TYPES = [
+  { code: "PUI",  niveau: 1, categorie: "urgence",           fiche: "continuite-pui" },
+  { code: "PCA",  niveau: 2, categorie: "pilotage",          fiche: "continuite-pca" },
+  { code: "PGC",  niveau: 2, categorie: "pilotage",          fiche: "continuite-pgc" },
+  { code: "PCO",  niveau: 3, categorie: "continuite-metier", fiche: "continuite-pco" },
+  { code: "PSI",  niveau: 3, categorie: "continuite-ti",     fiche: "continuite-psi" },
+  { code: "PCC",  niveau: 3, categorie: "transversal",       fiche: "continuite-pcm" },
+  { code: "PRH",  niveau: 3, categorie: "transversal",       fiche: "continuite-prh" },
+  { code: "PRL",  niveau: 3, categorie: "transversal",       fiche: "continuite-prl" },
+  { code: "PLOG", niveau: 3, categorie: "transversal",       fiche: "continuite-plog" },
+  { code: "PDEP", niveau: 3, categorie: "transversal",       fiche: "continuite-pdep" },
+  { code: "PRII", niveau: 4, categorie: "reponse-ti",        fiche: "continuite-prii" },
+  { code: "PRI",  niveau: 5, categorie: "reprise-ti",        fiche: "continuite-pri" },
+  { code: "DRP",  niveau: 5, categorie: "reprise-ti",        fiche: "continuite-pri" },
+  { code: "PRA",  niveau: 6, categorie: "reprise-metier",    fiche: "continuite-pra" },
+];
+const GRC_CONT_PLAN_TYPE_BY_CODE = GRC_CONT_PLAN_TYPES.reduce(
+  (m, t) => { m[t.code] = t; return m; }, Object.create(null));
+// Catégories dans l'ordre de niveau (pour grouper/trier le registre).
+const GRC_CONT_PLAN_CATEGORIES = ["urgence", "pilotage", "continuite-metier",
+  "continuite-ti", "transversal", "reponse-ti", "reprise-ti", "reprise-metier"];
+const GRC_CONT_CAT_LEVEL = GRC_CONT_PLAN_TYPES.reduce(
+  (m, t) => { if (m[t.categorie] == null) m[t.categorie] = t.niveau; return m; }, Object.create(null));
+
+// Métadonnées d'un type (ou null si inconnu / non classé).
+function grcContTypeMeta(code) {
+  return GRC_CONT_PLAN_TYPE_BY_CODE[code] || null;
+}
 
 const _GRC_CONT_UNIT_MIN = { min: 1, h: 60, j: 1440 };
 
@@ -115,6 +154,11 @@ function grcContinuityEnsureShape(plan) {
     description: typeof src.description === "string" ? src.description : "",
     owner: typeof src.owner === "string" ? src.owner : "",
     criticality: GRC_CONT_CRITICALITY.indexOf(src.criticality) !== -1 ? src.criticality : "important",
+    // Type de plan + dérivés (spec/grc-continuity-plans-register/). Plan sans
+    // type reconnu => « Non classé » (type "", niveau 0, categorie ""), rien perdu.
+    type: GRC_CONT_PLAN_TYPE_BY_CODE[src.type] ? src.type : "",
+    niveau: GRC_CONT_PLAN_TYPE_BY_CODE[src.type] ? GRC_CONT_PLAN_TYPE_BY_CODE[src.type].niveau : 0,
+    categorie: GRC_CONT_PLAN_TYPE_BY_CODE[src.type] ? GRC_CONT_PLAN_TYPE_BY_CODE[src.type].categorie : "",
     bia: {
       mtdMin: _contNumOrNull(bia.mtdMin),
       rtoMin: _contNumOrNull(bia.rtoMin),
@@ -129,8 +173,8 @@ function grcContinuityEnsureShape(plan) {
         id: typeof t.id === "string" ? t.id : contId("hz"),
         horizonMin: _contNumOrNull(t.horizonMin),
         financier: _contLevel(t.financier), operationnel: _contLevel(t.operationnel),
-        reputation: _contLevel(t.reputation), legal: _contLevel(t.legal),
-        level: _contLevel(t.level) || Math.max(_contLevel(t.financier), _contLevel(t.operationnel), _contLevel(t.reputation), _contLevel(t.legal)),
+        reputation: _contLevel(t.reputation), legal: _contLevel(t.legal), humain: _contLevel(t.humain),
+        level: _contLevel(t.level) || Math.max.apply(null, GRC_CONT_IMPACT_KINDS.map((k) => _contLevel(t[k]))),
         note: typeof t.note === "string" ? t.note : "",
       })).sort((a, b) => (a.horizonMin || 0) - (b.horizonMin || 0)) : [],
       resources: Array.isArray(bia.resources) ? bia.resources.filter((r) => r && typeof r === "object").map((r) => ({
@@ -146,6 +190,8 @@ function grcContinuityEnsureShape(plan) {
     },
     // Chaîne GRC (chaine.md CH2) : processus de la cartographie couvert.
     processId: typeof src.processId === "string" ? src.processId : "",
+    // BIA lié (registre BIA par processus, spec/grc-bia-register/ C2).
+    biaId: typeof src.biaId === "string" ? src.biaId : "",
     dependencies: Array.isArray(src.dependencies)
       ? src.dependencies.map((d) => Object.assign({}, d, { spof: !!(d && d.spof) }))
       : [],
@@ -422,6 +468,54 @@ function grcContRemoveTest(id, testId) {
   });
 }
 
+/* ---------- exercices : source unique = Rapports d'exercice -----------
+   Les rapports de la fiche « continuite-tests-exercices » (onglet Tests &
+   exercices de la page) sont LA source des exercices réalisés. L'ancien
+   journal par plan (plan.tests) n'est plus saisi : chaque test qui n'y a
+   pas encore été recopié l'est une fois en rapport (id « pt-<id> », sauf
+   rapport du même plan à la même date), puis marqué `reported` -- un rapport
+   supprimé ensuite ne revient pas. plan.tests est conservé intact. */
+const GRC_CONT_REPORTS_KEY = "/grc/fiches/continuite-tests-exercices/rapports";
+const _CONT_TEST_TYPE = { tabletop: "ttx", walkthrough: "ttx", simulation: "simulation", restore: "restauration", failover: "bascule", evacuation: "evacuation", full: "complet" };
+const _CONT_TEST_RES = { pass: "reussi", partial: "partiel", fail: "echec" };
+
+function grcContAllReports() {
+  const list = grkStore(GRC_CONT_REPORTS_KEY).get();
+  return Array.isArray(list) ? list.filter((x) => x && typeof x === "object") : [];
+}
+
+// Rapports d'un plan, du plus ancien au plus récent.
+function grcContReports(planId) {
+  return grcContAllReports().filter((r) => r.plan === planId)
+    .sort((a, b) => String(a.date || "").localeCompare(String(b.date || "")));
+}
+
+function grcContSyncTestsToReports() {
+  if (typeof vaultShouldGate === "function" && vaultShouldGate()) return false;
+  const plans = getGrcContinuity();
+  const reports = grcContAllReports();
+  let changedPlans = false;
+  let changedReports = false;
+  plans.forEach((p) => (Array.isArray(p.tests) ? p.tests : []).forEach((t) => {
+    if (!t || t.reported) return;
+    const date = String(t.ts || t.date || "").slice(0, 10);
+    const dup = reports.some((r) => r.id === "pt-" + t.id || (r.plan === p.id && r.date === date));
+    if (!dup) {
+      const obs = [t.notes, t.gaps ? grcT("grc.continuite.pca.test.gaps") + " : " + t.gaps : "",
+        t.actions ? grcT("grc.continuite.pca.test.actions") + " : " + t.actions : ""].filter(Boolean).join("\n");
+      reports.push({ id: "pt-" + t.id, plan: p.id, date: date, type: _CONT_TEST_TYPE[t.kind] || "ttx",
+        resultat: _CONT_TEST_RES[t.result] || "partiel", observations: obs, actions: [],
+        scenario: "", participants: "", rtoObserve: "" });
+      changedReports = true;
+    }
+    t.reported = true;
+    changedPlans = true;
+  }));
+  if (changedReports) grkStore(GRC_CONT_REPORTS_KEY).save(reports);
+  if (changedPlans) saveGrcContinuity(plans);
+  return changedReports;
+}
+
 /* ---------- BIA / revue / cœur ------------------------------------- */
 
 function grcContSetBia(id, changes) {
@@ -457,9 +551,16 @@ function grcContSetCore(id, changes) {
     if ("description" in changes && typeof changes.description === "string") p.description = changes.description;
     if ("owner" in changes && typeof changes.owner === "string") p.owner = changes.owner.trim();
     if ("criticality" in changes && GRC_CONT_CRITICALITY.indexOf(changes.criticality) !== -1) p.criticality = changes.criticality;
+    if ("type" in changes) {
+      const m = GRC_CONT_PLAN_TYPE_BY_CODE[changes.type];
+      p.type = m ? changes.type : "";
+      p.niveau = m ? m.niveau : 0;
+      p.categorie = m ? m.categorie : "";
+    }
     if ("linkedIncident" in changes && typeof changes.linkedIncident === "string") p.linkedIncident = changes.linkedIncident.trim();
     if ("spoc" in changes && typeof changes.spoc === "string") p.spoc = changes.spoc.trim();
     if ("processId" in changes && typeof changes.processId === "string") p.processId = changes.processId;
+    if ("biaId" in changes && typeof changes.biaId === "string") p.biaId = changes.biaId;
     return true;
   });
 }
@@ -498,6 +599,18 @@ function grcContCoherence(plan) {
   return out;
 }
 
+// Clé i18n de l'avertissement d'une règle de cohérence (code -> clé camelCase).
+const GRC_CONT_COHERENCE_KEYS = {
+  "rto>mao": "grc.continuite.pca.warn.rtoGtMao",
+  "mao>dmia": "grc.continuite.pca.warn.maoGtDmia",
+  "rto>dmia": "grc.continuite.pca.warn.rtoGtMtd",
+  "rpo>rto": "grc.continuite.pca.warn.rpoGtRto",
+};
+
+function grcContCoherenceKey(code) {
+  return GRC_CONT_COHERENCE_KEYS[code] || "grc.continuite.pca.warn." + code;
+}
+
 function grcContSpofCount(plan) {
   return (plan && Array.isArray(plan.dependencies) ? plan.dependencies : []).filter((d) => d && d.spof).length;
 }
@@ -514,7 +627,7 @@ function grcContSummary(plans) {
       .filter((x) => x.gap != null)
       .sort((a, b) => b.gap - a.gap)
       .slice(0, 3),
-    tested: list.filter((p) => Array.isArray(p.tests) && p.tests.length > 0).length,
+    tested: list.filter((p) => grcContReports(p.id).length > 0).length,
     total: list.length,
   };
 }
@@ -551,6 +664,37 @@ async function importGrcContinuityFromJson(file) {
 function grcContCriticalityBadge(criticality) {
   const c = GRC_CONT_CRITICALITY.indexOf(criticality) !== -1 ? criticality : "important";
   return { cls: c, text: grcT("grc.continuite.pca.crit." + c) };
+}
+
+// Libellé affiché d'un type : « PCA — Plan de continuité des activités ».
+function grcContTypeLabel(code) {
+  if (!GRC_CONT_PLAN_TYPE_BY_CODE[code]) return grcT("grc.continuite.type.none");
+  return code + " — " + grcT("grc.continuite.type." + code);
+}
+
+// <option>/<optgroup> du champ Type, groupés par Niveau + Catégorie.
+function grcContTypeOptionsHtml(selected) {
+  const byCat = Object.create(null);
+  GRC_CONT_PLAN_TYPES.forEach((t) => { (byCat[t.categorie] = byCat[t.categorie] || []).push(t); });
+  let html = `<option value="">${contEscapeHtml(grcT("grc.continuite.type.none"))}</option>`;
+  GRC_CONT_PLAN_CATEGORIES.filter((c) => byCat[c]).forEach((c) => {
+    const groupLabel = grcT("grc.continuite.plevel." + GRC_CONT_CAT_LEVEL[c]) +
+      " · " + grcT("grc.continuite.pcat." + c);
+    html += `<optgroup label="${contEscapeHtml(groupLabel)}">`;
+    byCat[c].forEach((t) => {
+      html += `<option value="${t.code}"${t.code === selected ? " selected" : ""}>` +
+        contEscapeHtml(grcContTypeLabel(t.code)) + `</option>`;
+    });
+    html += `</optgroup>`;
+  });
+  return html;
+}
+
+// Texte « lecture seule » dérivé du type (niveau + catégorie), ou vide.
+function grcContTypeDerivedText(code) {
+  const m = grcContTypeMeta(code);
+  if (!m) return "";
+  return grcT("grc.continuite.plevel." + m.niveau) + " · " + grcT("grc.continuite.pcat." + m.categorie);
 }
 
 // Export minimal du registre (le détail par plan + Word/PDF/fiche = T7).
@@ -605,9 +749,15 @@ function renderGrcContinuitySummary() {
 }
 
 // Liste des processus de la cartographie (Contexte) pour le plan.
-function _contFillProcesses(sel, current) {
+// Entrée du registre BIA liée au plan (champ biaId), ou null.
+function grcContLinkedBia(plan) {
+  if (!plan || !plan.biaId || typeof getGrcBia !== "function") return null;
+  return getGrcBia().find((b) => b.id === plan.biaId) || null;
+}
+
+function _contFillProcesses(sel, current, type) {
   sel.innerHTML = "";
-  const opts = [{ value: "", label: "—" }].concat(typeof grcLinksKitOptions === "function" ? grcLinksKitOptions("processus") : []);
+  const opts = [{ value: "", label: "—" }].concat(typeof grcLinksKitOptions === "function" ? grcLinksKitOptions(type || "processus") : []);
   if (current && !opts.some((o) => o.value === current)) opts.push({ value: current, label: grcT("grc.fiche.ui.refMissing") });
   opts.forEach((o) => {
     const op = document.createElement("option");
@@ -622,6 +772,7 @@ function initGrcContinuityRegistry() {
   const container = document.getElementById("grcContinuityRegistry");
   if (!container) return;
   if (typeof vaultGateOr === "function" && vaultGateOr(container, initGrcContinuityRegistry)) return;
+  grcContSyncTestsToReports();
 
   let editingId = null;
   let expandedId = null;
@@ -646,9 +797,14 @@ function initGrcContinuityRegistry() {
     </div>
     <form class="grc-registry-form" id="contForm" style="display:none">
       <h3 id="contFormTitle">${grcT("grc.continuite.pca.form.title")}</h3>
+      <label>${grcT("grc.continuite.form.type")}
+        <select id="contType" required>${grcContTypeOptionsHtml("")}</select>
+      </label>
+      <p class="grc-cont-type-derived" id="contTypeDerived"></p>
       <label>${grcT("grc.continuite.pca.form.service")} <input type="text" id="contService" required></label>
       <label>${grcT("grc.continuite.pca.form.description")} <textarea id="contDescription" rows="2"></textarea></label>
       <label>${grcT("grc.links.f.continuity.processId")} <select id="contProcessId"></select></label>
+      <label>${grcT("grc.links.f.continuity.biaId")} <select id="contBiaId"></select></label>
       <div class="grc-registry-form-row">
         <label>${grcT("grc.continuite.pca.form.owner")} <input type="text" id="contOwner"></label>
         <label>${grcT("grc.continuite.pca.form.criticality")}
@@ -677,6 +833,16 @@ function initGrcContinuityRegistry() {
 
   const $ = (sel) => container.querySelector(sel);
 
+  // « + Ajouter » sous les selects processus (Contexte) et BIA (onglet BIA,
+  // nouvel onglet) ; options rechargées au retour sur cet onglet.
+  if (typeof grcLinksAddButton === "function") {
+    [["#contProcessId", "processus"], ["#contBiaId", "bia"]].forEach(([id, type]) => {
+      const sel = $(id);
+      const add = grcLinksAddButton(type, sel, (v) => _contFillProcesses(sel, v, type));
+      if (add) sel.parentNode.appendChild(add);
+    });
+  }
+
   function setDur(idBase, minutes) {
     const parts = contMinutesToParts(minutes);
     $("#" + idBase + "Val").value = parts.value === "" ? "" : parts.value;
@@ -692,11 +858,19 @@ function initGrcContinuityRegistry() {
     const mtd = getDur("contMtd");
     $("#contFormWarn").style.display = (rto != null && mtd != null && rto > mtd) ? "" : "none";
   }
+  function syncTypeDerived() {
+    const txt = grcContTypeDerivedText($("#contType").value);
+    const el = $("#contTypeDerived");
+    el.textContent = txt;
+    el.style.display = txt ? "" : "none";
+  }
 
   function showForm(plan) {
     editingId = plan ? plan.id : null;
     $("#contFormTitle").textContent = plan
       ? grcT("grc.continuite.pca.form.titleEdit") : grcT("grc.continuite.pca.form.title");
+    $("#contType").value = plan ? (plan.type || "") : (pending.type || "");
+    syncTypeDerived();
     $("#contService").value = plan ? (plan.service || "") : "";
     $("#contDescription").value = plan ? (plan.description || "") : "";
     $("#contOwner").value = plan ? (plan.owner || "")
@@ -704,6 +878,8 @@ function initGrcContinuityRegistry() {
     $("#contCriticality").value = plan ? plan.criticality : "important";
     $("#contLinkedIncident").value = plan ? (plan.linkedIncident || "") : "";
     _contFillProcesses($("#contProcessId"), plan ? plan.processId : (pending.processId || ""));
+    _contFillProcesses($("#contBiaId"), plan ? plan.biaId : (pending.biaId || ""), "bia");
+    if (!plan && !pending.biaId) syncBiaFromProcess();
     if (!plan && pending.service) $("#contService").value = pending.service;
     pending = {};
     const bia = plan && plan.bia ? plan.bia : {};
@@ -724,7 +900,18 @@ function initGrcContinuityRegistry() {
     $("#contAddBtn").style.display = "";
   }
 
+  // BIA lié vide : proposer le BIA du processus choisi (s'il y en a un).
+  function syncBiaFromProcess() {
+    const sel = $("#contBiaId");
+    const pid = $("#contProcessId").value;
+    if (sel.value || !pid || typeof getGrcBia !== "function") return;
+    const hit = getGrcBia().find((b) => b.processId === pid);
+    if (hit) sel.value = hit.id;
+  }
+
   $("#contAddBtn").addEventListener("click", () => showForm(null));
+  $("#contProcessId").addEventListener("change", syncBiaFromProcess);
+  $("#contType").addEventListener("change", syncTypeDerived);
   $("#contCancelBtn").addEventListener("click", hideForm);
   $("#contExportBtn").addEventListener("click", exportContinuityRegistryJson);
   $("#contImportBtn").addEventListener("click", () => $("#contImportFile").click());
@@ -752,16 +939,23 @@ function initGrcContinuityRegistry() {
     };
     const linkedIncident = $("#contLinkedIncident").value.trim();
     const processId = $("#contProcessId").value;
+    const biaId = $("#contBiaId").value;
+    const type = $("#contType").value;
+    const typeMeta = grcContTypeMeta(type);
     if (editingId) {
       const existing = getGrcContinuity().find((p) => p.id === editingId);
       const merged = Object.assign({}, existing && existing.bia, bia);
       updateGrcContinuityPlan(editingId, {
         service,
+        type,
+        niveau: typeMeta ? typeMeta.niveau : 0,
+        categorie: typeMeta ? typeMeta.categorie : "",
         description: $("#contDescription").value.trim(),
         owner: $("#contOwner").value.trim(),
         criticality: $("#contCriticality").value,
         linkedIncident,
         processId,
+        biaId,
         bia: merged,
       });
       if (typeof grcChainChanged === "function") {
@@ -771,11 +965,15 @@ function initGrcContinuityRegistry() {
     } else {
       addGrcContinuityPlan({
         service,
+        type,
+        niveau: typeMeta ? typeMeta.niveau : 0,
+        categorie: typeMeta ? typeMeta.categorie : "",
         description: $("#contDescription").value.trim(),
         owner: $("#contOwner").value.trim(),
         criticality: $("#contCriticality").value,
         linkedIncident,
         processId,
+        biaId,
         bia: bia,
       });
     }
@@ -792,7 +990,11 @@ function initGrcContinuityRegistry() {
 
     const header = document.createElement("div");
     header.className = "grc-registry-header";
+    const typeChip = plan.type
+      ? `<span class="grc-cont-type-chip" title="${contEscapeHtml(grcContTypeLabel(plan.type))}">${contEscapeHtml(plan.type)}</span>`
+      : `<span class="grc-cont-type-chip grc-cont-type-none">${contEscapeHtml(grcT("grc.continuite.type.none"))}</span>`;
     header.innerHTML =
+      typeChip +
       `<span>${plan.service || ""}</span>` +
       `<span class="grc-cont-crit ${crit.cls}">${crit.text}</span>` +
       `<span class="grc-cont-rto">${grcT("grc.continuite.pca.detail.rto").replace("{value}", contFmtDuration(plan.bia && plan.bia.rtoMin))}</span>` +
@@ -852,12 +1054,45 @@ function initGrcContinuityRegistry() {
   }
 
   // Ouverture pré-remplie depuis une autre page (grcFicheCrossOpen).
-  window.grcContinuityOpenWith = { openWith: (values) => { pending = values || {}; showForm(null); } };
+  window.grcContinuityOpenWith = { openWith: (values) => {
+    if (typeof grcContinuiteShowTab === "function") grcContinuiteShowTab("faire-plan");
+    pending = values || {};
+    showForm(null);
+  } };
+
+  // Registre regroupé par catégorie (ordre de niveau), « Non classé » en fin.
+  function appendGroupHead(list, niveau, labelKey, label) {
+    const head = document.createElement("li");
+    head.className = "grc-cont-group-head grc-cont-niv-" + niveau;
+    const dot = document.createElement("span");
+    dot.className = "grc-cont-niv-dot";
+    head.appendChild(dot);
+    const span = document.createElement("span");
+    span.textContent = label || grcT(labelKey);
+    head.appendChild(span);
+    if (niveau) {
+      const lvl = document.createElement("span");
+      lvl.className = "grc-cont-group-level";
+      lvl.textContent = grcT("grc.continuite.plevel." + niveau);
+      head.appendChild(lvl);
+    }
+    list.appendChild(head);
+  }
 
   window.renderGrcContinuityList = function () {
     const list = $("#contList");
     list.innerHTML = "";
-    getGrcContinuity().forEach((plan) => list.appendChild(buildPlanItem(plan)));
+    const plans = getGrcContinuity();
+    const byCat = Object.create(null);
+    plans.forEach((p) => { (byCat[p.categorie || ""] = byCat[p.categorie || ""] || []).push(p); });
+    GRC_CONT_PLAN_CATEGORIES.filter((c) => byCat[c] && byCat[c].length).forEach((c) => {
+      appendGroupHead(list, GRC_CONT_CAT_LEVEL[c], "grc.continuite.pcat." + c);
+      byCat[c].forEach((plan) => list.appendChild(buildPlanItem(plan)));
+    });
+    if (byCat[""] && byCat[""].length) {
+      appendGroupHead(list, 0, "grc.continuite.cat.none", grcT("grc.continuite.type.none"));
+      byCat[""].forEach((plan) => list.appendChild(buildPlanItem(plan)));
+    }
     renderGrcContinuitySummary();
   };
 
@@ -894,4 +1129,90 @@ function initGrcContinuityRegistry() {
 
   renderGrcContinuityList();
   applyContinuityDeepLink();
+}
+
+/* ---------- « Choisir le bon plan en quatre questions » ---------------
+   Aide de la note de cours, posée dans cet ordre : (1) des personnes
+   sont-elles menacées ? -> PUI d'abord ; (2) service dégradé ou arrêté ?
+   -> continuité (PCA, PCO, PSI) ou reprise (PRA, PRI, DRP) ; (3) l'origine
+   est-elle une compromission ? -> PRII d'abord (confiner, copie saine) ;
+   (4) qui décide ? -> niveau I SPOC, II directeurs + RPCA, III cellule de
+   crise. Chaque type proposé ouvre le formulaire « Ajouter un plan » prérempli. */
+function renderGrcContPlanChooser() {
+  const root = document.getElementById("grcContPlanChooser");
+  if (!root) return;
+  root.innerHTML = "";
+  const det = document.createElement("details");
+  det.className = "grc-cont-chooser";
+  const sum = document.createElement("summary");
+  sum.textContent = grcT("grc.cont.choose.title");
+  det.appendChild(sum);
+  const lead = document.createElement("p");
+  lead.className = "grk-hint";
+  lead.textContent = grcT("grc.cont.choose.lead");
+  det.appendChild(lead);
+
+  const Q = [
+    { id: "people", opts: ["yes", "no"] },
+    { id: "service", opts: ["degraded", "stopped"] },
+    { id: "compromise", opts: ["yes", "no"] },
+    { id: "who", opts: ["n1", "n2", "n3"] },
+  ];
+  const state = {};
+  const out = document.createElement("div");
+  out.className = "grc-cont-chooser-out";
+  const grid = document.createElement("ol");
+  grid.className = "grc-cont-chooser-q";
+  Q.forEach((q) => {
+    const li = document.createElement("li");
+    const p = document.createElement("p");
+    p.textContent = grcT("grc.cont.choose.q." + q.id);
+    li.appendChild(p);
+    q.opts.forEach((o) => {
+      const lab = document.createElement("label");
+      lab.className = "grc-cont-chooser-opt";
+      const r = document.createElement("input");
+      r.type = "radio";
+      r.name = "grcContChoose-" + q.id;
+      r.value = o;
+      r.addEventListener("change", () => { state[q.id] = o; draw(); });
+      lab.appendChild(r);
+      lab.appendChild(document.createTextNode(" " + grcT("grc.cont.choose.a." + q.id + "." + o)));
+      li.appendChild(lab);
+    });
+    grid.appendChild(li);
+  });
+  det.appendChild(grid);
+  det.appendChild(out);
+
+  function draw() {
+    out.innerHTML = "";
+    const steps = [];
+    if (state.people === "yes") steps.push({ key: "people", types: ["PUI"] });
+    if (state.compromise === "yes") steps.push({ key: "compromise", types: ["PRII"] });
+    if (state.service === "degraded") steps.push({ key: "degraded", types: ["PCA", "PCO", "PSI"] });
+    if (state.service === "stopped") steps.push({ key: "stopped", types: ["PRA", "PRI", "DRP"] });
+    if (state.who) steps.push({ key: "who." + state.who, types: state.who === "n3" ? ["PGC", "PCC"] : [] });
+    if (!steps.length) return;
+    const ul = document.createElement("ul");
+    steps.forEach((s) => {
+      const li = document.createElement("li");
+      li.appendChild(document.createTextNode(grcT("grc.cont.choose.r." + s.key) + " "));
+      s.types.forEach((t) => {
+        if (!GRC_CONT_PLAN_TYPES.some((x) => x.code === t)) return;
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "grk-link-add grc-cont-chooser-add";
+        b.dataset.type = t;
+        b.textContent = "+ " + t;
+        b.title = grcT("grc.continuite.type." + t);
+        b.addEventListener("click", () => { if (window.grcContinuityOpenWith) window.grcContinuityOpenWith.openWith({ type: t }); });
+        li.appendChild(b);
+        li.appendChild(document.createTextNode(" "));
+      });
+      ul.appendChild(li);
+    });
+    out.appendChild(ul);
+  }
+  root.appendChild(det);
 }

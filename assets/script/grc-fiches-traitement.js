@@ -82,7 +82,7 @@
           { id: "plafond", type: "text", label: L("Plafond", "Limit") },
           { id: "franchise", type: "text", hint: L("Montant restant à la charge de l’organisation ($)", "Amount left for the organization to pay ($)"), label: L("Franchise", "Deductible") },
           { id: "echeance", type: "text", label: L("Échéance (AAAA-MM-JJ)", "Expiry (YYYY-MM-DD)") },
-          { id: "plan", type: "ref", label: L("Plan de traitement lié", "Linked treatment plan"),
+          { id: "plan", type: "ref", linkTo: "plan", label: L("Plan de traitement lié", "Linked treatment plan"),
             source: () => grcFicheRefFrom(plans(), (p) => p.name) },
         ],
       },
