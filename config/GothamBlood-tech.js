@@ -26,10 +26,10 @@ const neonflareTechnologyConfig = {
       "subI18n": "tech.github.sub"
     },
     {
-      "url": "#",
+      "url": "https://www.youtube.com/@GothamBloodTech",
       "img": "../assets/images/icon-youtube.svg",
       "title": "YouTube",
-      "sub": "Vidéos et démos (à venir)",
+      "sub": "Vidéos et démos",
       "titleI18n": "tech.youtube.title",
       "subI18n": "tech.youtube.sub"
     },

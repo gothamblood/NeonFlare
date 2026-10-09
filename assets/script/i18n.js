@@ -495,7 +495,7 @@ const I18N_DICT = {
   "tech.github.title": { fr: "GitHub", en: "GitHub" },
   "tech.github.sub": { fr: "Dépôts de code", en: "Code repositories" },
   "tech.youtube.title": { fr: "YouTube", en: "YouTube" },
-  "tech.youtube.sub": { fr: "Vidéos et démos (à venir)", en: "Videos and demos (coming soon)" },
+  "tech.youtube.sub": { fr: "Vidéos et démos", en: "Videos and demos" },
   "tech.license.title": { fr: "Licence", en: "License" },
   "tech.license.sub": {
     fr: "MIT -- libre d'usage, de modification et de redistribution",

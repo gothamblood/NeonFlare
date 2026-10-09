@@ -27,7 +27,7 @@ const reseauConfig = {
       "log": false,
       "id": "seed-gothamtech",
       "url": "https://gothamtech.ca/",
-      "img": "../assets/images/dragon-logo.svg",
+      "img": "../assets/images/gt-logo-192.png",
       "title": "GothamTech.ca",
       "sub": "Site web",
       "category": "GothamTech"
