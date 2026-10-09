@@ -2,6 +2,14 @@ const neonflareTechnologyConfig = {
   "background": "../assets/images/kali_xl_city.png",
   "cards": [
     {
+      "url": "https://gothamtech.ca/",
+      "img": "../assets/images/gt-logo-192.png",
+      "title": "Source officielle",
+      "sub": "GothamTech.ca",
+      "titleI18n": "tech.gothamtech.title",
+      "subI18n": "tech.gothamtech.sub"
+    },
+    {
       "url": "https://neonflare.ca/documentation.html",
       "img": "../assets/images/icon-docs.svg",
       "title": "Documentation",

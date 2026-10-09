@@ -488,6 +488,8 @@ const I18N_DICT = {
      user-added Network cards, these 5 are shipped, not something a
      self-hoster edits via a Settings UI, so translating them in place
      (rather than leaving them as "page content") is the right call. */
+  "tech.gothamtech.title": { fr: "Source officielle", en: "Official source" },
+  "tech.gothamtech.sub": { fr: "GothamTech.ca", en: "GothamTech.ca" },
   "tech.docs.title": { fr: "Documentation", en: "Documentation" },
   "tech.docs.sub": { fr: "Guides et références", en: "Guides and references" },
   "tech.github.title": { fr: "GitHub", en: "GitHub" },

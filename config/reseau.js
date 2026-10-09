@@ -12,7 +12,7 @@ const reseauConfig = {
       "img": "../assets/images/dragon4_logo.png",
       "title": "NeonFlare.ca",
       "sub": "Site web",
-      "category": "NeonFlare"
+      "category": "GothamTech"
     },
     {
       "log": false,
@@ -21,19 +21,16 @@ const reseauConfig = {
       "img": "../assets/images/icon-github.svg",
       "title": "GothamBlood",
       "sub": "GitHub",
-      "category": "NeonFlare"
+      "category": "GothamTech"
     },
     {
       "log": false,
-      // Pas encore en ligne : affiché « coming soon », ni vérifié ni compté
-      // (network-dashboard.js isSoonNode). Retirer "soon" à la mise en ligne.
       "id": "seed-gothamtech",
       "url": "https://gothamtech.ca/",
       "img": "../assets/images/dragon-logo.svg",
       "title": "GothamTech.ca",
-      "sub": "Bientôt disponible",
-      "category": "NeonFlare",
-      "soon": true
+      "sub": "Site web",
+      "category": "GothamTech"
     }
   ]
 };
